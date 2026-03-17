@@ -599,7 +599,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
           <!-- RO/Thromde field (hidden by default) -->
           <div class="field-wrap" id="roThromdeField" style="display:none;">
             <label>Regional Office (RO) / Thromde</label>
-            <select id="fRO"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+            <select id="fROForm"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
           </div>
         </div>
       </div>
@@ -1739,17 +1739,27 @@ function saveEntry(){
   if(!currentUser||!currentUser.isAdmin){alert('Access Denied: Only administrators can add inspection entries.');return;}
   const proj=document.getElementById('fProjectName').value.trim();
   const cont=document.getElementById('fContractor').value.trim();
-  const dz=document.getElementById('fDzongkhag').value;
-  const ro=document.getElementById('fRO').value;
   const dt=document.getElementById('fDateInspected').value;
   const insp=document.getElementById('fInspector').value.trim();
   const def=document.getElementById('fDefect').value;
-  if(!proj||!dz||!ro||!dt||!insp||!def){alert('Please fill all required fields (*).'); return;}
+
+  // Determine which location type is active (Dzongkhag or RO/Thromde)
+  const locType = document.querySelector('input[name="locType"]:checked')?.value || 'dzongkhag';
+  const dz  = locType === 'dzongkhag' ? document.getElementById('fDzongkhag').value : '';
+  const ro  = locType === 'rothromde' ? document.getElementById('fROForm').value   : '';
+  const loc = dz || ro; // whichever is active
+
+  // Validate — location only needs ONE of dz or ro depending on toggle
+  if(!proj){alert('Please enter the Project Name.'); return;}
+  if(!loc){alert('Please select a ' + (locType==='dzongkhag' ? 'Dzongkhag' : 'RO / Thromde') + '.'); return;}
+  if(!dt){alert('Please select the Date Inspected.'); return;}
+  if(!insp){alert('Please enter the Inspector Name.'); return;}
+  if(!def){alert('Please select whether a Defect was Found.'); return;}
   const entry={
     sn:inspections.length+1,projectName:proj,
     contractNo:document.getElementById('fContractNo').value.trim(),
     roadSection:document.getElementById('fRoadSection').value.trim(),
-    contractor:cont,dzongkhag:dz,ro,
+    contractor:cont,dzongkhag:dz,ro:ro,
     workType:document.getElementById('fWorkType').value,
     workItem:document.getElementById('fWorkItem').value.trim(),
     dateInspected:dt,defect:def,
@@ -1775,7 +1785,10 @@ function saveEntry(){
 function clearForm(){
   ['fProjectName','fContractNo','fRoadSection','fContractor','fWorkItem','fDateInspected','fInspector',
    'fDefectDesc','fAction','fTest','fReqVal','fResult','fRemarks','fATRDeadline'].forEach(id=>document.getElementById(id).value='');
-  ['fDzongkhag','fRO','fWorkType','fDefect','fMOITRef','fPassFail'].forEach(id=>document.getElementById(id).selectedIndex=0);
+  ['fDzongkhag','fROForm','fWorkType','fDefect','fMOITRef','fPassFail'].forEach(id=>document.getElementById(id).selectedIndex=0);
+  // Reset location toggle back to Dzongkhag
+  const dzRadio = document.querySelector('input[name="locType"][value="dzongkhag"]');
+  if(dzRadio){dzRadio.checked=true; toggleLocType('dzongkhag');}
   document.getElementById('qcResultPanel').classList.remove('show');
 }
 
@@ -2471,7 +2484,7 @@ function toggleLocType(type) {
   if (type === 'dzongkhag') {
     dzF.style.display = '';
     roF.style.display = 'none';
-    document.getElementById('fRO').selectedIndex = 0;
+    document.getElementById('fROForm').selectedIndex = 0;
   } else {
     dzF.style.display = 'none';
     roF.style.display = '';
