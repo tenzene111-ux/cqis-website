@@ -752,19 +752,200 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 
     <!-- ANALYTICS -->
     <div id="tab-analytics" style="display:none">
-      <div class="section-header"><div><div class="section-title">ANALYTICS</div><div class="section-badge">Inspection trend charts — auto-updated</div></div></div>
+      <div class="section-header">
+        <div><div class="section-title">ANALYTICS</div><div class="section-badge">Inspection trends, quality metrics &amp; financial overview</div></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-primary" style="padding:9px 18px;font-size:13px;" onclick="printAnalytics()">🖨️ Print / Export Report</button>
+        </div>
+      </div>
+
+      <!-- ANALYTICS FILTERS -->
+      <div class="filters" style="margin-bottom:20px;" id="analyticsFilters">
+        <span class="filter-label">🔍 FILTER BY:</span>
+        <select class="filter-select" id="aYear" onchange="renderCharts()">
+          <option value="">All Years</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+        </select>
+        <select class="filter-select" id="aMonth" onchange="renderCharts()">
+          <option value="">All Months</option>
+          <option>January</option><option>February</option><option>March</option>
+          <option>April</option><option>May</option><option>June</option>
+          <option>July</option><option>August</option><option>September</option>
+          <option>October</option><option>November</option><option>December</option>
+        </select>
+        <select class="filter-select" id="aDzong" onchange="renderCharts()">
+          <option value="">All Dzongkhags</option>
+          <option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option>
+          <option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option>
+          <option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option>
+          <option>Samtse</option><option>Sarpang</option><option>Thimphu</option>
+          <option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option>
+          <option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option>
+        </select>
+        <select class="filter-select" id="aRO" onchange="renderCharts()">
+          <option value="">All RO / Thromde</option>
+          <option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option>
+          <option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option>
+          <option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option>
+          <option>Thimphu Thromde</option><option>Phuentshogling Thromde</option>
+          <option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option>
+        </select>
+        <button class="btn-secondary" style="padding:7px 14px;font-size:12px;" onclick="clearAnalyticsFilters()">✕ Clear</button>
+        <span id="aFilterLabel" style="font-size:11px;color:var(--accent3);margin-left:4px;font-style:italic;"></span>
+      </div>
+
+      <!-- KPI SUMMARY PILLS -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;" id="analyticsKPI">
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--accent2);">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Total Inspected</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;" id="aKpi1">0</div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--red);">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Defects Found</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:var(--red);" id="aKpi2">0</div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--green);">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Tests Passed</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:var(--green);" id="aKpi3">0</div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--gold);">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Pass Rate</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:var(--gold);" id="aKpi4">—</div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--orange);">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">ATR Overdue</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:var(--orange);" id="aKpi5">0</div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 1 -->
       <div class="analytics-grid">
         <div class="chart-card"><div class="chart-title">📅 Monthly Inspection Trend</div><canvas id="chartMonthly" height="220"></canvas></div>
         <div class="chart-card"><div class="chart-title">🔵 Pass vs Fail Tests</div><canvas id="chartPassFail" height="220"></canvas></div>
       </div>
+
+      <!-- CHARTS ROW 2 -->
       <div class="analytics-grid">
         <div class="chart-card"><div class="chart-title">📍 Inspections by Dzongkhag</div><canvas id="chartDzong" height="260"></canvas></div>
         <div class="chart-card"><div class="chart-title">🏢 Inspections by RO / Thromde</div><canvas id="chartRO" height="260"></canvas></div>
       </div>
-      <div class="analytics-table table-card" style="margin-top:0;">
-        <div class="breakdown-title" style="padding:14px 16px;">📊 Summary Table</div>
-        <table class="data-table"><thead><tr><th>Month</th><th>Inspected</th><th>Defects</th><th>Passed</th><th>Pass Rate%</th></tr></thead><tbody id="analyticsMonthBody"></tbody></table>
+
+      <!-- MONTHLY SUMMARY TABLE -->
+      <div class="analytics-table table-card" style="margin-bottom:20px;">
+        <div class="table-toolbar">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text2);">📊 Monthly Summary</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Month</th><th>Year</th><th>Inspected</th><th>Defects</th><th>Passed</th><th>Failed</th><th>Pass Rate</th></tr></thead>
+            <tbody id="analyticsMonthBody"></tbody>
+          </table>
+        </div>
       </div>
+
+      <!-- YEARLY SUMMARY TABLE -->
+      <div class="analytics-table table-card" style="margin-bottom:20px;">
+        <div class="table-toolbar">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text2);">📆 Yearly Summary</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Year</th><th>Inspected</th><th>Defects</th><th>Passed</th><th>Failed</th><th>Pass Rate</th><th>ATR Overdue</th></tr></thead>
+            <tbody id="analyticsYearBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== FINANCIAL REPORT SECTION ===== -->
+      <div style="margin-top:8px;margin-bottom:16px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;border-left:4px solid var(--gold);padding-left:12px;color:var(--gold2);">
+          💰 Financial Overview
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px;padding-left:16px;">Budget & contract amounts from Inspection Data and Project Updates — filtered by current selection</div>
+      </div>
+
+      <!-- FINANCIAL KPI PILLS -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--gold);">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Total Approved Budget</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--gold2);" id="fKpi1">Nu. 0</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px;">From Project Updates</div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--accent2);">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Total Contract Amount</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent3);" id="fKpi2">Nu. 0</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px;">From Project Updates</div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--green);">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Budget Utilisation</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--green);" id="fKpi3">—</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px;">Contract ÷ Approved</div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--orange);">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Projects with Budget</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--orange);" id="fKpi4">0</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px;">Entries with data</div>
+        </div>
+      </div>
+
+      <!-- FINANCIAL CHART -->
+      <div class="analytics-grid" style="margin-bottom:20px;">
+        <div class="chart-card">
+          <div class="chart-title">💰 Budget vs Contract Amount by Project</div>
+          <canvas id="chartFinancial" height="260"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">📆 Yearly Financial Summary</div>
+          <canvas id="chartFinYear" height="260"></canvas>
+        </div>
+      </div>
+
+      <!-- FINANCIAL TABLE — BY PROJECT (from Project Updates) -->
+      <div class="table-card" style="margin-bottom:20px;">
+        <div class="table-toolbar">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text2);">📋 Financial Detail — Project Updates Register</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Project Name</th><th>Location</th>
+                <th>Approved Budget (Nu.)</th><th>Contract Amount (Nu.)</th>
+                <th>Variance (Nu.)</th><th>Utilisation %</th><th>Updated Date</th>
+              </tr>
+            </thead>
+            <tbody id="finProjBody"></tbody>
+          </table>
+          <div id="finProjEmpty" style="text-align:center;padding:24px;color:var(--text3);font-size:12px;display:none;">No financial data from Project Updates yet.</div>
+        </div>
+        <!-- Totals row -->
+        <div style="background:var(--bg3);border-top:2px solid var(--border2);padding:10px 14px;display:flex;gap:32px;flex-wrap:wrap;">
+          <span style="font-size:12px;color:var(--text3);">TOTALS:</span>
+          <span style="font-size:12px;font-weight:700;color:var(--gold2);">Approved: <span id="finTotalBudget">Nu. 0</span></span>
+          <span style="font-size:12px;font-weight:700;color:var(--accent3);">Contract: <span id="finTotalContract">Nu. 0</span></span>
+          <span style="font-size:12px;font-weight:700;color:var(--green);">Variance: <span id="finTotalVariance">Nu. 0</span></span>
+        </div>
+      </div>
+
+      <!-- YEARLY FINANCIAL SUMMARY TABLE -->
+      <div class="table-card" style="margin-bottom:20px;">
+        <div class="table-toolbar">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text2);">📆 Yearly Financial Breakdown</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Year</th><th>Projects</th><th>Total Approved Budget</th><th>Total Contract Amount</th><th>Total Variance</th><th>Avg Utilisation %</th></tr>
+            </thead>
+            <tbody id="finYearBody"></tbody>
+          </table>
+          <div id="finYearEmpty" style="text-align:center;padding:24px;color:var(--text3);font-size:12px;display:none;">No yearly financial data yet.</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- REPORT -->
@@ -1643,32 +1824,241 @@ function markSubmitted(i){
 
 // ===== ANALYTICS =====
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const CC={bg:'rgba(37,99,235,0.7)',bg2:'rgba(59,130,246,0.5)',green:'rgba(16,185,129,0.7)',red:'rgba(239,68,68,0.7)',orange:'rgba(249,115,22,0.7)'};
+const YEARS=['2024','2025','2026','2027'];
+const CC={bg:'rgba(37,99,235,0.7)',bg2:'rgba(59,130,246,0.5)',green:'rgba(16,185,129,0.7)',red:'rgba(239,68,68,0.7)',orange:'rgba(249,115,22,0.7)',gold:'rgba(245,158,11,0.8)',gold2:'rgba(251,191,36,0.6)'};
+const DZ_NAMES=['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
+const RO_NAMES=['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'];
+
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+const fmtNu = v => 'Nu. ' + Number(v||0).toLocaleString('en-IN');
+const fmtPct = (a,b) => b>0 ? (a/b*100).toFixed(1)+'%' : '—';
+
+function getAnalyticsFiltered(){
+  const yr  = document.getElementById('aYear')?.value  || '';
+  const mo  = document.getElementById('aMonth')?.value || '';
+  const dz  = document.getElementById('aDzong')?.value || '';
+  const ro  = document.getElementById('aRO')?.value    || '';
+  // Update filter label
+  const parts=[];
+  if(yr) parts.push(yr);
+  if(mo) parts.push(mo);
+  if(dz) parts.push(dz);
+  if(ro) parts.push(ro);
+  const lbl = document.getElementById('aFilterLabel');
+  if(lbl) lbl.textContent = parts.length ? 'Showing: '+parts.join(' · ') : '';
+  return inspections.filter(r=>{
+    if(yr && getYear(r.dateInspected)!==yr) return false;
+    if(mo && r.month!==mo) return false;
+    if(dz && r.dzongkhag!==dz) return false;
+    if(ro && r.ro!==ro) return false;
+    return true;
+  });
+}
+
+function clearAnalyticsFilters(){
+  ['aYear','aMonth','aDzong','aRO'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  renderCharts();
+}
+
 function renderCharts(){
+  const fd = getAnalyticsFiltered();
+
+  // ---- KPI pills ----
+  const defects = fd.filter(r=>r.defect==='Yes');
+  const tests   = fd.filter(r=>r.passFailResult);
+  const passed  = tests.filter(r=>r.passFailResult==='Pass').length;
+  const failed  = tests.filter(r=>r.passFailResult==='Fail').length;
+  const overdue = defects.filter(r=>calcATRStatus(r)==='OVERDUE').length;
+  document.getElementById('aKpi1').textContent = fd.length;
+  document.getElementById('aKpi2').textContent = defects.length;
+  document.getElementById('aKpi3').textContent = passed;
+  document.getElementById('aKpi4').textContent = tests.length ? Math.round(passed/tests.length*100)+'%' : '—';
+  document.getElementById('aKpi5').textContent = overdue;
+
+  // ---- Monthly trend chart ----
   destroyChart('monthly');
-  const mCounts=MONTHS.map(m=>inspections.filter(r=>r.month===m).length);
-  const mDef=MONTHS.map(m=>inspections.filter(r=>r.month===m&&r.defect==='Yes').length);
+  const mCounts = MONTHS.map(m=>fd.filter(r=>r.month===m).length);
+  const mDef    = MONTHS.map(m=>fd.filter(r=>r.month===m&&r.defect==='Yes').length);
   charts['monthly']=new Chart(document.getElementById('chartMonthly'),{type:'bar',data:{labels:MONTHS.map(m=>m.slice(0,3)),datasets:[{label:'Inspected',data:mCounts,backgroundColor:CC.bg,borderRadius:4},{label:'Defects',data:mDef,backgroundColor:CC.red,borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}}}}});
+
+  // ---- Pass/Fail doughnut ----
   destroyChart('pf');
-  const passed=inspections.filter(r=>r.passFailResult==='Pass').length;
-  const failed=inspections.filter(r=>r.passFailResult==='Fail').length;
-  charts['pf']=new Chart(document.getElementById('chartPassFail'),{type:'doughnut',data:{labels:['Pass','Fail','No Test'],datasets:[{data:[passed,failed,inspections.filter(r=>!r.passFailResult).length],backgroundColor:[CC.green,CC.red,'rgba(100,116,139,0.5)'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}}}});
+  charts['pf']=new Chart(document.getElementById('chartPassFail'),{type:'doughnut',data:{labels:['Pass','Fail','No Test'],datasets:[{data:[passed,failed,fd.filter(r=>!r.passFailResult).length],backgroundColor:[CC.green,CC.red,'rgba(100,116,139,0.5)'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}}}});
+
+  // ---- Dzongkhag bar ----
   destroyChart('dzong');
-  const dzNames=['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
-  charts['dzong']=new Chart(document.getElementById('chartDzong'),{type:'bar',data:{labels:dzNames,datasets:[{label:'Inspections',data:dzNames.map(d=>inspections.filter(r=>r.dzongkhag===d).length),backgroundColor:CC.bg2,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}}}}});
+  const dzData = DZ_NAMES.map(d=>fd.filter(r=>r.dzongkhag===d).length);
+  charts['dzong']=new Chart(document.getElementById('chartDzong'),{type:'bar',data:{labels:DZ_NAMES,datasets:[{label:'Inspections',data:dzData,backgroundColor:CC.bg2,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}}}}});
+
+  // ---- RO bar ----
   destroyChart('ro');
-  const roNames=['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'];
-  charts['ro']=new Chart(document.getElementById('chartRO'),{type:'bar',data:{labels:roNames,datasets:[{label:'Inspections',data:roNames.map(r=>inspections.filter(x=>x.ro===r).length),backgroundColor:CC.orange,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}}}}});
-  const tbody=document.getElementById('analyticsMonthBody');
-  tbody.innerHTML=MONTHS.map(m=>{
-    const rows=inspections.filter(r=>r.month===m);
-    const def=rows.filter(r=>r.defect==='Yes').length;
-    const tests=rows.filter(r=>r.passFailResult);
-    const pass=tests.filter(r=>r.passFailResult==='Pass').length;
-    const rate=tests.length?Math.round(pass/tests.length*100):0;
-    return `<tr><td>${m}</td><td>${rows.length}</td><td>${def}</td><td>${pass}</td><td>${rate}%</td></tr>`;
-  }).join('');
+  const roData = RO_NAMES.map(r=>fd.filter(x=>x.ro===r).length);
+  charts['ro']=new Chart(document.getElementById('chartRO'),{type:'bar',data:{labels:RO_NAMES,datasets:[{label:'Inspections',data:roData,backgroundColor:CC.orange,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}}}}});
+
+  // ---- Monthly summary table ----
+  const tbody = document.getElementById('analyticsMonthBody');
+  const activeYear = document.getElementById('aYear')?.value || '';
+  const yearsToShow = activeYear ? [activeYear] : YEARS;
+  let monthRows = '';
+  yearsToShow.forEach(yr=>{
+    MONTHS.forEach(m=>{
+      const rows = fd.filter(r=>r.month===m && getYear(r.dateInspected)===yr);
+      if(!rows.length) return;
+      const def  = rows.filter(r=>r.defect==='Yes').length;
+      const t    = rows.filter(r=>r.passFailResult);
+      const p    = t.filter(r=>r.passFailResult==='Pass').length;
+      const f    = t.filter(r=>r.passFailResult==='Fail').length;
+      const rate = t.length ? Math.round(p/t.length*100)+'%' : '—';
+      monthRows += `<tr><td>${m}</td><td>${yr}</td><td>${rows.length}</td><td style="color:var(--red)">${def}</td><td style="color:var(--green)">${p}</td><td style="color:var(--red)">${f}</td><td style="font-weight:700">${rate}</td></tr>`;
+    });
+  });
+  tbody.innerHTML = monthRows || `<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--text3);">No data for selected filters</td></tr>`;
+
+  // ---- Yearly summary table ----
+  const yrBody = document.getElementById('analyticsYearBody');
+  let yrRows = '';
+  YEARS.forEach(yr=>{
+    const rows = fd.filter(r=>getYear(r.dateInspected)===yr);
+    if(!rows.length) return;
+    const def  = rows.filter(r=>r.defect==='Yes').length;
+    const t    = rows.filter(r=>r.passFailResult);
+    const p    = t.filter(r=>r.passFailResult==='Pass').length;
+    const f    = t.filter(r=>r.passFailResult==='Fail').length;
+    const rate = t.length ? Math.round(p/t.length*100)+'%' : '—';
+    const ovd  = rows.filter(r=>r.defect==='Yes'&&calcATRStatus(r)==='OVERDUE').length;
+    yrRows += `<tr><td style="font-weight:700">${yr}</td><td>${rows.length}</td><td style="color:var(--red)">${def}</td><td style="color:var(--green)">${p}</td><td style="color:var(--red)">${f}</td><td style="font-weight:700">${rate}</td><td style="color:var(--orange)">${ovd}</td></tr>`;
+  });
+  yrBody.innerHTML = yrRows || `<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--text3);">No yearly data yet</td></tr>`;
+
+  // ---- FINANCIAL section ----
+  renderFinancials();
+}
+
+function renderFinancials(){
+  const aYear = document.getElementById('aYear')?.value || '';
+  const aDz   = document.getElementById('aDzong')?.value || '';
+  const aRO   = document.getElementById('aRO')?.value || '';
+
+  // Filter project updates by location filters
+  let puRows = projectUpdates.filter(r=>{
+    if(aDz && r.location!==aDz && r.locType==='dzongkhag') return false;
+    if(aRO && r.location!==aRO && r.locType==='rothromde') return false;
+    if(aDz && r.locType!=='dzongkhag') return false;
+    if(aRO && r.locType!=='rothromde') return false;
+    return true;
+  });
+  // If both filters empty, show all
+  if(!aDz && !aRO) puRows = [...projectUpdates];
+
+  // Filter by year (updatedDate)
+  if(aYear) puRows = puRows.filter(r=> r.updatedDate && getYear(r.updatedDate)===aYear);
+
+  const withBudget = puRows.filter(r=>r.approvedBudget||r.contractAmount);
+  const totalBudget   = withBudget.reduce((s,r)=>s+Number(r.approvedBudget||0),0);
+  const totalContract = withBudget.reduce((s,r)=>s+Number(r.contractAmount||0),0);
+  const totalVariance = totalBudget - totalContract;
+  const utilPct = totalBudget>0 ? (totalContract/totalBudget*100).toFixed(1)+'%' : '—';
+
+  // KPI pills
+  document.getElementById('fKpi1').textContent = fmtNu(totalBudget);
+  document.getElementById('fKpi2').textContent = fmtNu(totalContract);
+  document.getElementById('fKpi3').textContent = utilPct;
+  document.getElementById('fKpi4').textContent = withBudget.length;
+
+  // Financial project table
+  const fpBody = document.getElementById('finProjBody');
+  const fpEmpty = document.getElementById('finProjEmpty');
+  if(!withBudget.length){
+    fpBody.innerHTML=''; fpEmpty.style.display='';
+  } else {
+    fpEmpty.style.display='none';
+    fpBody.innerHTML = withBudget.map((r,i)=>{
+      const bud = Number(r.approvedBudget||0);
+      const con = Number(r.contractAmount||0);
+      const vari = bud - con;
+      const pct  = bud>0 ? (con/bud*100).toFixed(1)+'%' : '—';
+      const variColor = vari>=0 ? 'var(--green)' : 'var(--red)';
+      return `<tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${i+1}</td>
+        <td><strong>${r.projectName||'—'}</strong></td>
+        <td>${r.location||'—'}<br><span style="font-size:10px;color:var(--text3);">${r.locType==='dzongkhag'?'Dzongkhag':'RO/Thromde'}</span></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold2);">${bud?fmtNu(bud):'—'}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent3);">${con?fmtNu(con):'—'}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${variColor};">${bud&&con?fmtNu(vari):'—'}</td>
+        <td style="font-weight:700;color:${pct!=='—'&&parseFloat(pct)>100?'var(--red)':'var(--green)'};">${pct}</td>
+        <td>${r.updatedDate||'—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Totals row
+  document.getElementById('finTotalBudget').textContent   = fmtNu(totalBudget);
+  document.getElementById('finTotalContract').textContent = fmtNu(totalContract);
+  document.getElementById('finTotalVariance').textContent = fmtNu(totalVariance);
+
+  // Yearly financial table
+  const fyBody  = document.getElementById('finYearBody');
+  const fyEmpty = document.getElementById('finYearEmpty');
+  let fyRows = '';
+  const allYears = [...new Set(projectUpdates.map(r=>r.updatedDate?getYear(r.updatedDate):null).filter(Boolean))].sort();
+  allYears.forEach(yr=>{
+    const yRows = projectUpdates.filter(r=>r.updatedDate&&getYear(r.updatedDate)===yr&&(r.approvedBudget||r.contractAmount));
+    if(!yRows.length) return;
+    const yBud  = yRows.reduce((s,r)=>s+Number(r.approvedBudget||0),0);
+    const yCon  = yRows.reduce((s,r)=>s+Number(r.contractAmount||0),0);
+    const yVari = yBud - yCon;
+    const yPct  = yBud>0 ? (yCon/yBud*100).toFixed(1)+'%' : '—';
+    fyRows += `<tr>
+      <td style="font-weight:700;">${yr}</td>
+      <td>${yRows.length}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--gold2);">${fmtNu(yBud)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--accent3);">${fmtNu(yCon)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:${yVari>=0?'var(--green)':'var(--red)'};">${fmtNu(yVari)}</td>
+      <td style="font-weight:700;">${yPct}</td>
+    </tr>`;
+  });
+  if(!fyRows){fyBody.innerHTML='';fyEmpty.style.display='';}
+  else{fyEmpty.style.display='none';fyBody.innerHTML=fyRows;}
+
+  // Financial bar chart (top 8 projects)
+  destroyChart('financial');
+  const top8 = withBudget.slice(0,8);
+  if(top8.length){
+    charts['financial']=new Chart(document.getElementById('chartFinancial'),{
+      type:'bar',
+      data:{
+        labels:top8.map(r=>(r.projectName||'Project').substring(0,20)),
+        datasets:[
+          {label:'Approved Budget',data:top8.map(r=>Number(r.approvedBudget||0)),backgroundColor:CC.gold,borderRadius:4},
+          {label:'Contract Amount',data:top8.map(r=>Number(r.contractAmount||0)),backgroundColor:CC.bg,borderRadius:4}
+        ]
+      },
+      options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#64748b',font:{size:9}},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b',callback:v=>'Nu.'+Number(v).toLocaleString('en-IN')},grid:{color:'rgba(42,58,92,0.4)'}}}}
+    });
+  }
+
+  // Yearly financial bar chart
+  destroyChart('finYear');
+  if(allYears.length){
+    const fyBuds = allYears.map(yr=>projectUpdates.filter(r=>r.updatedDate&&getYear(r.updatedDate)===yr).reduce((s,r)=>s+Number(r.approvedBudget||0),0));
+    const fyCons = allYears.map(yr=>projectUpdates.filter(r=>r.updatedDate&&getYear(r.updatedDate)===yr).reduce((s,r)=>s+Number(r.contractAmount||0),0));
+    charts['finYear']=new Chart(document.getElementById('chartFinYear'),{
+      type:'bar',
+      data:{
+        labels:allYears,
+        datasets:[
+          {label:'Approved Budget',data:fyBuds,backgroundColor:CC.gold,borderRadius:4},
+          {label:'Contract Amount',data:fyCons,backgroundColor:CC.bg,borderRadius:4}
+        ]
+      },
+      options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b',callback:v=>'Nu.'+Number(v).toLocaleString('en-IN')},grid:{color:'rgba(42,58,92,0.4)'}}}}
+    });
+  }
+}
+
+function printAnalytics(){
+  if(!currentUser||(currentUser.isViewer)){alert('Print access is for Admins and Users only.');return;}
+  window.print();
 }
 
 // ===== REPORT =====
@@ -2157,6 +2547,8 @@ function savePUEntry() {
   savePU();
   closePUForm();
   renderPUTable();
+  // Refresh analytics financial section if it's been visited
+  if(document.getElementById('tab-analytics').style.display!=='none') renderFinancials();
   toast('Project update saved!');
 }
 
