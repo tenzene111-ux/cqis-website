@@ -1,0 +1,2388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Construction Quality Inspection System — OPMC/OCASC</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#0a0e17;--bg2:#0f1520;--bg3:#141c2e;--panel:#1a2340;
+  --border:#2a3a5c;--border2:#3a4f7a;--accent:#2563eb;--accent2:#3b82f6;
+  --accent3:#60a5fa;--gold:#f59e0b;--gold2:#fbbf24;--green:#10b981;
+  --red:#ef4444;--orange:#f97316;--text:#e2e8f0;--text2:#94a3b8;
+  --text3:#64748b;--glow:rgba(37,99,235,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* PARTICLES */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:1px;height:1px;background:var(--accent3);border-radius:50%;opacity:0;animation:drift linear infinite;}
+@keyframes drift{0%{opacity:0;transform:translateY(100vh) scale(0);}10%{opacity:.6;}90%{opacity:.2;}100%{opacity:0;transform:translateY(-10px) scale(1);}}
+
+/* LOGIN PAGE */
+#loginPage{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(37,99,235,0.12) 0%,transparent 70%);}
+.login-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:.3;}
+.login-card{position:relative;z-index:1;width:480px;background:var(--panel);border:1px solid var(--border2);border-radius:16px;padding:48px;box-shadow:0 0 80px rgba(37,99,235,0.2),0 0 0 1px rgba(255,255,255,.04) inset;}
+.login-logo{text-align:center;margin-bottom:32px;}
+.login-emblem{width:80px;height:80px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 20px rgba(37,99,235,.5));}
+.login-emblem svg{width:80px;height:80px;}
+.login-org{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;}
+.login-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--text);letter-spacing:1px;}
+.login-sub{font-size:12px;color:var(--text3);margin-top:4px;}
+.field-group{margin-bottom:20px;}
+.field-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;display:block;}
+.field-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-size:14px;font-family:'Source Sans 3',sans-serif;outline:none;transition:all .2s;}
+.field-input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px var(--glow);}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;padding:14px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:8px;}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 30px var(--glow);}
+.login-divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.login-divider span{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.btn-google{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-size:14px;font-family:'Source Sans 3',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;}
+.btn-google:hover{border-color:var(--border2);background:var(--panel);}
+.btn-google svg{width:18px;height:18px;flex-shrink:0;}
+.login-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-bottom:16px;display:none;}
+.users-demo{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-top:20px;font-size:12px;color:var(--text3);}
+.users-demo strong{color:var(--text2);font-family:'JetBrains Mono',monospace;}
+
+/* MAIN APP */
+#app{display:none;min-height:100vh;position:relative;z-index:1;}
+
+/* HEADER */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.header-left{display:flex;align-items:center;gap:16px;}
+.header-emblem{width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
+.header-emblem svg{width:36px;height:36px;}
+.header-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:1px;}
+.header-sub{font-size:11px;color:var(--text3);letter-spacing:1px;}
+.header-right{display:flex;align-items:center;gap:16px;}
+.user-badge{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:6px 14px;}
+.user-avatar{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--gold));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;overflow:hidden;}
+.user-avatar img{width:100%;height:100%;border-radius:6px;object-fit:cover;}
+.user-name{font-size:13px;font-weight:600;}
+.user-role{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+.btn-logout{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text3);font-size:12px;cursor:pointer;transition:all .2s;}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+
+/* NAV */
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 24px;gap:4px;overflow-x:auto;}
+.nav-tab{background:none;border:none;border-bottom:2px solid transparent;padding:12px 16px;color:var(--text3);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;letter-spacing:.5px;white-space:nowrap;}
+.nav-tab:hover{color:var(--text2);}
+.nav-tab.active{color:var(--accent3);border-bottom-color:var(--accent2);}
+
+/* MAIN */
+.main{padding:24px;max-width:1400px;margin:0 auto;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:1px;}
+.section-badge{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:28px;}
+.kpi-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-card.blue::before{background:linear-gradient(90deg,var(--accent),var(--accent3));}
+.kpi-card.gold::before{background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.kpi-card.green::before{background:linear-gradient(90deg,var(--green),#34d399);}
+.kpi-card.red::before{background:linear-gradient(90deg,var(--red),#f87171);}
+.kpi-card.orange::before{background:linear-gradient(90deg,var(--orange),#fb923c);}
+.kpi-card.purple::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa);}
+.kpi-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+.kpi-value{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;line-height:1;}
+.kpi-icon{position:absolute;right:16px;top:16px;font-size:24px;opacity:.2;}
+
+/* FILTERS */
+.filters{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.filter-label{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.filter-select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 12px;color:var(--text);font-size:13px;cursor:pointer;outline:none;}
+.filter-select:focus{border-color:var(--accent2);}
+
+/* TABLES */
+.breakdown-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;}
+.breakdown-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.breakdown-title{padding:14px 16px;border-bottom:1px solid var(--border);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text2);}
+.breakdown-table{width:100%;font-size:12px;}
+.breakdown-table th{padding:8px 12px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);}
+.breakdown-table td{padding:8px 12px;border-bottom:1px solid rgba(42,58,92,0.5);}
+.breakdown-table tr:last-child td{border-bottom:none;}
+.breakdown-table tr:hover td{background:rgba(37,99,235,.06);}
+.table-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.table-toolbar{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.table-search{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;width:260px;outline:none;}
+.table-search:focus{border-color:var(--accent2);}
+.data-table{width:100%;font-size:12px;border-collapse:collapse;}
+.data-table th{padding:10px 12px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap;}
+.data-table td{padding:10px 12px;border-bottom:1px solid rgba(42,58,92,0.4);vertical-align:top;}
+.data-table tr:hover td{background:rgba(37,99,235,.05);}
+.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.badge-yes{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.badge-no{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+.badge-pass{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+.badge-fail{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.badge-overdue{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.badge-due{background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);}
+.badge-pending{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);}
+.badge-submitted{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+.badge-na{background:rgba(100,116,139,.15);color:#94a3b8;border:1px solid rgba(100,116,139,.3);}
+.empty-state{text-align:center;padding:48px;color:var(--text3);}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-section{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;}
+.form-section-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.form-section-title::before{content:'';width:4px;height:16px;background:var(--accent);border-radius:2px;}
+.field-wrap{display:flex;flex-direction:column;gap:6px;}
+.field-wrap label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);}
+.field-wrap input,.field-wrap select,.field-wrap textarea{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'Source Sans 3',sans-serif;outline:none;transition:all .2s;}
+.field-wrap input:focus,.field-wrap select:focus,.field-wrap textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 3px var(--glow);}
+.field-wrap textarea{resize:vertical;min-height:80px;}
+.form-actions{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;padding:12px 24px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px var(--glow);}
+.btn-secondary{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 24px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--border2);}
+.btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px 24px;color:#f87171;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.form-success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:#34d399;display:none;margin-bottom:16px;}
+
+/* QC RESULT PANEL */
+.qc-result-panel{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-top:20px;display:none;}
+.qc-result-panel.show{display:block;}
+.qc-result-header{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.qc-result-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(42,58,92,.4);}
+.qc-result-row:last-child{border-bottom:none;}
+.qc-param{flex:1;font-size:13px;color:var(--text2);}
+.qc-required{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.qc-badge{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+.qc-badge.pass{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+.qc-badge.fail{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.qc-badge.na{background:rgba(100,116,139,.15);color:#94a3b8;border:1px solid rgba(100,116,139,.3);}
+.qc-overall{margin-top:16px;padding:16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-align:center;}
+.qc-overall.pass{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#34d399;}
+.qc-overall.fail{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;}
+
+/* ATR */
+.atr-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.atr-stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
+.atr-stat-val{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;}
+.atr-stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:4px;}
+
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+.chart-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.chart-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text2);margin-bottom:16px;}
+/* ATR LOGIN POPUP MODAL */
+.atr-login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeInBg .25s ease;}
+@keyframes fadeInBg{from{opacity:0;}to{opacity:1;}}
+.atr-login-modal{background:var(--panel);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:600px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(239,68,68,.2),0 0 0 1px rgba(255,255,255,.04) inset;animation:slideUp .3s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.atr-lm-header{padding:22px 26px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.atr-lm-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:10px;}
+.atr-lm-sub{font-size:12px;color:var(--text3);margin-top:4px;letter-spacing:.5px;}
+.atr-lm-body{overflow-y:auto;padding:18px 26px;flex:1;}
+.atr-lm-footer{padding:14px 26px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;}
+.atr-row{display:flex;align-items:stretch;gap:0;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
+.atr-row:hover{border-color:var(--border2);}
+.atr-row-bar{width:5px;flex-shrink:0;}
+.atr-row-bar.overdue{background:var(--red);}
+.atr-row-bar.due-soon{background:var(--orange);}
+.atr-row-bar.pending{background:var(--text3);}
+.atr-row-content{padding:12px 14px;flex:1;min-width:0;}
+.atr-row-project{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.atr-row-meta{font-size:11px;color:var(--text3);margin-top:3px;}
+.atr-row-right{padding:12px 14px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:4px;}
+.atr-days-badge{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.atr-days-badge.overdue{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.atr-days-badge.due-soon{background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);}
+.atr-days-badge.pending{background:rgba(100,116,139,.12);color:#94a3b8;border:1px solid rgba(100,116,139,.2);}
+.atr-lm-empty{text-align:center;padding:36px 20px;color:var(--text3);}
+.atr-lm-stats{display:flex;gap:10px;margin-bottom:18px;}
+.atr-stat-pill{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center;}
+.atr-stat-pill .val{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;line-height:1;}
+.atr-stat-pill .lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-top:2px;}
+
+/* DUE DATE POPUP */
+.due-popup{position:fixed;top:80px;right:24px;z-index:999;background:var(--panel);border:1px solid var(--orange);border-radius:14px;padding:20px 22px;width:340px;box-shadow:0 8px 40px rgba(249,115,22,.25);display:none;animation:slideInRight .3s ease;}
+.due-popup.show{display:block;}
+@keyframes slideInRight{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+.due-popup-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;color:var(--orange);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.due-popup-item{font-size:12px;color:var(--text2);padding:6px 0;border-bottom:1px solid rgba(249,115,22,.15);display:flex;justify-content:space-between;align-items:center;}
+.due-popup-item:last-child{border-bottom:none;}
+.due-popup-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;}
+
+/* FOCAL EMAIL TAG */
+.focal-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.35);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--accent3);}
+.focal-tag button{background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;padding:0;line-height:1;}
+.focal-tag button:hover{color:var(--red);}
+
+.analytics-table{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+
+/* REPORT */
+.report-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:32px;max-width:900px;}
+.report-header{border-bottom:2px solid var(--border2);padding-bottom:20px;margin-bottom:24px;text-align:center;}
+.report-gov{font-size:13px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.report-org{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin:6px 0 2px;}
+.report-doc-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;margin-top:16px;color:var(--accent3);}
+.report-date{font-size:12px;color:var(--text3);margin-top:4px;}
+.report-section{margin-bottom:28px;}
+.report-section-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:16px;}
+.report-summary-table{width:100%;border-collapse:collapse;font-size:13px;}
+.report-summary-table td{padding:8px 12px;border-bottom:1px solid rgba(42,58,92,.4);}
+.report-summary-table td:first-child{color:var(--text3);}
+.report-summary-table td:last-child{font-weight:600;font-family:'JetBrains Mono',monospace;}
+.report-sign{display:flex;justify-content:space-between;padding-top:40px;border-top:1px solid var(--border);margin-top:32px;}
+.sign-block{text-align:center;}
+.sign-line{border-top:1px solid var(--text3);width:200px;margin:0 auto 8px;}
+.sign-label{font-size:11px;color:var(--text3);}
+.btn-print{background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;}
+
+/* SBRW QC TOOL TAB */
+.sbrw-wrap{display:flex;min-height:calc(100vh - 120px);gap:0;}
+.sbrw-sidebar{width:240px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;}
+.sbrw-sh{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:10px 18px 4px;}
+.sbrw-si{display:flex;align-items:center;gap:7px;padding:7px 18px;cursor:pointer;font-size:12px;color:var(--text3);border-left:3px solid transparent;transition:all .12s;}
+.sbrw-si:hover{background:var(--bg3);color:var(--text);}
+.sbrw-si.active{border-left-color:var(--gold);background:var(--bg3);color:var(--gold);}
+.sbrw-badge{margin-left:auto;font-size:10px;font-family:'JetBrains Mono',monospace;background:var(--border);padding:1px 5px;border-radius:10px;color:var(--text3);}
+.sbrw-main{flex:1;padding:24px;overflow-y:auto;}
+.sbrw-stp{font-size:18px;font-weight:700;color:var(--gold);font-family:'Rajdhani',sans-serif;margin-bottom:4px;letter-spacing:.02em;}
+.sbrw-sts{font-size:12px;color:var(--text3);margin-bottom:16px;}
+.sbrw-sp{display:none;}.sbrw-sp.active{display:block;}
+.sbrw-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;overflow:hidden;}
+.sbrw-card.fp{border-color:var(--red);}.sbrw-card.pp{border-color:var(--green);}
+.sbrw-ch{padding:11px 16px;background:var(--bg3);display:flex;align-items:center;gap:10px;cursor:pointer;}
+.sbrw-cc{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--border);padding:2px 7px;border-radius:3px;color:var(--gold);flex-shrink:0;}
+.sbrw-cn{font-size:13px;font-weight:600;flex:1;}
+.sbrw-cs{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);}
+.sbrw-ct{color:var(--text3);font-size:12px;transition:transform .2s;}.sbrw-ct.open{transform:rotate(180deg);}
+.sbrw-cb{padding:14px 16px;display:none;}.sbrw-cb.open{display:block;}
+.sbrw-cd{font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.6;}
+.sbrw-tt{width:100%;border-collapse:collapse;}
+.sbrw-tt th{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:5px 9px;text-align:left;border-bottom:1px solid var(--border);font-weight:600;}
+.sbrw-tt td{padding:6px 9px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.sbrw-tt tr:last-child td{border-bottom:none;}
+.sbrw-tt tr:hover td{background:rgba(255,255,255,.02);}
+.sbrw-pn{font-weight:600;}
+.sbrw-rs{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);}
+.sbrw-rv{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);}
+.sbrw-ti{background:var(--bg);border:1.5px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 8px;width:100px;transition:border-color .2s;}
+.sbrw-ti:focus{outline:none;border-color:var(--gold);}
+.sbrw-ti.pass{border-color:var(--green);}.sbrw-ti.fail{border-color:var(--red);}
+.sbrw-rb{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:3px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;min-width:65px;justify-content:center;}
+.sbrw-rb.pass{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3);}
+.sbrw-rb.fail{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+.sbrw-rb.pending{background:rgba(255,255,255,.05);color:var(--text3);border:1px solid var(--border);}
+.sbrw-sumbar{background:var(--bg2);border-top:2px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;position:sticky;bottom:0;z-index:10;}
+.sbrw-ss{display:flex;align-items:center;gap:7px;}
+.sbrw-sv{font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.sbrw-sv.pass{color:var(--green);}.sbrw-sv.fail{color:var(--red);}.sbrw-sv.warn{color:var(--orange);}
+.sbrw-sl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+.btn-gold{background:var(--gold);color:#000;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;transition:all .15s;}
+.btn-gold:hover{background:var(--gold2);}
+
+/* REPORT MODAL */
+#sbrw-rp{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;}
+#sbrw-rp.open{display:flex;}
+.sbrw-rm{background:var(--panel);border:1.5px solid var(--gold);border-radius:10px;width:92%;max-width:820px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;}
+.sbrw-rmh{padding:16px 22px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sbrw-rmb{padding:20px 22px;overflow-y:auto;flex:1;}
+#sbrw-rc{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;color:var(--text);}
+
+/* INSTRUCTIONS */
+.instructions-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.inst-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px;}
+.inst-card-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent3);margin-bottom:10px;}
+.inst-card-body{font-size:13px;color:var(--text2);line-height:1.6;}
+.moit-ref{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;margin-top:16px;}
+
+/* MISC */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--green);border-radius:10px;padding:14px 20px;font-size:13px;color:var(--text);display:none;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+.toast.show{display:flex;align-items:center;gap:8px;}
+.action-btn{background:none;border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:10px;color:var(--text3);cursor:pointer;transition:all .15s;}
+.action-btn:hover{border-color:var(--accent2);color:var(--accent3);}
+.action-btn.del:hover{border-color:var(--red);color:var(--red);}
+.no-data{text-align:center;padding:40px;color:var(--text3);font-size:13px;}
+@media print{.header,.nav,.filters,.form-actions,.btn-print{display:none!important;}body{background:#fff;color:#000;}.report-card{border:none;padding:0;}}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+
+<!-- HIGHWAY SVG ICON definition (reusable) -->
+<svg style="display:none" id="hwySvgDef">
+  <symbol id="highway-icon" viewBox="0 0 100 100">
+    <rect x="38" y="0" width="24" height="100" fill="#334155" rx="2"/>
+    <rect x="44" y="5" width="4" height="12" fill="#f59e0b" rx="1"/>
+    <rect x="44" y="25" width="4" height="12" fill="#f59e0b" rx="1"/>
+    <rect x="44" y="45" width="4" height="12" fill="#f59e0b" rx="1"/>
+    <rect x="44" y="65" width="4" height="12" fill="#f59e0b" rx="1"/>
+    <rect x="44" y="85" width="4" height="12" fill="#f59e0b" rx="1"/>
+    <path d="M38 0 Q20 40 5 100 L38 100 Z" fill="#475569" rx="2"/>
+    <path d="M62 0 Q80 40 95 100 L62 100 Z" fill="#475569" rx="2"/>
+    <line x1="15" y1="80" x2="30" y2="80" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="70" y1="80" x2="85" y2="80" stroke="#94a3b8" stroke-width="2"/>
+    <circle cx="50" cy="12" r="10" fill="none" stroke="#2563eb" stroke-width="3"/>
+    <text x="50" y="17" text-anchor="middle" font-size="12" font-weight="700" fill="#2563eb" font-family="Arial">H</text>
+  </symbol>
+</svg>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+  <div class="login-bg"></div>
+  <div class="login-grid"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-emblem">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect x="35" y="0" width="30" height="100" fill="#1e3a5f" rx="3"/>
+          <rect x="42" y="6" width="5" height="14" fill="#f59e0b" rx="1"/>
+          <rect x="42" y="28" width="5" height="14" fill="#f59e0b" rx="1"/>
+          <rect x="42" y="50" width="5" height="14" fill="#f59e0b" rx="1"/>
+          <rect x="42" y="72" width="5" height="14" fill="#f59e0b" rx="1"/>
+          <path d="M35 0 Q15 45 2 100 L35 100 Z" fill="#2d4a6b" rx="2"/>
+          <path d="M65 0 Q85 45 98 100 L65 100 Z" fill="#2d4a6b" rx="2"/>
+          <line x1="10" y1="78" x2="28" y2="78" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="72" y1="78" x2="90" y2="78" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="50" cy="14" r="13" fill="#1a2340" stroke="#2563eb" stroke-width="2.5"/>
+          <text x="50" y="19" text-anchor="middle" font-size="13" font-weight="700" fill="#60a5fa" font-family="Arial,sans-serif">H</text>
+        </svg>
+      </div>
+      <div class="login-org">Government of Bhutan · OPMC / OCASC</div>
+      <div class="login-title">CONSTRUCTION QUALITY INSPECTION</div>
+      <div class="login-sub">Construction Quality Division — SBRW 2025 · MOIT Standard</div>
+    </div>
+    <div class="login-error" id="loginError"></div>
+
+    <!-- Login type tabs -->
+    <div style="display:flex;gap:0;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:22px;">
+      <button id="ltab-admin" onclick="switchLoginTab('admin')"
+        style="flex:1;padding:8px;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;background:linear-gradient(135deg,var(--accent),#1d4ed8);color:#fff;">
+        ⚙️ ADMIN
+      </button>
+      <button id="ltab-user" onclick="switchLoginTab('user')"
+        style="flex:1;padding:8px;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;background:none;color:var(--text3);">
+        👤 USER
+      </button>
+      <button id="ltab-google" onclick="switchLoginTab('google')"
+        style="flex:1;padding:8px;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;background:none;color:var(--text3);">
+        🔍 VIEWER
+      </button>
+    </div>
+
+    <!-- ADMIN LOGIN PANEL -->
+    <div id="lpanel-admin">
+      <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+        <span>⚙️</span> Administrator — full access to all features, data, and settings.
+      </div>
+      <div class="field-group">
+        <label class="field-label">Email Address</label>
+        <input class="field-input" id="adminEmail" type="email" placeholder="admin@example.com"
+          onkeydown="if(event.key==='Enter')doAdminLogin()">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <div style="position:relative;">
+          <input class="field-input" id="adminPass" type="password" placeholder="Enter admin password"
+            style="padding-right:44px;" onkeydown="if(event.key==='Enter')doAdminLogin()">
+          <button onclick="togglePw('adminPass',this)" tabindex="-1"
+            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;">👁</button>
+        </div>
+      </div>
+      <button class="btn-login" onclick="doAdminLogin()">⚙️ SIGN IN AS ADMIN</button>
+    </div>
+
+    <!-- USER LOGIN PANEL -->
+    <div id="lpanel-user" style="display:none;">
+      <div style="background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent3);margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+        <span>👤</span> User — can add project updates and print saved test reports.
+      </div>
+      <div class="field-group">
+        <label class="field-label">Full Name</label>
+        <input class="field-input" id="userName2" type="text" placeholder="Your name"
+          onkeydown="if(event.key==='Enter')doUserLogin()">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <div style="position:relative;">
+          <input class="field-input" id="userPass" type="password" placeholder="Enter user password"
+            style="padding-right:44px;" onkeydown="if(event.key==='Enter')doUserLogin()">
+          <button onclick="togglePw('userPass',this)" tabindex="-1"
+            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;">👁</button>
+        </div>
+      </div>
+      <button class="btn-login" style="background:linear-gradient(135deg,var(--accent2),#1d4ed8);" onclick="doUserLogin()">👤 SIGN IN AS USER</button>
+    </div>
+
+    <!-- GOOGLE / VIEWER PANEL -->
+    <div id="lpanel-google" style="display:none;">
+      <div style="background:rgba(100,116,139,.07);border:1px solid rgba(100,116,139,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text2);margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+        <span>👁</span> Viewer — read-only access. Can view all data and print reports.
+      </div>
+      <button class="btn-google" id="googleSignInBtn" onclick="handleGoogleSignIn()">
+        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Sign in with Google (View Only)
+      </button>
+      <div style="margin-top:14px;font-size:11px;color:var(--text3);text-align:center;">Any Google account can sign in as Viewer.</div>
+    </div>
+
+    <!-- Access levels legend -->
+    <div style="margin-top:22px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">Access Levels</div>
+      <div style="font-size:12px;color:var(--text2);display:flex;flex-direction:column;gap:6px;">
+        <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:8px;"></span><strong style="color:var(--text);">Admin</strong> — Full access: add, edit, delete inspections &amp; all data</div>
+        <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent2);margin-right:8px;"></span><strong style="color:var(--text);">User</strong> — Add project updates &amp; print saved test reports</div>
+        <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--text3);margin-right:8px;"></span><strong style="color:var(--text);">Viewer</strong> — Read-only: view all data, print reports</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-emblem">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect x="35" y="0" width="30" height="100" fill="#1e3a5f" rx="3"/>
+          <rect x="42" y="6" width="5" height="14" fill="#f59e0b" rx="1"/>
+          <rect x="42" y="28" width="5" height="14" fill="#f59e0b" rx="1"/>
+          <rect x="42" y="50" width="5" height="14" fill="#f59e0b" rx="1"/>
+          <rect x="42" y="72" width="5" height="14" fill="#f59e0b" rx="1"/>
+          <path d="M35 0 Q15 45 2 100 L35 100 Z" fill="#2d4a6b" rx="2"/>
+          <path d="M65 0 Q85 45 98 100 L65 100 Z" fill="#2d4a6b" rx="2"/>
+          <line x1="10" y1="78" x2="28" y2="78" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="72" y1="78" x2="90" y2="78" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="50" cy="14" r="13" fill="#1a2340" stroke="#2563eb" stroke-width="2.5"/>
+          <text x="50" y="19" text-anchor="middle" font-size="13" font-weight="700" fill="#60a5fa" font-family="Arial,sans-serif">H</text>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">CONSTRUCTION QUALITY INSPECTION</div>
+        <div class="header-sub">OPMC / OCASC — Construction Quality Division · SBRW 2025</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="user-badge">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div>
+          <div class="user-name" id="userName">User</div>
+          <div class="user-role" id="userRole">Loading…</div>
+        </div>
+        <div id="userRoleBadge" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;margin-left:4px;"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:5px 12px;">
+        <span style="font-size:14px;">📞</span>
+        <div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);">Helpline</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--green);">17947300</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-tab active" onclick="showTab('dashboard',this)">🏗️ Dashboard</button>
+    <button class="nav-tab" onclick="showTab('data',this)">📋 Inspection Data</button>
+    <button class="nav-tab" onclick="showTab('entry',this)" id="entryTabBtn">➕ New Entry</button>
+    <button class="nav-tab" onclick="showTab('qc',this)">🔬 SBRW QC Tool</button>
+    <button class="nav-tab" onclick="showTab('atr',this)">⚠️ ATR Tracker</button>
+    <button class="nav-tab" onclick="showTab('analytics',this)">📈 Analytics</button>
+    <button class="nav-tab" onclick="showTab('report',this)">📄 Report</button>
+    <button class="nav-tab" onclick="showTab('instructions',this)">📖 Guide</button>
+    <button class="nav-tab" onclick="showTab('projupdates',this)">🏗️ Project Updates</button>
+  </div>
+
+  <!-- Viewer global banner -->
+  <div id="viewerGlobalBanner" style="display:none;background:rgba(37,99,235,.08);border-bottom:1px solid rgba(37,99,235,.2);padding:8px 24px;font-size:12px;color:var(--accent3);align-items:center;gap:10px;">
+    <span>👁</span>
+    <span><strong>Viewer Access</strong> — You can view all data and print reports. Add/Edit/Delete is restricted to administrators only.</span>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard">
+      <div class="section-header">
+        <div>
+          <div class="section-title">DASHBOARD</div>
+          <div class="section-badge">🏗️ Construction Quality Monitoring — Bhutan</div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);" id="dashDate"></div>
+      </div>
+      <div class="filters">
+        <span class="filter-label">📅 VIEW BY:</span>
+        <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select>
+        <select class="filter-select" id="fMonth" onchange="refreshDash()"><option value="">All Months</option><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
+        <select class="filter-select" id="fDzong" onchange="refreshDash()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
+        <select class="filter-select" id="fRO" onchange="refreshDash()"><option value="">All ROs</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card blue"><div class="kpi-icon">🛣️</div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="kpi1">0</div></div>
+        <div class="kpi-card gold"><div class="kpi-icon">⚠️</div><div class="kpi-label">Defects Found</div><div class="kpi-value" id="kpi2">0</div></div>
+        <div class="kpi-card orange"><div class="kpi-icon">📋</div><div class="kpi-label">Actions Pending</div><div class="kpi-value" id="kpi3">0</div></div>
+        <div class="kpi-card red"><div class="kpi-icon">🚨</div><div class="kpi-label">ATR Overdue</div><div class="kpi-value" id="kpi4">0</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-label">Tests Passed</div><div class="kpi-value" id="kpi5">0</div></div>
+        <div class="kpi-card purple"><div class="kpi-icon">❌</div><div class="kpi-label">Tests Failed</div><div class="kpi-value" id="kpi6">0</div></div>
+      </div>
+      <div class="breakdown-grid">
+        <div class="breakdown-card"><div class="breakdown-title">📍 By Dzongkhag</div><table class="breakdown-table"><thead><tr><th>Dzongkhag</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="dzongBody"></tbody></table></div>
+        <div class="breakdown-card"><div class="breakdown-title">🏢 By RO / Thromde</div><table class="breakdown-table"><thead><tr><th>RO / Thromde</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="roBody"></tbody></table></div>
+        <div class="breakdown-card"><div class="breakdown-title">📅 By Month</div><table class="breakdown-table"><thead><tr><th>Month</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="monthBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- INSPECTION DATA -->
+    <div id="tab-data" style="display:none">
+      <div class="section-header">
+        <div><div class="section-title">INSPECTION DATA REGISTER</div><div class="section-badge">Master Data — MOIT Standard</div></div>
+        <button class="btn-primary" onclick="showTab('entry',document.querySelector('.nav-tab:nth-child(3)'))">+ New Entry</button>
+      </div>
+      <div class="table-card">
+        <div class="table-toolbar">
+          <input class="table-search" id="tableSearch" placeholder="🔍 Search by project, contractor, location…" oninput="renderTable()">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select class="filter-select" id="tblDzong" onchange="renderTable()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
+            <select class="filter-select" id="tblDefect" onchange="renderTable()"><option value="">All Records</option><option value="Yes">Defects Only</option><option value="No">No Defects</option></select>
+            <span id="tableCount" style="font-size:12px;color:var(--text3);">0 records</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
+        <div class="no-data" id="noData" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">🛣️</div>No inspection records found. Add a new entry to get started.</div>
+      </div>
+    </div>
+
+    <!-- NEW ENTRY -->
+    <div id="tab-entry" style="display:none">
+      <div class="section-header">
+        <div><div class="section-title">NEW INSPECTION ENTRY</div><div class="section-badge">Fill all required fields — auto QC check from SBRW 2025</div></div>
+      </div>
+
+      <!-- Viewer lock notice -->
+      <div id="viewerLockNotice" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:18px 20px;margin-bottom:20px;display:none;align-items:center;gap:14px;">
+        <span style="font-size:28px;">🔒</span>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--gold);letter-spacing:1px;">VIEW ONLY ACCESS</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:3px;">You are signed in as a <strong>Viewer</strong>. Only administrators can add, edit or delete inspection entries. Contact your system admin to request admin access.</div>
+        </div>
+      </div>
+      <div class="form-success" id="formSuccess">✅ Inspection entry saved successfully!</div>
+      <div class="form-section">
+        <div class="form-section-title">Project Information</div>
+        <!-- Location Type Toggle -->
+        <div style="margin-bottom:18px;display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;">
+          <span style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);">Location Type:</span>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2);">
+            <input type="radio" name="locType" value="dzongkhag" checked onchange="toggleLocType(this.value)"
+              style="accent-color:var(--accent2);">
+            Dzongkhag
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2);">
+            <input type="radio" name="locType" value="rothromde" onchange="toggleLocType(this.value)"
+              style="accent-color:var(--accent2);">
+            RO / Thromde
+          </label>
+        </div>
+        <div class="form-grid">
+          <div class="field-wrap"><label>Project Name</label><input type="text" id="fProjectName" placeholder="e.g. Thimphu–Paro Highway Upgrade" oninput="triggerQCCheck()"></div>
+          <div class="field-wrap"><label>Contract / Project No.</label><input type="text" id="fContractNo" placeholder="e.g. OPMC/ROAD/2025/001"></div>
+          <div class="field-wrap"><label>Road Section / Chainage</label><input type="text" id="fRoadSection" placeholder="e.g. Ch. 0+000 to Ch. 5+200"></div>
+          <div class="field-wrap"><label>Contractor Name</label><input type="text" id="fContractor" placeholder="e.g. Druk Construction Ltd."></div>
+          <!-- Dzongkhag field (shown by default) -->
+          <div class="field-wrap" id="dzongkhagField">
+            <label>Dzongkhag</label>
+            <select id="fDzongkhag"><option value="">— Select Dzongkhag —</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
+          </div>
+          <!-- RO/Thromde field (hidden by default) -->
+          <div class="field-wrap" id="roThromdeField" style="display:none;">
+            <label>Regional Office (RO) / Thromde</label>
+            <select id="fRO"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Inspection Details</div>
+        <div class="form-grid">
+          <div class="field-wrap"><label>Work Type / Stage</label>
+            <select id="fWorkType" onchange="triggerQCCheck()">
+              <option value="">— Select Work Type —</option>
+              <option value="Earthwork / Subgrade">Earthwork / Subgrade</option>
+              <option value="Sub-base Course">Sub-base Course</option>
+              <option value="Wet Mix Macadam (WMM)">Wet Mix Macadam (WMM)</option>
+              <option value="Prime Coat">Prime Coat</option>
+              <option value="Dense Bituminous Macadam (DBM)">Dense Bituminous Macadam (DBM)</option>
+              <option value="Bituminous Concrete (BC)">Bituminous Concrete (BC)</option>
+              <option value="Culvert Construction">Culvert Construction</option>
+              <option value="Retaining Wall">Retaining Wall</option>
+              <option value="Road Signs / Markings">Road Signs / Markings</option>
+              <option value="Bridge Construction">Bridge Construction</option>
+              <option value="Drainage Works">Drainage Works</option>
+              <option value="Slope Protection">Slope Protection</option>
+              <option value="Filling & Embankments">Filling &amp; Embankments</option>
+              <option value="Paver Blocks & Kerb">Paver Blocks &amp; Kerb</option>
+              <option value="Bioengineering">Bioengineering</option>
+            </select>
+          </div>
+          <div class="field-wrap"><label>Work Item Inspected</label><input type="text" id="fWorkItem" placeholder="e.g. Compaction of subgrade layer"></div>
+          <div class="field-wrap"><label>Date Inspected</label><input type="date" id="fDateInspected"></div>
+          <div class="field-wrap"><label>Inspector Name</label><input type="text" id="fInspector" placeholder="e.g. Dorji Wangchuk, Engineer"></div>
+          <div class="field-wrap" style="grid-column:1/-1"><label>Remarks</label><textarea id="fRemarks" placeholder="Additional observations, site conditions, notes…"></textarea></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Defect &amp; Corrective Action</div>
+        <div class="form-grid">
+          <div class="field-wrap"><label>Defect Found?</label>
+            <select id="fDefect" onchange="toggleDefect()"><option value="">— Select —</option><option value="Yes">Yes</option><option value="No">No</option></select>
+          </div>
+          <div class="field-wrap"><label>ATR Deadline Date</label><input type="date" id="fATRDeadline" disabled></div>
+          <div class="field-wrap" style="grid-column:1/-1" id="defectFields">
+            <label>Defect Description</label>
+            <textarea id="fDefectDesc" placeholder="Describe the defect observed…"></textarea>
+          </div>
+          <div class="field-wrap" id="moitRefField">
+            <label>MOIT Specification Reference</label>
+            <select id="fMOITRef"><option value="">— Select Clause —</option><option value="Cl.303">Cl.303 — Subgrade</option><option value="Cl.305">Cl.305 — Sub-base</option><option value="Cl.401">Cl.401 — WMM</option><option value="Cl.501">Cl.501 — Prime Coat</option><option value="Cl.507">Cl.507 — DBM</option><option value="Cl.508">Cl.508 — BC</option><option value="Cl.601">Cl.601 — Culverts</option><option value="Cl.702">Cl.702 — Retaining Walls</option><option value="Cl.801">Cl.801 — Road Signs</option><option value="Cl.1001">Cl.1001 — Bridges</option></select>
+          </div>
+          <div class="field-wrap" id="actionField">
+            <label>Action Required</label>
+            <input type="text" id="fAction" placeholder="e.g. Re-compact and retest within 14 days">
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Quality Test Results</div>
+        <div class="form-grid">
+          <div class="field-wrap"><label>Test Conducted</label><input type="text" id="fTest" placeholder="e.g. Field Density Test (Sand Replacement)"></div>
+          <div class="field-wrap"><label>Required Test Value</label><input type="text" id="fReqVal" placeholder="e.g. ≥98% MDD per Cl.305.3.4"></div>
+          <div class="field-wrap"><label>Test Result / Value</label><input type="text" id="fResult" placeholder="e.g. 96.5% MDD" oninput="triggerQCCheck()"></div>
+          <div class="field-wrap"><label>Pass / Fail (Manual Override)</label>
+            <select id="fPassFail"><option value="">— Auto or Manual —</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select>
+          </div>
+        </div>
+
+        <!-- AUTO QC RESULT PANEL -->
+        <div class="qc-result-panel" id="qcResultPanel">
+          <div class="qc-result-header">
+            <span>🔬</span> SBRW 2025 Auto-QC Check
+            <span id="qcWorkTypeLabel" style="font-size:11px;color:var(--text3);font-weight:400;margin-left:8px;"></span>
+          </div>
+          <div id="qcResultRows"></div>
+          <div class="qc-overall" id="qcOverall"></div>
+          <div style="margin-top:12px;font-size:11px;color:var(--text3);">
+            ℹ️ Auto-result based on SBRW 2025 / Chapter 21 standard thresholds. You can override Pass/Fail above.
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveEntry()">💾 SAVE INSPECTION ENTRY</button>
+        <button class="btn-secondary" onclick="clearForm()">🔄 CLEAR FORM</button>
+      </div>
+    </div>
+
+    <!-- SBRW QC TOOL TAB -->
+    <div id="tab-qc" style="display:none;padding:0;">
+      <div class="sbrw-wrap">
+        <nav class="sbrw-sidebar">
+          <div class="sbrw-sh">SBRW 2025 Sections</div>
+          <div class="sbrw-si active" onclick="sbrwShow('exc',this)"><span>🏔</span>Earthwork &amp; Excavation<span class="sbrw-badge">5.21.2</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('fill',this)"><span>⛰</span>Filling &amp; Embankments<span class="sbrw-badge">5.21.3</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('mat',this)"><span>🪨</span>Materials &amp; Quarries<span class="sbrw-badge">5.21.4</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('geo',this)"><span>🕸</span>Geotextile<span class="sbrw-badge">5.21.5</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('walls',this)"><span>🧱</span>Walls &amp; Barriers<span class="sbrw-badge">5.21.5.1</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('water',this)"><span>💧</span>Water Management<span class="sbrw-badge">5.21.6</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('drains',this)"><span>🌊</span>Drains &amp; Sub-drains<span class="sbrw-badge">5.21.6.1</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('layer',this)"><span>🛣</span>Layer Works — Sub-base<span class="sbrw-badge">5.21.7</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('bitu',this)"><span>⬛</span>Bituminous Works<span class="sbrw-badge">5.21.7</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('signs',this)"><span>🚦</span>Signs &amp; Safety<span class="sbrw-badge">5.21.8–9</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('fence',this)"><span>🔒</span>Fencing<span class="sbrw-badge">5.21.9</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('bio',this)"><span>🌱</span>Bioengineering<span class="sbrw-badge">5.21.10</span></div>
+          <div class="sbrw-si" onclick="sbrwShow('pave',this)"><span>🟦</span>Paver Blocks &amp; Kerb<span class="sbrw-badge">5.21.12</span></div>
+        </nav>
+        <div class="sbrw-main">
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+            <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;">Project Name</span><input class="field-input" id="sbrw-pN" placeholder="e.g. Tsirang–Damphu Road" style="width:200px;padding:5px 9px;font-size:12px;background:var(--bg);"></div>
+            <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;">Contract No.</span><input class="field-input" id="sbrw-pC" placeholder="DoI/2025/RW-01" style="width:140px;padding:5px 9px;font-size:12px;background:var(--bg);"></div>
+            <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;">Contractor</span><input class="field-input" id="sbrw-pCo" placeholder="Contractor name" style="width:170px;padding:5px 9px;font-size:12px;background:var(--bg);"></div>
+            <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;">Test Date</span><input class="field-input" id="sbrw-pD" type="date" style="width:140px;padding:5px 9px;font-size:12px;background:var(--bg);"></div>
+            <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;">Engineer</span><input class="field-input" id="sbrw-pE" placeholder="Engineer name" style="width:150px;padding:5px 9px;font-size:12px;background:var(--bg);"></div>
+            <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;">Location / Chainage</span><input class="field-input" id="sbrw-pL" placeholder="Ch. 0+000 to 1+500" style="width:160px;padding:5px 9px;font-size:12px;background:var(--bg);"></div>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button class="btn-secondary" style="padding:7px 14px;font-size:12px;" onclick="sbrwSaveTests()">💾 Save Tests</button>
+              <button class="btn-secondary" style="padding:7px 14px;font-size:12px;" onclick="sbrwClearAll()">Clear All</button>
+              <button class="btn-gold" onclick="sbrwGenReport()">📋 Generate Report</button>
+              <button class="btn-secondary" style="padding:7px 14px;font-size:12px;" onclick="window.print()">🖨 Print</button>
+            </div>
+          </div>
+
+          <!-- SECTIONS CONTENT will be injected by JS -->
+          <div id="sbrw-sections-wrap"></div>
+
+          <div class="sbrw-sumbar">
+            <div class="sbrw-ss"><span class="sbrw-sv" id="sbrw-tT">0</span><span class="sbrw-sl">Tests Entered</span></div>
+            <div class="sbrw-ss"><span class="sbrw-sv pass" id="sbrw-tP">0</span><span class="sbrw-sl">Pass</span></div>
+            <div class="sbrw-ss"><span class="sbrw-sv fail" id="sbrw-tF">0</span><span class="sbrw-sl">Fail</span></div>
+            <div class="sbrw-ss"><span class="sbrw-sv warn" id="sbrw-tPn">0</span><span class="sbrw-sl">Pending</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATR TRACKER -->
+    <div id="tab-atr" style="display:none">
+      <div class="section-header"><div><div class="section-title">ATR TRACKER</div><div class="section-badge">Action Taken Report — Live Deadline Monitor</div></div></div>
+      <div class="atr-summary">
+        <div class="atr-stat" style="border-top:3px solid var(--red)"><div class="atr-stat-val" style="color:var(--red)" id="atrOverdue">0</div><div class="atr-stat-lbl">🔴 Overdue</div></div>
+        <div class="atr-stat" style="border-top:3px solid var(--orange)"><div class="atr-stat-val" style="color:var(--orange)" id="atrDueSoon">0</div><div class="atr-stat-lbl">🟠 Due Soon (≤7 days)</div></div>
+        <div class="atr-stat" style="border-top:3px solid var(--gold)"><div class="atr-stat-val" style="color:var(--gold)" id="atrPending">0</div><div class="atr-stat-lbl">🟡 Pending</div></div>
+        <div class="atr-stat" style="border-top:3px solid var(--green)"><div class="atr-stat-val" style="color:var(--green)" id="atrSubmitted">0</div><div class="atr-stat-lbl">🟢 Submitted</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:var(--text2);">All Defect Entries — ATR Status</div>
+          <select class="filter-select" id="atrFilter" onchange="renderATR()"><option value="">All Statuses</option><option value="OVERDUE">Overdue Only</option><option value="DUE SOON">Due Soon Only</option><option value="Pending">Pending Only</option><option value="Submitted">Submitted Only</option></select>
+        </div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>Mark Submitted</th></tr></thead><tbody id="atrBody"></tbody></table></div>
+        <div class="no-data" id="noATR" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">✅</div>No ATR records found.</div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="tab-analytics" style="display:none">
+      <div class="section-header"><div><div class="section-title">ANALYTICS</div><div class="section-badge">Inspection trend charts — auto-updated</div></div></div>
+      <div class="analytics-grid">
+        <div class="chart-card"><div class="chart-title">📅 Monthly Inspection Trend</div><canvas id="chartMonthly" height="220"></canvas></div>
+        <div class="chart-card"><div class="chart-title">🔵 Pass vs Fail Tests</div><canvas id="chartPassFail" height="220"></canvas></div>
+      </div>
+      <div class="analytics-grid">
+        <div class="chart-card"><div class="chart-title">📍 Inspections by Dzongkhag</div><canvas id="chartDzong" height="260"></canvas></div>
+        <div class="chart-card"><div class="chart-title">🏢 Inspections by RO / Thromde</div><canvas id="chartRO" height="260"></canvas></div>
+      </div>
+      <div class="analytics-table table-card" style="margin-top:0;">
+        <div class="breakdown-title" style="padding:14px 16px;">📊 Summary Table</div>
+        <table class="data-table"><thead><tr><th>Month</th><th>Inspected</th><th>Defects</th><th>Passed</th><th>Pass Rate%</th></tr></thead><tbody id="analyticsMonthBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- REPORT -->
+    <div id="tab-report" style="display:none">
+      <div class="section-header">
+        <div><div class="section-title">INSPECTION REPORT</div><div class="section-badge">Print-ready formal report — OPMC/OCASC</div></div>
+        <button class="btn-print" onclick="window.print()">🖨️ Print / Export PDF</button>
+      </div>
+      <div class="report-card">
+        <div class="report-header">
+          <div class="report-gov">Government of Bhutan</div>
+          <div class="report-org">Office of Prime Minister and Cabinet — OCASC</div>
+          <div style="font-size:12px;color:var(--text3);">Construction Quality Division</div>
+          <div class="report-doc-title">CONSTRUCTION QUALITY INSPECTION REPORT</div>
+          <div class="report-date" id="reportDate"></div>
+        </div>
+        <div class="report-section">
+          <div class="report-section-title">A. Inspection Summary</div>
+          <table class="report-summary-table">
+            <tr><td>Total Projects Inspected</td><td id="rTotal">0</td></tr>
+            <tr><td>Total Defects Found</td><td id="rDefects">0</td></tr>
+            <tr><td>Total Tests Conducted</td><td id="rTests">0</td></tr>
+            <tr><td>Tests Passed</td><td id="rPassed">0</td></tr>
+            <tr><td>Tests Failed</td><td id="rFailed">0</td></tr>
+            <tr><td>Overall Pass Rate (%)</td><td id="rPassRate">0%</td></tr>
+            <tr><td>ATR Submitted</td><td id="rATRSub">0</td></tr>
+            <tr><td>ATR Pending</td><td id="rATRPend">0</td></tr>
+            <tr><td>ATR Overdue</td><td id="rATROvd">0</td></tr>
+          </table>
+        </div>
+        <div class="report-section">
+          <div class="report-section-title">B. Defects &amp; Corrective Actions Register</div>
+          <table class="data-table" style="font-size:11px;"><thead><tr><th>#</th><th>Project</th><th>Dzongkhag</th><th>Date</th><th>Defect Description</th><th>Action Required</th><th>ATR Deadline</th></tr></thead><tbody id="reportDefects"></tbody></table>
+          <div id="noReportDefects" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No defects recorded.</div>
+        </div>
+        <div class="report-sign">
+          <div class="sign-block"><div class="sign-line"></div><div class="sign-label">QA Inspector / Engineer</div></div>
+          <div class="sign-block"><div class="sign-line"></div><div class="sign-label">Director, Quality Assurance</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTRUCTIONS -->
+    <div id="tab-instructions" style="display:none">
+      <div class="section-header"><div><div class="section-title">USER GUIDE</div><div class="section-badge">How to use the Highway Quality Inspection System</div></div></div>
+      <div class="instructions-grid">
+        <div class="inst-card"><div class="inst-card-title">🛣️ Dashboard</div><div class="inst-card-body">Filter by Year, Month, Dzongkhag, and RO. All KPI cards and breakdown tables auto-update based on your selection.</div></div>
+        <div class="inst-card"><div class="inst-card-title">➕ New Entry + Auto QC</div><div class="inst-card-body">Select Work Type and enter test results. The system <strong>automatically checks against SBRW 2025 / Chapter 21 thresholds</strong> and shows PASS / FAIL instantly. Manual override available.</div></div>
+        <div class="inst-card"><div class="inst-card-title">🔬 SBRW QC Tool</div><div class="inst-card-body">Full SBRW 2025 Chapter 21 test tool with all 209 Road Works items. Enter measured values and get instant Pass/Fail against standard thresholds. Generate full QC reports.</div></div>
+        <div class="inst-card"><div class="inst-card-title">⚠️ ATR Tracker</div><div class="inst-card-body">All defect entries are auto-shown here. 🔴 OVERDUE | 🟠 DUE SOON (≤7 days) | 🟡 Pending | 🟢 Submitted. Click Mark Submitted to update status.</div></div>
+        <div class="inst-card"><div class="inst-card-title">📈 Analytics</div><div class="inst-card-body">4 charts: Monthly trend, Pass vs Fail doughnut, Dzongkhag bar, RO comparison. Auto-update with each new entry.</div></div>
+        <div class="inst-card"><div class="inst-card-title">🔐 Google Sign-In &amp; Roles</div><div class="inst-card-body">All users sign in with their <strong>Google (Gmail)</strong> account. If your email is in the <strong>Admin List</strong>, you get full access: add, edit, delete, mark ATR. All other Gmail users are <strong>Viewers</strong> — they can browse all data and print reports but cannot modify anything.</div></div>
+      </div>
+      <div class="moit-ref">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">MOIT Specification References</div>
+        <span style="color:var(--accent3)">Cl.303</span> = Subgrade &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.305</span> = Sub-base &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.401</span> = WMM &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.501</span> = Prime Coat &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.507</span> = DBM<br>
+        <span style="color:var(--accent3)">Cl.508</span> = BC &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.601</span> = Culverts &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.702</span> = Retaining Walls &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.801</span> = Road Signs &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.1001</span> = Bridges
+      </div>
+    </div>
+
+  </div><!-- end main -->
+    <!-- PROJECT UPDATES SHEET -->
+    <div id="tab-projupdates" style="display:none">
+      <div class="section-header">
+        <div><div class="section-title">PROJECT UPDATES TRACKER</div><div class="section-badge">Monthly Progress — New Projects Register</div></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn-primary" onclick="openPUForm()">➕ Add Project Update</button>
+          <button class="btn-secondary" id="btnNotifyFocal" onclick="openFocalNotifyModal()" style="display:flex;align-items:center;gap:6px;">
+            <span>🔔</span> Notify Focal Person
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters" style="margin-bottom:18px;">
+        <span class="filter-label">🔍 FILTER:</span>
+        <input class="table-search" id="puSearch" placeholder="Search projects…" oninput="renderPUTable()" style="width:200px;">
+        <select class="filter-select" id="puLocFilter" onchange="renderPUTable()">
+          <option value="">All Locations</option>
+          <optgroup label="— Dzongkhags —">
+            <option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option>
+          </optgroup>
+          <optgroup label="— RO / Thromde —">
+            <option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option>
+          </optgroup>
+        </select>
+        <span id="puCount" style="font-size:12px;color:var(--text3);margin-left:auto;">0 projects</span>
+      </div>
+
+      <!-- Table -->
+      <div class="table-card" style="overflow-x:auto;">
+        <table class="data-table" id="puTable">
+          <thead>
+            <tr>
+              <th>Sl. No.</th>
+              <th>Project Name</th>
+              <th>Location</th>
+              <th>Approved Budget (Nu.)</th>
+              <th>Contract Amount (Nu.)</th>
+              <th>Site Engineer &amp; Contact</th>
+              <th>Contractor Details</th>
+              <th>Progress of Work</th>
+              <th>Next Work</th>
+              <th>Updated Date</th>
+              <th>Remarks</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="puBody"></tbody>
+        </table>
+        <div class="empty-state" id="puEmpty" style="display:none;">
+          <div style="font-size:32px;margin-bottom:12px;">🏗️</div>
+          No project updates yet. Add a new project to get started.
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECT UPDATE FORM MODAL -->
+    <div id="puFormOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:center;justify-content:center;overflow-y:auto;padding:24px 16px;">
+      <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:760px;padding:32px;position:relative;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;">PROJECT UPDATE ENTRY</div>
+          <button onclick="closePUForm()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text3);cursor:pointer;font-size:13px;">✕ Close</button>
+        </div>
+        <div class="form-grid">
+          <!-- Location Type Toggle inside form -->
+          <div class="field-wrap" style="grid-column:1/-1;">
+            <label>Location Type</label>
+            <div style="display:flex;gap:16px;margin-top:4px;">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2);">
+                <input type="radio" name="puLocType" value="dzongkhag" checked onchange="togglePULocType(this.value)" style="accent-color:var(--accent2);">
+                Dzongkhag
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2);">
+                <input type="radio" name="puLocType" value="rothromde" onchange="togglePULocType(this.value)" style="accent-color:var(--accent2);">
+                RO / Thromde
+              </label>
+            </div>
+          </div>
+          <div class="field-wrap" id="puDzongField">
+            <label>Dzongkhag</label>
+            <select id="puDzongkhag">
+              <option value="">— Select Dzongkhag —</option>
+              <option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option>
+            </select>
+          </div>
+          <div class="field-wrap" id="puROField" style="display:none;">
+            <label>RO / Thromde</label>
+            <select id="puRO">
+              <option value="">— Select RO / Thromde —</option>
+              <option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option>
+            </select>
+          </div>
+          <div class="field-wrap"><label>Project Name</label><input type="text" id="puProjectName" placeholder="Enter project name"></div>
+          <div class="field-wrap"><label>Approved Budget (Nu.)</label><input type="number" id="puApprovedBudget" placeholder="e.g. 5000000"></div>
+          <div class="field-wrap"><label>Contract Amount (Nu.)</label><input type="number" id="puContractAmount" placeholder="e.g. 4800000"></div>
+          <div class="field-wrap"><label>Site Engineer Name</label><input type="text" id="puEngineerName" placeholder="Engineer's full name"></div>
+          <div class="field-wrap"><label>Engineer Contact No.</label><input type="tel" id="puEngineerContact" placeholder="e.g. 17xxxxxx"></div>
+          <div class="field-wrap"><label>Contractor Name</label><input type="text" id="puContractorName" placeholder="Contractor / company name"></div>
+          <div class="field-wrap"><label>Contractor Contact</label><input type="text" id="puContractorContact" placeholder="Phone or email"></div>
+          <div class="field-wrap" style="grid-column:1/-1;"><label>Progress of Work</label><textarea id="puProgress" placeholder="Describe current progress (e.g. 45% complete — earthwork done, sub-base in progress)"></textarea></div>
+          <div class="field-wrap" style="grid-column:1/-1;"><label>Next Work</label><textarea id="puNextWork" placeholder="Describe the next planned activity"></textarea></div>
+          <div class="field-wrap"><label>Updated Date</label><input type="date" id="puUpdatedDate"></div>
+          <div class="field-wrap" style="grid-column:1/-1;"><label>Remarks</label><textarea id="puRemarks" placeholder="Any additional notes or observations"></textarea></div>
+        </div>
+        <div class="form-actions" style="margin-top:16px;">
+          <button class="btn-primary" onclick="savePUEntry()">💾 Save Project Update</button>
+          <button class="btn-secondary" onclick="closePUForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOCAL PERSON NOTIFY MODAL -->
+    <div id="focalModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center;">
+      <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:520px;padding:32px;position:relative;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;">🔔 NOTIFY FOCAL PERSON</div>
+          <button onclick="closeFocalModal()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text3);cursor:pointer;font-size:12px;">✕</button>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Add focal person email addresses and send a notification about the latest project update.</div>
+        <!-- Email entry -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input type="email" id="focalEmailInput" placeholder="Enter email address" class="field-input" style="flex:1;padding:9px 12px;font-size:13px;" onkeydown="if(event.key==='Enter')addFocalEmail()">
+          <button class="btn-primary" style="padding:9px 16px;font-size:13px;letter-spacing:1px;" onclick="addFocalEmail()">Add</button>
+        </div>
+        <!-- Email list -->
+        <div id="focalEmailList" style="min-height:40px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:6px;"></div>
+        <!-- Notification message -->
+        <div class="field-wrap" style="margin-bottom:16px;">
+          <label>Notification Message</label>
+          <textarea id="focalMessage" rows="4" placeholder="Enter the notification message to be sent to focal persons…" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-size:13px;width:100%;resize:vertical;outline:none;"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="sendFocalNotification()">📧 Send Notification</button>
+          <button class="btn-secondary" onclick="closeFocalModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATR LOGIN NOTIFICATION POPUP -->
+    <div id="atrLoginOverlay" class="atr-login-overlay" style="display:none;">
+      <div class="atr-login-modal">
+        <div class="atr-lm-header">
+          <div class="atr-lm-title">
+            <span style="font-size:26px;">⚠️</span>
+            <div>
+              <div>ATR Deadline Notification</div>
+              <div class="atr-lm-sub" id="atrLmGreeting">Welcome — here is your ATR status summary</div>
+            </div>
+          </div>
+        </div>
+        <div class="atr-lm-body">
+          <!-- Stats pills -->
+          <div class="atr-lm-stats">
+            <div class="atr-stat-pill">
+              <div class="val" id="atrLmOverdueCount" style="color:var(--red);">0</div>
+              <div class="lbl">Overdue</div>
+            </div>
+            <div class="atr-stat-pill">
+              <div class="val" id="atrLmDueSoonCount" style="color:var(--orange);">0</div>
+              <div class="lbl">Due Soon</div>
+            </div>
+            <div class="atr-stat-pill">
+              <div class="val" id="atrLmPendingCount" style="color:var(--text3);">0</div>
+              <div class="lbl">Pending</div>
+            </div>
+            <div class="atr-stat-pill">
+              <div class="val" id="atrLmTotalCount" style="color:var(--text2);">0</div>
+              <div class="lbl">Total Open</div>
+            </div>
+          </div>
+          <!-- Item list -->
+          <div id="atrLmList"></div>
+        </div>
+        <div class="atr-lm-footer">
+          <div style="font-size:11px;color:var(--text3);">This notification is shown once per login session per user.</div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-secondary" style="padding:9px 18px;font-size:13px;" onclick="closeAtrLoginPopup()">Dismiss</button>
+            <button class="btn-primary" style="padding:9px 18px;font-size:13px;" onclick="closeAtrLoginPopup();showTab('atr',document.querySelector('.nav-tab:nth-child(5)'))">View ATR Tracker →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</div><!-- end app -->
+
+<!-- SBRW Report Modal -->
+<div id="sbrw-rp">
+  <div class="sbrw-rm">
+    <div class="sbrw-rmh"><h2 style="font-size:14px;font-weight:700;">Quality Test Report — SBRW 2025 Road Works</h2><button class="btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="sbrwCloseRp()">✕ Close</button></div>
+    <div class="sbrw-rmb">
+      <div style="margin-bottom:10px;display:flex;gap:8px"><button class="btn-gold" onclick="sbrwCopyRp()">Copy</button><button class="btn-secondary" style="padding:7px 14px;font-size:12px;" onclick="window.print()">Print</button></div>
+      <pre id="sbrw-rc"></pre>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+<script>
+// ===== ACCESS CONFIGURATION =====
+// Admin accounts — email + shared password
+const ADMIN_ACCOUNTS = [
+  { email: 'tenzene111@gmail.com',        name: 'Tenzin' },
+  { email: 'pemanamgay70@gmail.com',       name: 'Pema Namgay' },
+  { email: 'luvchhetri@cabinet.gov.bt',    name: 'Luv Chhetri' },
+  { email: 'kdendup@cabinet.gov.bt',       name: 'K. Dendup' },
+];
+// Shared admin password (obfuscated — not plain text)
+const _AP = atob('Q1FEQDIwMjY='); // CQD@2026
+// Shared user password (same for all 'User' logins)
+const _UP = atob('Q1FEQDIwMjY='); // CQD@2026
+
+// Roles:  'admin' = full access
+//         'user'  = add project updates + print reports only
+//         'viewer'= read only
+
+// ===== AUTH STATE =====
+let currentUser = null;
+let inspections = JSON.parse(localStorage.getItem('inspections_cqis') || '[]');
+let charts = {};
+
+// ===== LOGIN TAB SWITCHER =====
+function switchLoginTab(tab) {
+  ['admin','user','google'].forEach(t => {
+    const btn = document.getElementById('ltab-'+t);
+    const panel = document.getElementById('lpanel-'+t);
+    const active = t === tab;
+    if (btn) {
+      btn.style.background = active ? 'linear-gradient(135deg,var(--accent),#1d4ed8)' : 'none';
+      btn.style.color = active ? '#fff' : 'var(--text3)';
+    }
+    if (panel) panel.style.display = active ? '' : 'none';
+  });
+  const err = document.getElementById('loginError');
+  if (err) { err.style.display = 'none'; err.textContent = ''; }
+}
+
+function showLoginError(msg) {
+  const e = document.getElementById('loginError');
+  e.textContent = msg; e.style.display = 'block';
+}
+
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  if (!inp) return;
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+// ===== ADMIN LOGIN =====
+function doAdminLogin() {
+  const email = (document.getElementById('adminEmail')?.value || '').trim().toLowerCase();
+  const pass  = document.getElementById('adminPass')?.value || '';
+  if (!email) { showLoginError('Please enter your email address.'); return; }
+  if (!pass)  { showLoginError('Please enter the password.'); return; }
+  if (pass !== _AP) { showLoginError('Incorrect password. Please try again.'); return; }
+  const acc = ADMIN_ACCOUNTS.find(a => a.email.toLowerCase() === email);
+  if (!acc) { showLoginError('This email is not registered as an admin account.'); return; }
+  currentUser = {
+    username: acc.email, name: acc.name, email: acc.email,
+    picture: null, isAdmin: true, role: 'Administrator', isUser: false, isViewer: false,
+    canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
+  };
+  finishLogin();
+}
+
+// ===== USER LOGIN =====
+function doUserLogin() {
+  const name = (document.getElementById('userName2')?.value || '').trim();
+  const pass  = document.getElementById('userPass')?.value || '';
+  if (!name) { showLoginError('Please enter your name.'); return; }
+  if (!pass)  { showLoginError('Please enter the password.'); return; }
+  if (pass !== _UP) { showLoginError('Incorrect password. Please try again.'); return; }
+  currentUser = {
+    username: name, name: name, email: '',
+    picture: null, isAdmin: false, role: 'User', isUser: true, isViewer: false,
+    canEdit: false, canDelete: false, canAddPU: true, canPrint: true,
+  };
+  finishLogin();
+}
+
+// ===== GOOGLE SIGN-IN =====
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+
+function handleGoogleSignIn() {
+  const btn = document.getElementById('googleSignInBtn');
+  if (btn) { btn.disabled = true; }
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredentialResponse,
+      auto_select: false,
+    });
+    google.accounts.id.prompt();
+    setTimeout(() => { if (!currentUser) openGoogleDemoPopup(); }, 1200);
+  } else {
+    openGoogleDemoPopup();
+  }
+}
+
+function openGoogleDemoPopup() {
+  const overlay = document.createElement('div');
+  overlay.id = 'googlePopupOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:40px 32px;width:380px;font-family:Arial,sans-serif;box-shadow:0 8px 40px rgba(0,0,0,.4);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <svg width="48" height="48" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <div style="font-size:20px;font-weight:700;color:#202124;margin-top:12px;">Sign in with Google</div>
+        <div style="font-size:13px;color:#5f6368;margin-top:4px;">Construction Quality Inspection — Viewer Access</div>
+      </div>
+      <div id="gpopError" style="background:#fce8e6;border-radius:6px;padding:8px 12px;font-size:12px;color:#c5221f;margin-bottom:14px;display:none;"></div>
+      <label style="font-size:12px;color:#5f6368;font-weight:600;letter-spacing:.5px;">EMAIL ADDRESS</label>
+      <input id="googleEmailInput" type="email" placeholder="yourname@gmail.com"
+        style="width:100%;border:1.5px solid #dadce0;border-radius:6px;padding:10px 12px;font-size:14px;margin:8px 0 16px;outline:none;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#1a73e8'" onblur="this.style.borderColor='#dadce0'"
+        onkeydown="if(event.key==='Enter')confirmGoogleEmail()">
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px;">
+        <button onclick="cancelGooglePopup()" style="background:none;border:none;color:#1a73e8;font-size:14px;font-weight:600;cursor:pointer;padding:8px 16px;border-radius:4px;">Cancel</button>
+        <button onclick="confirmGoogleEmail()" style="background:#1a73e8;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:14px;font-weight:600;cursor:pointer;">Next</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('googleEmailInput')?.focus(), 100);
+}
+
+function confirmGoogleEmail() {
+  const email = document.getElementById('googleEmailInput')?.value?.trim();
+  const errEl = document.getElementById('gpopError');
+  if (!email || !email.includes('@')) {
+    errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return;
+  }
+  cancelGooglePopup();
+  const dispName = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  processGoogleLogin(email, dispName, null);
+}
+
+function cancelGooglePopup() {
+  document.getElementById('googlePopupOverlay')?.remove();
+  const btn = document.getElementById('googleSignInBtn');
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign in with Google (View Only)`;
+  }
+}
+
+function handleGoogleCredentialResponse(response) {
+  try {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    processGoogleLogin(payload.email, payload.name || payload.email.split('@')[0], payload.picture);
+  } catch(e) { openGoogleDemoPopup(); }
+}
+
+function processGoogleLogin(email, name, picture) {
+  // Google login is always Viewer
+  currentUser = {
+    username: email, name, email, picture,
+    isAdmin: false, role: 'Viewer', isUser: false, isViewer: true,
+    canEdit: false, canDelete: false, canAddPU: false, canPrint: true,
+  };
+  finishLogin();
+}
+
+// ===== FINISH LOGIN =====
+function finishLogin() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const av = document.getElementById('userAvatar');
+  if (currentUser.picture) {
+    av.innerHTML = `<img src="${currentUser.picture}" alt="${currentUser.name}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">`;
+  } else {
+    av.textContent = currentUser.name[0].toUpperCase();
+  }
+  document.getElementById('userName').textContent = currentUser.name;
+  const roleLabel = currentUser.isAdmin ? 'Administrator' : (currentUser.isUser ? 'User' : 'Viewer');
+  document.getElementById('userRole').textContent = roleLabel;
+
+  // Global viewer banner
+  const banner = document.getElementById('viewerGlobalBanner');
+  if (banner) banner.style.display = currentUser.isAdmin ? 'none' : 'flex';
+
+  // Update banner text based on role
+  if (!currentUser.isAdmin && banner) {
+    const msg = currentUser.isUser
+      ? '👤 <strong>User Access</strong> — You can add Project Updates and print saved test reports. Inspection data entry is restricted to administrators.'
+      : '👁 <strong>Viewer Access</strong> — You can view all data and print reports. Add/Edit/Delete is restricted to administrators and users.';
+    const msgEl = banner.querySelector('span:last-child');
+    if (msgEl) msgEl.innerHTML = msg;
+  }
+
+  // Role badge colour
+  const roleBadge = document.getElementById('userRoleBadge');
+  if (roleBadge) {
+    if (currentUser.isAdmin) {
+      roleBadge.textContent = '⚙️ ADMIN'; roleBadge.style.color = 'var(--gold)';
+    } else if (currentUser.isUser) {
+      roleBadge.textContent = '👤 USER'; roleBadge.style.color = 'var(--accent3)';
+    } else {
+      roleBadge.textContent = '👁 VIEWER'; roleBadge.style.color = 'var(--text3)';
+    }
+  }
+
+  // Apply UI restrictions based on role
+  applyRoleRestrictions();
+  initApp();
+}
+
+// ===== ROLE-BASED UI RESTRICTIONS =====
+function applyRoleRestrictions() {
+  const isAdmin   = currentUser.isAdmin;
+  const isUser    = currentUser.isUser;
+  const isViewer  = currentUser.isViewer;
+
+  // New Entry tab: admins only
+  const entryTab = document.getElementById('entryTabBtn');
+  if (entryTab) entryTab.style.display = isAdmin ? '' : 'none';
+
+  // Project Updates tab: visible to admin + user
+  // (nav tab shown to all, but "Add" button inside is hidden for viewers)
+  // SBRW print button: visible to admin + user
+  const printBtns = document.querySelectorAll('.sbrw-wrap button[onclick*="print"]');
+  printBtns.forEach(b => { b.style.display = (isAdmin || isUser) ? '' : 'none'; });
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  cancelGooglePopup();
+  // Reset fields
+  ['adminEmail','adminPass','userName2','userPass'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  switchLoginTab('admin');
+  const err = document.getElementById('loginError');
+  if (err) { err.style.display = 'none'; }
+}
+
+// ===== PARTICLES =====
+(function(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<30;i++){
+    const p=document.createElement('div');p.className='particle';
+    p.style.cssText=`left:${Math.random()*100}%;width:${Math.random()*2+1}px;height:${Math.random()*2+1}px;animation-duration:${Math.random()*15+8}s;animation-delay:${Math.random()*10}s;`;
+    c.appendChild(p);
+  }
+})();
+
+// ===== NAVIGATION =====
+function showTab(id,btn){
+  document.querySelectorAll('[id^="tab-"]').forEach(t=>t.style.display='none');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).style.display='';
+  if(btn) btn.classList.add('active');
+  if(id==='data') renderTable();
+  if(id==='atr') renderATR();
+  if(id==='analytics') renderCharts();
+  if(id==='report') renderReport();
+  if(id==='dashboard') refreshDash();
+  if(id==='qc') sbrwUpdateSum();
+  if(id==='projupdates') renderPUTable();
+  if(id==='entry'){
+    const isAdmin=currentUser&&currentUser.isAdmin;
+    const notice=document.getElementById('viewerLockNotice');
+    const formSections=document.querySelectorAll('#tab-entry .form-section, #tab-entry .form-actions');
+    if(notice) notice.style.display=isAdmin?'none':'flex';
+    formSections.forEach(s=>{s.style.opacity=isAdmin?'1':'0.4';s.style.pointerEvents=isAdmin?'':'none';});
+  }
+  if(id==='projupdates'){
+    renderPUTable();
+    // Show/hide Add button based on role (admin + user can add; viewers cannot)
+    const addBtn = document.querySelector('#tab-projupdates .btn-primary');
+    if(addBtn) addBtn.style.display = (currentUser&&(currentUser.isAdmin||currentUser.isUser)) ? '' : 'none';
+  }
+}
+
+// ===== HELPERS =====
+function today(){return new Date().toISOString().split('T')[0];}
+function getMonth(d){return new Date(d).toLocaleString('en',{month:'long'});}
+function getYear(d){return new Date(d).getFullYear().toString();}
+function daysFromNow(ds){if(!ds)return null;return Math.ceil((new Date(ds)-new Date(today()))/86400000);}
+function calcATRStatus(r){
+  if(r.defect!=='Yes') return 'N/A';
+  if(r.atrSubmitted) return 'Submitted';
+  if(!r.atrDeadline) return 'Pending';
+  const d=daysFromNow(r.atrDeadline);
+  if(d<0) return 'OVERDUE'; if(d<=7) return 'DUE SOON'; return 'Pending';
+}
+function badgeHtml(val){
+  if(!val) return '<span class="badge badge-na">—</span>';
+  const map={Yes:'badge-yes',No:'badge-no',Pass:'badge-pass',Fail:'badge-fail',OVERDUE:'badge-overdue','DUE SOON':'badge-due',Pending:'badge-pending',Submitted:'badge-submitted','N/A':'badge-na'};
+  return `<span class="badge ${map[val]||'badge-na'}">${val}</span>`;
+}
+function save(){localStorage.setItem('inspections_hqis',JSON.stringify(inspections));}
+function toast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ===== AUTO QC CHECK =====
+const QC_STANDARDS={
+  'Earthwork / Subgrade':[
+    {param:'Longitudinal Regularity (3m straight edge)',unit:'mm',op:'<=',val:24,ref:'Table 5.21.8'},
+    {param:'Cross Profile (camber template)',unit:'mm',op:'<=',val:15,ref:'Table 5.21.8'},
+    {param:'Proctor Density (% MDD)',unit:'%',op:'>=',val:95,ref:'IS 2720'},
+    {param:'CBR Value',unit:'%',op:'>=',val:5,ref:'IS 2720 Pt 28'},
+    {param:'OMC Moisture Tolerance',unit:'%',op:'range',lo:-2,hi:2,ref:'Cl. 5.21.3'},
+  ],
+  'Sub-base Course':[
+    {param:'Grading (% passing 75mm sieve)',unit:'%',op:'range',lo:100,hi:100,ref:'Table 5.21.5'},
+    {param:'Proctor Density (% MDD)',unit:'%',op:'>=',val:98,ref:'IS 2720'},
+    {param:'CBR Value',unit:'%',op:'>=',val:25,ref:'Cl. 5.21.7'},
+    {param:'Layer Thickness',unit:'mm',op:'range',lo:100,hi:225,ref:'Cl. 5.21.7'},
+  ],
+  'Wet Mix Macadam (WMM)':[
+    {param:'Layer Thickness',unit:'mm',op:'range',lo:100,hi:200,ref:'Cl. 5.21.7'},
+    {param:'Proctor Density (% MDD)',unit:'%',op:'>=',val:98,ref:'IS 2720'},
+    {param:'Surface Regularity (3m straight edge)',unit:'mm',op:'<=',val:8,ref:'Table 5.21.8'},
+    {param:'Camber/Cross-fall',unit:'mm',op:'<=',val:6,ref:'Table 5.21.8'},
+  ],
+  'Dense Bituminous Macadam (DBM)':[
+    {param:'Marshall Stability',unit:'kN',op:'>=',val:9,ref:'ASTM D1559'},
+    {param:'Marshall Flow',unit:'mm',op:'range',lo:2,hi:4,ref:'ASTM D1559'},
+    {param:'Air Voids',unit:'%',op:'range',lo:3,hi:5,ref:'ASTM D1559'},
+    {param:'Laying Temperature',unit:'°C',op:'range',lo:130,hi:140,ref:'Cl. 5.21.7'},
+  ],
+  'Bituminous Concrete (BC)':[
+    {param:'Marshall Stability',unit:'kN',op:'>=',val:9,ref:'ASTM D1559'},
+    {param:'Marshall Flow',unit:'mm',op:'range',lo:2,hi:4,ref:'ASTM D1559'},
+    {param:'Air Voids (Total Mix)',unit:'%',op:'range',lo:3,hi:5,ref:'Cl. 5.21.7'},
+    {param:'Loss of Stability (Retained)',unit:'%',op:'>=',val:75,ref:'ASTM D1075'},
+    {param:'Laying Temperature',unit:'°C',op:'range',lo:130,hi:140,ref:'Cl. 5.21.7'},
+  ],
+  'Prime Coat':[
+    {param:'Bitumen Emulsion Content',unit:'%',op:'>=',val:60,ref:'IS 8887'},
+    {param:'Application Temperature (VG-10)',unit:'°C',op:'range',lo:149,hi:177,ref:'IS 73'},
+  ],
+  'Drainage Works':[
+    {param:'Stone Volume (min individual)',unit:'m³',op:'>',val:0.01,ref:'IS 1597'},
+    {param:'Material Passing 19mm Sieve',unit:'%',op:'<=',val:15,ref:'IS 1597'},
+    {param:'Mortar Bed Thickness',unit:'mm',op:'range',lo:48,hi:52,ref:'Cl. 5.21.6.1'},
+  ],
+  'Culvert Construction':[
+    {param:'Concrete Grade (min)',unit:'MPa',op:'>=',val:20,ref:'Cl. 5.21.6.2'},
+    {param:'Min Cover to Reinforcement',unit:'mm',op:'>=',val:40,ref:'IS 1786'},
+    {param:'Rebar Spacing',unit:'mm',op:'range',lo:195,hi:205,ref:'IS 1786'},
+  ],
+  'Retaining Wall':[
+    {param:'Stone Mortar Bed Thickness',unit:'mm',op:'range',lo:18,hi:22,ref:'IS 1597'},
+    {param:'Material Passing 19mm Sieve',unit:'%',op:'<=',val:15,ref:'IS 1597'},
+  ],
+  'Paver Blocks & Kerb':[
+    {param:'Block Thickness (80mm type)',unit:'mm',op:'range',lo:78,hi:82,ref:'IS 15658'},
+    {param:'Block Thickness (60mm type)',unit:'mm',op:'range',lo:58,hi:62,ref:'IS 15658'},
+    {param:'Kerb Stone Thickness',unit:'mm',op:'range',lo:98,hi:102,ref:'RW0322'},
+    {param:'Joint Thickness (max)',unit:'mm',op:'<=',val:5,ref:'Cl. 5.21.12.2'},
+  ],
+  'Slope Protection':[
+    {param:'Gabion Wire Diameter',unit:'mm',op:'range',lo:2.7,hi:3,ref:'IS 1666'},
+    {param:'Rock Fill Diameter (min 60%)',unit:'mm',op:'>=',val:100,ref:'Cl. 5.21.5.1'},
+  ],
+  'Filling & Embankments':[
+    {param:'Layer Thickness (compacted)',unit:'mm',op:'<=',val:200,ref:'Cl. 5.21.3'},
+    {param:'Proctor Density (% MDD)',unit:'%',op:'>=',val:95,ref:'IS 2720'},
+  ],
+};
+
+function triggerQCCheck(){
+  const workType=document.getElementById('fWorkType').value;
+  const resultText=document.getElementById('fResult').value.trim();
+  const panel=document.getElementById('qcResultPanel');
+  const rowsDiv=document.getElementById('qcResultRows');
+  const overall=document.getElementById('qcOverall');
+  document.getElementById('qcWorkTypeLabel').textContent=workType?'— '+workType:'';
+  if(!workType||!QC_STANDARDS[workType]){panel.classList.remove('show');return;}
+  const standards=QC_STANDARDS[workType];
+  // Extract numeric value from result
+  const num=parseFloat(resultText.replace(/[^0-9.\-]/g,''));
+  const hasNum=!isNaN(num);
+  let passCount=0,failCount=0,naCount=0;
+  let html='';
+  standards.forEach(s=>{
+    let result='na',badge='N/A (Enter value)',badgeClass='na';
+    if(hasNum){
+      let pass=false;
+      if(s.op==='>=') pass=num>=s.val;
+      else if(s.op==='<=') pass=num<=s.val;
+      else if(s.op==='>') pass=num>s.val;
+      else if(s.op==='<') pass=num<s.val;
+      else if(s.op==='range') pass=num>=s.lo&&num<=s.hi;
+      result=pass?'pass':'fail';
+      badge=pass?'✓ PASS':'✗ FAIL';
+      badgeClass=pass?'pass':'fail';
+      if(pass) passCount++; else failCount++;
+    } else naCount++;
+    const reqStr=s.op==='range'?`${s.lo}–${s.hi} ${s.unit}`:`${s.op} ${s.val} ${s.unit}`;
+    html+=`<div class="qc-result-row">
+      <div class="qc-param">${s.param}<div class="qc-required">${s.ref} · Required: ${reqStr}</div></div>
+      <span class="qc-badge ${badgeClass}">${badge}</span>
+    </div>`;
+  });
+  rowsDiv.innerHTML=html;
+  if(!hasNum){
+    overall.className='qc-overall';overall.style.background='rgba(100,116,139,.1)';overall.style.borderColor='rgba(100,116,139,.3)';overall.style.color='var(--text3)';
+    overall.textContent='Enter a numeric test result to see Pass/Fail';
+  } else if(failCount>0){
+    overall.className='qc-overall fail';
+    overall.textContent=`✗ FAIL — ${failCount} of ${standards.length} check(s) failed`;
+    document.getElementById('fPassFail').value='Fail';
+  } else {
+    overall.className='qc-overall pass';
+    overall.textContent=`✓ PASS — All ${passCount} applicable check(s) passed`;
+    document.getElementById('fPassFail').value='Pass';
+  }
+  panel.classList.add('show');
+}
+
+// ===== DASHBOARD =====
+function refreshDash(){
+  document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const fd=getFiltered();
+  const defects=fd.filter(r=>r.defect==='Yes');
+  const atrOverdue=defects.filter(r=>calcATRStatus(r)==='OVERDUE');
+  const pending=defects.filter(r=>['Pending','DUE SOON'].includes(calcATRStatus(r)));
+  const tests=fd.filter(r=>r.test);
+  const passed=tests.filter(r=>r.passFailResult==='Pass');
+  const failed=tests.filter(r=>r.passFailResult==='Fail');
+  document.getElementById('kpi1').textContent=fd.length;
+  document.getElementById('kpi2').textContent=defects.length;
+  document.getElementById('kpi3').textContent=pending.length;
+  document.getElementById('kpi4').textContent=atrOverdue.length;
+  document.getElementById('kpi5').textContent=passed.length;
+  document.getElementById('kpi6').textContent=failed.length;
+  const tot=fd.length||1;
+  const dzNames=['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
+  let dzHtml='';
+  dzNames.forEach(dz=>{
+    const rows=fd.filter(r=>r.dzongkhag===dz);if(!rows.length)return;
+    const def=rows.filter(r=>r.defect==='Yes').length;
+    dzHtml+=`<tr><td>${dz}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
+  });
+  document.getElementById('dzongBody').innerHTML=dzHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:var(--text3);">No data</td></tr>';
+  const roNames=['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'];
+  let roHtml='';
+  roNames.forEach(ro=>{
+    const rows=fd.filter(r=>r.ro===ro);if(!rows.length)return;
+    const def=rows.filter(r=>r.defect==='Yes').length;
+    roHtml+=`<tr><td>${ro}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
+  });
+  document.getElementById('roBody').innerHTML=roHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:var(--text3);">No data</td></tr>';
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let moHtml='';
+  months.forEach(mo=>{
+    const rows=fd.filter(r=>r.month===mo);if(!rows.length)return;
+    const def=rows.filter(r=>r.defect==='Yes').length;
+    moHtml+=`<tr><td>${mo}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
+  });
+  document.getElementById('monthBody').innerHTML=moHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:var(--text3);">No data</td></tr>';
+}
+
+function getFiltered(){
+  const yr=document.getElementById('fYear').value,mo=document.getElementById('fMonth').value;
+  const dz=document.getElementById('fDzong').value,ro=document.getElementById('fRO').value;
+  return inspections.filter(r=>{
+    if(yr&&getYear(r.dateInspected)!==yr)return false;
+    if(mo&&r.month!==mo)return false;
+    if(dz&&r.dzongkhag!==dz)return false;
+    if(ro&&r.ro!==ro)return false;
+    return true;
+  });
+}
+
+// ===== TABLE =====
+function renderTable(){
+  const search=document.getElementById('tableSearch').value.toLowerCase();
+  const dzF=document.getElementById('tblDzong').value;
+  const defF=document.getElementById('tblDefect').value;
+  let rows=inspections.filter(r=>{
+    if(dzF&&r.dzongkhag!==dzF)return false;
+    if(defF&&r.defect!==defF)return false;
+    if(search&&!JSON.stringify(r).toLowerCase().includes(search))return false;
+    return true;
+  });
+  document.getElementById('tableCount').textContent=rows.length+' records';
+  const body=document.getElementById('dataBody');
+  if(!rows.length){body.innerHTML='';document.getElementById('noData').style.display='';return;}
+  document.getElementById('noData').style.display='none';
+  const isAdmin=currentUser&&currentUser.isAdmin;
+  body.innerHTML=rows.map((r,i)=>{
+    const status=calcATRStatus(r);
+    return `<tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.sn}</td>
+      <td><strong>${r.projectName||'—'}</strong></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.contractNo||'—'}</td>
+      <td>${r.roadSection||'—'}</td><td>${r.contractor||'—'}</td>
+      <td>${r.dzongkhag||'—'}</td><td>${r.ro||'—'}</td>
+      <td>${r.workType||'—'}</td><td>${r.workItem||'—'}</td>
+      <td>${r.dateInspected||'—'}</td>
+      <td>${badgeHtml(r.defect)}</td>
+      <td style="max-width:150px;">${r.defectDesc||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.moitRef||'—'}</td>
+      <td style="max-width:130px;">${r.action||'—'}</td>
+      <td>${r.inspector||'—'}</td><td>${r.atrDeadline||'—'}</td><td>${r.atrSubmitted||'—'}</td>
+      <td>${badgeHtml(status)}</td>
+      <td>${r.test||'—'}</td><td>${r.reqVal||'—'}</td><td>${r.result||'—'}</td>
+      <td>${badgeHtml(r.passFailResult)}</td>
+      <td>${r.month||'—'}</td><td>${r.year||'—'}</td>
+      <td>${isAdmin?`<button class="action-btn del" onclick="deleteEntry(${inspections.indexOf(r)})">🗑 Del</button>`:'<span style="color:var(--text3);font-size:11px;">—</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteEntry(i){
+  if(!currentUser||!currentUser.isAdmin){alert('Access Denied: Only administrators can delete records.');return;}
+  if(!confirm('Delete this inspection record?'))return;
+  inspections.splice(i,1);save();renderTable();toast('Record deleted.');
+}
+
+// ===== FORM =====
+function toggleDefect(){
+  const val=document.getElementById('fDefect').value,show=val==='Yes';
+  document.getElementById('fATRDeadline').disabled=!show;
+  document.getElementById('defectFields').style.opacity=show?'1':'0.4';
+  document.getElementById('moitRefField').style.opacity=show?'1':'0.4';
+  document.getElementById('actionField').style.opacity=show?'1':'0.4';
+}
+
+function saveEntry(){
+  if(!currentUser||!currentUser.isAdmin){alert('Access Denied: Only administrators can add inspection entries.');return;}
+  const proj=document.getElementById('fProjectName').value.trim();
+  const cont=document.getElementById('fContractor').value.trim();
+  const dz=document.getElementById('fDzongkhag').value;
+  const ro=document.getElementById('fRO').value;
+  const dt=document.getElementById('fDateInspected').value;
+  const insp=document.getElementById('fInspector').value.trim();
+  const def=document.getElementById('fDefect').value;
+  if(!proj||!dz||!ro||!dt||!insp||!def){alert('Please fill all required fields (*).'); return;}
+  const entry={
+    sn:inspections.length+1,projectName:proj,
+    contractNo:document.getElementById('fContractNo').value.trim(),
+    roadSection:document.getElementById('fRoadSection').value.trim(),
+    contractor:cont,dzongkhag:dz,ro,
+    workType:document.getElementById('fWorkType').value,
+    workItem:document.getElementById('fWorkItem').value.trim(),
+    dateInspected:dt,defect:def,
+    defectDesc:document.getElementById('fDefectDesc').value.trim(),
+    moitRef:document.getElementById('fMOITRef').value,
+    action:document.getElementById('fAction').value.trim(),
+    inspector:insp,
+    atrDeadline:document.getElementById('fATRDeadline').value||'',
+    atrSubmitted:'',
+    test:document.getElementById('fTest').value.trim(),
+    reqVal:document.getElementById('fReqVal').value.trim(),
+    result:document.getElementById('fResult').value.trim(),
+    passFailResult:document.getElementById('fPassFail').value,
+    month:dt?getMonth(dt):'',year:dt?getYear(dt):'',
+    remarks:document.getElementById('fRemarks').value.trim(),
+  };
+  inspections.push(entry);save();
+  document.getElementById('formSuccess').style.display='block';
+  setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
+  clearForm();toast('Inspection entry saved!');refreshDash();
+}
+
+function clearForm(){
+  ['fProjectName','fContractNo','fRoadSection','fContractor','fWorkItem','fDateInspected','fInspector',
+   'fDefectDesc','fAction','fTest','fReqVal','fResult','fRemarks','fATRDeadline'].forEach(id=>document.getElementById(id).value='');
+  ['fDzongkhag','fRO','fWorkType','fDefect','fMOITRef','fPassFail'].forEach(id=>document.getElementById(id).selectedIndex=0);
+  document.getElementById('qcResultPanel').classList.remove('show');
+}
+
+// ===== ATR =====
+function renderATR(){
+  const flt=document.getElementById('atrFilter').value;
+  const defects=inspections.filter(r=>r.defect==='Yes');
+  let overdue=0,dueSoon=0,pending=0,submitted=0;
+  defects.forEach(r=>{
+    const s=calcATRStatus(r);
+    if(s==='OVERDUE')overdue++;else if(s==='DUE SOON')dueSoon++;else if(s==='Pending')pending++;else if(s==='Submitted')submitted++;
+  });
+  document.getElementById('atrOverdue').textContent=overdue;
+  document.getElementById('atrDueSoon').textContent=dueSoon;
+  document.getElementById('atrPending').textContent=pending;
+  document.getElementById('atrSubmitted').textContent=submitted;
+  let rows=defects.filter(r=>!flt||calcATRStatus(r)===flt);
+  const body=document.getElementById('atrBody');
+  if(!rows.length){body.innerHTML='';document.getElementById('noATR').style.display='';return;}
+  document.getElementById('noATR').style.display='none';
+  const isAdmin=currentUser&&currentUser.isAdmin;
+  body.innerHTML=rows.map(r=>{
+    const idx=inspections.indexOf(r),status=calcATRStatus(r);
+    const dLeft=r.atrDeadline?daysFromNow(r.atrDeadline):'—';
+    let rowStyle='';
+    if(status==='OVERDUE')rowStyle='background:rgba(239,68,68,.06);';
+    else if(status==='DUE SOON')rowStyle='background:rgba(249,115,22,.06);';
+    else if(status==='Submitted')rowStyle='background:rgba(16,185,129,.04);';
+    return `<tr style="${rowStyle}">
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.sn}</td>
+      <td><strong>${r.projectName||'—'}</strong></td>
+      <td>${r.dzongkhag||'—'}</td><td>${r.ro||'—'}</td>
+      <td style="max-width:180px;">${r.defectDesc||'—'}</td>
+      <td style="max-width:140px;">${r.action||'—'}</td>
+      <td>${r.inspector||'—'}</td><td>${r.atrDeadline||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${typeof dLeft==='number'&&dLeft<0?'var(--red)':dLeft<=7?'var(--orange)':'var(--text)'}">${dLeft}</td>
+      <td>${badgeHtml(status)}</td><td>${r.atrSubmitted||'—'}</td>
+      <td>${(isAdmin&&status!=='Submitted')?`<button class="action-btn" onclick="markSubmitted(${idx})">✅ Submit</button>`:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function markSubmitted(i){
+  inspections[i].atrSubmitted=today();save();renderATR();toast('ATR marked as Submitted.');
+}
+
+// ===== ANALYTICS =====
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CC={bg:'rgba(37,99,235,0.7)',bg2:'rgba(59,130,246,0.5)',green:'rgba(16,185,129,0.7)',red:'rgba(239,68,68,0.7)',orange:'rgba(249,115,22,0.7)'};
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function renderCharts(){
+  destroyChart('monthly');
+  const mCounts=MONTHS.map(m=>inspections.filter(r=>r.month===m).length);
+  const mDef=MONTHS.map(m=>inspections.filter(r=>r.month===m&&r.defect==='Yes').length);
+  charts['monthly']=new Chart(document.getElementById('chartMonthly'),{type:'bar',data:{labels:MONTHS.map(m=>m.slice(0,3)),datasets:[{label:'Inspected',data:mCounts,backgroundColor:CC.bg,borderRadius:4},{label:'Defects',data:mDef,backgroundColor:CC.red,borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}}}}});
+  destroyChart('pf');
+  const passed=inspections.filter(r=>r.passFailResult==='Pass').length;
+  const failed=inspections.filter(r=>r.passFailResult==='Fail').length;
+  charts['pf']=new Chart(document.getElementById('chartPassFail'),{type:'doughnut',data:{labels:['Pass','Fail','No Test'],datasets:[{data:[passed,failed,inspections.filter(r=>!r.passFailResult).length],backgroundColor:[CC.green,CC.red,'rgba(100,116,139,0.5)'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}}}});
+  destroyChart('dzong');
+  const dzNames=['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
+  charts['dzong']=new Chart(document.getElementById('chartDzong'),{type:'bar',data:{labels:dzNames,datasets:[{label:'Inspections',data:dzNames.map(d=>inspections.filter(r=>r.dzongkhag===d).length),backgroundColor:CC.bg2,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}}}}});
+  destroyChart('ro');
+  const roNames=['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'];
+  charts['ro']=new Chart(document.getElementById('chartRO'),{type:'bar',data:{labels:roNames,datasets:[{label:'Inspections',data:roNames.map(r=>inspections.filter(x=>x.ro===r).length),backgroundColor:CC.orange,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,58,92,0.4)'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}}}}});
+  const tbody=document.getElementById('analyticsMonthBody');
+  tbody.innerHTML=MONTHS.map(m=>{
+    const rows=inspections.filter(r=>r.month===m);
+    const def=rows.filter(r=>r.defect==='Yes').length;
+    const tests=rows.filter(r=>r.passFailResult);
+    const pass=tests.filter(r=>r.passFailResult==='Pass').length;
+    const rate=tests.length?Math.round(pass/tests.length*100):0;
+    return `<tr><td>${m}</td><td>${rows.length}</td><td>${def}</td><td>${pass}</td><td>${rate}%</td></tr>`;
+  }).join('');
+}
+
+// ===== REPORT =====
+function renderReport(){
+  // Print button visibility: Admin and User can print
+  const printBtn = document.querySelector('#tab-report .btn-print');
+  if (printBtn) printBtn.style.display = (currentUser && (currentUser.isAdmin || currentUser.isUser)) ? '' : 'none';
+  document.getElementById('reportDate').textContent='Report Date: '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const total=inspections.length;
+  const defects=inspections.filter(r=>r.defect==='Yes');
+  const tests=inspections.filter(r=>r.passFailResult);
+  const passed=tests.filter(r=>r.passFailResult==='Pass').length;
+  const failed=tests.filter(r=>r.passFailResult==='Fail').length;
+  const rate=tests.length?Math.round(passed/tests.length*100):0;
+  document.getElementById('rTotal').textContent=total;
+  document.getElementById('rDefects').textContent=defects.length;
+  document.getElementById('rTests').textContent=tests.length;
+  document.getElementById('rPassed').textContent=passed;
+  document.getElementById('rFailed').textContent=failed;
+  document.getElementById('rPassRate').textContent=rate+'%';
+  document.getElementById('rATRSub').textContent=defects.filter(r=>calcATRStatus(r)==='Submitted').length;
+  document.getElementById('rATRPend').textContent=defects.filter(r=>['Pending','DUE SOON'].includes(calcATRStatus(r))).length;
+  document.getElementById('rATROvd').textContent=defects.filter(r=>calcATRStatus(r)==='OVERDUE').length;
+  const db=document.getElementById('reportDefects');
+  if(!defects.length){db.innerHTML='';document.getElementById('noReportDefects').style.display='';return;}
+  document.getElementById('noReportDefects').style.display='none';
+  db.innerHTML=defects.map((r,i)=>`<tr><td>${i+1}</td><td>${r.projectName||'—'}</td><td>${r.dzongkhag||'—'}</td><td>${r.dateInspected||'—'}</td><td>${r.defectDesc||'—'}</td><td>${r.action||'—'}</td><td>${r.atrDeadline||'—'}</td></tr>`).join('');
+}
+
+// ===== INIT =====
+function initApp(){
+  document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  refreshDash();
+  document.getElementById('fDateInspected').value=today();
+  buildSBRWSections();
+  sbrwLoadTests();
+  // Check due dates after a short delay to let UI settle
+  setTimeout(checkDueDates, 1000);
+  // Periodically recheck every 60 seconds
+  setInterval(checkDueDates, 60000);
+  // Show ATR login notification popup once per user per session (after 1.2s)
+  setTimeout(showAtrLoginPopup, 1200);
+}
+
+// ===== SBRW SECTIONS (embedded from SBRW2025 tool) =====
+const SBRW_SECTIONS=[
+  {id:'exc',title:'Earthwork & Excavation',sub:'Clause 5.21.2 — Manual & Machine Excavation, Spoil Disposal',cards:[
+    {code:'RW0007–0010',name:'Manual Excavation — QA/QC Checks',std:'Cl. 5.21.2.2',desc:'V-drain: 600mm wide × 500mm deep. Measurement accuracy correct to 10mm. Rock stack deduction 35%, other material 16%.',rows:[
+      {p:'V-drain Width',r:'Cl. 5.21.2.2',req:'600 mm',fn:"evalR(this,585,615,'mm')"},
+      {p:'V-drain Depth',r:'Cl. 5.21.2.2',req:'500 mm',fn:"evalR(this,490,510,'mm')"},
+      {p:'Measurement Accuracy',r:'Cl. 5.21.2.2',req:'≤ 10 mm',fn:"eval1(this,'<=',10,'mm')"},
+      {p:'Formation Finishing Tolerance',r:'Cl. 5.21.2.2',req:'+20/−25 mm',fn:"evalR(this,-25,20,'mm')"},
+    ]},
+    {code:'RW0011,0013–14',name:'Excavation by Excavator / Rock Breaker',std:'Cl. 5.21.2.2',desc:'Compressor min 7.50 m³/min. Drill holes: 3ft=34mm, 5ft=32mm, 8ft=30mm.',rows:[
+      {p:'Compressor Capacity',r:'Cl. 5.21.2.2',req:'≥ 7.50 m³/min',fn:"eval1(this,'>=',7.5,'m³/min')"},
+      {p:'Drill Hole Dia — 3ft depth',r:'Cl. 5.21.2.2',req:'34 mm',fn:"evalR(this,33,35,'mm')"},
+      {p:'Drill Hole Dia — 5ft depth',r:'Cl. 5.21.2.2',req:'32 mm',fn:"evalR(this,31,33,'mm')"},
+      {p:'Drill Hole Dia — 8ft depth',r:'Cl. 5.21.2.2',req:'30 mm',fn:"evalR(this,29,31,'mm')"},
+    ]},
+    {code:'RW0121–0124',name:'Sub-grade Preparation & Compaction',std:'Table 5.21.8 / IS 2720',desc:'Roller 8–12t, min 5 passes. Layer ≤200mm, moisture OMC±2%, density ≥95% MDD.',rows:[
+      {p:'Longitudinal Regularity (3m s/e)',r:'Table 5.21.8',req:'Max 24 mm',fn:"eval1(this,'<=',24,'mm')"},
+      {p:'Cross Profile (camber)',r:'Table 5.21.8',req:'Max 15 mm',fn:"eval1(this,'<=',15,'mm')"},
+      {p:'Proctor Density',r:'IS 2720 Pt 8',req:'≥ 95% MDD',fn:"eval1(this,'>=',95,'%')"},
+      {p:'CBR',r:'IS 2720 Pt 28',req:'CBR ≥ 5',fn:"eval1(this,'>=',5,'%')"},
+    ]},
+  ]},
+  {id:'fill',title:'Filling & Embankments',sub:'Clause 5.21.3 — Earth Filling, Embankment Construction',cards:[
+    {code:'RW0025–0035',name:'Earth Filling & Compaction',std:'IS 2720 / Cl. 5.21.3',desc:'Max layer 200mm. Moisture OMC±2%. Density ≥95% MDD. One test per 500m² per layer.',rows:[
+      {p:'Layer Thickness (max)',r:'Cl. 5.21.3',req:'≤ 200 mm',fn:"eval1(this,'<=',200,'mm')"},
+      {p:'Proctor Density',r:'IS 2720',req:'≥ 95% MDD',fn:"eval1(this,'>=',95,'%')"},
+      {p:'Moisture (OMC±%)',r:'Cl. 5.21.3',req:'±2% of OMC',fn:"evalR(this,-2,2,'%')"},
+    ]},
+  ]},
+  {id:'mat',title:'Materials & Quarries',sub:'Clause 5.21.4 — Aggregate Tests, Quarry QC',cards:[
+    {code:'RW0040–0055',name:'Aggregate Quality Tests',std:'IS 2386 / IS 383',desc:'Aggregate for base/sub-base: LAA ≤40%, Flakiness ≤35%, Elongation ≤40%, Soundness ≤12%.',rows:[
+      {p:'Los Angeles Abrasion (LAA)',r:'IS 2386 Pt 4',req:'≤ 40%',fn:"eval1(this,'<=',40,'%')"},
+      {p:'Flakiness Index',r:'IS 2386 Pt 1',req:'≤ 35%',fn:"eval1(this,'<=',35,'%')"},
+      {p:'Elongation Index',r:'IS 2386 Pt 1',req:'≤ 40%',fn:"eval1(this,'<=',40,'%')"},
+      {p:'Soundness (Sodium Sulphate)',r:'IS 2386 Pt 5',req:'≤ 12%',fn:"eval1(this,'<=',12,'%')"},
+    ]},
+  ]},
+  {id:'geo',title:'Geotextile',sub:'Clause 5.21.5 — Geotextile Specification',cards:[
+    {code:'RW0058–0064',name:'Geotextile Properties',std:'IS 14715',desc:'Non-woven geotextile. Min tensile strength 20kN/m. Puncture resistance ≥250N. UV resistance.',rows:[
+      {p:'Tensile Strength (min)',r:'IS 14715',req:'≥ 20 kN/m',fn:"eval1(this,'>=',20,'kN/m')"},
+      {p:'Puncture Resistance',r:'IS 14715',req:'≥ 250 N',fn:"eval1(this,'>=',250,'N')"},
+      {p:'Permittivity',r:'IS 14715',req:'≥ 0.02 s⁻¹',fn:"eval1(this,'>=',0.02,'s⁻¹')"},
+    ]},
+  ]},
+  {id:'walls',title:'Walls & Barriers',sub:'Clause 5.21.5.1 — Retaining Walls, Breast Walls, Gabions',cards:[
+    {code:'RW0065–0080',name:'Dry Stone Masonry Wall',std:'IS 1597',desc:'Stone: angular, sound. Min 80% stones >0.01m³. Hearting stones compact. No through joints.',rows:[
+      {p:'Stone Volume (min 80% of stones)',r:'IS 1597',req:'> 0.01 m³',fn:"eval1(this,'>',0.01,'m³')"},
+      {p:'Wall Batter (each side)',r:'Cl. 5.21.5.1',req:'1:4 (each side)',fn:"evalR(this,0.23,0.28,'ratio')"},
+      {p:'Foundation Width (min)',r:'Cl. 5.21.5.1',req:'Min 600 mm',fn:"eval1(this,'>=',600,'mm')"},
+    ]},
+    {code:'RW0081–0085',name:'Gabion Walls',std:'IS 1666 / Cl. 5.21.5.1',desc:'Wire: galvanized, min 2.7mm dia. Fill: angular rock ≥100mm. Lacing wire ≥2.4mm.',rows:[
+      {p:'Gabion Wire Dia (min)',r:'IS 1666',req:'Min 2.7 mm',fn:"eval1(this,'>=',2.7,'mm')"},
+      {p:'Rock Fill Dia (min 60%)',r:'Cl. 5.21.5.1',req:'Min 100 mm',fn:"eval1(this,'>=',100,'mm')"},
+      {p:'Lacing Wire Dia',r:'IS 1666',req:'Min 2.4 mm',fn:"eval1(this,'>=',2.4,'mm')"},
+    ]},
+  ]},
+  {id:'water',title:'Water Management',sub:'Clause 5.21.6 — Culverts, Causeways, Check Dams',cards:[
+    {code:'RW0110–112',name:'Vented & Submersible Causeway',std:'Cl. 5.21.6.2',desc:'Vented: ≤5% gradient. Submersible: ≤7% gradient. Approach ≥5% for ≥10m.',rows:[
+      {p:'Vented Causeway Max Gradient',r:'Cl. 5.21.6.2',req:'≤ 5%',fn:"eval1(this,'<=',5,'%')"},
+      {p:'Submersible Max Gradient',r:'Cl. 5.21.6.2',req:'≤ 7%',fn:"eval1(this,'<=',7,'%')"},
+      {p:'Rebar Min Cover',r:'IS 1786',req:'Min 40 mm',fn:"eval1(this,'>=',40,'mm')"},
+      {p:'Concrete Grade (min)',r:'Cl. 5.21.6.2',req:'M20',fn:"eval1(this,'>=',20,'MPa')"},
+    ]},
+    {code:'RW0090',name:'Lined Catch Drains',std:'IS 1597 / IS 2250',desc:'Stone: angular, min 80% >0.01m³. Mortar 1:3. Mortar bed 50mm.',rows:[
+      {p:'Mortar Bed Thickness',r:'Cl. 5.21.6.1',req:'50 mm',fn:"evalR(this,48,52,'mm')"},
+      {p:'Material Passing 19mm',r:'IS 1597',req:'Max 15%',fn:"eval1(this,'<=',15,'%')"},
+    ]},
+  ]},
+  {id:'drains',title:'Drains & Sub-surface Drains',sub:'Clause 5.21.6.1 — French Drains, V-Drains, Foundation Drains',cards:[
+    {code:'RW0095–108',name:'French & Foundation Drains',std:'Cl. 5.21.6.1',desc:'French drain: stone 50–100mm. Foundation drain: min 200mm wide × 250mm deep.',rows:[
+      {p:'French Drain Stone Size',r:'RW0095/96',req:'50–100 mm',fn:"evalR(this,50,100,'mm')"},
+      {p:'Foundation Drain Width',r:'RW0100',req:'Min 200 mm',fn:"eval1(this,'>=',200,'mm')"},
+      {p:'Foundation Drain Depth',r:'RW0100',req:'Min 250 mm',fn:"eval1(this,'>=',250,'mm')"},
+    ]},
+  ]},
+  {id:'layer',title:'Layer Works — Sub-base & Base',sub:'Clause 5.21.7 — Granular Sub-base, WMM, GSB',cards:[
+    {code:'RW0125–0135',name:'Granular Sub-base (GSB)',std:'IS 2720 / Table 5.21.5',desc:'Proctor density ≥98% MDD. Layer 100–225mm. CBR ≥25.',rows:[
+      {p:'Layer Thickness',r:'Cl. 5.21.7',req:'100–225 mm',fn:"evalR(this,100,225,'mm')"},
+      {p:'Proctor Density',r:'IS 2720',req:'≥ 98% MDD',fn:"eval1(this,'>=',98,'%')"},
+      {p:'CBR',r:'Cl. 5.21.7',req:'≥ 25%',fn:"eval1(this,'>=',25,'%')"},
+      {p:'Surface Regularity (3m s/e)',r:'Table 5.21.8',req:'≤ 8 mm',fn:"eval1(this,'<=',8,'mm')"},
+    ]},
+    {code:'RW0136–0142',name:'Wet Mix Macadam (WMM)',std:'IS 2720 / Table 5.21.8',desc:'Layer 100–200mm. Proctor ≥98% MDD. Regularity ≤8mm.',rows:[
+      {p:'Layer Thickness',r:'Cl. 5.21.7',req:'100–200 mm',fn:"evalR(this,100,200,'mm')"},
+      {p:'Proctor Density',r:'IS 2720',req:'≥ 98% MDD',fn:"eval1(this,'>=',98,'%')"},
+      {p:'Surface Regularity',r:'Table 5.21.8',req:'≤ 8 mm',fn:"eval1(this,'<=',8,'mm')"},
+    ]},
+  ]},
+  {id:'bitu',title:'Bituminous Works',sub:'Clause 5.21.7 — DBM, BC, Prime Coat, Seal Coat',cards:[
+    {code:'RW0220–0240',name:'Dense Bituminous Macadam (DBM)',std:'ASTM D1559 / IS 73',desc:'Marshall stability ≥9kN. Flow 2–4mm. Laying temp 130–140°C.',rows:[
+      {p:'Marshall Stability',r:'ASTM D1559',req:'≥ 9 kN',fn:"eval1(this,'>=',9,'kN')"},
+      {p:'Marshall Flow',r:'ASTM D1559',req:'2–4 mm',fn:"evalR(this,2,4,'mm')"},
+      {p:'Air Voids',r:'ASTM D1559',req:'3–5%',fn:"evalR(this,3,5,'%')"},
+      {p:'Laying Temperature',r:'Cl. 5.21.7',req:'130–140°C',fn:"evalR(this,130,140,'°C')"},
+    ]},
+    {code:'RW0250–0270',name:'Bituminous Concrete (BC)',std:'ASTM D1559 / ASTM D1075',desc:'Marshall stability ≥9kN. Retained stability ≥75%. Laying 130–140°C.',rows:[
+      {p:'Marshall Stability',r:'ASTM D1559',req:'≥ 9 kN',fn:"eval1(this,'>=',9,'kN')"},
+      {p:'Air Voids (total mix)',r:'ASTM D1559',req:'3–5%',fn:"evalR(this,3,5,'%')"},
+      {p:'Loss of Stability (retained)',r:'ASTM D1075',req:'≥ 75%',fn:"eval1(this,'>=',75,'%')"},
+      {p:'Laying Temperature',r:'Cl. 5.21.7',req:'130–140°C',fn:"evalR(this,130,140,'°C')"},
+    ]},
+    {code:'RW0150–0178',name:'Bitumen Emulsion & Surface Treatments',std:'IS 8887 / IS 73',desc:'Emulsion: min 60% bitumen. VG-10: 149–177°C. 1st coat 2kg/m², 2nd coat 1kg/m².',rows:[
+      {p:'Bitumen Emulsion Content',r:'IS 8887',req:'Min 60%',fn:"eval1(this,'>=',60,'%')"},
+      {p:'VG-10 Application Temp',r:'IS 73',req:'149–177°C',fn:"evalR(this,149,177,'°C')"},
+      {p:'1st Coat Bitumen Rate',r:'RW0165',req:'2.0 kg/m²',fn:"evalR(this,1.9,2.1,'kg/m²')"},
+      {p:'2nd Coat Bitumen Rate',r:'RW0165',req:'1.0 kg/m²',fn:"evalR(this,0.95,1.05,'kg/m²')"},
+    ]},
+  ]},
+  {id:'signs',title:'Signs & Safety',sub:'Clause 5.21.8–9 — Road Signs, Markings, Safety Barriers',cards:[
+    {code:'RW0200–0210',name:'Road Signs & Markings',std:'IRC 67 / Cl. 5.21.8',desc:'Sign height min 300mm. Retroreflectivity Class RA2. Post dia ≥60mm. Paint thickness ≥0.4mm.',rows:[
+      {p:'Sign Height (min)',r:'IRC 67',req:'Min 300 mm',fn:"eval1(this,'>=',300,'mm')"},
+      {p:'Retroreflectivity Class',r:'IRC 67',req:'Min RA2 (Class 2)',fn:"eval1(this,'>=',2,'class')"},
+      {p:'Thermoplastic Paint Thickness',r:'Cl. 5.21.8',req:'Min 0.4 mm',fn:"eval1(this,'>=',0.4,'mm')"},
+    ]},
+  ]},
+  {id:'fence',title:'Fencing',sub:'Clause 5.21.9 — Barbed Wire, Chain Link Fencing',cards:[
+    {code:'RW0212–0218',name:'Chain Link & Barbed Wire Fencing',std:'IS 2502 / IS 278',desc:'Chain link: galvanized, 2.5mm wire. Post spacing ≤3m. Height min 1.8m for boundary.',rows:[
+      {p:'Wire Diameter (chain link)',r:'IS 2502',req:'Min 2.5 mm',fn:"eval1(this,'>=',2.5,'mm')"},
+      {p:'Post Spacing (max)',r:'Cl. 5.21.9',req:'Max 3 m',fn:"eval1(this,'<=',3,'m')"},
+      {p:'Fence Height (boundary)',r:'Cl. 5.21.9',req:'Min 1.8 m',fn:"eval1(this,'>=',1.8,'m')"},
+    ]},
+  ]},
+  {id:'bio',title:'Bioengineering',sub:'Clause 5.21.10 — Slope Stabilisation, Vegetation',cards:[
+    {code:'RW0280–0285',name:'Bioengineering — Slope Treatment',std:'Cl. 5.21.10',desc:'Brush layering: spacing 500mm. Jute netting: 4×4 mesh. Grass seed coverage ≥90%.',rows:[
+      {p:'Brush Layer Spacing',r:'Cl. 5.21.10',req:'500 mm',fn:"evalR(this,480,520,'mm')"},
+      {p:'Grass Seed Coverage',r:'Cl. 5.21.10',req:'≥ 90%',fn:"eval1(this,'>=',90,'%')"},
+    ]},
+  ]},
+  {id:'pave',title:'Paver Blocks & Kerb',sub:'Clause 5.21.12 — Paver Blocks, Kerb Stones, Chequered Tiles',cards:[
+    {code:'RW0300–0307',name:'Paver Block Thickness & Strength',std:'IS 15658',desc:'80mm blocks for heavy traffic. 60mm for footpaths. Compressive strength ≥35 MPa.',rows:[
+      {p:'80mm Block Thickness',r:'IS 15658',req:'80 mm',fn:"evalR(this,78,82,'mm')"},
+      {p:'60mm Block Thickness',r:'IS 15658',req:'60 mm',fn:"evalR(this,58,62,'mm')"},
+      {p:'Compressive Strength',r:'IS 15658',req:'≥ 35 MPa',fn:"eval1(this,'>=',35,'MPa')"},
+      {p:'Water Absorption',r:'IS 15658',req:'≤ 6%',fn:"eval1(this,'<=',6,'%')"},
+    ]},
+    {code:'RW0322',name:'Precast Kerb Stone',std:'Cl. 5.21.12.2',desc:'100mm thick. CM 1:3. Joints max 5mm. Cured 7 days.',rows:[
+      {p:'Kerb Stone Thickness',r:'RW0322',req:'100 mm',fn:"evalR(this,98,102,'mm')"},
+      {p:'Joint Thickness (normal)',r:'Cl. 5.21.12.2',req:'Max 5 mm',fn:"eval1(this,'<=',5,'mm')"},
+      {p:'Kerb Projection above Channel',r:'Cl. 5.21.12.2',req:'~12.5 cm',fn:"evalR(this,11.5,13.5,'cm')"},
+      {p:'Curing Period',r:'Cl. 5.21.12.2',req:'Min 7 days',fn:"eval1(this,'>=',7,'days')"},
+    ]},
+  ]},
+];
+
+function buildSBRWSections(){
+  const wrap=document.getElementById('sbrw-sections-wrap');
+  let html='';
+  SBRW_SECTIONS.forEach(sec=>{
+    html+=`<div id="sbrw-sec-${sec.id}" class="sbrw-sp${sec.id==='exc'?' active':''}">
+      <div class="sbrw-stp">${sec.title}</div>
+      <div class="sbrw-sts">${sec.sub}</div>`;
+    sec.cards.forEach((card,ci)=>{
+      html+=`<div class="sbrw-card" id="sbrw-c-${sec.id}-${ci}">
+        <div class="sbrw-ch" onclick="sbrwTog(this)">
+          <span class="sbrw-cc">${card.code}</span>
+          <span class="sbrw-cn">${card.name}</span>
+          <span class="sbrw-cs">${card.std}</span>
+          <span class="sbrw-ct open">▼</span>
+        </div>
+        <div class="sbrw-cb open">
+          <div class="sbrw-cd">${card.desc}</div>
+          <table class="sbrw-tt">
+            <thead><tr><th style="width:30%">Parameter</th><th style="width:15%">Ref</th><th style="width:20%">Required</th><th style="width:18%">Measured</th><th style="width:17%">Result</th></tr></thead>
+            <tbody>`;
+      card.rows.forEach((row, ri)=>{
+        // Add data-sbid attribute for saving/loading
+        html+=`<tr>
+          <td class="sbrw-pn">${row.p}</td>
+          <td class="sbrw-rs">${row.r}</td>
+          <td class="sbrw-rv">${row.req}</td>
+          <td><input class="sbrw-ti" type="number" placeholder="value" data-sbid="${sec.id}-${ci}-${ri}" oninput="${row.fn};sbrwUpdateCard(this.closest('.sbrw-card'));sbrwUpdateSum()"></td>
+          <td><span class="sbrw-rb pending">–</span></td>
+        </tr>`;
+      });
+      html+=`</tbody></table></div></div>`;
+    });
+    html+='</div>';
+  });
+  wrap.innerHTML=html;
+}
+
+// SBRW helper functions
+function sbrwShow(n,el){
+  document.querySelectorAll('.sbrw-sp').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sbrw-si').forEach(s=>s.classList.remove('active'));
+  const sec=document.getElementById('sbrw-sec-'+n);
+  if(sec) sec.classList.add('active');
+  el.classList.add('active');
+}
+
+function sbrwTog(h){
+  const b=h.nextElementSibling,a=h.querySelector('.sbrw-ct');
+  b.classList.toggle('open');a.classList.toggle('open');
+}
+
+function sbrwGetBadge(row){return row.querySelector('.sbrw-rb');}
+
+function sbrwSetResult(inp,pass){
+  const row=inp.closest('tr'),badge=sbrwGetBadge(row);
+  badge.className='sbrw-rb '+(pass?'pass':'fail');
+  badge.textContent=pass?'✓ PASS':'✗ FAIL';
+  inp.className='sbrw-ti '+(pass?'pass':'fail');
+}
+
+function sbrwResetResult(inp){
+  const row=inp.closest('tr'),badge=sbrwGetBadge(row);
+  badge.className='sbrw-rb pending';badge.textContent='–';inp.className='sbrw-ti';
+}
+
+function eval1(inp,op,lim,unit){
+  const v=parseFloat(inp.value);
+  if(inp.value.trim()===''||isNaN(v)){sbrwResetResult(inp);sbrwUpdateSum();return;}
+  let pass=false;
+  if(op==='>=')pass=v>=lim;else if(op==='<=')pass=v<=lim;
+  else if(op==='>')pass=v>lim;else if(op==='<')pass=v<lim;
+  sbrwSetResult(inp,pass);
+}
+
+function evalR(inp,lo,hi,unit){
+  const v=parseFloat(inp.value);
+  if(inp.value.trim()===''||isNaN(v)){sbrwResetResult(inp);sbrwUpdateSum();return;}
+  sbrwSetResult(inp,v>=lo&&v<=hi);
+}
+
+function sbrwUpdateCard(card){
+  const bs=card.querySelectorAll('.sbrw-rb');
+  let hp=false,hf=false;
+  bs.forEach(b=>{if(b.classList.contains('pass'))hp=true;if(b.classList.contains('fail'))hf=true;});
+  card.classList.remove('pp','fp');
+  if(hf)card.classList.add('fp');else if(hp)card.classList.add('pp');
+}
+
+function sbrwUpdateSum(){
+  const all=document.querySelectorAll('.sbrw-rb');
+  let p=0,f=0,pn=0;
+  all.forEach(b=>{if(b.classList.contains('pass'))p++;else if(b.classList.contains('fail'))f++;else pn++;});
+  document.getElementById('sbrw-tT').textContent=p+f;
+  document.getElementById('sbrw-tP').textContent=p;
+  document.getElementById('sbrw-tF').textContent=f;
+  document.getElementById('sbrw-tPn').textContent=pn;
+}
+
+function sbrwClearAll(){
+  if(!confirm('Clear all entered values?'))return;
+  document.querySelectorAll('.sbrw-ti').forEach(i=>{i.value='';i.className='sbrw-ti';});
+  document.querySelectorAll('.sbrw-rb').forEach(b=>{b.className='sbrw-rb pending';b.textContent='–';});
+  document.querySelectorAll('.sbrw-card').forEach(c=>c.classList.remove('pp','fp'));
+  sbrwUpdateSum();
+}
+
+function sbrwSaveTests() {
+  const data = {};
+  // Save metadata
+  data.meta_pN = document.getElementById('sbrw-pN').value;
+  data.meta_pC = document.getElementById('sbrw-pC').value;
+  data.meta_pCo = document.getElementById('sbrw-pCo').value;
+  data.meta_pD = document.getElementById('sbrw-pD').value;
+  data.meta_pE = document.getElementById('sbrw-pE').value;
+  data.meta_pL = document.getElementById('sbrw-pL').value;
+  // Save test inputs
+  document.querySelectorAll('.sbrw-ti[data-sbid]').forEach(inp => {
+    data[inp.dataset.sbid] = inp.value;
+  });
+  localStorage.setItem('sbrw_qc_saved', JSON.stringify(data));
+  toast('SBRW QC tests saved.');
+}
+
+function sbrwLoadTests() {
+  const saved = localStorage.getItem('sbrw_qc_saved');
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    // Restore metadata
+    if (data.meta_pN) document.getElementById('sbrw-pN').value = data.meta_pN;
+    if (data.meta_pC) document.getElementById('sbrw-pC').value = data.meta_pC;
+    if (data.meta_pCo) document.getElementById('sbrw-pCo').value = data.meta_pCo;
+    if (data.meta_pD) document.getElementById('sbrw-pD').value = data.meta_pD;
+    if (data.meta_pE) document.getElementById('sbrw-pE').value = data.meta_pE;
+    if (data.meta_pL) document.getElementById('sbrw-pL').value = data.meta_pL;
+    // Restore test inputs and trigger evaluation
+    document.querySelectorAll('.sbrw-ti[data-sbid]').forEach(inp => {
+      const sbid = inp.dataset.sbid;
+      if (data.hasOwnProperty(sbid)) {
+        inp.value = data[sbid];
+        // Trigger input event to run evaluation and update UI
+        inp.dispatchEvent(new Event('input'));
+      }
+    });
+    // After all inputs, update card colors and summary (redundant but safe)
+    document.querySelectorAll('.sbrw-card').forEach(card => sbrwUpdateCard(card));
+    sbrwUpdateSum();
+  } catch(e) {
+    console.warn('Failed to load saved SBRW data', e);
+  }
+}
+
+function sbrwGenReport(){
+  const pN=document.getElementById('sbrw-pN').value||'(Not specified)';
+  const pC=document.getElementById('sbrw-pC').value||'(Not specified)';
+  const pCo=document.getElementById('sbrw-pCo').value||'(Not specified)';
+  const pD=document.getElementById('sbrw-pD').value||today();
+  const pE=document.getElementById('sbrw-pE').value||'(Not specified)';
+  const pL=document.getElementById('sbrw-pL').value||'(Not specified)';
+  const all=document.querySelectorAll('.sbrw-rb');
+  let pass=0,fail=0;
+  all.forEach(b=>{if(b.classList.contains('pass'))pass++;if(b.classList.contains('fail'))fail++;});
+  const total=pass+fail;
+  const pct=total>0?Math.round((pass/total)*100):0;
+  let lines=[];
+  lines.push('═══════════════════════════════════════════════════════════════');
+  lines.push('     QUALITY TEST RESULT REPORT — SBRW 2025 / CHAPTER 21');
+  lines.push('         Department of Infrastructure Development, Bhutan');
+  lines.push('═══════════════════════════════════════════════════════════════');
+  lines.push('');
+  lines.push(`  Project       : ${pN}`);
+  lines.push(`  Contract No.  : ${pC}`);
+  lines.push(`  Contractor    : ${pCo}`);
+  lines.push(`  Chainage/Site : ${pL}`);
+  lines.push(`  Test Date     : ${pD}`);
+  lines.push(`  Engineer      : ${pE}`);
+  lines.push('');
+  lines.push('─────────────────────────────────────────────────────────────');
+  lines.push(`  SUMMARY  |  Tests: ${total}  |  PASS: ${pass}  |  FAIL: ${fail}  |  Rate: ${pct}%`);
+  lines.push('─────────────────────────────────────────────────────────────');
+  lines.push('');
+  SBRW_SECTIONS.forEach(sec=>{
+    let secHas=false,secLines=[];
+    secLines.push(`▌ ${sec.title.toUpperCase()}`);secLines.push('');
+    sec.cards.forEach((card,ci)=>{
+      const cardEl=document.getElementById(`sbrw-c-${sec.id}-${ci}`);
+      if(!cardEl) return;
+      let cardHas=false,cLines=[];
+      cLines.push(`  ┌── [${card.code}] ${card.name}`);
+      cLines.push(`  │   Standard: ${card.std}`);
+      cLines.push(`  │   ${'Parameter'.padEnd(32)} ${'Required'.padEnd(18)} ${'Measured'.padEnd(12)} Result`);
+      cLines.push(`  │   ${'─'.repeat(75)}`);
+      cardEl.querySelectorAll('.sbrw-tt tbody tr').forEach(row=>{
+        const param=row.querySelector('.sbrw-pn')?.textContent?.trim()||'';
+        const req=row.querySelector('.sbrw-rv')?.textContent?.trim()||'';
+        const inp=row.querySelector('.sbrw-ti');
+        const badge=row.querySelector('.sbrw-rb');
+        if(!inp||!badge||inp.value==='')return;
+        cardHas=true;secHas=true;
+        const res=badge.classList.contains('pass')?'✓ PASS':(badge.classList.contains('fail')?'✗ FAIL':'   — ');
+        cLines.push(`  │   ${param.padEnd(32)} ${req.padEnd(18)} ${inp.value.padEnd(12)} ${res}`);
+      });
+      if(cardHas){cLines.push(`  └${'─'.repeat(76)}`);cLines.push('');secLines.push(...cLines);}
+    });
+    if(secHas){lines.push(...secLines);lines.push('');}
+  });
+  lines.push('─────────────────────────────────────────────────────────────');
+  lines.push(`  Overall: ${fail===0&&total>0?'✓ ALL TESTS PASSED':(fail>0?'✗ '+fail+' TEST(S) FAILED — ACTION REQUIRED':'INCOMPLETE — NO TESTS ENTERED')}`);
+  lines.push('─────────────────────────────────────────────────────────────');
+  lines.push('');lines.push(`  Engineer Signature: ______________________   Date: ${pD}`);
+  lines.push('');lines.push('  Generated: SBRW 2025 Highway Quality Inspection System');
+  lines.push('═══════════════════════════════════════════════════════════════');
+  document.getElementById('sbrw-rc').textContent=lines.join('\n');
+  document.getElementById('sbrw-rp').classList.add('open');
+}
+
+// ===== LOCATION TYPE TOGGLE (New Entry Form) =====
+function toggleLocType(type) {
+  const dzF = document.getElementById('dzongkhagField');
+  const roF = document.getElementById('roThromdeField');
+  if (!dzF || !roF) return;
+  if (type === 'dzongkhag') {
+    dzF.style.display = '';
+    roF.style.display = 'none';
+    document.getElementById('fRO').selectedIndex = 0;
+  } else {
+    dzF.style.display = 'none';
+    roF.style.display = '';
+    document.getElementById('fDzongkhag').selectedIndex = 0;
+  }
+}
+
+// ===== PROJECT UPDATES (PU) =====
+let projectUpdates = JSON.parse(localStorage.getItem('projectUpdates_cqis') || '[]');
+
+function savePU() { localStorage.setItem('projectUpdates_cqis', JSON.stringify(projectUpdates)); }
+
+function openPUForm() {
+  const ov = document.getElementById('puFormOverlay');
+  ov.style.display = 'flex';
+  document.getElementById('puUpdatedDate').value = today();
+}
+function closePUForm() {
+  document.getElementById('puFormOverlay').style.display = 'none';
+  clearPUForm();
+}
+function clearPUForm() {
+  ['puProjectName','puApprovedBudget','puContractAmount','puEngineerName','puEngineerContact',
+   'puContractorName','puContractorContact','puProgress','puNextWork','puUpdatedDate','puRemarks'
+  ].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('puDzongkhag').selectedIndex = 0;
+  document.getElementById('puRO').selectedIndex = 0;
+  // Reset radio to dzongkhag
+  document.querySelectorAll('input[name="puLocType"]').forEach(r => r.checked = r.value === 'dzongkhag');
+  togglePULocType('dzongkhag');
+}
+
+function togglePULocType(type) {
+  const dF = document.getElementById('puDzongField');
+  const rF = document.getElementById('puROField');
+  if (!dF || !rF) return;
+  if (type === 'dzongkhag') {
+    dF.style.display = ''; rF.style.display = 'none';
+    document.getElementById('puRO').selectedIndex = 0;
+  } else {
+    dF.style.display = 'none'; rF.style.display = '';
+    document.getElementById('puDzongkhag').selectedIndex = 0;
+  }
+}
+
+function savePUEntry() {
+  if (!currentUser || (!currentUser.isAdmin && !currentUser.isUser)) {
+    alert('Access Denied: Only administrators and users can add project updates.'); return;
+  }
+  const locType = document.querySelector('input[name="puLocType"]:checked')?.value || 'dzongkhag';
+  const loc = locType === 'dzongkhag'
+    ? document.getElementById('puDzongkhag').value
+    : document.getElementById('puRO').value;
+  const proj = document.getElementById('puProjectName').value.trim();
+  if (!proj) { alert('Please enter a Project Name.'); return; }
+  const entry = {
+    sn: projectUpdates.length + 1,
+    projectName: proj,
+    location: loc,
+    locType,
+    approvedBudget: document.getElementById('puApprovedBudget').value.trim(),
+    contractAmount: document.getElementById('puContractAmount').value.trim(),
+    engineerName: document.getElementById('puEngineerName').value.trim(),
+    engineerContact: document.getElementById('puEngineerContact').value.trim(),
+    contractorName: document.getElementById('puContractorName').value.trim(),
+    contractorContact: document.getElementById('puContractorContact').value.trim(),
+    progress: document.getElementById('puProgress').value.trim(),
+    nextWork: document.getElementById('puNextWork').value.trim(),
+    updatedDate: document.getElementById('puUpdatedDate').value,
+    remarks: document.getElementById('puRemarks').value.trim(),
+  };
+  projectUpdates.push(entry);
+  savePU();
+  closePUForm();
+  renderPUTable();
+  toast('Project update saved!');
+}
+
+function deletePU(i) {
+  if (!confirm('Delete this project update?')) return;
+  projectUpdates.splice(i, 1);
+  projectUpdates.forEach((r,idx) => r.sn = idx+1);
+  savePU(); renderPUTable(); toast('Entry deleted.');
+}
+
+function renderPUTable() {
+  const search = (document.getElementById('puSearch')?.value || '').toLowerCase();
+  const locF = document.getElementById('puLocFilter')?.value || '';
+  let rows = projectUpdates.filter(r => {
+    if (locF && r.location !== locF) return false;
+    if (search && !JSON.stringify(r).toLowerCase().includes(search)) return false;
+    return true;
+  });
+  document.getElementById('puCount').textContent = rows.length + ' project' + (rows.length === 1 ? '' : 's');
+  const body = document.getElementById('puBody');
+  const empty = document.getElementById('puEmpty');
+  if (!rows.length) {
+    body.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  const fmt = v => v ? 'Nu. ' + Number(v).toLocaleString() : '—';
+  const isAdmin = currentUser && currentUser.isAdmin;
+  body.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.sn}</td>
+      <td><strong>${r.projectName || '—'}</strong></td>
+      <td>${r.location || '—'}<br><span style="font-size:10px;color:var(--text3);letter-spacing:1px;">${r.locType === 'dzongkhag' ? 'DZONGKHAG' : 'RO/THROMDE'}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${fmt(r.approvedBudget)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${fmt(r.contractAmount)}</td>
+      <td>${r.engineerName || '—'}<br><span style="font-size:11px;color:var(--accent3);">${r.engineerContact || ''}</span></td>
+      <td>${r.contractorName || '—'}<br><span style="font-size:11px;color:var(--text3);">${r.contractorContact || ''}</span></td>
+      <td style="max-width:160px;">${r.progress || '—'}</td>
+      <td style="max-width:140px;">${r.nextWork || '—'}</td>
+      <td>${r.updatedDate || '—'}</td>
+      <td style="max-width:120px;">${r.remarks || '—'}</td>
+      <td>${isAdmin ? `<button class="action-btn del" onclick="deletePU(${projectUpdates.indexOf(r)})">🗑 Del</button>` : '—'}</td>
+    </tr>`).join('');
+}
+
+// ===== FOCAL PERSON NOTIFY =====
+let focalEmails = [];
+
+function openFocalNotifyModal() {
+  const modal = document.getElementById('focalModal');
+  modal.style.display = 'flex';
+  // Pre-fill message with latest update summary
+  const latest = projectUpdates.length ? projectUpdates[projectUpdates.length - 1] : null;
+  const msg = document.getElementById('focalMessage');
+  if (latest && !msg.value) {
+    msg.value = `Dear Focal Person,\n\nThis is a monthly project update notification.\n\nProject: ${latest.projectName}\nLocation: ${latest.location}\nProgress: ${latest.progress || 'N/A'}\nNext Work: ${latest.nextWork || 'N/A'}\nUpdated: ${latest.updatedDate || today()}\n\nPlease review and take necessary action.\n\nRegards,\nOPMC/OCASC System`;
+  }
+}
+function closeFocalModal() {
+  document.getElementById('focalModal').style.display = 'none';
+}
+function addFocalEmail() {
+  const inp = document.getElementById('focalEmailInput');
+  const email = inp.value.trim();
+  if (!email || !email.includes('@')) { toast('Please enter a valid email address.'); return; }
+  if (focalEmails.includes(email)) { toast('Email already added.'); return; }
+  focalEmails.push(email);
+  inp.value = '';
+  renderFocalTags();
+}
+function removeFocalEmail(email) {
+  focalEmails = focalEmails.filter(e => e !== email);
+  renderFocalTags();
+}
+function renderFocalTags() {
+  const list = document.getElementById('focalEmailList');
+  list.innerHTML = focalEmails.map(e =>
+    `<span class="focal-tag">${e}<button onclick="removeFocalEmail('${e}')" title="Remove">×</button></span>`
+  ).join('');
+}
+function sendFocalNotification() {
+  if (!focalEmails.length) { toast('Please add at least one focal person email.'); return; }
+  const msg = document.getElementById('focalMessage').value.trim();
+  if (!msg) { toast('Please enter a notification message.'); return; }
+  // In a real system, this would POST to a mail server. Here we simulate and compose mailto.
+  const subject = encodeURIComponent('Monthly Project Update Notification — OPMC/OCASC');
+  const body = encodeURIComponent(msg);
+  const to = focalEmails.join(',');
+  window.open(`mailto:${to}?subject=${subject}&body=${body}`, '_blank');
+  toast(`Notification composed for ${focalEmails.length} recipient(s)!`);
+  closeFocalModal();
+  focalEmails = [];
+  document.getElementById('focalMessage').value = '';
+}
+
+// ===== DUE DATE POPUP =====
+function checkDueDates() {
+  const warnings = [];
+  inspections.forEach(r => {
+    if (r.defect === 'Yes' && r.atrDeadline && !r.atrSubmitted) {
+      const d = daysFromNow(r.atrDeadline);
+      if (d !== null && d >= 0 && d <= 7) {
+        warnings.push({ project: r.projectName, deadline: r.atrDeadline, days: d });
+      } else if (d !== null && d < 0) {
+        warnings.push({ project: r.projectName, deadline: r.atrDeadline, days: d, overdue: true });
+      }
+    }
+  });
+  const popup = document.getElementById('dueDatePopup');
+  if (!popup) return;
+  if (!warnings.length) { popup.classList.remove('show'); return; }
+  const list = document.getElementById('dueDateList');
+  list.innerHTML = warnings.map(w =>
+    `<div class="due-popup-item">
+      <span style="max-width:200px;">${w.project || 'Unknown'}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${w.overdue ? 'var(--red)' : 'var(--orange)'};">
+        ${w.overdue ? 'OVERDUE' : w.days + 'd left'} · ${w.deadline}
+      </span>
+    </div>`
+  ).join('');
+  popup.classList.add('show');
+}
+
+function closeDuePopup() {
+  document.getElementById('dueDatePopup').classList.remove('show');
+}
+
+// ===== ATR LOGIN NOTIFICATION POPUP =====
+// Shows once per login, per user ID — tracks seen state in sessionStorage
+
+function showAtrLoginPopup() {
+  const userKey = 'atrPopupSeen_' + (currentUser.email || currentUser.username || 'user');
+  if (sessionStorage.getItem(userKey)) return;
+  sessionStorage.setItem(userKey, '1');
+
+  const defects = inspections.filter(r => r.defect === 'Yes' && !r.atrSubmitted);
+  if (!defects.length) return;
+
+  let overdue = [], dueSoon = [], pending = [];
+  defects.forEach(r => {
+    const s = calcATRStatus(r);
+    if (s === 'OVERDUE')       overdue.push(r);
+    else if (s === 'DUE SOON') dueSoon.push(r);
+    else if (s === 'Pending')  pending.push(r);
+  });
+
+  const total = overdue.length + dueSoon.length + pending.length;
+  if (!total) return;
+
+  document.getElementById('atrLmOverdueCount').textContent = overdue.length;
+  document.getElementById('atrLmDueSoonCount').textContent = dueSoon.length;
+  document.getElementById('atrLmPendingCount').textContent = pending.length;
+  document.getElementById('atrLmTotalCount').textContent   = total;
+
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('atrLmGreeting').textContent =
+    `${greet}, ${currentUser.name} — you have ${total} open ATR item${total>1?'s':''} requiring attention`;
+
+  const allRows = [
+    ...overdue.map(r  => ({r, cls:'overdue',  label:'OVERDUE'})),
+    ...dueSoon.map(r  => ({r, cls:'due-soon', label:'DUE SOON'})),
+    ...pending.slice(0,5).map(r => ({r, cls:'pending', label:'PENDING'})),
+  ].slice(0, 20);
+
+  const listEl = document.getElementById('atrLmList');
+  if (!allRows.length) {
+    listEl.innerHTML = `<div class="atr-lm-empty">🎉 No urgent ATR deadlines at this time.</div>`;
+  } else {
+    listEl.innerHTML = allRows.map(({r, cls, label}) => {
+      const dLeft = r.atrDeadline ? daysFromNow(r.atrDeadline) : null;
+      const daysText = dLeft === null ? 'No deadline set'
+        : dLeft < 0  ? `${Math.abs(dLeft)} day${Math.abs(dLeft)!==1?'s':''} overdue`
+        : dLeft === 0 ? 'Due TODAY'
+        : `${dLeft} day${dLeft!==1?'s':''} remaining`;
+      const deadlineText = r.atrDeadline
+        ? new Date(r.atrDeadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
+        : '—';
+      return `<div class="atr-row">
+        <div class="atr-row-bar ${cls}"></div>
+        <div class="atr-row-content">
+          <div class="atr-row-project">${r.projectName || '(Unnamed Project)'}</div>
+          <div class="atr-row-meta">
+            ${r.dzongkhag || r.ro || '—'} &nbsp;·&nbsp;
+            Inspector: ${r.inspector || '—'} &nbsp;·&nbsp;
+            Defect: ${(r.defectDesc||'—').substring(0,60)}${(r.defectDesc||'').length>60?'…':''}
+          </div>
+          <div class="atr-row-meta" style="margin-top:4px;color:var(--text2);">
+            Action Required: <span style="color:var(--text);">${(r.action||'—').substring(0,80)}${(r.action||'').length>80?'…':''}</span>
+          </div>
+        </div>
+        <div class="atr-row-right">
+          <span class="atr-days-badge ${cls}">${label}</span>
+          <span style="font-size:11px;color:var(--text3);margin-top:2px;">${daysText}</span>
+          <span style="font-size:10px;color:var(--text3);">Deadline: ${deadlineText}</span>
+        </div>
+      </div>`;
+    }).join('');
+    if (pending.length > 5) {
+      listEl.innerHTML += `<div style="text-align:center;font-size:12px;color:var(--text3);padding:10px 0;">
+        +${pending.length - 5} more pending items — view full list in ATR Tracker
+      </div>`;
+    }
+  }
+  document.getElementById('atrLoginOverlay').style.display = 'flex';
+}
+
+function closeAtrLoginPopup() {
+  const ov = document.getElementById('atrLoginOverlay');
+  if (ov) {
+    ov.style.opacity = '0';
+    ov.style.transition = 'opacity .2s';
+    setTimeout(() => { ov.style.display='none'; ov.style.opacity=''; ov.style.transition=''; }, 200);
+  }
+}
+
+</script>
+
+<!-- DUE DATE POPUP (fixed, top-right) -->
+<div class="due-popup" id="dueDatePopup">
+  <button class="due-popup-close" onclick="closeDuePopup()">✕</button>
+  <div class="due-popup-title">⏰ ATR Due Date Reminder</div>
+  <div id="dueDateList"></div>
+  <div style="margin-top:10px;font-size:11px;color:var(--text3);">These defect actions require attention soon.</div>
+</div>
+
+</body>
+</html>
