@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 :root {
   --bg:#0a0e17;--bg2:#0f1520;--bg3:#141c2e;--panel:#1a2340;
@@ -599,7 +603,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
           <!-- RO/Thromde field (hidden by default) -->
           <div class="field-wrap" id="roThromdeField" style="display:none;">
             <label>Regional Office (RO) / Thromde</label>
-            <select id="fROForm"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+            <select id="fRO"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
           </div>
         </div>
       </div>
@@ -1206,6 +1210,150 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 <div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
 
 <script>
+// ================================================================
+//  FIREBASE CONFIGURATION — cqis-bhutan project
+// ================================================================
+const firebaseConfig = {
+  apiKey:            "AIzaSyAheeC6TcqHdybPLylyPjdjSanS9niEcUQ",
+  authDomain:        "cqis-bhutan.firebaseapp.com",
+  projectId:         "cqis-bhutan",
+  storageBucket:     "cqis-bhutan.firebasestorage.app",
+  messagingSenderId: "714539464646",
+  appId:             "1:714539464646:web:74d4809e98f4510d71a4c7"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Firestore collection references
+const COL_INSPECTIONS  = 'inspections';
+const COL_PROJ_UPDATES = 'projectUpdates';
+
+// ================================================================
+//  LOADING OVERLAY
+// ================================================================
+function dbLoading(show, msg='Syncing with cloud…') {
+  let ov = document.getElementById('dbLoadingOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'dbLoadingOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,23,.8);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+    ov.innerHTML = `
+      <div style="width:48px;height:48px;border:3px solid rgba(37,99,235,.3);border-top-color:#3b82f6;border-radius:50%;animation:fbspin .8s linear infinite;"></div>
+      <div id="dbLoadMsg" style="font-family:'Rajdhani',sans-serif;font-size:15px;letter-spacing:1px;color:#94a3b8;">${msg}</div>
+      <style>@keyframes fbspin{to{transform:rotate(360deg);}}</style>`;
+    document.body.appendChild(ov);
+  }
+  ov.style.display = show ? 'flex' : 'none';
+  const msgEl = document.getElementById('dbLoadMsg');
+  if (msgEl) msgEl.textContent = msg;
+}
+
+// ================================================================
+//  LOAD ALL DATA FROM FIREBASE ON LOGIN
+// ================================================================
+async function loadAllDataFromFirebase() {
+  dbLoading(true, 'Loading data from Firebase cloud…');
+  try {
+    // Load inspections
+    const insSnap = await db.collection(COL_INSPECTIONS).orderBy('sn').get();
+    inspections = [];
+    insSnap.forEach(doc => inspections.push({id: doc.id, ...doc.data()}));
+    // Cache locally as backup
+    localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
+
+    // Load project updates
+    const puSnap = await db.collection(COL_PROJ_UPDATES).orderBy('sn').get();
+    projectUpdates = [];
+    puSnap.forEach(doc => projectUpdates.push({id: doc.id, ...doc.data()}));
+    localStorage.setItem('projectUpdates_cqis', JSON.stringify(projectUpdates));
+
+    console.log('✅ Firebase: loaded', inspections.length, 'inspections,', projectUpdates.length, 'project updates');
+  } catch(e) {
+    console.warn('⚠️ Firebase load failed, using local cache:', e);
+    // Fall back to localStorage cache if offline
+    inspections    = JSON.parse(localStorage.getItem('inspections_cqis')    || '[]');
+    projectUpdates = JSON.parse(localStorage.getItem('projectUpdates_cqis') || '[]');
+    toast('⚠️ Offline mode — showing cached data');
+  }
+  dbLoading(false);
+}
+
+// ================================================================
+//  FIREBASE — SAVE INSPECTION
+// ================================================================
+async function fbSaveInspection(entry) {
+  try {
+    const docRef = await db.collection(COL_INSPECTIONS).add(entry);
+    // Store Firebase doc ID back into local entry
+    const idx = inspections.findIndex(r => r.sn === entry.sn);
+    if (idx > -1) inspections[idx].id = docRef.id;
+    localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
+    return docRef.id;
+  } catch(e) {
+    console.error('Firebase save inspection error:', e);
+    throw e;
+  }
+}
+
+// ================================================================
+//  FIREBASE — DELETE INSPECTION
+// ================================================================
+async function fbDeleteInspection(entry) {
+  try {
+    if (entry.id) {
+      await db.collection(COL_INSPECTIONS).doc(entry.id).delete();
+    }
+  } catch(e) {
+    console.error('Firebase delete inspection error:', e);
+  }
+}
+
+// ================================================================
+//  FIREBASE — MARK ATR SUBMITTED
+// ================================================================
+async function fbMarkATRSubmitted(entry) {
+  try {
+    if (entry.id) {
+      await db.collection(COL_INSPECTIONS).doc(entry.id).update({
+        atrSubmitted: entry.atrSubmitted
+      });
+    }
+  } catch(e) {
+    console.error('Firebase ATR update error:', e);
+  }
+}
+
+// ================================================================
+//  FIREBASE — SAVE PROJECT UPDATE
+// ================================================================
+async function fbSavePU(entry) {
+  try {
+    const docRef = await db.collection(COL_PROJ_UPDATES).add(entry);
+    const idx = projectUpdates.findIndex(r => r.sn === entry.sn);
+    if (idx > -1) projectUpdates[idx].id = docRef.id;
+    localStorage.setItem('projectUpdates_cqis', JSON.stringify(projectUpdates));
+    return docRef.id;
+  } catch(e) {
+    console.error('Firebase save PU error:', e);
+    throw e;
+  }
+}
+
+// ================================================================
+//  FIREBASE — DELETE PROJECT UPDATE
+// ================================================================
+async function fbDeletePU(entry) {
+  try {
+    if (entry.id) {
+      await db.collection(COL_PROJ_UPDATES).doc(entry.id).delete();
+    }
+  } catch(e) {
+    console.error('Firebase delete PU error:', e);
+  }
+}
+
 // ===== ACCESS CONFIGURATION =====
 // Admin accounts — email + shared password
 const ADMIN_ACCOUNTS = [
@@ -1411,7 +1559,8 @@ function finishLogin() {
 
   // Apply UI restrictions based on role
   applyRoleRestrictions();
-  initApp();
+  // Load from Firebase then initialize app
+  loadAllDataFromFirebase().then(() => initApp());
 }
 
 // ===== ROLE-BASED UI RESTRICTIONS =====
@@ -1723,7 +1872,15 @@ function renderTable(){
 function deleteEntry(i){
   if(!currentUser||!currentUser.isAdmin){alert('Access Denied: Only administrators can delete records.');return;}
   if(!confirm('Delete this inspection record?'))return;
-  inspections.splice(i,1);save();renderTable();toast('Record deleted.');
+  const entry = inspections[i];
+  inspections.splice(i,1);
+  save();
+  renderTable();
+  dbLoading(true,'Deleting from Firebase…');
+  fbDeleteInspection(entry).then(()=>{
+    dbLoading(false);
+    toast('🗑️ Record deleted from Firebase.');
+  }).catch(()=>dbLoading(false));
 }
 
 // ===== FORM =====
@@ -1739,27 +1896,17 @@ function saveEntry(){
   if(!currentUser||!currentUser.isAdmin){alert('Access Denied: Only administrators can add inspection entries.');return;}
   const proj=document.getElementById('fProjectName').value.trim();
   const cont=document.getElementById('fContractor').value.trim();
+  const dz=document.getElementById('fDzongkhag').value;
+  const ro=document.getElementById('fRO').value;
   const dt=document.getElementById('fDateInspected').value;
   const insp=document.getElementById('fInspector').value.trim();
   const def=document.getElementById('fDefect').value;
-
-  // Determine which location type is active (Dzongkhag or RO/Thromde)
-  const locType = document.querySelector('input[name="locType"]:checked')?.value || 'dzongkhag';
-  const dz  = locType === 'dzongkhag' ? document.getElementById('fDzongkhag').value : '';
-  const ro  = locType === 'rothromde' ? document.getElementById('fROForm').value   : '';
-  const loc = dz || ro; // whichever is active
-
-  // Validate — location only needs ONE of dz or ro depending on toggle
-  if(!proj){alert('Please enter the Project Name.'); return;}
-  if(!loc){alert('Please select a ' + (locType==='dzongkhag' ? 'Dzongkhag' : 'RO / Thromde') + '.'); return;}
-  if(!dt){alert('Please select the Date Inspected.'); return;}
-  if(!insp){alert('Please enter the Inspector Name.'); return;}
-  if(!def){alert('Please select whether a Defect was Found.'); return;}
+  if(!proj||!dz||!ro||!dt||!insp||!def){alert('Please fill all required fields (*).'); return;}
   const entry={
     sn:inspections.length+1,projectName:proj,
     contractNo:document.getElementById('fContractNo').value.trim(),
     roadSection:document.getElementById('fRoadSection').value.trim(),
-    contractor:cont,dzongkhag:dz,ro:ro,
+    contractor:cont,dzongkhag:dz,ro,
     workType:document.getElementById('fWorkType').value,
     workItem:document.getElementById('fWorkItem').value.trim(),
     dateInspected:dt,defect:def,
@@ -1776,19 +1923,27 @@ function saveEntry(){
     month:dt?getMonth(dt):'',year:dt?getYear(dt):'',
     remarks:document.getElementById('fRemarks').value.trim(),
   };
-  inspections.push(entry);save();
-  document.getElementById('formSuccess').style.display='block';
-  setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
-  clearForm();toast('Inspection entry saved!');refreshDash();
+  inspections.push(entry);
+  save(); // local backup
+  dbLoading(true, 'Saving inspection to Firebase…');
+  fbSaveInspection(entry).then(() => {
+    dbLoading(false);
+    document.getElementById('formSuccess').style.display='block';
+    setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
+    clearForm();
+    toast('✅ Inspection saved to Firebase cloud!');
+    refreshDash();
+  }).catch(err => {
+    dbLoading(false);
+    toast('⚠️ Saved locally — Firebase sync failed');
+    console.error(err);
+  });
 }
 
 function clearForm(){
   ['fProjectName','fContractNo','fRoadSection','fContractor','fWorkItem','fDateInspected','fInspector',
    'fDefectDesc','fAction','fTest','fReqVal','fResult','fRemarks','fATRDeadline'].forEach(id=>document.getElementById(id).value='');
-  ['fDzongkhag','fROForm','fWorkType','fDefect','fMOITRef','fPassFail'].forEach(id=>document.getElementById(id).selectedIndex=0);
-  // Reset location toggle back to Dzongkhag
-  const dzRadio = document.querySelector('input[name="locType"][value="dzongkhag"]');
-  if(dzRadio){dzRadio.checked=true; toggleLocType('dzongkhag');}
+  ['fDzongkhag','fRO','fWorkType','fDefect','fMOITRef','fPassFail'].forEach(id=>document.getElementById(id).selectedIndex=0);
   document.getElementById('qcResultPanel').classList.remove('show');
 }
 
@@ -1832,7 +1987,10 @@ function renderATR(){
 }
 
 function markSubmitted(i){
-  inspections[i].atrSubmitted=today();save();renderATR();toast('ATR marked as Submitted.');
+  inspections[i].atrSubmitted=today();
+  save();
+  renderATR();
+  fbMarkATRSubmitted(inspections[i]).then(()=>toast('✅ ATR marked Submitted in Firebase.'));
 }
 
 // ===== ANALYTICS =====
@@ -2484,7 +2642,7 @@ function toggleLocType(type) {
   if (type === 'dzongkhag') {
     dzF.style.display = '';
     roF.style.display = 'none';
-    document.getElementById('fROForm').selectedIndex = 0;
+    document.getElementById('fRO').selectedIndex = 0;
   } else {
     dzF.style.display = 'none';
     roF.style.display = '';
@@ -2557,19 +2715,32 @@ function savePUEntry() {
     remarks: document.getElementById('puRemarks').value.trim(),
   };
   projectUpdates.push(entry);
-  savePU();
+  savePU(); // local backup
   closePUForm();
   renderPUTable();
-  // Refresh analytics financial section if it's been visited
   if(document.getElementById('tab-analytics').style.display!=='none') renderFinancials();
-  toast('Project update saved!');
+  dbLoading(true,'Saving project update to Firebase…');
+  fbSavePU(entry).then(()=>{
+    dbLoading(false);
+    toast('✅ Project update saved to Firebase cloud!');
+  }).catch(err=>{
+    dbLoading(false);
+    toast('⚠️ Saved locally — Firebase sync failed');
+  });
 }
 
 function deletePU(i) {
   if (!confirm('Delete this project update?')) return;
+  const entry = projectUpdates[i];
   projectUpdates.splice(i, 1);
   projectUpdates.forEach((r,idx) => r.sn = idx+1);
-  savePU(); renderPUTable(); toast('Entry deleted.');
+  savePU();
+  renderPUTable();
+  dbLoading(true,'Deleting from Firebase…');
+  fbDeletePU(entry).then(()=>{
+    dbLoading(false);
+    toast('🗑️ Entry deleted from Firebase.');
+  }).catch(()=>dbLoading(false));
 }
 
 function renderPUTable() {
