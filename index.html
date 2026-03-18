@@ -228,6 +228,38 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .atr-preview-name{font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .atr-preview-size{font-size:11px;color:var(--text3);flex-shrink:0;}
 
+/* ── COMPLIANCE SHEETS ───────────────────────── */
+.comp-filter-bar{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.comp-kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.comp-kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center;}
+.comp-kpi-val{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;line-height:1;}
+.comp-kpi-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-top:4px;}
+.comp-table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px;}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;}
+.comp-table th{padding:10px 14px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap;}
+.comp-table td{padding:10px 14px;border-bottom:1px solid rgba(42,58,92,.35);vertical-align:middle;}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:rgba(37,99,235,.04);}
+.grade-a{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:12px;white-space:nowrap;}
+.grade-b{background:rgba(245,158,11,.15);color:var(--gold2);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:12px;white-space:nowrap;}
+.grade-c{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:12px;white-space:nowrap;}
+.grade-d{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:12px;white-space:nowrap;}
+.grade-e{background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:12px;white-space:nowrap;}
+.score-bar-wrap{background:var(--bg3);border-radius:20px;height:8px;width:120px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:6px;}
+.score-bar{height:100%;border-radius:20px;transition:width .4s;}
+.comp-empty{text-align:center;padding:40px;color:var(--text3);}
+.rating-legend{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
+.rating-leg-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.rating-leg-grade{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.rating-leg-range{font-size:12px;color:var(--text2);font-weight:600;}
+.rating-leg-lbl{font-size:11px;color:var(--text3);margin-top:3px;}
+.cond-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;}
+.cond-card-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.cond-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(42,58,92,.3);font-size:12px;}
+.cond-row:last-child{border-bottom:none;}
+.cond-range{color:var(--text2);}
+.cond-pts{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--gold2);}
+
 /* DUE DATE POPUP */
 .due-popup{position:fixed;top:80px;right:24px;z-index:999;background:var(--panel);border:1px solid var(--orange);border-radius:14px;padding:20px 22px;width:340px;box-shadow:0 8px 40px rgba(249,115,22,.25);display:none;animation:slideInRight .3s ease;}
 .due-popup.show{display:block;}
@@ -518,6 +550,8 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
     <button class="nav-tab" onclick="showTab('report',this)">📄 Report</button>
     <button class="nav-tab" onclick="showTab('instructions',this)">📖 Guide</button>
     <button class="nav-tab" onclick="showTab('projupdates',this)">🏗️ Project Updates</button>
+    <button class="nav-tab" onclick="showTab('compliance-contractor',this)">🏅 Contractor Compliance</button>
+    <button class="nav-tab" onclick="showTab('compliance-area',this)">📍 Area Compliance</button>
   </div>
 
   <!-- Viewer global banner -->
@@ -1032,12 +1066,250 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
         <div class="inst-card"><div class="inst-card-title">🔬 SBRW QC Tool</div><div class="inst-card-body">Full SBRW 2025 Chapter 21 test tool with all 209 Road Works items. Enter measured values and get instant Pass/Fail against standard thresholds. Generate full QC reports.</div></div>
         <div class="inst-card"><div class="inst-card-title">⚠️ ATR Tracker</div><div class="inst-card-body">All defect entries are auto-shown here. 🔴 OVERDUE | 🟠 DUE SOON (≤7 days) | 🟡 Pending | 🟢 Submitted. Click Mark Submitted to update status.</div></div>
         <div class="inst-card"><div class="inst-card-title">📈 Analytics</div><div class="inst-card-body">4 charts: Monthly trend, Pass vs Fail doughnut, Dzongkhag bar, RO comparison. Auto-update with each new entry.</div></div>
-        <div class="inst-card"><div class="inst-card-title">🔐 Google Sign-In &amp; Roles</div><div class="inst-card-body">All users sign in with their <strong>Google (Gmail)</strong> account. If your email is in the <strong>Admin List</strong>, you get full access: add, edit, delete, mark ATR. All other Gmail users are <strong>Viewers</strong> — they can browse all data and print reports but cannot modify anything.</div></div>
+        <div class="inst-card"><div class="inst-card-title">🔐 Login &amp; Roles</div><div class="inst-card-body"><strong>Admin</strong> — full access. <strong>User (Dzongkhag/RO/Thromde)</strong> — add project updates, print reports, location locked. <strong>Viewer</strong> — read-only access via Google.</div></div>
       </div>
+
+      <!-- COMPLIANCE RATING GUIDE -->
+      <div style="margin-top:32px;margin-bottom:16px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;border-left:4px solid var(--gold);padding-left:12px;color:var(--gold2);">
+          🏅 How Compliance Rating is Calculated
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px;padding-left:16px;">Rating is based on quality of work, defect management and ATR responsiveness — total 100 points</div>
+      </div>
+
+      <!-- Grade Legend -->
+      <div class="rating-legend">
+        <div class="rating-leg-card" style="border-top:3px solid #34d399;">
+          <div class="rating-leg-grade" style="color:#34d399;">🟢 A</div>
+          <div class="rating-leg-range">90 – 100</div>
+          <div class="rating-leg-lbl">Highly Compliant</div>
+        </div>
+        <div class="rating-leg-card" style="border-top:3px solid var(--gold2);">
+          <div class="rating-leg-grade" style="color:var(--gold2);">🟡 B</div>
+          <div class="rating-leg-range">75 – 89</div>
+          <div class="rating-leg-lbl">Compliant</div>
+        </div>
+        <div class="rating-leg-card" style="border-top:3px solid var(--orange);">
+          <div class="rating-leg-grade" style="color:var(--orange);">🟠 C</div>
+          <div class="rating-leg-range">60 – 74</div>
+          <div class="rating-leg-lbl">Partially Compliant</div>
+        </div>
+        <div class="rating-leg-card" style="border-top:3px solid var(--red);">
+          <div class="rating-leg-grade" style="color:var(--red);">🔴 D</div>
+          <div class="rating-leg-range">40 – 59</div>
+          <div class="rating-leg-lbl">Non-Compliant</div>
+        </div>
+        <div class="rating-leg-card" style="border-top:3px solid #a78bfa;">
+          <div class="rating-leg-grade" style="color:#a78bfa;">⛔ E</div>
+          <div class="rating-leg-range">Below 40</div>
+          <div class="rating-leg-lbl">Serious Concern</div>
+        </div>
+      </div>
+
+      <!-- Scoring conditions grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+
+        <!-- Condition 1 -->
+        <div class="cond-card">
+          <div class="cond-card-title">🔬 Condition 1 — Quality Test Pass Rate <span style="margin-left:auto;font-size:11px;color:var(--gold2);font-weight:700;">Max 25 pts</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Tests Passed ÷ Total Tests × 100</div>
+          <div class="cond-row"><span class="cond-range">90 – 100%</span><span style="color:#34d399;">⭐⭐⭐⭐⭐</span><span class="cond-pts">25 pts</span></div>
+          <div class="cond-row"><span class="cond-range">75 – 89%</span><span style="color:var(--gold2);">⭐⭐⭐⭐</span><span class="cond-pts">20 pts</span></div>
+          <div class="cond-row"><span class="cond-range">60 – 74%</span><span style="color:var(--orange);">⭐⭐⭐</span><span class="cond-pts">15 pts</span></div>
+          <div class="cond-row"><span class="cond-range">40 – 59%</span><span style="color:var(--red);">⭐⭐</span><span class="cond-pts">8 pts</span></div>
+          <div class="cond-row"><span class="cond-range">0 – 39%</span><span style="color:#a78bfa;">⭐</span><span class="cond-pts">0 pts</span></div>
+          <div class="cond-row" style="border-top:1px dashed var(--border);margin-top:4px;padding-top:6px;"><span class="cond-range" style="color:var(--text3);">No tests conducted</span><span class="cond-pts" style="color:var(--text3);">Not counted</span></div>
+        </div>
+
+        <!-- Condition 2 -->
+        <div class="cond-card">
+          <div class="cond-card-title">⚠️ Condition 2 — Defect Rate <span style="margin-left:auto;font-size:11px;color:var(--gold2);font-weight:700;">Max 25 pts</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Defective Inspections ÷ Total Inspections × 100</div>
+          <div class="cond-row"><span class="cond-range">0 – 5%</span><span style="color:#34d399;">⭐⭐⭐⭐⭐</span><span class="cond-pts">25 pts</span></div>
+          <div class="cond-row"><span class="cond-range">6 – 15%</span><span style="color:var(--gold2);">⭐⭐⭐⭐</span><span class="cond-pts">20 pts</span></div>
+          <div class="cond-row"><span class="cond-range">16 – 30%</span><span style="color:var(--orange);">⭐⭐⭐</span><span class="cond-pts">15 pts</span></div>
+          <div class="cond-row"><span class="cond-range">31 – 50%</span><span style="color:var(--red);">⭐⭐</span><span class="cond-pts">8 pts</span></div>
+          <div class="cond-row"><span class="cond-range">Above 50%</span><span style="color:#a78bfa;">⭐</span><span class="cond-pts">0 pts</span></div>
+        </div>
+
+        <!-- Condition 3 -->
+        <div class="cond-card">
+          <div class="cond-card-title">📋 Condition 3 — ATR Submission Rate <span style="margin-left:auto;font-size:11px;color:var(--gold2);font-weight:700;">Max 25 pts</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">ATR Submitted ÷ Total Defects × 100</div>
+          <div class="cond-row"><span class="cond-range">90 – 100%</span><span style="color:#34d399;">⭐⭐⭐⭐⭐</span><span class="cond-pts">25 pts</span></div>
+          <div class="cond-row"><span class="cond-range">75 – 89%</span><span style="color:var(--gold2);">⭐⭐⭐⭐</span><span class="cond-pts">20 pts</span></div>
+          <div class="cond-row"><span class="cond-range">50 – 74%</span><span style="color:var(--orange);">⭐⭐⭐</span><span class="cond-pts">15 pts</span></div>
+          <div class="cond-row"><span class="cond-range">25 – 49%</span><span style="color:var(--red);">⭐⭐</span><span class="cond-pts">8 pts</span></div>
+          <div class="cond-row"><span class="cond-range">0 – 24%</span><span style="color:#a78bfa;">⭐</span><span class="cond-pts">0 pts</span></div>
+          <div class="cond-row" style="border-top:1px dashed var(--border);margin-top:4px;padding-top:6px;"><span class="cond-range" style="color:#34d399;">No defects found</span><span class="cond-pts" style="color:#34d399;">Full 25 pts ✅</span></div>
+        </div>
+
+        <!-- Condition 4 -->
+        <div class="cond-card">
+          <div class="cond-card-title">🚨 Condition 4 — Overdue ATR Rate <span style="margin-left:auto;font-size:11px;color:var(--gold2);font-weight:700;">Max 15 pts</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Overdue ATRs ÷ Total Defects × 100</div>
+          <div class="cond-row"><span class="cond-range">0% overdue</span><span style="color:#34d399;">⭐⭐⭐⭐⭐</span><span class="cond-pts">15 pts</span></div>
+          <div class="cond-row"><span class="cond-range">1 – 10% overdue</span><span style="color:var(--gold2);">⭐⭐⭐⭐</span><span class="cond-pts">12 pts</span></div>
+          <div class="cond-row"><span class="cond-range">11 – 25% overdue</span><span style="color:var(--orange);">⭐⭐⭐</span><span class="cond-pts">8 pts</span></div>
+          <div class="cond-row"><span class="cond-range">26 – 50% overdue</span><span style="color:var(--red);">⭐⭐</span><span class="cond-pts">4 pts</span></div>
+          <div class="cond-row"><span class="cond-range">Above 50%</span><span style="color:#a78bfa;">⭐</span><span class="cond-pts">0 pts</span></div>
+          <div class="cond-row" style="border-top:1px dashed var(--border);margin-top:4px;padding-top:6px;"><span class="cond-range" style="color:#34d399;">No defects found</span><span class="cond-pts" style="color:#34d399;">Full 15 pts ✅</span></div>
+        </div>
+
+        <!-- Condition 5 — Work Type (area only) -->
+        <div class="cond-card" style="grid-column:1/-1;">
+          <div class="cond-card-title">🔧 Condition 5 — Work Type Variety <span style="font-size:11px;color:var(--text3);font-weight:400;margin-left:6px;">(Area compliance only — not used for Contractor)</span><span style="margin-left:auto;font-size:11px;color:var(--gold2);font-weight:700;">Max 10 pts</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Number of different work types inspected in the area</div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+            <div class="cond-row" style="flex-direction:column;align-items:flex-start;gap:2px;"><span class="cond-range">5+ types</span><span style="color:#34d399;">⭐⭐⭐⭐⭐</span><span class="cond-pts">10 pts</span></div>
+            <div class="cond-row" style="flex-direction:column;align-items:flex-start;gap:2px;"><span class="cond-range">4 types</span><span style="color:var(--gold2);">⭐⭐⭐⭐</span><span class="cond-pts">8 pts</span></div>
+            <div class="cond-row" style="flex-direction:column;align-items:flex-start;gap:2px;"><span class="cond-range">3 types</span><span style="color:var(--orange);">⭐⭐⭐</span><span class="cond-pts">6 pts</span></div>
+            <div class="cond-row" style="flex-direction:column;align-items:flex-start;gap:2px;"><span class="cond-range">2 types</span><span style="color:var(--red);">⭐⭐</span><span class="cond-pts">3 pts</span></div>
+            <div class="cond-row" style="flex-direction:column;align-items:flex-start;gap:2px;"><span class="cond-range">1 type</span><span style="color:#a78bfa;">⭐</span><span class="cond-pts">1 pt</span></div>
+          </div>
+          <div style="margin-top:10px;padding:8px 12px;background:rgba(37,99,235,.07);border-radius:6px;font-size:11px;color:var(--accent3);">
+            ⚠️ Contractor compliance uses only Conditions 1–4 (max 90 pts, adjusted to 100%). Work Type Variety applies to Dzongkhag, RO and Thromde compliance only.
+          </div>
+        </div>
+      </div>
+
       <div class="moit-ref">
         <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">MOIT Specification References</div>
         <span style="color:var(--accent3)">Cl.303</span> = Subgrade &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.305</span> = Sub-base &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.401</span> = WMM &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.501</span> = Prime Coat &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.507</span> = DBM<br>
         <span style="color:var(--accent3)">Cl.508</span> = BC &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.601</span> = Culverts &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.702</span> = Retaining Walls &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.801</span> = Road Signs &nbsp;|&nbsp; <span style="color:var(--accent3)">Cl.1001</span> = Bridges
+      </div>
+    </div>
+
+    <!-- ═══ CONTRACTOR COMPLIANCE TAB ═══ -->
+    <div id="tab-compliance-contractor" style="display:none">
+      <div class="section-header">
+        <div><div class="section-title">CONTRACTOR COMPLIANCE</div><div class="section-badge">Quality rating based on inspection results — Conditions 1 to 4</div></div>
+        <button class="btn-print" onclick="window.print()">🖨️ Print Report</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="comp-filter-bar">
+        <span class="filter-label">🔍 FILTER:</span>
+        <select class="filter-select" id="ccYear" onchange="renderContractorCompliance()">
+          <option value="">All Years</option>
+          <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+          <option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option>
+        </select>
+        <select class="filter-select" id="ccMonth" onchange="renderContractorCompliance()">
+          <option value="">All Months</option>
+          <option>January</option><option>February</option><option>March</option><option>April</option>
+          <option>May</option><option>June</option><option>July</option><option>August</option>
+          <option>September</option><option>October</option><option>November</option><option>December</option>
+        </select>
+        <select class="filter-select" id="ccContractor" onchange="renderContractorCompliance()">
+          <option value="">All Contractors</option>
+        </select>
+        <button class="btn-secondary" style="padding:7px 14px;font-size:12px;" onclick="clearCompFilters('cc')">✕ Clear</button>
+        <span id="ccCount" style="font-size:12px;color:var(--text3);margin-left:auto;"></span>
+      </div>
+
+      <!-- KPI Summary -->
+      <div class="comp-kpi-row">
+        <div class="comp-kpi"><div class="comp-kpi-val" id="ccTotalContractors" style="color:var(--accent3)">0</div><div class="comp-kpi-lbl">Contractors Rated</div></div>
+        <div class="comp-kpi"><div class="comp-kpi-val" id="ccGradeA" style="color:#34d399">0</div><div class="comp-kpi-lbl">🟢 Grade A</div></div>
+        <div class="comp-kpi"><div class="comp-kpi-val" id="ccGradeB" style="color:var(--gold2)">0</div><div class="comp-kpi-lbl">🟡 Grade B</div></div>
+        <div class="comp-kpi"><div class="comp-kpi-val" id="ccGradeC" style="color:var(--orange)">0</div><div class="comp-kpi-lbl">🟠 Grade C</div></div>
+        <div class="comp-kpi"><div class="comp-kpi-val" id="ccGradeDE" style="color:var(--red)">0</div><div class="comp-kpi-lbl">🔴 Grade D/E</div></div>
+      </div>
+
+      <!-- Table -->
+      <div class="comp-table-wrap">
+        <div style="overflow-x:auto;">
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Contractor Name</th>
+                <th>Inspections</th>
+                <th>Pass Rate<br><span style="font-weight:400;color:var(--text3);">(25 pts)</span></th>
+                <th>Defect Rate<br><span style="font-weight:400;color:var(--text3);">(25 pts)</span></th>
+                <th>ATR Submission<br><span style="font-weight:400;color:var(--text3);">(25 pts)</span></th>
+                <th>Overdue ATR<br><span style="font-weight:400;color:var(--text3);">(15 pts)</span></th>
+                <th>Score / 100</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="ccBody"></tbody>
+          </table>
+        </div>
+        <div class="comp-empty" id="ccEmpty" style="display:none;">
+          <div style="font-size:36px;margin-bottom:10px;">🏗️</div>
+          No inspection data found. Add inspection entries to generate compliance ratings.
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ AREA COMPLIANCE TAB ═══ -->
+    <div id="tab-compliance-area" style="display:none">
+      <div class="section-header">
+        <div><div class="section-title">AREA COMPLIANCE</div><div class="section-badge">Dzongkhag · RO · Thromde — Conditions 1 to 5</div></div>
+        <button class="btn-print" onclick="window.print()">🖨️ Print Report</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="comp-filter-bar">
+        <span class="filter-label">📍 VIEW:</span>
+        <select class="filter-select" id="acType" onchange="renderAreaCompliance()">
+          <option value="dzongkhag">Dzongkhag</option>
+          <option value="ro">RO / Thromde</option>
+        </select>
+        <select class="filter-select" id="acArea" onchange="renderAreaCompliance()">
+          <option value="">All Areas</option>
+        </select>
+        <select class="filter-select" id="acYear" onchange="renderAreaCompliance()">
+          <option value="">All Years</option>
+          <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+          <option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option>
+        </select>
+        <select class="filter-select" id="acMonth" onchange="renderAreaCompliance()">
+          <option value="">All Months</option>
+          <option>January</option><option>February</option><option>March</option><option>April</option>
+          <option>May</option><option>June</option><option>July</option><option>August</option>
+          <option>September</option><option>October</option><option>November</option><option>December</option>
+        </select>
+        <button class="btn-secondary" style="padding:7px 14px;font-size:12px;" onclick="clearCompFilters('ac')">✕ Clear</button>
+        <span id="acCount" style="font-size:12px;color:var(--text3);margin-left:auto;"></span>
+      </div>
+
+      <!-- KPI Summary -->
+      <div class="comp-kpi-row">
+        <div class="comp-kpi"><div class="comp-kpi-val" id="acTotalAreas" style="color:var(--accent3)">0</div><div class="comp-kpi-lbl">Areas Rated</div></div>
+        <div class="comp-kpi"><div class="comp-kpi-val" id="acGradeA" style="color:#34d399">0</div><div class="comp-kpi-lbl">🟢 Grade A</div></div>
+        <div class="comp-kpi"><div class="comp-kpi-val" id="acGradeB" style="color:var(--gold2)">0</div><div class="comp-kpi-lbl">🟡 Grade B</div></div>
+        <div class="comp-kpi"><div class="comp-kpi-val" id="acGradeC" style="color:var(--orange)">0</div><div class="comp-kpi-lbl">🟠 Grade C</div></div>
+        <div class="comp-kpi"><div class="comp-kpi-val" id="acGradeDE" style="color:var(--red)">0</div><div class="comp-kpi-lbl">🔴 Grade D/E</div></div>
+      </div>
+
+      <!-- Table -->
+      <div class="comp-table-wrap">
+        <div style="overflow-x:auto;">
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th id="acAreaHeader">Dzongkhag</th>
+                <th>Inspections</th>
+                <th>Pass Rate<br><span style="font-weight:400;color:var(--text3);">(25 pts)</span></th>
+                <th>Defect Rate<br><span style="font-weight:400;color:var(--text3);">(25 pts)</span></th>
+                <th>ATR Submission<br><span style="font-weight:400;color:var(--text3);">(25 pts)</span></th>
+                <th>Overdue ATR<br><span style="font-weight:400;color:var(--text3);">(15 pts)</span></th>
+                <th>Work Types<br><span style="font-weight:400;color:var(--text3);">(10 pts)</span></th>
+                <th>Score / 100</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="acBody"></tbody>
+          </table>
+        </div>
+        <div class="comp-empty" id="acEmpty" style="display:none;">
+          <div style="font-size:36px;margin-bottom:10px;">📍</div>
+          No inspection data found for this area. Add inspection entries to generate compliance ratings.
+        </div>
       </div>
     </div>
 
@@ -1664,75 +1936,10 @@ function applyRoleRestrictions() {
   if (entryTab) entryTab.style.display = isAdmin ? '' : 'none';
 
   // Project Updates tab: visible to admin + user
+  // (nav tab shown to all, but "Add" button inside is hidden for viewers)
+  // SBRW print button: visible to admin + user
   const printBtns = document.querySelectorAll('.sbrw-wrap button[onclick*="print"]');
   printBtns.forEach(b => { b.style.display = (isAdmin || isUser) ? '' : 'none'; });
-
-  // Lock location fields for User accounts
-  if (isUser && currentUser.location) {
-    applyLocationLock();
-  }
-}
-
-// ===== LOCATION LOCK FOR USER ACCOUNTS =====
-// Locks Dzongkhag/RO/Thromde to the user's assigned location
-function applyLocationLock() {
-  const loc     = currentUser.location;   // e.g. 'Mongar'
-  const locType = currentUser.locType;    // 'dzongkhag' | 'ro' | 'thromde'
-  if (!loc || !locType) return;
-
-  // Hide the location toggle radios — user cannot switch
-  const toggleWrap = document.querySelector('input[name="locType"]')?.closest('div[style*="margin-bottom"]');
-  if (toggleWrap) toggleWrap.style.display = 'none';
-
-  // Show correct field and pre-select + lock it
-  const dzF  = document.getElementById('dzongkhagField');
-  const roF  = document.getElementById('roThromdeField');
-  const dzSel = document.getElementById('fDzongkhag');
-  const roSel = document.getElementById('fROForm');
-
-  if (locType === 'dzongkhag') {
-    // Show dzongkhag, hide RO
-    if (dzF) dzF.style.display = '';
-    if (roF) roF.style.display = 'none';
-    // Set the radio
-    const radio = document.querySelector('input[name="locType"][value="dzongkhag"]');
-    if (radio) radio.checked = true;
-    // Select and lock the dzongkhag
-    if (dzSel) {
-      for (let o of dzSel.options) { if (o.value === loc || o.text === loc) { o.selected = true; break; } }
-      dzSel.disabled = true;
-      dzSel.style.opacity = '0.7';
-      dzSel.style.cursor = 'not-allowed';
-      dzSel.title = 'Location is fixed to your assigned Dzongkhag';
-    }
-  } else {
-    // RO or Thromde — show RO field, hide Dzongkhag
-    if (dzF) dzF.style.display = 'none';
-    if (roF) roF.style.display = '';
-    // Set radio to rothromde
-    const radio = document.querySelector('input[name="locType"][value="rothromde"]');
-    if (radio) radio.checked = true;
-    // Select and lock RO/Thromde
-    if (roSel) {
-      for (let o of roSel.options) { if (o.value === loc || o.text === loc) { o.selected = true; break; } }
-      roSel.disabled = true;
-      roSel.style.opacity = '0.7';
-      roSel.style.cursor = 'not-allowed';
-      roSel.title = 'Location is fixed to your assigned RO / Thromde';
-    }
-  }
-
-  // Show a lock notice above the location fields
-  let lockNotice = document.getElementById('locLockNotice');
-  if (!lockNotice) {
-    lockNotice = document.createElement('div');
-    lockNotice.id = 'locLockNotice';
-    lockNotice.style.cssText = 'background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--accent3);display:flex;align-items:center;gap:8px;margin-bottom:12px;';
-    lockNotice.innerHTML = `<span style="font-size:16px;">📍</span> Location is automatically set to <strong style="color:var(--text);">${loc}</strong> based on your account.`;
-    // Insert before the form-grid inside Project Information
-    const formGrid = document.querySelector('#tab-entry .form-section .form-grid');
-    if (formGrid) formGrid.parentNode.insertBefore(lockNotice, formGrid);
-  }
 }
 
 function doLogout() {
@@ -1772,26 +1979,14 @@ function showTab(id,btn){
   if(id==='dashboard') refreshDash();
   if(id==='qc') sbrwUpdateSum();
   if(id==='projupdates') renderPUTable();
+  if(id==='compliance-contractor'){ populateCCContractorDropdown(); renderContractorCompliance(); }
+  if(id==='compliance-area'){ renderAreaCompliance(); }
   if(id==='entry'){
     const isAdmin=currentUser&&currentUser.isAdmin;
     const notice=document.getElementById('viewerLockNotice');
     const formSections=document.querySelectorAll('#tab-entry .form-section, #tab-entry .form-actions');
     if(notice) notice.style.display=isAdmin?'none':'flex';
     formSections.forEach(s=>{s.style.opacity=isAdmin?'1':'0.4';s.style.pointerEvents=isAdmin?'':'none';});
-    // Apply location lock for user accounts
-    if(currentUser&&currentUser.isUser&&currentUser.location){
-      setTimeout(applyLocationLock, 50);
-    }
-    // For admin — make sure location fields are unlocked and toggle is visible
-    if(isAdmin){
-      const dzSel=document.getElementById('fDzongkhag');
-      const roSel=document.getElementById('fROForm');
-      if(dzSel){dzSel.disabled=false;dzSel.style.opacity='';dzSel.style.cursor='';}
-      if(roSel){roSel.disabled=false;roSel.style.opacity='';roSel.style.cursor='';}
-      const toggleWrap=document.querySelector('input[name="locType"]')?.closest('div[style*="margin-bottom"]');
-      if(toggleWrap) toggleWrap.style.display='';
-      const ln=document.getElementById('locLockNotice');if(ln)ln.style.display='none';
-    }
   }
   if(id==='projupdates'){
     renderPUTable();
@@ -2972,72 +3167,9 @@ let projectUpdates = JSON.parse(localStorage.getItem('projectUpdates_cqis') || '
 function savePU() { localStorage.setItem('projectUpdates_cqis', JSON.stringify(projectUpdates)); }
 
 function openPUForm() {
-  if (!currentUser || (!currentUser.isAdmin && !currentUser.isUser)) {
-    alert('Access Denied: Only administrators and users can add project updates.'); return;
-  }
   const ov = document.getElementById('puFormOverlay');
   ov.style.display = 'flex';
   document.getElementById('puUpdatedDate').value = today();
-
-  // If User account — lock PU location to their assigned location
-  if (currentUser.isUser && currentUser.location) {
-    const loc     = currentUser.location;
-    const locType = currentUser.locType;
-    const puDzF   = document.getElementById('puDzongField');
-    const puROF   = document.getElementById('puROField');
-    const puDzSel = document.getElementById('puDzongkhag');
-    const puROSel = document.getElementById('puRO');
-    const puToggle = document.querySelector('input[name="puLocType"]')?.closest('div');
-
-    // Hide the toggle
-    if (puToggle) puToggle.style.display = 'none';
-
-    if (locType === 'dzongkhag') {
-      if (puDzF) puDzF.style.display = '';
-      if (puROF) puROF.style.display = 'none';
-      const r = document.querySelector('input[name="puLocType"][value="dzongkhag"]');
-      if (r) r.checked = true;
-      if (puDzSel) {
-        for (let o of puDzSel.options) { if (o.value===loc||o.text===loc){o.selected=true;break;} }
-        puDzSel.disabled = true;
-        puDzSel.style.opacity = '0.7';
-        puDzSel.style.cursor = 'not-allowed';
-      }
-    } else {
-      if (puDzF) puDzF.style.display = 'none';
-      if (puROF) puROF.style.display = '';
-      const r = document.querySelector('input[name="puLocType"][value="rothromde"]');
-      if (r) r.checked = true;
-      if (puROSel) {
-        for (let o of puROSel.options) { if (o.value===loc||o.text===loc){o.selected=true;break;} }
-        puROSel.disabled = true;
-        puROSel.style.opacity = '0.7';
-        puROSel.style.cursor = 'not-allowed';
-      }
-    }
-
-    // Show lock notice inside PU form
-    let puLockNotice = document.getElementById('puLocLockNotice');
-    if (!puLockNotice) {
-      puLockNotice = document.createElement('div');
-      puLockNotice.id = 'puLocLockNotice';
-      puLockNotice.style.cssText = 'background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--accent3);display:flex;align-items:center;gap:8px;margin-bottom:12px;grid-column:1/-1;';
-      puLockNotice.innerHTML = `<span style="font-size:16px;">📍</span> Location is automatically set to <strong style="color:var(--text);">${loc}</strong> based on your account.`;
-      const puFormGrid = document.querySelector('#puFormOverlay .form-grid');
-      if (puFormGrid) puFormGrid.insertBefore(puLockNotice, puFormGrid.firstChild);
-    } else {
-      puLockNotice.style.display = 'flex';
-    }
-  } else {
-    // Admin — unlock everything in PU form
-    ['puDzongkhag','puRO'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el){el.disabled=false;el.style.opacity='';el.style.cursor='';}
-    });
-    const puToggle=document.querySelector('input[name="puLocType"]')?.closest('div');
-    if(puToggle) puToggle.style.display='';
-    const pln=document.getElementById('puLocLockNotice');if(pln)pln.style.display='none';
-  }
 }
 function closePUForm() {
   document.getElementById('puFormOverlay').style.display = 'none';
@@ -3234,6 +3366,268 @@ function checkDueDates() {
     </div>`
   ).join('');
   popup.classList.add('show');
+}
+
+// ================================================================
+//  COMPLIANCE ENGINE
+// ================================================================
+
+// ── Scoring helpers ──────────────────────────────────────────
+function scorePassRate(pct) {
+  if (pct >= 90) return 25;
+  if (pct >= 75) return 20;
+  if (pct >= 60) return 15;
+  if (pct >= 40) return 8;
+  return 0;
+}
+function scoreDefectRate(pct) {
+  if (pct <= 5)  return 25;
+  if (pct <= 15) return 20;
+  if (pct <= 30) return 15;
+  if (pct <= 50) return 8;
+  return 0;
+}
+function scoreATRRate(pct) {
+  if (pct >= 90) return 25;
+  if (pct >= 75) return 20;
+  if (pct >= 50) return 15;
+  if (pct >= 25) return 8;
+  return 0;
+}
+function scoreOverdueRate(pct) {
+  if (pct === 0)  return 15;
+  if (pct <= 10)  return 12;
+  if (pct <= 25)  return 8;
+  if (pct <= 50)  return 4;
+  return 0;
+}
+function scoreWorkTypes(count) {
+  if (count >= 5) return 10;
+  if (count === 4) return 8;
+  if (count === 3) return 6;
+  if (count === 2) return 3;
+  return 1;
+}
+
+function getGradeHtml(score) {
+  if (score >= 90) return `<span class="grade-a">🟢 A — Highly Compliant</span>`;
+  if (score >= 75) return `<span class="grade-b">🟡 B — Compliant</span>`;
+  if (score >= 60) return `<span class="grade-c">🟠 C — Partially Compliant</span>`;
+  if (score >= 40) return `<span class="grade-d">🔴 D — Non-Compliant</span>`;
+  return `<span class="grade-e">⛔ E — Serious Concern</span>`;
+}
+
+function getScoreBar(score) {
+  const color = score>=90?'var(--green)':score>=75?'var(--gold)':score>=60?'var(--orange)':score>=40?'var(--red)':'#a78bfa';
+  return `<span class="score-bar-wrap"><span class="score-bar" style="width:${score}%;background:${color};"></span></span><strong>${score}</strong>`;
+}
+
+function pct(a, b) { return b > 0 ? Math.round(a / b * 100) : 0; }
+
+// ── Build compliance stats for a group of inspection rows ────
+function buildCompStats(rows) {
+  const total     = rows.length;
+  const defects   = rows.filter(r => r.defect === 'Yes');
+  const tests     = rows.filter(r => r.passFailResult);
+  const passed    = tests.filter(r => r.passFailResult === 'Pass').length;
+  const atrTotal  = defects.length;
+  const atrSub    = defects.filter(r => r.atrSubmitted).length;
+  const atrOver   = defects.filter(r => calcATRStatus(r) === 'OVERDUE').length;
+  const workTypes = new Set(rows.map(r => r.workType).filter(Boolean)).size;
+
+  const passRatePct    = pct(passed, tests.length);
+  const defectRatePct  = pct(defects.length, total);
+  const atrSubPct      = atrTotal === 0 ? 100 : pct(atrSub, atrTotal);
+  const atrOverPct     = atrTotal === 0 ? 0   : pct(atrOver, atrTotal);
+
+  return { total, defects: defects.length, tests: tests.length, passed,
+    passRatePct, defectRatePct, atrTotal, atrSub, atrOver,
+    atrSubPct, atrOverPct, workTypes };
+}
+
+// ── Contractor compliance score (Conditions 1–4, max 90 → scaled to 100) ──
+function contractorScore(s) {
+  const raw = scorePassRate(s.passRatePct) +
+              scoreDefectRate(s.defectRatePct) +
+              scoreATRRate(s.atrSubPct) +
+              scoreOverdueRate(s.atrOverPct);
+  // No tests: max raw = 65 (25+15+25 — skip pass rate)
+  const maxPts = s.tests === 0 ? 65 : 90;
+  return Math.round((raw / maxPts) * 100);
+}
+
+// ── Area compliance score (Conditions 1–5, max 100) ─────────
+function areaScore(s) {
+  const raw = scorePassRate(s.passRatePct) +
+              scoreDefectRate(s.defectRatePct) +
+              scoreATRRate(s.atrSubPct) +
+              scoreOverdueRate(s.atrOverPct) +
+              scoreWorkTypes(s.workTypes);
+  const maxPts = s.tests === 0 ? 75 : 100;
+  return Math.round((raw / maxPts) * 100);
+}
+
+// ── Filter helper ────────────────────────────────────────────
+function getCompFiltered(yearId, monthId) {
+  const yr = document.getElementById(yearId)?.value || '';
+  const mo = document.getElementById(monthId)?.value || '';
+  return inspections.filter(r => {
+    if (yr && getYear(r.dateInspected) !== yr) return false;
+    if (mo && r.month !== mo) return false;
+    return true;
+  });
+}
+
+// ── Stat cell HTML ────────────────────────────────────────────
+function statCell(pctVal, pts) {
+  const color = pts >= 20 ? '#34d399' : pts >= 15 ? 'var(--gold2)' : pts >= 8 ? 'var(--orange)' : 'var(--red)';
+  return `<td style="font-family:'JetBrains Mono',monospace;">
+    <span style="color:${color};font-weight:700;">${pctVal}%</span>
+    <span style="font-size:10px;color:var(--text3);margin-left:4px;">(${pts})</span>
+  </td>`;
+}
+
+// ================================================================
+//  CONTRACTOR COMPLIANCE
+// ================================================================
+function populateCCContractorDropdown() {
+  const sel = document.getElementById('ccContractor');
+  if (!sel) return;
+  const contractors = [...new Set(inspections.map(r => r.contractor).filter(Boolean))].sort();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Contractors</option>' +
+    contractors.map(c => `<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
+}
+
+function clearCompFilters(prefix) {
+  if (prefix === 'cc') {
+    ['ccYear','ccMonth','ccContractor'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+    renderContractorCompliance();
+  } else {
+    ['acYear','acMonth'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+    renderAreaCompliance();
+  }
+}
+
+function renderContractorCompliance() {
+  let rows = getCompFiltered('ccYear','ccMonth');
+  const selCon = document.getElementById('ccContractor')?.value || '';
+  if (selCon) rows = rows.filter(r => r.contractor === selCon);
+
+  // Group by contractor
+  const contractors = [...new Set(rows.map(r => r.contractor).filter(Boolean))].sort();
+  const body  = document.getElementById('ccBody');
+  const empty = document.getElementById('ccEmpty');
+  document.getElementById('ccCount').textContent = contractors.length + ' contractor' + (contractors.length !== 1 ? 's' : '');
+
+  if (!contractors.length) { body.innerHTML=''; empty.style.display=''; updateCCKpi([]); return; }
+  empty.style.display = 'none';
+
+  const scored = contractors.map(con => {
+    const cRows = rows.filter(r => r.contractor === con);
+    const s = buildCompStats(cRows);
+    const score = contractorScore(s);
+    return { con, s, score };
+  }).sort((a,b) => b.score - a.score);
+
+  body.innerHTML = scored.map((item, i) => {
+    const {con, s, score} = item;
+    return `<tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${i+1}</td>
+      <td><strong>${con}</strong><br><span style="font-size:10px;color:var(--text3);">${s.total} inspection${s.total!==1?'s':''}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${s.total}</td>
+      ${statCell(s.passRatePct, scorePassRate(s.passRatePct))}
+      ${statCell(s.defectRatePct, scoreDefectRate(s.defectRatePct))}
+      ${statCell(s.atrSubPct, scoreATRRate(s.atrSubPct))}
+      ${statCell(s.atrOverPct, scoreOverdueRate(s.atrOverPct))}
+      <td>${getScoreBar(score)}</td>
+      <td>${getGradeHtml(score)}</td>
+    </tr>`;
+  }).join('');
+
+  updateCCKpi(scored.map(x => x.score));
+}
+
+function updateCCKpi(scores) {
+  document.getElementById('ccTotalContractors').textContent = scores.length;
+  document.getElementById('ccGradeA').textContent  = scores.filter(s=>s>=90).length;
+  document.getElementById('ccGradeB').textContent  = scores.filter(s=>s>=75&&s<90).length;
+  document.getElementById('ccGradeC').textContent  = scores.filter(s=>s>=60&&s<75).length;
+  document.getElementById('ccGradeDE').textContent = scores.filter(s=>s<60).length;
+}
+
+// ================================================================
+//  AREA COMPLIANCE (Dzongkhag + RO/Thromde)
+// ================================================================
+const DZK_LIST = ['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
+const RO_LIST  = ['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'];
+
+function renderAreaCompliance() {
+  const type  = document.getElementById('acType')?.value || 'dzongkhag';
+  const selArea = document.getElementById('acArea')?.value || '';
+
+  // Update area dropdown
+  const areaSel = document.getElementById('acArea');
+  const areaList = type === 'dzongkhag' ? DZK_LIST : RO_LIST;
+  const curArea = areaSel?.value || '';
+  if (areaSel) {
+    areaSel.innerHTML = '<option value="">All Areas</option>' +
+      areaList.map(a=>`<option value="${a}"${a===curArea?' selected':''}>${a}</option>`).join('');
+  }
+
+  // Update table header
+  const hdr = document.getElementById('acAreaHeader');
+  if (hdr) hdr.textContent = type === 'dzongkhag' ? 'Dzongkhag' : 'RO / Thromde';
+
+  let rows = getCompFiltered('acYear','acMonth');
+  if (selArea) rows = rows.filter(r => (type==='dzongkhag' ? r.dzongkhag : r.ro) === selArea);
+
+  // Get areas that have data
+  const areas = [...new Set(rows.map(r => type==='dzongkhag' ? r.dzongkhag : r.ro).filter(Boolean))].sort();
+
+  const body  = document.getElementById('acBody');
+  const empty = document.getElementById('acEmpty');
+  document.getElementById('acCount').textContent = areas.length + ' area' + (areas.length!==1?'s':'');
+
+  if (!areas.length) { body.innerHTML=''; empty.style.display=''; updateACKpi([]); return; }
+  empty.style.display = 'none';
+
+  const scored = areas.map(area => {
+    const aRows = rows.filter(r => (type==='dzongkhag' ? r.dzongkhag : r.ro) === area);
+    const s = buildCompStats(aRows);
+    const score = areaScore(s);
+    return { area, s, score };
+  }).sort((a,b) => b.score - a.score);
+
+  body.innerHTML = scored.map((item, i) => {
+    const {area, s, score} = item;
+    const wtPts = scoreWorkTypes(s.workTypes);
+    return `<tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${i+1}</td>
+      <td><strong>${area}</strong></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${s.total}</td>
+      ${statCell(s.passRatePct, scorePassRate(s.passRatePct))}
+      ${statCell(s.defectRatePct, scoreDefectRate(s.defectRatePct))}
+      ${statCell(s.atrSubPct, scoreATRRate(s.atrSubPct))}
+      ${statCell(s.atrOverPct, scoreOverdueRate(s.atrOverPct))}
+      <td style="font-family:'JetBrains Mono',monospace;">
+        <span style="color:${wtPts>=8?'#34d399':wtPts>=6?'var(--gold2)':wtPts>=3?'var(--orange)':'var(--red)'};font-weight:700;">${s.workTypes}</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:4px;">(${wtPts})</span>
+      </td>
+      <td>${getScoreBar(score)}</td>
+      <td>${getGradeHtml(score)}</td>
+    </tr>`;
+  }).join('');
+
+  updateACKpi(scored.map(x => x.score));
+}
+
+function updateACKpi(scores) {
+  document.getElementById('acTotalAreas').textContent = scores.length;
+  document.getElementById('acGradeA').textContent  = scores.filter(s=>s>=90).length;
+  document.getElementById('acGradeB').textContent  = scores.filter(s=>s>=75&&s<90).length;
+  document.getElementById('acGradeC').textContent  = scores.filter(s=>s>=60&&s<75).length;
+  document.getElementById('acGradeDE').textContent = scores.filter(s=>s<60).length;
 }
 
 function closeDuePopup() {
