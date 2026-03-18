@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -519,7 +518,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
       </div>
       <div class="filters">
         <span class="filter-label">📅 VIEW BY:</span>
-        <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select>
+        <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option><option value="2031">2031</option><option value="2032">2032</option><option value="2033">2033</option><option value="2034">2034</option><option value="2035">2035</option><option value="2036">2036</option><option value="2037">2037</option><option value="2038">2038</option><option value="2039">2039</option><option value="2040">2040</option><option value="2041">2041</option><option value="2042">2042</option><option value="2043">2043</option><option value="2044">2044</option><option value="2045">2045</option><option value="2046">2046</option><option value="2047">2047</option><option value="2048">2048</option><option value="2049">2049</option><option value="2050">2050</option></select>
         <select class="filter-select" id="fMonth" onchange="refreshDash()"><option value="">All Months</option><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
         <select class="filter-select" id="fDzong" onchange="refreshDash()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
         <select class="filter-select" id="fRO" onchange="refreshDash()"><option value="">All ROs</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
@@ -768,10 +767,32 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
         <span class="filter-label">🔍 FILTER BY:</span>
         <select class="filter-select" id="aYear" onchange="renderCharts()">
           <option value="">All Years</option>
-          <option value="2024">2024</option>
           <option value="2025">2025</option>
           <option value="2026">2026</option>
           <option value="2027">2027</option>
+          <option value="2028">2028</option>
+          <option value="2029">2029</option>
+          <option value="2030">2030</option>
+          <option value="2031">2031</option>
+          <option value="2032">2032</option>
+          <option value="2033">2033</option>
+          <option value="2034">2034</option>
+          <option value="2035">2035</option>
+          <option value="2036">2036</option>
+          <option value="2037">2037</option>
+          <option value="2038">2038</option>
+          <option value="2039">2039</option>
+          <option value="2040">2040</option>
+          <option value="2041">2041</option>
+          <option value="2042">2042</option>
+          <option value="2043">2043</option>
+          <option value="2044">2044</option>
+          <option value="2045">2045</option>
+          <option value="2046">2046</option>
+          <option value="2047">2047</option>
+          <option value="2048">2048</option>
+          <option value="2049">2049</option>
+          <option value="2050">2050</option>
         </select>
         <select class="filter-select" id="aMonth" onchange="renderCharts()">
           <option value="">All Months</option>
@@ -1995,7 +2016,7 @@ function markSubmitted(i){
 
 // ===== ANALYTICS =====
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const YEARS=['2024','2025','2026','2027'];
+const YEARS=['2025','2026','2027','2028','2029','2030','2031','2032','2033','2034','2035','2036','2037','2038','2039','2040','2041','2042','2043','2044','2045','2046','2047','2048','2049','2050'];
 const CC={bg:'rgba(37,99,235,0.7)',bg2:'rgba(59,130,246,0.5)',green:'rgba(16,185,129,0.7)',red:'rgba(239,68,68,0.7)',orange:'rgba(249,115,22,0.7)',gold:'rgba(245,158,11,0.8)',gold2:'rgba(251,191,36,0.6)'};
 const DZ_NAMES=['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
 const RO_NAMES=['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'];
