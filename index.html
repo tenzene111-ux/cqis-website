@@ -207,6 +207,60 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .atr-stat-pill .val{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;line-height:1;}
 .atr-stat-pill .lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-top:2px;}
 
+/* ATR FILE UPLOAD */
+.atr-file-btn{background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);border-radius:5px;padding:4px 10px;color:var(--accent3);font-size:11px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.atr-file-btn:hover{background:rgba(37,99,235,.2);}
+.atr-file-input{display:none;}
+.atr-file-link{display:inline-flex;align-items:center;gap:4px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:5px;padding:4px 10px;color:var(--green);font-size:11px;text-decoration:none;white-space:nowrap;}
+.atr-file-link:hover{background:rgba(16,185,129,.2);}
+.atr-file-del{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:2px 6px;color:#f87171;font-size:10px;cursor:pointer;margin-left:3px;}
+
+/* ATR FILE MODAL */
+.atr-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;}
+.atr-modal-box{background:var(--panel);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:500px;padding:28px;box-shadow:0 0 40px rgba(37,99,235,.2);}
+.atr-modal-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.atr-drop-zone{border:2px dashed var(--border2);border-radius:10px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3);}
+.atr-drop-zone:hover,.atr-drop-zone.drag-over{border-color:var(--accent2);background:rgba(37,99,235,.06);}
+.atr-drop-zone-icon{font-size:36px;margin-bottom:8px;}
+.atr-drop-text{font-size:13px;color:var(--text2);margin-bottom:4px;}
+.atr-drop-sub{font-size:11px;color:var(--text3);}
+.atr-file-preview{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-top:12px;display:none;align-items:center;justify-content:space-between;gap:10px;}
+.atr-preview-name{font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.atr-preview-size{font-size:11px;color:var(--text3);flex-shrink:0;}
+
+/* DOWNLOADS SHEET */
+.dl-section-title{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);border-left:4px solid var(--accent);padding-left:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.dl-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;}
+.dl-table{width:100%;font-size:13px;border-collapse:collapse;}
+.dl-table th{padding:10px 14px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);}
+.dl-table td{padding:10px 14px;border-bottom:1px solid rgba(42,58,92,.4);vertical-align:middle;}
+.dl-table tr:last-child td{border-bottom:none;}
+.dl-table tr:hover td{background:rgba(37,99,235,.04);}
+.dl-file-name{font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;}
+.dl-file-icon{font-size:20px;flex-shrink:0;}
+.dl-file-desc{font-size:11px;color:var(--text3);margin-top:2px;}
+.dl-file-meta{font-size:11px;color:var(--text3);}
+.dl-btn-open{background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);border-radius:6px;padding:5px 12px;color:var(--accent3);font-size:12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .2s;}
+.dl-btn-open:hover{background:rgba(37,99,235,.22);}
+.dl-btn-dl{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:6px;padding:5px 12px;color:var(--green);font-size:12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .2s;}
+.dl-btn-dl:hover{background:rgba(16,185,129,.2);}
+.dl-btn-del{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:6px;padding:5px 10px;color:#f87171;font-size:12px;cursor:pointer;transition:all .2s;}
+.dl-btn-del:hover{background:rgba(239,68,68,.18);}
+.dl-empty{text-align:center;padding:32px;color:var(--text3);font-size:13px;}
+.dl-upload-zone{border:2px dashed var(--border2);border-radius:10px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3);}
+.dl-upload-zone:hover,.dl-upload-zone.drag-over{border-color:var(--accent2);background:rgba(37,99,235,.06);}
+.dl-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.dl-tag-office{background:rgba(37,99,235,.15);color:var(--accent3);}
+.dl-tag-inspection{background:rgba(245,158,11,.15);color:var(--gold2);}
+.dl-tag-report{background:rgba(16,185,129,.15);color:#34d399;}
+.dl-tag-other{background:rgba(100,116,139,.15);color:var(--text2);}
+
+/* DOWNLOADS MODAL */
+.dl-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.dl-modal-overlay.open{display:flex;}
+.dl-modal-box{background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:560px;padding:30px;box-shadow:0 0 50px rgba(37,99,235,.2);}
+.dl-modal-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:1px;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+
 /* DUE DATE POPUP */
 .due-popup{position:fixed;top:80px;right:24px;z-index:999;background:var(--panel);border:1px solid var(--orange);border-radius:14px;padding:20px 22px;width:340px;box-shadow:0 8px 40px rgba(249,115,22,.25);display:none;animation:slideInRight .3s ease;}
 .due-popup.show{display:block;}
@@ -497,6 +551,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
     <button class="nav-tab" onclick="showTab('report',this)">📄 Report</button>
     <button class="nav-tab" onclick="showTab('instructions',this)">📖 Guide</button>
     <button class="nav-tab" onclick="showTab('projupdates',this)">🏗️ Project Updates</button>
+    <button class="nav-tab" onclick="showTab('downloads',this)">📥 Downloads</button>
   </div>
 
   <!-- Viewer global banner -->
@@ -759,7 +814,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
           <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:var(--text2);">All Defect Entries — ATR Status</div>
           <select class="filter-select" id="atrFilter" onchange="renderATR()"><option value="">All Statuses</option><option value="OVERDUE">Overdue Only</option><option value="DUE SOON">Due Soon Only</option><option value="Pending">Pending Only</option><option value="Submitted">Submitted Only</option></select>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>Mark Submitted</th></tr></thead><tbody id="atrBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Mark Submitted</th></tr></thead><tbody id="atrBody"></tbody></table></div>
         <div class="no-data" id="noATR" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">✅</div>No ATR records found.</div>
       </div>
     </div>
@@ -1204,6 +1259,109 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
       </div>
     </div>
 
+    <!-- DOWNLOADS SHEET -->
+    <div id="tab-downloads" style="display:none">
+      <div class="section-header">
+        <div>
+          <div class="section-title">DOWNLOADS</div>
+          <div class="section-badge">Office Files, Inspection Sheets &amp; Other Documents</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;" id="dlAdminBtns">
+          <button class="btn-primary" onclick="openDLUploadModal()" style="display:flex;align-items:center;gap:6px;padding:9px 18px;font-size:13px;">
+            ➕ Upload File
+          </button>
+        </div>
+      </div>
+
+      <!-- CATEGORY FILTER -->
+      <div class="filters" style="margin-bottom:20px;">
+        <span class="filter-label">📂 CATEGORY:</span>
+        <button id="dlCatAll"    class="btn-primary"    style="padding:6px 14px;font-size:12px;" onclick="filterDLCat('all',this)">All Files</button>
+        <button id="dlCatOffice" class="btn-secondary" style="padding:6px 14px;font-size:12px;" onclick="filterDLCat('office',this)">🏢 Office Files</button>
+        <button id="dlCatInsp"   class="btn-secondary" style="padding:6px 14px;font-size:12px;" onclick="filterDLCat('inspection',this)">📋 Inspection Sheets</button>
+        <button id="dlCatReport" class="btn-secondary" style="padding:6px 14px;font-size:12px;" onclick="filterDLCat('report',this)">📄 Reports</button>
+        <button id="dlCatOther"  class="btn-secondary" style="padding:6px 14px;font-size:12px;" onclick="filterDLCat('other',this)">📁 Other</button>
+        <input class="table-search" id="dlSearch" placeholder="🔍 Search files…" oninput="renderDownloads()" style="width:200px;margin-left:auto;">
+        <span id="dlCount" style="font-size:12px;color:var(--text3);">0 files</span>
+      </div>
+
+      <!-- FILES TABLE -->
+      <div class="dl-card">
+        <table class="dl-table">
+          <thead>
+            <tr>
+              <th style="width:40%">File Name</th>
+              <th>Category</th>
+              <th>Size</th>
+              <th>Uploaded By</th>
+              <th>Date</th>
+              <th style="text-align:center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="dlBody"></tbody>
+        </table>
+        <div class="dl-empty" id="dlEmpty" style="display:none;">
+          <div style="font-size:36px;margin-bottom:10px;">📂</div>
+          No files uploaded yet. Click <strong>Upload File</strong> to add documents.
+        </div>
+      </div>
+    </div>
+
+    <!-- UPLOAD FILE MODAL -->
+    <div class="dl-modal-overlay" id="dlUploadModal">
+      <div class="dl-modal-box">
+        <div class="dl-modal-title">📤 Upload File</div>
+
+        <!-- Drop zone -->
+        <div class="dl-upload-zone" id="dlDropZone"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleDLDrop(event)"
+          onclick="document.getElementById('dlFileInput').click()">
+          <div style="font-size:40px;margin-bottom:8px;">📁</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px;">Click or drag &amp; drop file here</div>
+          <div style="font-size:12px;color:var(--text3);">PDF, DOC, DOCX, XLS, XLSX, JPG, PNG — Max 10MB</div>
+          <input type="file" id="dlFileInput" style="display:none;"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.ppt,.pptx,.txt"
+            onchange="handleDLFileSelect(event)">
+        </div>
+
+        <!-- File preview -->
+        <div id="dlFilePreview" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:12px;display:none;align-items:center;justify-content:space-between;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;overflow:hidden;">
+            <span id="dlPreviewIcon" style="font-size:24px;flex-shrink:0;">📄</span>
+            <div style="overflow:hidden;">
+              <div id="dlPreviewName" style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+              <div id="dlPreviewSize" style="font-size:11px;color:var(--text3);"></div>
+            </div>
+          </div>
+          <button onclick="clearDLFile()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;flex-shrink:0;">✕</button>
+        </div>
+
+        <!-- File details form -->
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px;">
+          <div class="field-wrap">
+            <label>File Description <span style="font-size:10px;color:var(--text3);font-weight:400;">(optional)</span></label>
+            <input type="text" id="dlDesc" class="field-input" placeholder="e.g. Monthly inspection sheet for March 2026">
+          </div>
+          <div class="field-wrap">
+            <label>Category</label>
+            <select id="dlCategory" class="field-input">
+              <option value="office">🏢 Office File</option>
+              <option value="inspection">📋 Inspection Sheet</option>
+              <option value="report">📄 Report</option>
+              <option value="other">📁 Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:20px;">
+          <button class="btn-primary" onclick="saveDLFile()" style="padding:10px 24px;">📤 Upload</button>
+          <button class="btn-secondary" onclick="closeDLUploadModal()" style="padding:10px 20px;">Cancel</button>
+        </div>
+      </div>
+    </div>
+
 </div><!-- end app -->
 
 <!-- SBRW Report Modal -->
@@ -1280,6 +1438,8 @@ async function loadAllDataFromFirebase() {
     localStorage.setItem('projectUpdates_cqis', JSON.stringify(projectUpdates));
 
     console.log('✅ Firebase: loaded', inspections.length, 'inspections,', projectUpdates.length, 'project updates');
+    // Load downloads
+    await loadDownloadsFromFirebase();
   } catch(e) {
     console.warn('⚠️ Firebase load failed, using local cache:', e);
     // Fall back to localStorage cache if offline
@@ -1627,6 +1787,7 @@ function showTab(id,btn){
   if(id==='dashboard') refreshDash();
   if(id==='qc') sbrwUpdateSum();
   if(id==='projupdates') renderPUTable();
+  if(id==='downloads'){ renderDownloads(); applyDLAdminUI(); }
   if(id==='entry'){
     const isAdmin=currentUser&&currentUser.isAdmin;
     const notice=document.getElementById('viewerLockNotice');
@@ -2009,6 +2170,7 @@ function renderATR(){
   if(!rows.length){body.innerHTML='';document.getElementById('noATR').style.display='';return;}
   document.getElementById('noATR').style.display='none';
   const isAdmin=currentUser&&currentUser.isAdmin;
+  const isUser=currentUser&&currentUser.isUser;
   body.innerHTML=rows.map(r=>{
     const idx=inspections.indexOf(r),status=calcATRStatus(r);
     const dLeft=r.atrDeadline?daysFromNow(r.atrDeadline):'—';
@@ -2016,6 +2178,33 @@ function renderATR(){
     if(status==='OVERDUE')rowStyle='background:rgba(239,68,68,.06);';
     else if(status==='DUE SOON')rowStyle='background:rgba(249,115,22,.06);';
     else if(status==='Submitted')rowStyle='background:rgba(16,185,129,.04);';
+
+    // ATR File cell — show upload button or file link if already uploaded
+    let fileCell = '';
+    if(r.atrFile && r.atrFileName){
+      // File exists — show open + download link
+      fileCell = `
+        <div style="display:flex;flex-direction:column;gap:4px;min-width:120px;">
+          <a class="atr-file-link" href="${r.atrFile}" download="${r.atrFileName}" title="Download ${r.atrFileName}">
+            📄 ${r.atrFileName.length>18?r.atrFileName.substring(0,15)+'…':r.atrFileName}
+          </a>
+          <div style="display:flex;gap:4px;">
+            <a class="atr-file-link" href="${r.atrFile}" target="_blank" style="font-size:10px;padding:2px 8px;">🔍 Open</a>
+            ${(isAdmin||isUser)?`<button class="atr-file-del" onclick="deleteATRFile(${idx})" title="Remove file">✕</button>`:''}
+          </div>
+        </div>`;
+    } else if(isAdmin||isUser){
+      // No file yet — show upload button
+      fileCell = `
+        <label class="atr-file-btn" title="Upload ATR document">
+          📎 Upload ATR
+          <input type="file" class="atr-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
+            onchange="handleATRFileUpload(event, ${idx})">
+        </label>`;
+    } else {
+      fileCell = '<span style="color:var(--text3);font-size:11px;">—</span>';
+    }
+
     return `<tr style="${rowStyle}">
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.sn}</td>
       <td><strong>${r.projectName||'—'}</strong></td>
@@ -2024,7 +2213,9 @@ function renderATR(){
       <td style="max-width:140px;">${r.action||'—'}</td>
       <td>${r.inspector||'—'}</td><td>${r.atrDeadline||'—'}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${typeof dLeft==='number'&&dLeft<0?'var(--red)':dLeft<=7?'var(--orange)':'var(--text)'}">${dLeft}</td>
-      <td>${badgeHtml(status)}</td><td>${r.atrSubmitted||'—'}</td>
+      <td>${badgeHtml(status)}</td>
+      <td>${r.atrSubmitted||'—'}</td>
+      <td>${fileCell}</td>
       <td>${(isAdmin&&status!=='Submitted')?`<button class="action-btn" onclick="markSubmitted(${idx})">✅ Submit</button>`:'—'}</td>
     </tr>`;
   }).join('');
@@ -2035,6 +2226,91 @@ function markSubmitted(i){
   save();
   renderATR();
   fbMarkATRSubmitted(inspections[i]).then(()=>toast('✅ ATR marked Submitted in Firebase.'));
+}
+
+// ===== ATR FILE UPLOAD =====
+function handleATRFileUpload(event, idx) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Max file size 5MB
+  if (file.size > 5 * 1024 * 1024) {
+    toast('⚠️ File too large. Maximum size is 5MB.');
+    event.target.value = '';
+    return;
+  }
+
+  const allowedTypes = ['application/pdf','application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/jpeg','image/png',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+
+  if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|jpg|jpeg|png|xls|xlsx)$/i)) {
+    toast('⚠️ File type not supported. Use PDF, DOC, DOCX, JPG, PNG, XLS, XLSX.');
+    event.target.value = '';
+    return;
+  }
+
+  dbLoading(true, 'Reading ATR file…');
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataURL = e.target.result;
+    inspections[idx].atrFile     = dataURL;
+    inspections[idx].atrFileName = file.name;
+    inspections[idx].atrFileSize = (file.size / 1024).toFixed(1) + ' KB';
+    inspections[idx].atrFileDate = today();
+    save();
+
+    // Update Firebase
+    if (inspections[idx].id) {
+      db.collection('inspections').doc(inspections[idx].id).update({
+        atrFile:     dataURL,
+        atrFileName: file.name,
+        atrFileSize: inspections[idx].atrFileSize,
+        atrFileDate: today()
+      }).then(() => {
+        dbLoading(false);
+        toast('📎 ATR file uploaded successfully!');
+        renderATR();
+      }).catch(() => {
+        dbLoading(false);
+        toast('📎 ATR file saved locally!');
+        renderATR();
+      });
+    } else {
+      dbLoading(false);
+      toast('📎 ATR file saved!');
+      renderATR();
+    }
+  };
+  reader.onerror = function() {
+    dbLoading(false);
+    toast('⚠️ Failed to read file. Please try again.');
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteATRFile(idx) {
+  if (!confirm('Remove this ATR file?')) return;
+  delete inspections[idx].atrFile;
+  delete inspections[idx].atrFileName;
+  delete inspections[idx].atrFileSize;
+  delete inspections[idx].atrFileDate;
+  save();
+
+  // Remove from Firebase too
+  if (inspections[idx].id) {
+    db.collection('inspections').doc(inspections[idx].id).update({
+      atrFile: firebase.firestore.FieldValue.delete(),
+      atrFileName: firebase.firestore.FieldValue.delete(),
+      atrFileSize: firebase.firestore.FieldValue.delete(),
+      atrFileDate: firebase.firestore.FieldValue.delete()
+    }).catch(e => console.warn('Firebase ATR file delete:', e));
+  }
+  toast('🗑️ ATR file removed.');
+  renderATR();
 }
 
 // ===== ANALYTICS =====
@@ -2897,6 +3173,230 @@ function checkDueDates() {
     </div>`
   ).join('');
   popup.classList.add('show');
+}
+
+// ================================================================
+//  DOWNLOADS SHEET
+// ================================================================
+let downloads = JSON.parse(localStorage.getItem('downloads_cqis') || '[]');
+let dlCurrentCat = 'all';
+let dlSelectedFile = null;
+
+function saveDLStore() {
+  localStorage.setItem('downloads_cqis', JSON.stringify(downloads));
+}
+
+// File type icon mapper
+function dlFileIcon(name) {
+  const ext = (name||'').split('.').pop().toLowerCase();
+  const map = {
+    pdf:'📕', doc:'📘', docx:'📘', xls:'📗', xlsx:'📗',
+    ppt:'📙', pptx:'📙', jpg:'🖼️', jpeg:'🖼️', png:'🖼️', txt:'📄'
+  };
+  return map[ext] || '📄';
+}
+
+// Tag HTML by category
+function dlTagHtml(cat) {
+  const map = {
+    office:     '<span class="dl-tag dl-tag-office">🏢 Office</span>',
+    inspection: '<span class="dl-tag dl-tag-inspection">📋 Inspection</span>',
+    report:     '<span class="dl-tag dl-tag-report">📄 Report</span>',
+    other:      '<span class="dl-tag dl-tag-other">📁 Other</span>',
+  };
+  return map[cat] || map.other;
+}
+
+// Show/hide Upload button based on role
+function applyDLAdminUI() {
+  const btns = document.getElementById('dlAdminBtns');
+  if (!btns) return;
+  const canUpload = currentUser && (currentUser.isAdmin || currentUser.isUser);
+  btns.style.display = canUpload ? '' : 'none';
+}
+
+// Filter by category
+function filterDLCat(cat, btn) {
+  dlCurrentCat = cat;
+  // Update button styles
+  ['dlCatAll','dlCatOffice','dlCatInsp','dlCatReport','dlCatOther'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.className = 'btn-secondary'; el.style.padding='6px 14px'; el.style.fontSize='12px'; }
+  });
+  if (btn) { btn.className = 'btn-primary'; btn.style.padding='6px 14px'; btn.style.fontSize='12px'; }
+  renderDownloads();
+}
+
+// Render downloads table
+function renderDownloads() {
+  const search = (document.getElementById('dlSearch')?.value || '').toLowerCase();
+  let rows = downloads.filter(f => {
+    if (dlCurrentCat !== 'all' && f.category !== dlCurrentCat) return false;
+    if (search && !f.name.toLowerCase().includes(search) && !(f.desc||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('dlCount').textContent = rows.length + ' file' + (rows.length !== 1 ? 's' : '');
+  const body = document.getElementById('dlBody');
+  const empty = document.getElementById('dlEmpty');
+  const canManage = currentUser && (currentUser.isAdmin || currentUser.isUser);
+
+  if (!rows.length) {
+    body.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  body.innerHTML = rows.map((f, i) => {
+    const realIdx = downloads.indexOf(f);
+    return `<tr>
+      <td>
+        <div class="dl-file-name">
+          <span class="dl-file-icon">${dlFileIcon(f.name)}</span>
+          <div>
+            <div>${f.name}</div>
+            ${f.desc ? `<div class="dl-file-desc">${f.desc}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td>${dlTagHtml(f.category)}</td>
+      <td class="dl-file-meta">${f.size || '—'}</td>
+      <td class="dl-file-meta">${f.uploadedBy || '—'}</td>
+      <td class="dl-file-meta">${f.date || '—'}</td>
+      <td style="text-align:center;">
+        <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+          <a class="dl-btn-open" href="${f.data}" target="_blank">🔍 Open</a>
+          <a class="dl-btn-dl"   href="${f.data}" download="${f.name}">⬇️ Download</a>
+          ${canManage ? `<button class="dl-btn-del" onclick="deleteDLFile(${realIdx})" title="Delete">🗑</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// Open upload modal
+function openDLUploadModal() {
+  if (!currentUser || (!currentUser.isAdmin && !currentUser.isUser)) {
+    alert('Access Denied: Only Admins and Users can upload files.'); return;
+  }
+  dlSelectedFile = null;
+  document.getElementById('dlFileInput').value = '';
+  document.getElementById('dlDesc').value = '';
+  document.getElementById('dlCategory').selectedIndex = 0;
+  document.getElementById('dlFilePreview').style.display = 'none';
+  document.getElementById('dlDropZone').style.display = '';
+  document.getElementById('dlUploadModal').classList.add('open');
+}
+
+function closeDLUploadModal() {
+  document.getElementById('dlUploadModal').classList.remove('open');
+  dlSelectedFile = null;
+}
+
+// Handle file selected via input
+function handleDLFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) processDLFile(file);
+}
+
+// Handle drag and drop
+function handleDLDrop(event) {
+  event.preventDefault();
+  document.getElementById('dlDropZone').classList.remove('drag-over');
+  const file = event.dataTransfer.files[0];
+  if (file) processDLFile(file);
+}
+
+function processDLFile(file) {
+  // Max 10MB
+  if (file.size > 10 * 1024 * 1024) {
+    toast('⚠️ File too large. Maximum size is 10MB.'); return;
+  }
+  dlSelectedFile = file;
+  // Show preview
+  const preview = document.getElementById('dlFilePreview');
+  document.getElementById('dlPreviewIcon').textContent = dlFileIcon(file.name);
+  document.getElementById('dlPreviewName').textContent = file.name;
+  document.getElementById('dlPreviewSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+  preview.style.display = 'flex';
+  // Auto-detect category
+  const ext = file.name.split('.').pop().toLowerCase();
+  const sel = document.getElementById('dlCategory');
+  if (['xls','xlsx'].includes(ext)) sel.value = 'inspection';
+  else if (['pdf','doc','docx'].includes(ext)) sel.value = 'office';
+  else if (['ppt','pptx'].includes(ext)) sel.value = 'report';
+  else sel.value = 'other';
+}
+
+function clearDLFile() {
+  dlSelectedFile = null;
+  document.getElementById('dlFileInput').value = '';
+  document.getElementById('dlFilePreview').style.display = 'none';
+}
+
+// Save uploaded file
+function saveDLFile() {
+  if (!dlSelectedFile) { toast('⚠️ Please select a file first.'); return; }
+  dbLoading(true, 'Reading file…');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const entry = {
+      id:         Date.now(),
+      name:       dlSelectedFile.name,
+      desc:       document.getElementById('dlDesc').value.trim(),
+      category:   document.getElementById('dlCategory').value,
+      size:       (dlSelectedFile.size / 1024).toFixed(1) + ' KB',
+      uploadedBy: currentUser.name || currentUser.username || 'Unknown',
+      date:       today(),
+      data:       e.target.result,
+    };
+    downloads.push(entry);
+    saveDLStore();
+    // Save to Firebase
+    if (typeof db !== 'undefined') {
+      db.collection('downloads').add(entry)
+        .then(() => { dbLoading(false); toast('✅ File uploaded successfully!'); })
+        .catch(() => { dbLoading(false); toast('✅ File saved locally!'); });
+    } else {
+      dbLoading(false);
+      toast('✅ File uploaded successfully!');
+    }
+    closeDLUploadModal();
+    renderDownloads();
+  };
+  reader.onerror = () => { dbLoading(false); toast('⚠️ Failed to read file.'); };
+  reader.readAsDataURL(dlSelectedFile);
+}
+
+// Delete a file
+function deleteDLFile(idx) {
+  if (!confirm('Delete this file permanently?')) return;
+  const f = downloads[idx];
+  downloads.splice(idx, 1);
+  saveDLStore();
+  // Delete from Firebase
+  if (typeof db !== 'undefined' && f.firebaseId) {
+    db.collection('downloads').doc(f.firebaseId).delete().catch(e => console.warn(e));
+  }
+  toast('🗑️ File deleted.');
+  renderDownloads();
+}
+
+// Load downloads from Firebase on login
+async function loadDownloadsFromFirebase() {
+  if (typeof db === 'undefined') return;
+  try {
+    const snap = await db.collection('downloads').orderBy('date').get();
+    if (!snap.empty) {
+      downloads = [];
+      snap.forEach(doc => downloads.push({ firebaseId: doc.id, ...doc.data() }));
+      saveDLStore();
+    }
+  } catch(e) {
+    // Use local cache if offline
+    downloads = JSON.parse(localStorage.getItem('downloads_cqis') || '[]');
+  }
 }
 
 function closeDuePopup() {
