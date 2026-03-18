@@ -518,7 +518,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
       </div>
       <div class="filters">
         <span class="filter-label">📅 VIEW BY:</span>
-        <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option><option value="2031">2031</option><option value="2032">2032</option><option value="2033">2033</option><option value="2034">2034</option><option value="2035">2035</option><option value="2036">2036</option><option value="2037">2037</option><option value="2038">2038</option><option value="2039">2039</option><option value="2040">2040</option><option value="2041">2041</option><option value="2042">2042</option><option value="2043">2043</option><option value="2044">2044</option><option value="2045">2045</option><option value="2046">2046</option><option value="2047">2047</option><option value="2048">2048</option><option value="2049">2049</option><option value="2050">2050</option></select>
+        <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select>
         <select class="filter-select" id="fMonth" onchange="refreshDash()"><option value="">All Months</option><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
         <select class="filter-select" id="fDzong" onchange="refreshDash()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
         <select class="filter-select" id="fRO" onchange="refreshDash()"><option value="">All ROs</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
@@ -602,7 +602,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
           <!-- RO/Thromde field (hidden by default) -->
           <div class="field-wrap" id="roThromdeField" style="display:none;">
             <label>Regional Office (RO) / Thromde</label>
-            <select id="fRO"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+            <select id="fROForm"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
           </div>
         </div>
       </div>
@@ -647,8 +647,19 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
             <textarea id="fDefectDesc" placeholder="Describe the defect observed…"></textarea>
           </div>
           <div class="field-wrap" id="moitRefField">
-            <label>MOIT Specification Reference</label>
-            <select id="fMOITRef"><option value="">— Select Clause —</option><option value="Cl.303">Cl.303 — Subgrade</option><option value="Cl.305">Cl.305 — Sub-base</option><option value="Cl.401">Cl.401 — WMM</option><option value="Cl.501">Cl.501 — Prime Coat</option><option value="Cl.507">Cl.507 — DBM</option><option value="Cl.508">Cl.508 — BC</option><option value="Cl.601">Cl.601 — Culverts</option><option value="Cl.702">Cl.702 — Retaining Walls</option><option value="Cl.801">Cl.801 — Road Signs</option><option value="Cl.1001">Cl.1001 — Bridges</option></select>
+            <label>MOIT Specification Reference <span style="font-size:10px;color:var(--text3);font-weight:400;">(select multiple)</span></label>
+            <div id="fMOITRefWrap" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;">
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.303" class="moit-cb" style="accent-color:var(--accent2);"> Cl.303 — Subgrade</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.305" class="moit-cb" style="accent-color:var(--accent2);"> Cl.305 — Sub-base</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.401" class="moit-cb" style="accent-color:var(--accent2);"> Cl.401 — WMM</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.501" class="moit-cb" style="accent-color:var(--accent2);"> Cl.501 — Prime Coat</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.507" class="moit-cb" style="accent-color:var(--accent2);"> Cl.507 — DBM</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.508" class="moit-cb" style="accent-color:var(--accent2);"> Cl.508 — BC</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.601" class="moit-cb" style="accent-color:var(--accent2);"> Cl.601 — Culverts</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.702" class="moit-cb" style="accent-color:var(--accent2);"> Cl.702 — Retaining Walls</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.801" class="moit-cb" style="accent-color:var(--accent2);"> Cl.801 — Road Signs</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;"><input type="checkbox" value="Cl.1001" class="moit-cb" style="accent-color:var(--accent2);"> Cl.1001 — Bridges</label>
+            </div>
           </div>
           <div class="field-wrap" id="actionField">
             <label>Action Required</label>
@@ -657,18 +668,18 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
         </div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Quality Test Results</div>
-        <div class="form-grid">
-          <div class="field-wrap"><label>Test Conducted</label><input type="text" id="fTest" placeholder="e.g. Field Density Test (Sand Replacement)"></div>
-          <div class="field-wrap"><label>Required Test Value</label><input type="text" id="fReqVal" placeholder="e.g. ≥98% MDD per Cl.305.3.4"></div>
-          <div class="field-wrap"><label>Test Result / Value</label><input type="text" id="fResult" placeholder="e.g. 96.5% MDD" oninput="triggerQCCheck()"></div>
-          <div class="field-wrap"><label>Pass / Fail (Manual Override)</label>
-            <select id="fPassFail"><option value="">— Auto or Manual —</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select>
-          </div>
-        </div>
+        <div class="form-section-title">Quality Test Results <span style="font-size:11px;color:var(--text3);font-weight:400;letter-spacing:0;">(add multiple tests)</span></div>
+
+        <!-- Multi-test rows container -->
+        <div id="testRowsContainer"></div>
+
+        <!-- Add test button -->
+        <button type="button" onclick="addTestRow()" class="btn-secondary" style="margin-top:8px;padding:8px 16px;font-size:12px;display:flex;align-items:center;gap:6px;">
+          ➕ Add Another Test
+        </button>
 
         <!-- AUTO QC RESULT PANEL -->
-        <div class="qc-result-panel" id="qcResultPanel">
+        <div class="qc-result-panel" id="qcResultPanel" style="margin-top:16px;">
           <div class="qc-result-header">
             <span>🔬</span> SBRW 2025 Auto-QC Check
             <span id="qcWorkTypeLabel" style="font-size:11px;color:var(--text3);font-weight:400;margin-left:8px;"></span>
@@ -767,32 +778,10 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
         <span class="filter-label">🔍 FILTER BY:</span>
         <select class="filter-select" id="aYear" onchange="renderCharts()">
           <option value="">All Years</option>
+          <option value="2024">2024</option>
           <option value="2025">2025</option>
           <option value="2026">2026</option>
           <option value="2027">2027</option>
-          <option value="2028">2028</option>
-          <option value="2029">2029</option>
-          <option value="2030">2030</option>
-          <option value="2031">2031</option>
-          <option value="2032">2032</option>
-          <option value="2033">2033</option>
-          <option value="2034">2034</option>
-          <option value="2035">2035</option>
-          <option value="2036">2036</option>
-          <option value="2037">2037</option>
-          <option value="2038">2038</option>
-          <option value="2039">2039</option>
-          <option value="2040">2040</option>
-          <option value="2041">2041</option>
-          <option value="2042">2042</option>
-          <option value="2043">2043</option>
-          <option value="2044">2044</option>
-          <option value="2045">2045</option>
-          <option value="2046">2046</option>
-          <option value="2047">2047</option>
-          <option value="2048">2048</option>
-          <option value="2049">2049</option>
-          <option value="2050">2050</option>
         </select>
         <select class="filter-select" id="aMonth" onchange="renderCharts()">
           <option value="">All Months</option>
@@ -1917,12 +1906,38 @@ function saveEntry(){
   if(!currentUser||!currentUser.isAdmin){alert('Access Denied: Only administrators can add inspection entries.');return;}
   const proj=document.getElementById('fProjectName').value.trim();
   const cont=document.getElementById('fContractor').value.trim();
-  const dz=document.getElementById('fDzongkhag').value;
-  const ro=document.getElementById('fRO').value;
   const dt=document.getElementById('fDateInspected').value;
   const insp=document.getElementById('fInspector').value.trim();
   const def=document.getElementById('fDefect').value;
-  if(!proj||!dz||!ro||!dt||!insp||!def){alert('Please fill all required fields (*).'); return;}
+
+  // Determine active location type — only require ONE of dz or ro
+  const locType=document.querySelector('input[name="locType"]:checked')?.value||'dzongkhag';
+  const dz=locType==='dzongkhag'?document.getElementById('fDzongkhag').value:'';
+  const ro=locType==='rothromde'?document.getElementById('fROForm').value:'';
+  const loc=dz||ro;
+
+  // Validate with specific messages — no mandatory asterisks
+  if(!proj){alert('Please enter the Project Name.');return;}
+  if(!loc){alert('Please select a '+(locType==='dzongkhag'?'Dzongkhag':'RO / Thromde')+'.');return;}
+  if(!dt){alert('Please select the Date Inspected.');return;}
+  if(!insp){alert('Please enter the Inspector Name.');return;}
+  if(!def){alert('Please select whether a Defect was Found.');return;}
+
+  // Collect multiple MOIT references from checkboxes
+  const moitSelected=[...document.querySelectorAll('.moit-cb:checked')].map(cb=>cb.value);
+  const moitRef=moitSelected.join(', ');
+
+  // Collect multiple test rows
+  const testRows=[];
+  document.querySelectorAll('.test-row').forEach(row=>{
+    const t=row.querySelector('.tr-test')?.value.trim();
+    const rv=row.querySelector('.tr-reqval')?.value.trim();
+    const res=row.querySelector('.tr-result')?.value.trim();
+    const pf=row.querySelector('.tr-passfail')?.value;
+    if(t||rv||res){testRows.push({test:t||'',reqVal:rv||'',result:res||'',passFailResult:pf||''});}
+  });
+  const firstTest=testRows[0]||{};
+
   const entry={
     sn:inspections.length+1,projectName:proj,
     contractNo:document.getElementById('fContractNo').value.trim(),
@@ -1932,29 +1947,30 @@ function saveEntry(){
     workItem:document.getElementById('fWorkItem').value.trim(),
     dateInspected:dt,defect:def,
     defectDesc:document.getElementById('fDefectDesc').value.trim(),
-    moitRef:document.getElementById('fMOITRef').value,
+    moitRef,
     action:document.getElementById('fAction').value.trim(),
     inspector:insp,
     atrDeadline:document.getElementById('fATRDeadline').value||'',
     atrSubmitted:'',
-    test:document.getElementById('fTest').value.trim(),
-    reqVal:document.getElementById('fReqVal').value.trim(),
-    result:document.getElementById('fResult').value.trim(),
-    passFailResult:document.getElementById('fPassFail').value,
+    test:firstTest.test||'',
+    reqVal:firstTest.reqVal||'',
+    result:firstTest.result||'',
+    passFailResult:firstTest.passFailResult||'',
+    testRows:JSON.stringify(testRows),
     month:dt?getMonth(dt):'',year:dt?getYear(dt):'',
     remarks:document.getElementById('fRemarks').value.trim(),
   };
   inspections.push(entry);
-  save(); // local backup
-  dbLoading(true, 'Saving inspection to Firebase…');
-  fbSaveInspection(entry).then(() => {
+  save();
+  dbLoading(true,'Saving inspection to Firebase…');
+  fbSaveInspection(entry).then(()=>{
     dbLoading(false);
     document.getElementById('formSuccess').style.display='block';
     setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
     clearForm();
     toast('✅ Inspection saved to Firebase cloud!');
     refreshDash();
-  }).catch(err => {
+  }).catch(err=>{
     dbLoading(false);
     toast('⚠️ Saved locally — Firebase sync failed');
     console.error(err);
@@ -1963,8 +1979,15 @@ function saveEntry(){
 
 function clearForm(){
   ['fProjectName','fContractNo','fRoadSection','fContractor','fWorkItem','fDateInspected','fInspector',
-   'fDefectDesc','fAction','fTest','fReqVal','fResult','fRemarks','fATRDeadline'].forEach(id=>document.getElementById(id).value='');
-  ['fDzongkhag','fRO','fWorkType','fDefect','fMOITRef','fPassFail'].forEach(id=>document.getElementById(id).selectedIndex=0);
+   'fDefectDesc','fAction','fRemarks','fATRDeadline'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['fDzongkhag','fROForm','fWorkType','fDefect'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  // Uncheck all MOIT checkboxes
+  document.querySelectorAll('.moit-cb').forEach(cb=>cb.checked=false);
+  // Reset test rows to one empty row
+  initTestRows();
+  // Reset location toggle to dzongkhag
+  const dzRadio=document.querySelector('input[name="locType"][value="dzongkhag"]');
+  if(dzRadio){dzRadio.checked=true;toggleLocType('dzongkhag');}
   document.getElementById('qcResultPanel').classList.remove('show');
 }
 
@@ -2016,7 +2039,7 @@ function markSubmitted(i){
 
 // ===== ANALYTICS =====
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const YEARS=['2025','2026','2027','2028','2029','2030','2031','2032','2033','2034','2035','2036','2037','2038','2039','2040','2041','2042','2043','2044','2045','2046','2047','2048','2049','2050'];
+const YEARS=['2024','2025','2026','2027'];
 const CC={bg:'rgba(37,99,235,0.7)',bg2:'rgba(59,130,246,0.5)',green:'rgba(16,185,129,0.7)',red:'rgba(239,68,68,0.7)',orange:'rgba(249,115,22,0.7)',gold:'rgba(245,158,11,0.8)',gold2:'rgba(251,191,36,0.6)'};
 const DZ_NAMES=['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
 const RO_NAMES=['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'];
@@ -2287,11 +2310,9 @@ function initApp(){
   document.getElementById('fDateInspected').value=today();
   buildSBRWSections();
   sbrwLoadTests();
-  // Check due dates after a short delay to let UI settle
+  initTestRows(); // initialize multi-test rows
   setTimeout(checkDueDates, 1000);
-  // Periodically recheck every 60 seconds
   setInterval(checkDueDates, 60000);
-  // Show ATR login notification popup once per user per session (after 1.2s)
   setTimeout(showAtrLoginPopup, 1200);
 }
 
@@ -2663,7 +2684,7 @@ function toggleLocType(type) {
   if (type === 'dzongkhag') {
     dzF.style.display = '';
     roF.style.display = 'none';
-    document.getElementById('fRO').selectedIndex = 0;
+    const roEl=document.getElementById('fROForm');if(roEl)roEl.selectedIndex=0;
   } else {
     dzF.style.display = 'none';
     roF.style.display = '';
@@ -2882,7 +2903,58 @@ function closeDuePopup() {
   document.getElementById('dueDatePopup').classList.remove('show');
 }
 
-// ===== ATR LOGIN NOTIFICATION POPUP =====
+// ===== MULTI TEST ROWS =====
+let testRowCount = 0;
+
+function addTestRow() {
+  testRowCount++;
+  const container = document.getElementById('testRowsContainer');
+  if (!container) return;
+  const rowId = 'testRow_' + testRowCount;
+  const div = document.createElement('div');
+  div.className = 'test-row';
+  div.id = rowId;
+  div.style.cssText = 'background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;';
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);">🔬 Test ${testRowCount}</span>
+      ${testRowCount > 1 ? `<button type="button" onclick="removeTestRow('${rowId}')" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:5px;padding:3px 10px;color:#f87171;font-size:11px;cursor:pointer;">✕ Remove</button>` : ''}
+    </div>
+    <div class="form-grid">
+      <div class="field-wrap">
+        <label>Test Conducted</label>
+        <input type="text" class="tr-test" placeholder="e.g. Field Density Test (Sand Replacement)">
+      </div>
+      <div class="field-wrap">
+        <label>Required Test Value</label>
+        <input type="text" class="tr-reqval" placeholder="e.g. ≥98% MDD per Cl.305.3.4">
+      </div>
+      <div class="field-wrap">
+        <label>Test Result / Value</label>
+        <input type="text" class="tr-result" placeholder="e.g. 96.5% MDD" oninput="triggerQCCheck()">
+      </div>
+      <div class="field-wrap">
+        <label>Pass / Fail</label>
+        <select class="tr-passfail">
+          <option value="">— Auto or Manual —</option>
+          <option value="Pass">Pass</option>
+          <option value="Fail">Fail</option>
+        </select>
+      </div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function removeTestRow(rowId) {
+  const row = document.getElementById(rowId);
+  if (row) row.remove();
+}
+
+function initTestRows() {
+  testRowCount = 0;
+  const container = document.getElementById('testRowsContainer');
+  if (container) { container.innerHTML = ''; addTestRow(); }
+}
 // Shows once per login, per user ID — tracks seen state in sessionStorage
 
 function showAtrLoginPopup() {
