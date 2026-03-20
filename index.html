@@ -12,14 +12,44 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 :root {
-  --bg:#0a0e17;--bg2:#0f1520;--bg3:#141c2e;--panel:#1a2340;
-  --border:#2a3a5c;--border2:#3a4f7a;--accent:#2563eb;--accent2:#3b82f6;
-  --accent3:#60a5fa;--gold:#f59e0b;--gold2:#fbbf24;--green:#10b981;
-  --red:#ef4444;--orange:#f97316;--text:#e2e8f0;--text2:#94a3b8;
-  --text3:#64748b;--glow:rgba(37,99,235,0.25);
+  --bg:#07101f;--bg2:#0c1828;--bg3:#111f33;--panel:#162540;
+  --border:#1e3554;--border2:#2a4d7a;--accent:#0ea5e9;--accent2:#38bdf8;
+  --accent3:#7dd3fc;--gold:#f59e0b;--gold2:#fbbf24;--green:#10b981;
+  --red:#ef4444;--orange:#f97316;--purple:#8b5cf6;--pink:#ec4899;
+  --text:#e8eef5;--text2:#8fafc8;--text3:#4d6a84;--glow:rgba(14,165,233,0.22);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── RICH MULTI-TONE BACKGROUND ── */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 90% 55% at 0% 0%,   rgba(14,165,233,0.10) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 45% at 100% 0%,  rgba(139,92,246,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse 70% 50% at 100% 100%,rgba(16,185,129,0.07) 0%,transparent 55%),
+    radial-gradient(ellipse 55% 40% at 0% 100%,  rgba(245,158,11,0.05) 0%,transparent 50%),
+    radial-gradient(ellipse 80% 80% at 50% 50%,  rgba(14,165,233,0.03) 0%,transparent 70%);
+}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(14,165,233,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(14,165,233,0.03) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+
+/* ── WORK TYPE CHECKLIST ── */
+.wt-item{border-radius:6px;overflow:hidden;transition:all .15s;}
+.wt-label{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-radius:6px;border:1px solid var(--border);background:var(--bg2);transition:all .15s;user-select:none;}
+.wt-label:hover{border-color:var(--accent2);background:var(--bg3);}
+.wt-label input[type=checkbox]{accent-color:var(--accent2);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+.wt-icon{font-size:14px;flex-shrink:0;}
+.wt-name{font-size:12px;font-weight:600;color:var(--text2);transition:color .15s;}
+.wt-item.active .wt-label{border-color:var(--accent2);background:rgba(14,165,233,.1);}
+.wt-item.active .wt-name{color:var(--accent3);}
+.wt-detail{display:none;padding:0 4px 4px 4px;margin-top:2px;}
+.wt-item.active .wt-detail{display:block;}
+.wt-note{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-size:12px;font-family:'Source Sans 3',sans-serif;padding:7px 10px;resize:vertical;min-height:60px;outline:none;transition:border-color .2s;}
+.wt-note:focus{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(14,165,233,.15);}
 
 /* PARTICLES */
 #particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
@@ -28,11 +58,11 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 
 /* LOGIN PAGE */
 #loginPage{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--bg);}
-.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(37,99,235,0.12) 0%,transparent 70%);}
+.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(14,165,233,0.12) 0%,transparent 70%);}
 .login-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:.3;}
-.login-card{position:relative;z-index:1;width:480px;background:var(--panel);border:1px solid var(--border2);border-radius:16px;padding:48px;box-shadow:0 0 80px rgba(37,99,235,0.2),0 0 0 1px rgba(255,255,255,.04) inset;}
+.login-card{position:relative;z-index:1;width:480px;background:var(--panel);border:1px solid var(--border2);border-radius:16px;padding:48px;box-shadow:0 0 80px rgba(14,165,233,0.18),0 0 0 1px rgba(255,255,255,.04) inset;}
 .login-logo{text-align:center;margin-bottom:32px;}
-.login-emblem{width:80px;height:80px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 20px rgba(37,99,235,.5));}
+.login-emblem{width:80px;height:80px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 20px rgba(14,165,233,.5));}
 .login-emblem svg{width:80px;height:80px;}
 .login-org{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;}
 .login-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--text);letter-spacing:1px;}
@@ -40,24 +70,51 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .field-group{margin-bottom:20px;}
 .field-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;display:block;}
 .field-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-size:14px;font-family:'Source Sans 3',sans-serif;outline:none;transition:all .2s;}
-.field-input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px var(--glow);}
-.btn-login{width:100%;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;padding:14px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:8px;}
-.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 30px var(--glow);}
-.login-divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
-.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border);}
-.login-divider span{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
-.btn-google{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-size:14px;font-family:'Source Sans 3',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;}
-.btn-google:hover{border-color:var(--border2);background:var(--panel);}
-.btn-google svg{width:18px;height:18px;flex-shrink:0;}
-.login-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-bottom:16px;display:none;}
-.users-demo{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-top:20px;font-size:12px;color:var(--text3);}
-.users-demo strong{color:var(--text2);font-family:'JetBrains Mono',monospace;}
+.field-input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(14,165,233,.18);}
 
-/* MAIN APP */
-#app{display:none;min-height:100vh;position:relative;z-index:1;}
+/* ── ALL BUTTONS BASE + GLOW ON CLICK ── */
+button,
+.btn-login,.btn-google,.btn-logout,
+.btn-primary,.btn-secondary,.btn-danger,.btn-gold,.btn-print,
+.nav-tab,.sbrw-si,.action-btn{
+  transition:all .18s cubic-bezier(.4,0,.2,1);
+  cursor:pointer;
+}
+button:active,
+.btn-login:active,.btn-google:active,.btn-logout:active,
+.btn-primary:active,.btn-secondary:active,.btn-danger:active,
+.btn-gold:active,.btn-print:active,.nav-tab:active,.action-btn:active{
+  transform:scale(.96) translateY(1px);
+}
+
+.btn-login{width:100%;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;padding:14px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;margin-top:8px;}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(14,165,233,.45),0 0 0 1px rgba(56,189,248,.3);}
+.btn-login:active{transform:scale(.97);box-shadow:0 0 20px rgba(14,165,233,.6),0 0 60px rgba(14,165,233,.2);}
+
+.btn-google{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-size:14px;font-family:'Source Sans 3',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;}
+.btn-google:hover{border-color:var(--border2);background:var(--panel);box-shadow:0 4px 16px rgba(14,165,233,.1);}
+.btn-google:active{box-shadow:0 0 16px rgba(14,165,233,.3);}
+.btn-google svg{width:18px;height:18px;flex-shrink:0;}
+
+.btn-logout{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text3);font-size:12px;}
+.btn-logout:hover{border-color:var(--red);color:var(--red);box-shadow:0 0 12px rgba(239,68,68,.2);}
+.btn-logout:active{box-shadow:0 0 20px rgba(239,68,68,.4);}
+
+/* NAV */
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 24px;gap:4px;overflow-x:auto;}
+.nav-tab{background:none;border:none;border-bottom:2px solid transparent;padding:12px 16px;color:var(--text3);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;letter-spacing:.5px;white-space:nowrap;}
+.nav-tab:hover{color:var(--text2);background:rgba(14,165,233,.04);}
+.nav-tab.active{color:var(--accent3);border-bottom-color:var(--accent2);}
+.nav-tab:active{box-shadow:inset 0 -2px 8px rgba(14,165,233,.3);}
+
+/* MAIN */
+.main{padding:24px;max-width:1400px;margin:0 auto;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:1px;}
+.section-badge{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
 
 /* HEADER */
-.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.header{background:rgba(12,24,40,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 20px rgba(0,0,0,.4);}
 .header-left{display:flex;align-items:center;gap:16px;}
 .header-emblem{width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
 .header-emblem svg{width:36px;height:36px;}
@@ -69,34 +126,47 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .user-avatar img{width:100%;height:100%;border-radius:6px;object-fit:cover;}
 .user-name{font-size:13px;font-weight:600;}
 .user-role{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
-.btn-logout{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text3);font-size:12px;cursor:pointer;transition:all .2s;}
-.btn-logout:hover{border-color:var(--red);color:var(--red);}
 
-/* NAV */
-.nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 24px;gap:4px;overflow-x:auto;}
-.nav-tab{background:none;border:none;border-bottom:2px solid transparent;padding:12px 16px;color:var(--text3);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;letter-spacing:.5px;white-space:nowrap;}
-.nav-tab:hover{color:var(--text2);}
-.nav-tab.active{color:var(--accent3);border-bottom-color:var(--accent2);}
-
-/* MAIN */
-.main{padding:24px;max-width:1400px;margin:0 auto;}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
-.section-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:1px;}
-.section-badge{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
-
-/* KPI */
+/* ── KPI CARDS — each colour themed ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:28px;}
-.kpi-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
-.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
-.kpi-card.blue::before{background:linear-gradient(90deg,var(--accent),var(--accent3));}
-.kpi-card.gold::before{background:linear-gradient(90deg,var(--gold),var(--gold2));}
-.kpi-card.green::before{background:linear-gradient(90deg,var(--green),#34d399);}
-.kpi-card.red::before{background:linear-gradient(90deg,var(--red),#f87171);}
-.kpi-card.orange::before{background:linear-gradient(90deg,var(--orange),#fb923c);}
+.kpi-card{border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+.kpi-card:hover{transform:translateY(-3px);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+.kpi-card::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;border-radius:14px;}
+
+.kpi-card.blue{background:linear-gradient(135deg,rgba(14,165,233,.12) 0%,rgba(22,37,64,.95) 60%);border-color:rgba(14,165,233,.25);}
+.kpi-card.blue::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8);}
+.kpi-card.blue .kpi-value{color:#38bdf8;}
+.kpi-card.blue:hover{box-shadow:0 8px 32px rgba(14,165,233,.25);}
+
+.kpi-card.gold{background:linear-gradient(135deg,rgba(245,158,11,.12) 0%,rgba(22,37,64,.95) 60%);border-color:rgba(245,158,11,.25);}
+.kpi-card.gold::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.kpi-card.gold .kpi-value{color:#fbbf24;}
+.kpi-card.gold:hover{box-shadow:0 8px 32px rgba(245,158,11,.22);}
+
+.kpi-card.red{background:linear-gradient(135deg,rgba(239,68,68,.12) 0%,rgba(22,37,64,.95) 60%);border-color:rgba(239,68,68,.25);}
+.kpi-card.red::before{background:linear-gradient(90deg,#ef4444,#f87171);}
+.kpi-card.red .kpi-value{color:#f87171;}
+.kpi-card.red:hover{box-shadow:0 8px 32px rgba(239,68,68,.22);}
+
+.kpi-card.orange{background:linear-gradient(135deg,rgba(249,115,22,.12) 0%,rgba(22,37,64,.95) 60%);border-color:rgba(249,115,22,.25);}
+.kpi-card.orange::before{background:linear-gradient(90deg,#f97316,#fb923c);}
+.kpi-card.orange .kpi-value{color:#fb923c;}
+.kpi-card.orange:hover{box-shadow:0 8px 32px rgba(249,115,22,.22);}
+
+.kpi-card.green{background:linear-gradient(135deg,rgba(16,185,129,.12) 0%,rgba(22,37,64,.95) 60%);border-color:rgba(16,185,129,.25);}
+.kpi-card.green::before{background:linear-gradient(90deg,#10b981,#34d399);}
+.kpi-card.green .kpi-value{color:#34d399;}
+.kpi-card.green:hover{box-shadow:0 8px 32px rgba(16,185,129,.22);}
+
+.kpi-card.purple{background:linear-gradient(135deg,rgba(139,92,246,.12) 0%,rgba(22,37,64,.95) 60%);border-color:rgba(139,92,246,.25);}
 .kpi-card.purple::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa);}
+.kpi-card.purple .kpi-value{color:#a78bfa;}
+.kpi-card.purple:hover{box-shadow:0 8px 32px rgba(139,92,246,.22);}
+
 .kpi-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
 .kpi-value{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;line-height:1;}
-.kpi-icon{position:absolute;right:16px;top:16px;font-size:24px;opacity:.2;}
+.kpi-icon{position:absolute;right:16px;top:16px;font-size:24px;opacity:.15;}
 
 /* FILTERS */
 .filters{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
@@ -112,7 +182,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .breakdown-table th{padding:8px 12px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);}
 .breakdown-table td{padding:8px 12px;border-bottom:1px solid rgba(42,58,92,0.5);}
 .breakdown-table tr:last-child td{border-bottom:none;}
-.breakdown-table tr:hover td{background:rgba(37,99,235,.06);}
+.breakdown-table tr:hover td{background:rgba(14,165,233,.05);}
 .table-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
 .table-toolbar{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .table-search{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;width:260px;outline:none;}
@@ -120,7 +190,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .data-table{width:100%;font-size:12px;border-collapse:collapse;}
 .data-table th{padding:10px 12px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap;}
 .data-table td{padding:10px 12px;border-bottom:1px solid rgba(42,58,92,0.4);vertical-align:top;}
-.data-table tr:hover td{background:rgba(37,99,235,.05);}
+.data-table tr:hover td{background:rgba(14,165,233,.04);}
 .badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
 .badge-yes{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
 .badge-no{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
@@ -141,14 +211,31 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .field-wrap{display:flex;flex-direction:column;gap:6px;}
 .field-wrap label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);}
 .field-wrap input,.field-wrap select,.field-wrap textarea{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'Source Sans 3',sans-serif;outline:none;transition:all .2s;}
-.field-wrap input:focus,.field-wrap select:focus,.field-wrap textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 3px var(--glow);}
+.field-wrap input:focus,.field-wrap select:focus,.field-wrap textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(14,165,233,.15);}
 .field-wrap textarea{resize:vertical;min-height:80px;}
 .form-actions{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
-.btn-primary{background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;padding:12px 24px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px var(--glow);}
-.btn-secondary{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 24px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
-.btn-secondary:hover{border-color:var(--border2);}
-.btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px 24px;color:#f87171;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+
+/* ── PRIMARY BUTTONS with full glow ── */
+.btn-primary{background:linear-gradient(135deg,#0ea5e9,#1d4ed8);border:none;border-radius:8px;padding:12px 24px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,.45),0 0 0 1px rgba(56,189,248,.3);}
+.btn-primary:active{transform:scale(.97) translateY(1px);box-shadow:0 0 30px rgba(14,165,233,.7),0 0 80px rgba(14,165,233,.2);}
+
+.btn-secondary{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px 24px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;}
+.btn-secondary:hover{border-color:var(--accent2);color:var(--accent3);box-shadow:0 4px 16px rgba(14,165,233,.15);}
+.btn-secondary:active{box-shadow:0 0 20px rgba(14,165,233,.35);}
+
+.btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px 24px;color:#f87171;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;}
+.btn-danger:hover{background:rgba(239,68,68,.18);box-shadow:0 4px 16px rgba(239,68,68,.25);}
+.btn-danger:active{box-shadow:0 0 24px rgba(239,68,68,.5);}
+
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:1px;}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,.4);}
+.btn-gold:active{box-shadow:0 0 28px rgba(245,158,11,.65),0 0 60px rgba(245,158,11,.2);}
+
+.btn-print{background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;}
+.btn-print:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(16,185,129,.4);}
+.btn-print:active{box-shadow:0 0 28px rgba(16,185,129,.65);}
+
 .form-success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:#34d399;display:none;margin-bottom:16px;}
 
 /* QC RESULT PANEL */
@@ -177,6 +264,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
 .chart-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;}
 .chart-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text2);margin-bottom:16px;}
+
 /* ATR LOGIN POPUP MODAL */
 .atr-login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeInBg .25s ease;}
 @keyframes fadeInBg{from{opacity:0;}to{opacity:1;}}
@@ -293,15 +381,15 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .sign-block{text-align:center;}
 .sign-line{border-top:1px solid var(--text3);width:200px;margin:0 auto 8px;}
 .sign-label{font-size:11px;color:var(--text3);}
-.btn-print{background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;}
 
 /* SBRW QC TOOL TAB */
 .sbrw-wrap{display:flex;min-height:calc(100vh - 120px);gap:0;}
 .sbrw-sidebar{width:240px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;}
 .sbrw-sh{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:10px 18px 4px;}
-.sbrw-si{display:flex;align-items:center;gap:7px;padding:7px 18px;cursor:pointer;font-size:12px;color:var(--text3);border-left:3px solid transparent;transition:all .12s;}
+.sbrw-si{display:flex;align-items:center;gap:7px;padding:7px 18px;cursor:pointer;font-size:12px;color:var(--text3);border-left:3px solid transparent;transition:all .15s;}
 .sbrw-si:hover{background:var(--bg3);color:var(--text);}
 .sbrw-si.active{border-left-color:var(--gold);background:var(--bg3);color:var(--gold);}
+.sbrw-si:active{box-shadow:inset 0 0 16px rgba(245,158,11,.25);}
 .sbrw-badge{margin-left:auto;font-size:10px;font-family:'JetBrains Mono',monospace;background:var(--border);padding:1px 5px;border-radius:10px;color:var(--text3);}
 .sbrw-main{flex:1;padding:24px;overflow-y:auto;}
 .sbrw-stp{font-size:18px;font-weight:700;color:var(--gold);font-family:'Rajdhani',sans-serif;margin-bottom:4px;letter-spacing:.02em;}
@@ -336,8 +424,6 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .sbrw-sv{font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;}
 .sbrw-sv.pass{color:var(--green);}.sbrw-sv.fail{color:var(--red);}.sbrw-sv.warn{color:var(--orange);}
 .sbrw-sl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
-.btn-gold{background:var(--gold);color:#000;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;transition:all .15s;}
-.btn-gold:hover{background:var(--gold2);}
 
 /* REPORT MODAL */
 #sbrw-rp{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;}
@@ -359,7 +445,9 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
 .toast.show{display:flex;align-items:center;gap:8px;}
 .action-btn{background:none;border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:10px;color:var(--text3);cursor:pointer;transition:all .15s;}
 .action-btn:hover{border-color:var(--accent2);color:var(--accent3);}
+.action-btn:active{box-shadow:0 0 14px rgba(14,165,233,.4);}
 .action-btn.del:hover{border-color:var(--red);color:var(--red);}
+.action-btn.del:active{box-shadow:0 0 14px rgba(239,68,68,.4);}
 .no-data{text-align:center;padding:40px;color:var(--text3);font-size:13px;}
 @media print{
   /* Hide everything except print target */
@@ -765,25 +853,157 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--tex
       <div class="form-section">
         <div class="form-section-title">Inspection Details</div>
         <div class="form-grid">
-          <div class="field-wrap"><label>Work Type / Stage</label>
-            <select id="fWorkType" onchange="triggerQCCheck()">
-              <option value="">— Select Work Type —</option>
-              <option value="Earthwork / Subgrade">Earthwork / Subgrade</option>
-              <option value="Sub-base Course">Sub-base Course</option>
-              <option value="Wet Mix Macadam (WMM)">Wet Mix Macadam (WMM)</option>
-              <option value="Prime Coat">Prime Coat</option>
-              <option value="Dense Bituminous Macadam (DBM)">Dense Bituminous Macadam (DBM)</option>
-              <option value="Bituminous Concrete (BC)">Bituminous Concrete (BC)</option>
-              <option value="Culvert Construction">Culvert Construction</option>
-              <option value="Retaining Wall">Retaining Wall</option>
-              <option value="Road Signs / Markings">Road Signs / Markings</option>
-              <option value="Bridge Construction">Bridge Construction</option>
-              <option value="Drainage Works">Drainage Works</option>
-              <option value="Slope Protection">Slope Protection</option>
-              <option value="Filling & Embankments">Filling &amp; Embankments</option>
-              <option value="Paver Blocks & Kerb">Paver Blocks &amp; Kerb</option>
-              <option value="Bioengineering">Bioengineering</option>
-            </select>
+          <div class="field-wrap" style="grid-column:1/-1">
+            <label>Work Type / Stage <span style="font-size:10px;color:var(--text3);font-weight:400;">(Select all that apply — click to expand details)</span></label>
+            <div id="fWorkTypePanel" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:4px;">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">
+
+                <div class="wt-item" id="wti-earthwork">
+                  <label class="wt-label" onclick="wtToggle('earthwork')">
+                    <input type="checkbox" class="wt-cb" value="Earthwork / Subgrade" id="wtcb-earthwork" onchange="wtCheck('earthwork');triggerQCCheck()">
+                    <span class="wt-icon">🏔</span><span class="wt-name">Earthwork / Subgrade</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-earthwork"><textarea class="wt-note" placeholder="Work details, observations, chainage…" id="wtn-earthwork"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-subbase">
+                  <label class="wt-label" onclick="wtToggle('subbase')">
+                    <input type="checkbox" class="wt-cb" value="Sub-base Course" id="wtcb-subbase" onchange="wtCheck('subbase');triggerQCCheck()">
+                    <span class="wt-icon">🪨</span><span class="wt-name">Sub-base Course (GSB)</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-subbase"><textarea class="wt-note" placeholder="Layer thickness, material, chainage…" id="wtn-subbase"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-wmm">
+                  <label class="wt-label" onclick="wtToggle('wmm')">
+                    <input type="checkbox" class="wt-cb" value="Wet Mix Macadam (WMM)" id="wtcb-wmm" onchange="wtCheck('wmm');triggerQCCheck()">
+                    <span class="wt-icon">🛣</span><span class="wt-name">Wet Mix Macadam (WMM)</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-wmm"><textarea class="wt-note" placeholder="Layer thickness, grade, chainage…" id="wtn-wmm"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-prime">
+                  <label class="wt-label" onclick="wtToggle('prime')">
+                    <input type="checkbox" class="wt-cb" value="Prime Coat" id="wtcb-prime" onchange="wtCheck('prime');triggerQCCheck()">
+                    <span class="wt-icon">🖤</span><span class="wt-name">Prime Coat</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-prime"><textarea class="wt-note" placeholder="Application rate, temperature, chainage…" id="wtn-prime"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-dbm">
+                  <label class="wt-label" onclick="wtToggle('dbm')">
+                    <input type="checkbox" class="wt-cb" value="Dense Bituminous Macadam (DBM)" id="wtcb-dbm" onchange="wtCheck('dbm');triggerQCCheck()">
+                    <span class="wt-icon">⬛</span><span class="wt-name">DBM</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-dbm"><textarea class="wt-note" placeholder="Layer thickness, laying temp, chainage…" id="wtn-dbm"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-bc">
+                  <label class="wt-label" onclick="wtToggle('bc')">
+                    <input type="checkbox" class="wt-cb" value="Bituminous Concrete (BC)" id="wtcb-bc" onchange="wtCheck('bc');triggerQCCheck()">
+                    <span class="wt-icon">🔳</span><span class="wt-name">Bituminous Concrete (BC)</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-bc"><textarea class="wt-note" placeholder="Layer thickness, laying temp, chainage…" id="wtn-bc"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-culvert">
+                  <label class="wt-label" onclick="wtToggle('culvert')">
+                    <input type="checkbox" class="wt-cb" value="Culvert Construction" id="wtcb-culvert" onchange="wtCheck('culvert');triggerQCCheck()">
+                    <span class="wt-icon">🌉</span><span class="wt-name">Culvert Construction</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-culvert"><textarea class="wt-note" placeholder="Type, size, concrete grade, location…" id="wtn-culvert"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-wall">
+                  <label class="wt-label" onclick="wtToggle('wall')">
+                    <input type="checkbox" class="wt-cb" value="Retaining Wall" id="wtcb-wall" onchange="wtCheck('wall');triggerQCCheck()">
+                    <span class="wt-icon">🧱</span><span class="wt-name">Retaining Wall</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-wall"><textarea class="wt-note" placeholder="Type, height, material, location…" id="wtn-wall"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-signs">
+                  <label class="wt-label" onclick="wtToggle('signs')">
+                    <input type="checkbox" class="wt-cb" value="Road Signs / Markings" id="wtcb-signs" onchange="wtCheck('signs');triggerQCCheck()">
+                    <span class="wt-icon">🚦</span><span class="wt-name">Road Signs / Markings</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-signs"><textarea class="wt-note" placeholder="Sign type, marking details, location…" id="wtn-signs"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-bridge">
+                  <label class="wt-label" onclick="wtToggle('bridge')">
+                    <input type="checkbox" class="wt-cb" value="Bridge Construction" id="wtcb-bridge" onchange="wtCheck('bridge');triggerQCCheck()">
+                    <span class="wt-icon">🌁</span><span class="wt-name">Bridge Construction</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-bridge"><textarea class="wt-note" placeholder="Component, span, concrete grade…" id="wtn-bridge"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-drainage">
+                  <label class="wt-label" onclick="wtToggle('drainage')">
+                    <input type="checkbox" class="wt-cb" value="Drainage Works" id="wtcb-drainage" onchange="wtCheck('drainage');triggerQCCheck()">
+                    <span class="wt-icon">💧</span><span class="wt-name">Drainage Works</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-drainage"><textarea class="wt-note" placeholder="Drain type, dimensions, location…" id="wtn-drainage"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-slope">
+                  <label class="wt-label" onclick="wtToggle('slope')">
+                    <input type="checkbox" class="wt-cb" value="Slope Protection" id="wtcb-slope" onchange="wtCheck('slope');triggerQCCheck()">
+                    <span class="wt-icon">⛰</span><span class="wt-name">Slope Protection</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-slope"><textarea class="wt-note" placeholder="Treatment type, location, extent…" id="wtn-slope"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-filling">
+                  <label class="wt-label" onclick="wtToggle('filling')">
+                    <input type="checkbox" class="wt-cb" value="Filling &amp; Embankments" id="wtcb-filling" onchange="wtCheck('filling');triggerQCCheck()">
+                    <span class="wt-icon">🏗</span><span class="wt-name">Filling &amp; Embankments</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-filling"><textarea class="wt-note" placeholder="Layer thickness, compaction, chainage…" id="wtn-filling"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-paver">
+                  <label class="wt-label" onclick="wtToggle('paver')">
+                    <input type="checkbox" class="wt-cb" value="Paver Blocks &amp; Kerb" id="wtcb-paver" onchange="wtCheck('paver');triggerQCCheck()">
+                    <span class="wt-icon">🟦</span><span class="wt-name">Paver Blocks &amp; Kerb</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-paver"><textarea class="wt-note" placeholder="Block type, thickness, location…" id="wtn-paver"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-bio">
+                  <label class="wt-label" onclick="wtToggle('bio')">
+                    <input type="checkbox" class="wt-cb" value="Bioengineering" id="wtcb-bio" onchange="wtCheck('bio');triggerQCCheck()">
+                    <span class="wt-icon">🌱</span><span class="wt-name">Bioengineering</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-bio"><textarea class="wt-note" placeholder="Treatment type, species, coverage…" id="wtn-bio"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-gabion">
+                  <label class="wt-label" onclick="wtToggle('gabion')">
+                    <input type="checkbox" class="wt-cb" value="Gabion / Masonry Wall" id="wtcb-gabion" onchange="wtCheck('gabion');triggerQCCheck()">
+                    <span class="wt-icon">🏛</span><span class="wt-name">Gabion / Masonry Wall</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-gabion"><textarea class="wt-note" placeholder="Wall type, height, wire spec…" id="wtn-gabion"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-concrete">
+                  <label class="wt-label" onclick="wtToggle('concrete')">
+                    <input type="checkbox" class="wt-cb" value="Concrete Works" id="wtcb-concrete" onchange="wtCheck('concrete');triggerQCCheck()">
+                    <span class="wt-icon">🏢</span><span class="wt-name">Concrete Works</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-concrete"><textarea class="wt-note" placeholder="Grade, element, pour volume…" id="wtn-concrete"></textarea></div>
+                </div>
+
+                <div class="wt-item" id="wti-other">
+                  <label class="wt-label" onclick="wtToggle('other')">
+                    <input type="checkbox" class="wt-cb" value="Other" id="wtcb-other" onchange="wtCheck('other');triggerQCCheck()">
+                    <span class="wt-icon">📋</span><span class="wt-name">Other</span>
+                  </label>
+                  <div class="wt-detail" id="wtd-other"><textarea class="wt-note" placeholder="Specify work type and details…" id="wtn-other"></textarea></div>
+                </div>
+
+              </div>
+            </div>
           </div>
           <div class="field-wrap"><label>Work Item Inspected</label><input type="text" id="fWorkItem" placeholder="e.g. Compaction of subgrade layer"></div>
           <div class="field-wrap"><label>Date Inspected</label><input type="date" id="fDateInspected"></div>
@@ -2265,15 +2485,53 @@ const QC_STANDARDS={
   ],
 };
 
+function wtToggle(key){
+  const cb = document.getElementById('wtcb-'+key);
+  if(!cb) return;
+  cb.checked = !cb.checked;
+  wtCheck(key);
+  triggerQCCheck();
+}
+
+function wtCheck(key){
+  const cb  = document.getElementById('wtcb-'+key);
+  const item = document.getElementById('wti-'+key);
+  if(!cb||!item) return;
+  if(cb.checked){
+    item.classList.add('active');
+    const note = document.getElementById('wtn-'+key);
+    if(note) setTimeout(()=>note.focus(),50);
+  } else {
+    item.classList.remove('active');
+  }
+}
+
+function getSelectedWorkTypes(){
+  const result = [];
+  document.querySelectorAll('.wt-cb:checked').forEach(cb=>{
+    const key = cb.id.replace('wtcb-','');
+    let label = cb.value;
+    // Include note if filled
+    const note = document.getElementById('wtn-'+key)?.value?.trim();
+    if(note) label += ': ' + note;
+    result.push(label);
+  });
+  return result;
+}
+
 function triggerQCCheck(){
-  const workType=document.getElementById('fWorkType').value;
-  const resultText=document.getElementById('fResult').value.trim();
-  const panel=document.getElementById('qcResultPanel');
-  const rowsDiv=document.getElementById('qcResultRows');
-  const overall=document.getElementById('qcOverall');
-  document.getElementById('qcWorkTypeLabel').textContent=workType?'— '+workType:'';
-  if(!workType||!QC_STANDARDS[workType]){panel.classList.remove('show');return;}
-  const standards=QC_STANDARDS[workType];
+  const selectedTypes = getSelectedWorkTypes();
+  // Use first selected type (raw value without note) for QC standards lookup
+  const firstCb = document.querySelector('.wt-cb:checked');
+  const workType = firstCb ? firstCb.value : '';
+  const resultText = document.getElementById('fResult')?.value.trim() || '';
+  const panel = document.getElementById('qcResultPanel');
+  const rowsDiv = document.getElementById('qcResultRows');
+  const overall = document.getElementById('qcOverall');
+  const label = document.getElementById('qcWorkTypeLabel');
+  if(label) label.textContent = selectedTypes.length ? '— ' + selectedTypes.map(s=>s.split(':')[0]).join(', ') : '';
+  if(!workType || !QC_STANDARDS[workType]){ if(panel) panel.classList.remove('show'); return; }
+  const standards = QC_STANDARDS[workType];
   // Extract numeric value from result
   const num=parseFloat(resultText.replace(/[^0-9.\-]/g,''));
   const hasNum=!isNaN(num);
@@ -2558,7 +2816,7 @@ function saveEntry(){
     contractNo:document.getElementById('fContractNo').value.trim(),
     roadSection:document.getElementById('fRoadSection').value.trim(),
     contractor:cont,dzongkhag:dz,ro,
-    workType:document.getElementById('fWorkType').value,
+    workType:getSelectedWorkTypes().join(', '),
     workItem:document.getElementById('fWorkItem').value.trim(),
     dateInspected:dt,defect:def,
     defectDesc:document.getElementById('fDefectDesc').value.trim(),
@@ -2595,7 +2853,16 @@ function saveEntry(){
 function clearForm(){
   ['fProjectName','fContractNo','fRoadSection','fContractor','fWorkItem','fDateInspected','fInspector',
    'fDefectDesc','fAction','fRemarks','fATRDeadline'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['fDzongkhag','fROForm','fWorkType','fDefect'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ['fDzongkhag','fROForm','fDefect'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  // Uncheck all work type checkboxes + clear notes + collapse
+  document.querySelectorAll('.wt-cb').forEach(cb=>{
+    cb.checked=false;
+    const key=cb.id.replace('wtcb-','');
+    const item=document.getElementById('wti-'+key);
+    if(item) item.classList.remove('active');
+    const note=document.getElementById('wtn-'+key);
+    if(note) note.value='';
+  });
   // Uncheck all MOIT checkboxes
   document.querySelectorAll('.moit-cb').forEach(cb=>cb.checked=false);
   // Reset test rows to one empty row
@@ -6765,11 +7032,35 @@ function dlBuildPrintHTML(rec){
     @media print{@page{size:A4;margin:12mm 10mm;}body{font-size:9pt;}.print-doc{padding:0;}}
   </style>
   </head><body><div class="print-doc">
-    <div class="print-header" style="text-align:center;border-bottom:3px solid #1a3a6e;padding-bottom:14px;margin-bottom:16px;">
-      <div style="font-size:14pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;line-height:1.3;margin-bottom:3px;">OFFICE OF PRIME MINISTER AND CABINET</div>
-      <div style="font-size:10pt;color:#333;letter-spacing:.3px;margin-bottom:10px;">Construction Quality Division, OCASC</div>
-      <div style="font-size:13pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:1px;background:#f0f4fb;display:inline-block;padding:5px 20px;border-radius:3px;border:1.5px solid #c8d4e8;">QUALITY TEST REPORT</div>
-      <div style="margin-top:6px;font-size:7.5pt;color:#888;font-family:monospace;">Record ID: ${rec.id} &nbsp;·&nbsp; ${rec.typeLabel||'TEST REPORT'} &nbsp;·&nbsp; Saved: ${savedStr}</div>
+    <div class="print-header" style="border-bottom:2px solid #1a3a6e;padding-bottom:12px;margin-bottom:14px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="width:76px;vertical-align:middle;padding-right:10px;">
+            <div style="width:68px;height:68px;border:2px solid #1a3a6e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#1a3a6e;">🇧🇹</div>
+          </td>
+          <td style="vertical-align:middle;text-align:center;">
+            <div style="font-size:7.5pt;color:#333;letter-spacing:.5px;margin-bottom:2px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+            <div style="font-size:11pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
+            <div style="font-size:9pt;font-weight:700;color:#1a3a6e;margin-top:1px;">Cabinet Secretariat</div>
+            <div style="font-size:9pt;font-weight:700;color:#1a3a6e;">Gyalyong Tshogkhang</div>
+          </td>
+          <td style="width:76px;vertical-align:middle;text-align:right;padding-left:10px;">
+            <div style="font-size:13pt;font-weight:900;color:#1a3a6e;letter-spacing:1px;">BHUTAN</div>
+            <div style="font-size:8pt;color:#555;font-style:italic;">Believe</div>
+          </td>
+        </tr>
+      </table>
+      <div style="border-top:1px solid #c8d4e8;margin-top:8px;padding-top:6px;display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:8.5pt;color:#333;margin-bottom:2px;">CS/OCASC/CQO-03/2025-2026/</div>
+          <div style="font-size:12pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.8px;margin-top:4px;">QUALITY TEST REPORT</div>
+          <div style="font-size:8pt;color:#666;margin-top:2px;">Construction Quality Division — ${rec.typeLabel||'TEST REPORT'}</div>
+        </div>
+        <div style="text-align:right;font-size:7.5pt;color:#888;font-family:monospace;">
+          <div>Record: ${rec.id}</div>
+          <div>Saved: ${savedStr}</div>
+        </div>
+      </div>
     </div>
 
     <div class="print-meta-grid">
@@ -6788,10 +7079,13 @@ function dlBuildPrintHTML(rec){
       <div><div class="print-sig-blank"></div><div class="print-sig"><strong>___________________________</strong><br>Verified By<br><span style="font-size:7.5pt;color:#555;">Quality Assurance Engineer</span><br><span style="font-size:7.5pt;color:#777;">Date: _______________</span></div></div>
     </div>
 
-    <div class="print-footer">
-      <span>Construction Quality Inspection</span>
-      <span class="print-footer-center">${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</span>
-      <span>Page 1</span>
+    <!-- OFFICIAL LETTERHEAD FOOTER -->
+    <div style="border-top:2px solid #1a3a6e;margin-top:20px;padding-top:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:7pt;color:#333;">
+        <span>Gyalyong Tshogkhang, Thimphu P.O Box No. 1011 &nbsp;|&nbsp; Tel. +975-2-336842, 331487 (Director)</span>
+        <span style="font-weight:600;color:#555;">${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</span>
+      </div>
+      <div style="text-align:center;font-size:7pt;color:#333;margin-top:2px;">Web: www.cabinet.gov.bt &nbsp;|&nbsp; Construction Quality Inspection</div>
     </div>
   </div></body></html>`;
 }
@@ -6982,12 +7276,36 @@ function _buildPrintPage({title, stamp, meta, body}){
   </head>
   <body><div class="ps-wrap">
 
-    <!-- HEADER -->
+    <!-- OFFICIAL LETTERHEAD HEADER -->
     <div class="ps-header">
-      <div class="ps-org">OFFICE OF PRIME MINISTER AND CABINET</div>
-      <div class="ps-div">Construction Quality Division, OCASC</div>
-      <div class="ps-title">${title}</div>
-      <div class="ps-stamp-row">Document Type: ${stamp} &nbsp;·&nbsp; Printed: ${printedAt}</div>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="width:80px;vertical-align:middle;padding-right:10px;">
+            <!-- Bhutan Emblem placeholder -->
+            <div style="width:72px;height:72px;border:2px solid #1a3a6e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;color:#1a3a6e;">🇧🇹</div>
+          </td>
+          <td style="vertical-align:middle;text-align:center;">
+            <div style="font-size:8pt;color:#333;letter-spacing:.5px;margin-bottom:2px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+            <div style="font-size:11pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
+            <div style="font-size:9pt;font-weight:700;color:#1a3a6e;margin-top:1px;">Cabinet Secretariat</div>
+            <div style="font-size:9pt;font-weight:700;color:#1a3a6e;">Gyalyong Tshogkhang</div>
+          </td>
+          <td style="width:80px;vertical-align:middle;text-align:right;padding-left:10px;">
+            <div style="font-size:13pt;font-weight:900;color:#1a3a6e;letter-spacing:1px;">BHUTAN</div>
+            <div style="font-size:8pt;color:#555;font-style:italic;">Believe</div>
+          </td>
+        </tr>
+      </table>
+      <div style="border-top:2px solid #1a3a6e;margin-top:10px;padding-top:8px;display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:9pt;color:#333;margin-bottom:2px;">CS/OCASC/CQO-03/2025-2026/</div>
+          <div style="font-size:11pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.8px;margin-top:4px;">${title}</div>
+          <div style="font-size:8pt;color:#666;margin-top:2px;">Construction Quality Division — ${stamp}</div>
+        </div>
+        <div style="text-align:right;font-size:7.5pt;color:#888;font-family:monospace;">
+          <div>Printed: ${printedAt}</div>
+        </div>
+      </div>
     </div>
 
     <!-- META GRID -->
@@ -7018,11 +7336,15 @@ function _buildPrintPage({title, stamp, meta, body}){
       </div>
     </div>
 
-    <!-- FOOTER -->
+    <!-- OFFICIAL LETTERHEAD FOOTER -->
     <div class="ps-footer">
-      <span>Construction Quality Inspection</span>
-      <span class="ps-footer-center">${footerDate}</span>
-      <span>Page 1</span>
+      <div style="border-top:2px solid #1a3a6e;padding-top:6px;width:100%;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:7pt;color:#333;">Gyalyong Tshogkhang, Thimphu P.O Box No. 1011 &nbsp;|&nbsp; Tel. +975-2-336842 (Secretary), 321437 (PABX Tashichhodzong), 336667, 336065, 331487 (Director)</span>
+          <span style="font-size:7pt;color:#555;font-weight:600;">${footerDate}</span>
+        </div>
+        <div style="text-align:center;font-size:7pt;color:#333;margin-top:2px;">Web: www.cabinet.gov.bt &nbsp;|&nbsp; Construction Quality Inspection</div>
+      </div>
     </div>
 
   </div></body></html>`;
