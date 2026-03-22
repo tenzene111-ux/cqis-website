@@ -1,0 +1,16 @@
+# robots.txt — CQIS OPMC/OCASC Bhutan
+# Tells search engine crawlers what to index and what to skip.
+
+User-agent: *
+# Allow the public landing page
+Allow: /
+
+# Block the login-protected app areas from being indexed
+Disallow: /dashboard
+Disallow: /app
+Disallow: /cqis-panel
+Disallow: /admin
+Disallow: /login
+
+# Point crawlers to your sitemap
+Sitemap: https://tenzene111-ux.github.io/cqis-website/sitemap.xml
