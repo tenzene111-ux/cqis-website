@@ -347,8 +347,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
   background:linear-gradient(135deg,#e8820c,#f59e0b);
   display:flex;align-items:center;justify-content:center;
   font-size:9px;font-weight:700;color:#fff;flex-shrink:0;}
-.online-user-name{font-weight:600;color:#e2e8f0;}
-.online-user-dur{color:#94a3b8;font-size:9px;font-family:'JetBrains Mono',monospace;}
+.online-user-name{font-weight:600;color:#fff;}
+.online-user-dur{color:rgba(255,255,255,.45);font-size:9px;font-family:'JetBrains Mono',monospace;}
 .online-count-badge{
   margin-left:auto;flex-shrink:0;
   background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25);
@@ -639,10 +639,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 /* SBRW QC TOOL TAB */
 .sbrw-wrap{display:flex;min-height:calc(100vh - 120px);gap:0;}
 .sbrw-sidebar{width:240px;flex-shrink:0;background:#f5f7fa;border-right:1px solid #e2e6ef;padding:12px 0;overflow-y:auto;}
-.sbrw-sh{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#111827;padding:10px 18px 4px;}
-.sbrw-si{display:flex;align-items:center;gap:7px;padding:7px 18px;cursor:pointer;font-size:12px;color:#6b7280;border-left:3px solid transparent;transition:all .15s;}
-.sbrw-si:hover{background:#f8f9fc;color:#e2e8f0;}
-.sbrw-si.active{border-left-color:#e8820c;background:#fff3e0;color:#e8820c;}
+.sbrw-sh{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#000 !important;padding:10px 18px 4px;}
+.sbrw-si{display:flex;align-items:center;gap:7px;padding:8px 18px;cursor:pointer;font-size:12px;color:#111 !important;border-left:3px solid transparent;transition:all .15s;font-weight:500;}
+.sbrw-si:hover{background:#fef3e2;color:#000 !important;border-left-color:rgba(232,130,12,.5);}
+.sbrw-si.active{border-left-color:#e8820c;background:linear-gradient(90deg,rgba(232,130,12,.15),rgba(232,130,12,.04));color:#000 !important;font-weight:600;}
 .sbrw-si:active{box-shadow:inset 0 0 16px rgba(245,158,11,.25);}
 .sbrw-badge{margin-left:auto;font-size:10px;font-family:'JetBrains Mono',monospace;background:#e2e6ef;padding:1px 5px;border-radius:10px;color:#111827;}
 .sbrw-main{flex:1;padding:24px;overflow-y:auto;}
@@ -653,17 +653,17 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .sbrw-card.fp{border-color:#dc2626;}.sbrw-card.pp{border-color:#16a34a;}
 .sbrw-ch{padding:11px 16px;background:#f8f9fc;display:flex;align-items:center;gap:10px;cursor:pointer;}
 .sbrw-cc{font-family:'JetBrains Mono',monospace;font-size:10px;background:#e2e6ef;padding:2px 7px;border-radius:3px;color:#d97706;flex-shrink:0;}
-.sbrw-cn{font-size:13px;font-weight:600;flex:1;color:#e2e8f0;}
+.sbrw-cn{font-size:13px;font-weight:600;flex:1;color:#1a2236;}
 .sbrw-cs{font-family:'JetBrains Mono',monospace;font-size:10px;color:#16a34a;}
 .sbrw-ct{color:#111827;font-size:12px;transition:transform .2s;}.sbrw-ct.open{transform:rotate(180deg);}
 .sbrw-cb{padding:14px 16px;display:none;}.sbrw-cb.open{display:block;}
-.sbrw-cd{font-size:12px;color:#111827;margin-bottom:12px;line-height:1.6;}
+.sbrw-cd{font-size:12px;color:#374151;margin-bottom:12px;line-height:1.6;}
 .sbrw-tt{width:100%;border-collapse:collapse;}
-.sbrw-tt th{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;padding:5px 9px;text-align:left;border-bottom:1px solid #e2e6ef;font-weight:600;}
-.sbrw-tt td{padding:6px 9px;font-size:12px;border-bottom:1px solid #e2e6ef;vertical-align:middle;color:#e2e8f0;}
+.sbrw-tt th{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#374151;padding:5px 9px;text-align:left;border-bottom:1px solid #e2e6ef;background:#f8f9fc;font-weight:700;}
+.sbrw-tt td{padding:6px 9px;font-size:12px;border-bottom:1px solid #e2e6ef;vertical-align:middle;color:#111827;}
 .sbrw-tt tr:last-child td{border-bottom:none;}
-.sbrw-tt tr:hover td{background:rgba(255,255,255,.02);}
-.sbrw-pn{font-weight:600;color:#e2e8f0;}
+.sbrw-tt tr:hover td{background:rgba(232,130,12,.03);}
+.sbrw-pn{font-weight:600;color:#1a2236;}
 .sbrw-rs{font-family:'JetBrains Mono',monospace;font-size:10px;color:#16a34a;}
 .sbrw-rv{font-family:'JetBrains Mono',monospace;font-size:11px;color:#111827;}
 .sbrw-ti{background:#f0f2f7;border:1.5px solid #e2e6ef;border-radius:4px;color:#1a2236;font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 8px;width:100px;transition:border-color .2s;}
@@ -685,7 +685,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .sbrw-rm{background:#fff;border:1.5px solid #d97706;border-radius:10px;width:92%;max-width:820px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;}
 .sbrw-rmh{padding:16px 22px;background:#f8f9fc;border-bottom:1px solid #e2e6ef;display:flex;align-items:center;justify-content:space-between;}
 .sbrw-rmb{padding:20px 22px;overflow-y:auto;flex:1;}
-#sbrw-rc{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;color:#e2e8f0;}
+#sbrw-rc{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;color:#111827;}
 
 /* INSTRUCTIONS */
 .instructions-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -792,6 +792,392 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .action-btn.del:hover{border-color:#dc2626;color:#dc2626;}
 .action-btn.del:active{box-shadow:0 0 14px rgba(239,68,68,.4);}
 .no-data{text-align:center;padding:40px;color:#6b7280;font-size:13px;}
+/* ═══════════════════════════════════════════════════
+   EXECUTIVE DESIGN UPGRADE — OPMC/OCASC · CQD SYSTEM
+   Premium government-grade visual overhaul
+════════════════════════════════════════════════════ */
+
+/* ── TOP BAR ── */
+.top-bar-wrap{
+  background:linear-gradient(90deg,#0f1e3a 0%,#1a3260 50%,#0f1e3a 100%) !important;
+  border-bottom:2px solid rgba(232,130,12,.4) !important;
+  box-shadow:0 4px 20px rgba(0,0,0,.25) !important;
+}
+.top-bar-title{color:#fff !important;font-size:17px !important;letter-spacing:2px !important;}
+.top-bar-sub{color:rgba(255,255,255,.5) !important;}
+.top-bar-divider{background:rgba(255,255,255,.15) !important;}
+.dt-widget{background:rgba(255,255,255,.07) !important;border:1px solid rgba(255,255,255,.12) !important;}
+.dt-time{color:#fbbf24 !important;}
+.dt-date,.dt-day{color:rgba(255,255,255,.45) !important;}
+
+/* ── SIDEBAR ── */
+.cqis-sidebar{
+  background:linear-gradient(180deg,#0c1829 0%,#0f2040 60%,#091428 100%) !important;
+  border-right:1px solid rgba(232,130,12,.18) !important;
+  box-shadow:4px 0 28px rgba(0,0,0,.28) !important;
+}
+.sb-group{
+  color:rgba(232,130,12,.55) !important;
+  border-top:1px solid rgba(232,130,12,.12) !important;
+  font-size:9px !important;
+  letter-spacing:3px !important;
+}
+.nav-tab{
+  color:rgba(255,255,255,.52) !important;
+  font-size:11.5px !important;
+  border-left:3px solid transparent !important;
+  padding:12px 18px !important;
+  letter-spacing:.3px !important;
+}
+.nav-tab:hover{
+  color:rgba(255,255,255,.9) !important;
+  background:rgba(232,130,12,.09) !important;
+  border-left-color:rgba(232,130,12,.5) !important;
+}
+.nav-tab.active{
+  color:#fff !important;
+  background:linear-gradient(90deg,rgba(232,130,12,.28) 0%,rgba(232,130,12,.07) 100%) !important;
+  border-left-color:#e8820c !important;
+  font-weight:700 !important;
+}
+.sb-badge{background:rgba(232,130,12,.18) !important;border-color:rgba(232,130,12,.35) !important;color:#fbbf24 !important;}
+
+/* ── CONTENT AREA ── */
+#cqisPanel, #cqisPanel .cqis-content, .cqis-content, .main{
+  background:#eef1f8 !important;
+}
+
+/* ── SECTION TITLES ── */
+.section-title{
+  font-family:'Rajdhani',sans-serif !important;
+  font-size:24px !important;
+  font-weight:700 !important;
+  color:#0f1e3a !important;
+  letter-spacing:2px !important;
+}
+.section-title::before{
+  background:linear-gradient(180deg,#e8820c,#1a3a6e) !important;
+  width:5px !important;
+  height:28px !important;
+}
+.section-badge{color:#374151 !important;letter-spacing:1.5px !important;font-size:11px !important;}
+
+/* ── KPI CARDS ── */
+.kpi-card{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:14px !important;
+  box-shadow:0 2px 12px rgba(15,30,58,.07) !important;
+  transition:transform .2s,box-shadow .2s !important;
+}
+.kpi-card:hover{
+  transform:translateY(-4px) !important;
+  box-shadow:0 12px 32px rgba(15,30,58,.13) !important;
+}
+.kpi-label{
+  font-size:10px !important;
+  font-weight:700 !important;
+  letter-spacing:1.5px !important;
+  color:#64748b !important;
+}
+.kpi-value{font-size:36px !important;font-weight:700 !important;line-height:1 !important;}
+
+/* ── TABLE CARDS ── */
+.table-card{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:14px !important;
+  box-shadow:0 2px 10px rgba(15,30,58,.06) !important;
+  overflow:hidden !important;
+}
+.table-toolbar{
+  background:#fff !important;
+  border-bottom:1px solid #f0f4fb !important;
+  padding:14px 20px !important;
+}
+.data-table th{
+  background:linear-gradient(90deg,#0f1e3a,#1a3a6e) !important;
+  color:#fff !important;
+  font-size:10px !important;
+  letter-spacing:1.5px !important;
+  padding:11px 12px !important;
+  font-weight:700 !important;
+  text-transform:uppercase !important;
+}
+.data-table td{
+  color:#1a2236 !important;
+  padding:10px 12px !important;
+  font-size:12.5px !important;
+  border-bottom:1px solid #f0f4fb !important;
+}
+.data-table tr:hover td{background:rgba(232,130,12,.04) !important;}
+.data-table tr:nth-child(even) td{background:#fafbfd !important;}
+.data-table tr:nth-child(even):hover td{background:rgba(232,130,12,.04) !important;}
+
+/* ── FILTERS ── */
+.filters{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:10px !important;
+  box-shadow:0 1px 6px rgba(15,30,58,.05) !important;
+}
+.filter-select{
+  background:#f8fafc !important;
+  border:1.5px solid #e2e8f0 !important;
+  border-radius:7px !important;
+  color:#1a2236 !important;
+  font-size:12.5px !important;
+  padding:7px 14px !important;
+  font-family:'Poppins',sans-serif !important;
+}
+.filter-select:focus{border-color:#e8820c !important;box-shadow:0 0 0 3px rgba(232,130,12,.1) !important;}
+
+/* ── FORM SECTIONS ── */
+.form-section{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:14px !important;
+  box-shadow:0 2px 12px rgba(15,30,58,.06) !important;
+  padding:26px 28px !important;
+}
+.form-section-title{
+  color:#0f1e3a !important;
+  font-size:13px !important;
+  letter-spacing:2.5px !important;
+  border-bottom:2px solid #f0f4fb !important;
+  padding-bottom:14px !important;
+  margin-bottom:22px !important;
+}
+.form-section-title::before{background:linear-gradient(180deg,#e8820c,#1a3a6e) !important;}
+.field-wrap label{color:#374151 !important;font-size:10.5px !important;font-weight:700 !important;letter-spacing:1.8px !important;}
+.field-wrap input,.field-wrap select,.field-wrap textarea{
+  background:#f8fafc !important;
+  border:1.5px solid #e2e8f0 !important;
+  border-radius:8px !important;
+  color:#1a2236 !important;
+  font-size:13px !important;
+  padding:10px 14px !important;
+}
+.field-wrap input:focus,.field-wrap select:focus,.field-wrap textarea:focus{
+  border-color:#e8820c !important;box-shadow:0 0 0 3px rgba(232,130,12,.1) !important;
+}
+
+/* ── BUTTONS EXECUTIVE ── */
+.btn-primary{
+  background:linear-gradient(135deg,#e8820c,#b56008) !important;
+  border-radius:7px !important;
+  padding:11px 26px !important;
+  font-size:12.5px !important;
+  font-weight:700 !important;
+  letter-spacing:1px !important;
+  box-shadow:0 4px 14px rgba(232,130,12,.3) !important;
+  clip-path:none !important;
+}
+.btn-primary:hover{
+  background:linear-gradient(135deg,#f59518,#c46a08) !important;
+  transform:translateY(-2px) !important;
+  box-shadow:0 8px 24px rgba(232,130,12,.45) !important;
+}
+.btn-secondary{
+  background:#fff !important;
+  border:1.5px solid #cbd5e1 !important;
+  border-radius:7px !important;
+  color:#374151 !important;
+  padding:11px 22px !important;
+  font-size:12.5px !important;
+  font-weight:600 !important;
+  clip-path:none !important;
+}
+.btn-secondary:hover{border-color:#e8820c !important;color:#c46a08 !important;background:#fffbf5 !important;}
+.btn-gold{
+  background:linear-gradient(135deg,#d97706,#b45309) !important;
+  border-radius:7px !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+  box-shadow:0 3px 10px rgba(217,119,6,.3) !important;
+}
+.btn-gold:hover{transform:translateY(-1px) !important;box-shadow:0 6px 20px rgba(217,119,6,.4) !important;}
+.btn-print{
+  background:linear-gradient(135deg,#0f766e,#0d9488) !important;
+  border-radius:7px !important;
+  font-weight:700 !important;
+  letter-spacing:.8px !important;
+  box-shadow:0 3px 10px rgba(13,148,136,.3) !important;
+  clip-path:none !important;
+}
+.btn-print:hover{transform:translateY(-1px) !important;box-shadow:0 6px 18px rgba(13,148,136,.4) !important;}
+
+/* ── CHART CARDS ── */
+.chart-card{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:14px !important;
+  padding:22px !important;
+  box-shadow:0 2px 10px rgba(15,30,58,.06) !important;
+}
+.chart-title{
+  font-size:13px !important;
+  font-weight:700 !important;
+  color:#0f1e3a !important;
+  letter-spacing:.8px !important;
+  margin-bottom:18px !important;
+  padding-bottom:10px !important;
+  border-bottom:1px solid #f0f4fb !important;
+}
+
+/* ── SBRW SIDEBAR ENHANCED ── */
+.sbrw-sidebar{
+  background:linear-gradient(180deg,#f8fafc,#f1f5fb) !important;
+  border-right:2px solid #e2e8f0 !important;
+}
+.sbrw-card{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:10px !important;
+  box-shadow:0 1px 6px rgba(15,30,58,.05) !important;
+}
+.sbrw-ch{
+  background:linear-gradient(90deg,#f8fafc,#fff) !important;
+  border-bottom:1px solid #f0f4fb !important;
+  padding:13px 16px !important;
+}
+.sbrw-sumbar{
+  background:linear-gradient(90deg,#0f1e3a,#1a3a6e) !important;
+  border-top:2px solid rgba(232,130,12,.4) !important;
+  padding:12px 24px !important;
+}
+.sbrw-sl{color:rgba(255,255,255,.65) !important;}
+.sbrw-sv{color:#fff !important;}
+.sbrw-sv.pass{color:#4ade80 !important;}
+.sbrw-sv.fail{color:#f87171 !important;}
+.sbrw-sv.warn{color:#fbbf24 !important;}
+
+/* ── COMPLIANCE TABLES ── */
+.comp-table th{
+  background:linear-gradient(90deg,#0f1e3a,#1a3a6e) !important;
+  color:#fff !important;
+  font-size:10px !important;
+  letter-spacing:1px !important;
+  padding:11px 10px !important;
+}
+.comp-table td{color:#1a2236 !important;}
+
+/* ── ONLINE BAR ── */
+.online-bar{
+  background:linear-gradient(90deg,#0f1e3a,#1a3260) !important;
+  border-bottom:1px solid rgba(232,130,12,.2) !important;
+}
+.online-bar-label{color:rgba(255,255,255,.45) !important;}
+.online-count-badge{background:rgba(74,222,128,.12) !important;border-color:rgba(74,222,128,.3) !important;color:#4ade80 !important;}
+
+/* ── BREAKDOWN CARDS ── */
+.breakdown-card{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:12px !important;
+  box-shadow:0 2px 8px rgba(15,30,58,.06) !important;
+}
+.breakdown-title{
+  background:linear-gradient(90deg,#f0f4fb,#fff) !important;
+  color:#0f1e3a !important;
+  font-weight:700 !important;
+  border-bottom:1px solid #e2e8f0 !important;
+}
+.breakdown-table th{background:#f0f4fb !important;color:#374151 !important;}
+.breakdown-table td{color:#1a2236 !important;}
+
+/* ── ATR / STAT CARDS ── */
+.atr-stat{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:12px !important;
+  box-shadow:0 2px 8px rgba(15,30,58,.06) !important;
+}
+.atr-stat-lbl{color:#374151 !important;font-weight:600 !important;}
+
+/* ── NOTIFICATIONS ── */
+.notif-card{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:10px !important;
+  box-shadow:0 1px 6px rgba(15,30,58,.04) !important;
+}
+.notif-card:hover{box-shadow:0 4px 16px rgba(15,30,58,.1) !important;}
+
+/* ── INST CARDS ── */
+.inst-card{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:12px !important;
+  box-shadow:0 2px 8px rgba(15,30,58,.06) !important;
+  padding:22px !important;
+}
+
+/* ── CQIS PANEL BAR ── */
+#cqisPanelBar{
+  background:linear-gradient(90deg,#0f1e3a,#1a3a6e,#e8820c) !important;
+  box-shadow:0 3px 16px rgba(0,0,0,.2) !important;
+}
+
+/* ── LOGIN CARD ── */
+.login-card{
+  border:1px solid #e2e8f0 !important;
+  border-radius:18px !important;
+  box-shadow:0 12px 48px rgba(15,30,58,.12) !important;
+  padding:52px 48px !important;
+}
+.login-title{color:#0f1e3a !important;font-size:20px !important;font-weight:800 !important;}
+.login-org{color:#64748b !important;}
+
+/* ── TOAST ── */
+.toast{
+  background:#fff !important;
+  border:1.5px solid #16a34a !important;
+  border-radius:12px !important;
+  box-shadow:0 8px 28px rgba(0,0,0,.15) !important;
+  color:#0f1e3a !important;
+  font-weight:600 !important;
+}
+
+/* ── EMPTY STATES ── */
+.empty-state,.no-data{color:#64748b !important;}
+
+/* ── COMP KPI ── */
+.comp-kpi-row{gap:16px !important;}
+.comp-kpi{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:12px !important;
+  box-shadow:0 2px 8px rgba(15,30,58,.06) !important;
+  padding:16px !important;
+}
+.comp-kpi-lbl{color:#374151 !important;font-weight:600 !important;}
+
+/* ── RATING CARDS ── */
+.rating-leg-card{
+  background:#fff !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:12px !important;
+  box-shadow:0 2px 8px rgba(15,30,58,.06) !important;
+}
+.rating-leg-lbl{color:#374151 !important;}
+.rating-leg-range{color:#0f1e3a !important;font-weight:700 !important;}
+
+/* ── USER BADGE ── */
+.user-badge{background:rgba(255,255,255,.1) !important;border:1px solid rgba(255,255,255,.15) !important;}
+.user-name{color:#fff !important;}
+.user-role{color:rgba(255,255,255,.5) !important;}
+
+/* ── SEARCH INPUTS ── */
+.table-search{
+  background:#f8fafc !important;
+  border:1.5px solid #e2e8f0 !important;
+  border-radius:8px !important;
+  color:#1a2236 !important;
+  font-size:13px !important;
+}
+.table-search:focus{border-color:#e8820c !important;}
+
 @media print{
   /* Hide everything except print target */
   body{background:#fff!important;color:#000!important;font-family:'Segoe UI',Arial,sans-serif!important;font-size:10pt!important;}
@@ -6360,6 +6746,10 @@ function buildSBRWSections(){
           <span class="sbrw-cc">${card.code}</span>
           <span class="sbrw-cn">${card.name}</span>
           <span class="sbrw-cs">${card.std}</span>
+          <span style="margin-left:auto;display:flex;gap:6px;align-items:center;" onclick="event.stopPropagation()">
+            <button onclick="sbrwSaveCard('${sec.id}',${ci})" title="Save this test" style="background:#fff;border:1.5px solid #cbd2e0;border-radius:6px;padding:4px 11px;font-size:10.5px;font-weight:700;color:#374151;cursor:pointer;font-family:'Poppins',sans-serif;letter-spacing:.3px;display:flex;align-items:center;gap:4px;transition:all .15s;" onmouseover="this.style.borderColor='#e8820c';this.style.color='#c46a08'" onmouseout="this.style.borderColor='#cbd2e0';this.style.color='#374151'">💾 Save</button>
+            <button onclick="sbrwPrintCard('${sec.id}',${ci})" title="Print this test" style="background:linear-gradient(135deg,#1a3a6e,#1e4d8c);border:none;border-radius:6px;padding:4px 11px;font-size:10.5px;font-weight:700;color:#fff;cursor:pointer;font-family:'Poppins',sans-serif;letter-spacing:.3px;display:flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(26,58,110,.25);transition:all .15s;" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">🖨 Print</button>
+          </span>
           <span class="sbrw-ct open">▼</span>
         </div>
         <div class="sbrw-cb open">
@@ -10086,207 +10476,1038 @@ function dlClearAll(){
   toast('All records cleared.');
 }
 
-// ===== PROFESSIONAL PRINT =====
+// ===== PROFESSIONAL PRINT — EXECUTIVE FORMAT WITH LINE GRAPHS =====
 function dlBuildPrintHTML(rec){
-  const meta = (label, val) => `<div class="print-meta-item"><div class="print-meta-label">${label}</div><div class="print-meta-value">${val||'—'}</div></div>`;
-  const dateStr = rec.date ? new Date(rec.date).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const dateStr  = rec.date    ? new Date(rec.date).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}) : '—';
   const savedStr = rec.savedAt ? new Date(rec.savedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const todayStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const refNo    = `CS/OCASC/CQD/${new Date().getFullYear()}/QC`;
+
+  // ─── Collect all test data from snapshot ───
+  let grandPass = 0, grandFail = 0;
+  const sectionTotals = [];   // {title, pass, fail}
+  const sieveChartData = [];  // [{title, sampleIdx, sieves:[{size,spec,pp}]}] per sample
+  const proctorChartData = []; // [{title, trials:[{wc, dd}], mdd, omc}]
+  const srtChartData = [];    // [{title, locs:[{i, comp, req}]}]
 
   let sectionsHTML = '';
-  (rec.snapshot?.sections||[]).forEach(sec => {
-    sectionsHTML += `<div class="print-section-title">${sec.title}</div>`;
-    (sec.cards||[]).forEach(card => {
-      sectionsHTML += `<div class="print-card-title">[${card.code}] ${card.name} <span style="font-size:8pt;font-weight:400;color:#555;">— ${card.std}</span></div>`;
 
+  (rec.snapshot?.sections||[]).forEach(sec => {
+    let secPass=0, secFail=0;
+    sectionsHTML += `
+      <div class="sec-header">${sec.title}</div>`;
+
+    (sec.cards||[]).forEach(card => {
+      sectionsHTML += `
+        <div class="card-header">
+          <span class="card-code">${card.code}</span>
+          <span class="card-name">${card.name}</span>
+          <span class="card-std">${card.std||''}</span>
+        </div>`;
+
+      // ── SIEVE ANALYSIS ──────────────────────────────
       if(card.type==='sieve-v3' && card.sieves?.length){
-        sectionsHTML += `<div style="font-size:8pt;color:#555;margin-bottom:4px;">Type: ${card.gradingType} &nbsp;|&nbsp; Active Grading: <strong>${card.gradingName}</strong></div>`;
-        // Build per-sample tables
+        sectionsHTML += `<p class="card-note">Type: <b>${card.gradingType}</b> &nbsp;|&nbsp; Grading: <b>${card.gradingName}</b></p>`;
+
         for(let s=0;s<5;s++){
           const hasData = card.sieves.some(sv=>sv.samples?.[s]?.r);
           if(!hasData) continue;
-          sectionsHTML += `<div style="font-size:8pt;font-weight:700;color:#1a3a6e;margin:6px 0 2px;">Sample S-${s+1} &nbsp; Total Weight: ${card.sieves[0]?.samples?.[s]?.tw||'—'} g</div>`;
-          sectionsHTML += `<table class="print-table"><thead><tr>
-            <th>Sieve Size</th><th>Spec (% Passing)</th><th>Wt. Retained (g)</th>
-            <th>Cum. Retained (g)</th><th>% Cum. Retained</th><th>% Passing</th><th>Result</th>
+          const tw = card.sieves[0]?.samples?.[s]?.tw||'—';
+          sectionsHTML += `<p class="sample-label">Sample S-${s+1} &nbsp;·&nbsp; Total Wt: ${tw} g</p>`;
+          sectionsHTML += `<table class="pt"><thead><tr>
+            <th>Sieve (mm)</th><th>% Passing Spec</th><th>Wt. Retained (g)</th>
+            <th>Cum. Retained</th><th>% Cum. Ret.</th><th>% Passing</th><th>Result</th>
           </tr></thead><tbody>`;
+          const chartSieves = [];
           card.sieves.forEach(sv => {
             const sp = sv.samples?.[s];
             if(!sp?.r) return;
-            const isPass = sp.rb?.includes('PASS');
-            const isFail = sp.rb?.includes('FAIL');
-            const resCls = isPass?'print-pass':isFail?'print-fail':'';
-            sectionsHTML += `<tr><td><strong>${sv.size}</strong></td><td>${sv.spec}</td>
+            const isPa = sp.rb?.includes('PASS');
+            const isFa = sp.rb?.includes('FAIL');
+            if(isPa){secPass++;grandPass++;} else if(isFa){secFail++;grandFail++;}
+            const cls = isPa?'pass-cell':isFa?'fail-cell':'';
+            sectionsHTML += `<tr>
+              <td><b>${sv.size}</b></td><td>${sv.spec}</td>
               <td>${sp.r}</td><td>${sp.cr}</td><td>${sp.pcr}</td>
-              <td class="${resCls}">${sp.pp}</td>
-              <td class="${resCls}">${sp.rb}</td></tr>`;
+              <td class="${cls}">${sp.pp}</td>
+              <td class="${cls} bold">${sp.rb}</td>
+            </tr>`;
+            chartSieves.push({size:sv.size, spec:sv.spec, pp:parseFloat(sp.pp)||0});
           });
           sectionsHTML += `</tbody></table>`;
+          // Placeholder canvas for line graph — sieve grading curve
+          const cid = `chart-sieve-${sec.id}-${card.code}-s${s}`.replace(/[^a-zA-Z0-9-]/g,'_');
+          sectionsHTML += `<div class="chart-wrap"><canvas id="${cid}" height="90"></canvas></div>`;
+          sieveChartData.push({cid, label:`${card.name} · Sample S-${s+1}`, sieves:chartSieves});
         }
 
+      // ── PROCTOR COMPACTION ──────────────────────────
       } else if(card.type==='proctor'){
-        sectionsHTML += `<div style="font-size:8pt;color:#555;margin-bottom:6px;">Test Type: <strong>${card.proctorType==='modified'?'Modified Proctor (IS 2720 Pt.8)':'Standard Proctor (IS 2720 Pt.7)'}</strong> &nbsp;|&nbsp; Material: <strong>${card.material}</strong></div>`;
-        sectionsHTML += `<table class="print-table"><thead><tr>
+        const pType = card.proctorType==='modified'?'Modified Proctor (IS 2720 Pt.8)':'Standard Proctor (IS 2720 Pt.7)';
+        sectionsHTML += `<p class="card-note">Test Type: <b>${pType}</b> &nbsp;|&nbsp; Material: <b>${card.material||'—'}</b></p>`;
+        sectionsHTML += `<table class="pt"><thead><tr>
           <th>Trial</th><th>Mold Wt (g)</th><th>Mold+Wet (g)</th>
           <th>Cont Wt (g)</th><th>Cont+Wet (g)</th><th>Cont+Dry (g)</th>
-          <th>Water Content (%)</th><th>Dry Density (g/cm³)</th><th>Dry Density (kN/m³)</th>
+          <th>Water Content (%)</th><th>Dry Density (g/cm³)</th>
         </tr></thead><tbody>`;
-        (card.trials||[]).forEach(t => {
-          sectionsHTML += `<tr><td><strong>${t.t}</strong></td>
-            <td>${t.mw}</td><td>${t.mws}</td>
+        const trialPts = [];
+        (card.trials||[]).forEach(t=>{
+          sectionsHTML += `<tr><td><b>T-${t.t}</b></td><td>${t.mw}</td><td>${t.mws}</td>
             <td>${t.cwt}</td><td>${t.cws}</td><td>${t.cwd}</td>
-            <td>${t.wc}</td><td><strong>${t.dd}</strong></td><td>${t.ddkn}</td></tr>`;
+            <td>${t.wc}</td><td><b>${t.dd}</b></td></tr>`;
+          const wc=parseFloat(t.wc); const dd=parseFloat(t.dd);
+          if(!isNaN(wc)&&!isNaN(dd)) trialPts.push({wc,dd,t:t.t});
         });
         sectionsHTML += `</tbody></table>`;
-        sectionsHTML += `<div class="print-result-box">
-          <div class="print-kpi"><div class="print-kpi-val">${card.mdd}</div><div class="print-kpi-lbl">MDD (g/cm³)</div></div>
-          <div class="print-kpi"><div class="print-kpi-val">${card.mddkn}</div><div class="print-kpi-lbl">MDD (kN/m³)</div></div>
-          <div class="print-kpi"><div class="print-kpi-val" style="color:#c47700;">${card.omc}</div><div class="print-kpi-lbl">OMC (%)</div></div>
-          <div class="print-kpi"><div class="print-kpi-val" style="color:#2563eb;">${card.mdd95}</div><div class="print-kpi-lbl">95% MDD (g/cm³)</div></div>
+        sectionsHTML += `<div class="result-box">
+          <div class="rk"><div class="rv">${card.mdd||'—'}</div><div class="rl">MDD (g/cm³)</div></div>
+          <div class="rk"><div class="rv">${card.mddkn||'—'}</div><div class="rl">MDD (kN/m³)</div></div>
+          <div class="rk"><div class="rv" style="color:#b45309;">${card.omc||'—'}</div><div class="rl">OMC (%)</div></div>
+          <div class="rk"><div class="rv" style="color:#1d4ed8;">${card.mdd95||'—'}</div><div class="rl">95% MDD (g/cm³)</div></div>
         </div>`;
+        const pcid = `chart-prc-${sec.id}-${card.code}`.replace(/[^a-zA-Z0-9-]/g,'_');
+        sectionsHTML += `<div class="chart-wrap"><canvas id="${pcid}" height="90"></canvas></div>`;
+        proctorChartData.push({cid:pcid, label:`${card.name} — Compaction Curve`, trials:trialPts, mdd:parseFloat(card.mdd)||0, omc:parseFloat(card.omc)||0});
+        if(card.mdd) { secPass++; grandPass++; }
 
+      // ── SAND REPLACEMENT TEST ───────────────────────
       } else if(card.type==='srt'){
-        sectionsHTML += `<div style="font-size:8pt;color:#555;margin-bottom:6px;">Material: <strong>${card.material}</strong> &nbsp;|&nbsp; Sand Density: <strong>${card.rho} g/cm³</strong> &nbsp;|&nbsp; MDD (Lab): <strong>${card.mdd} g/cm³</strong> &nbsp;|&nbsp; Required: <strong>${card.req}%</strong></div>`;
-        sectionsHTML += `<table class="print-table"><thead><tr>
-          <th>Location</th><th>Wt. Soil (g)</th><th>Cont Wt (g)</th>
-          <th>Cont+Wet (g)</th><th>Cont+Dry (g)</th><th>W. Sand (g)</th>
-          <th>Water Content (%)</th><th>Hole Vol. (cm³)</th>
-          <th>Wet Density</th><th>Dry Density (g/cm³)</th><th>% Compaction</th><th>Result</th>
+        sectionsHTML += `<p class="card-note">Material: <b>${card.material||'—'}</b> &nbsp;|&nbsp; Sand Density: <b>${card.rho} g/cm³</b> &nbsp;|&nbsp; MDD: <b>${card.mdd} g/cm³</b> &nbsp;|&nbsp; Required: <b>${card.req}%</b></p>`;
+        sectionsHTML += `<table class="pt"><thead><tr>
+          <th>Loc.</th><th>Soil Wt (g)</th><th>Cont Wt (g)</th><th>Cont+Wet (g)</th><th>Cont+Dry (g)</th>
+          <th>Sand Wt (g)</th><th>W.C (%)</th><th>Hole Vol (cm³)</th><th>Dry Density</th><th>% Compaction</th><th>Result</th>
         </tr></thead><tbody>`;
-        (card.locs||[]).forEach(loc => {
-          const isPass = loc.rb?.includes('PASS');
-          const isFail = loc.rb?.includes('FAIL');
-          const resCls = isPass?'print-pass':isFail?'print-fail':'';
-          sectionsHTML += `<tr><td><strong>${loc.i}</strong></td>
-            <td>${loc.wsoil}</td><td>${loc.cwt}</td><td>${loc.cws}</td><td>${loc.cwd}</td><td>${loc.wsand}</td>
-            <td>${loc.wc}</td><td>${loc.vh}</td><td>${loc.gw}</td>
-            <td><strong>${loc.gd}</strong></td>
-            <td class="${resCls}"><strong>${loc.comp}</strong></td>
-            <td class="${resCls}">${loc.rb}</td></tr>`;
+        const locPts = [];
+        (card.locs||[]).forEach(loc=>{
+          const isPa=loc.rb?.includes('PASS'); const isFa=loc.rb?.includes('FAIL');
+          if(isPa){secPass++;grandPass();} else if(isFa){secFail++;grandFail++;}
+          const cls=isPa?'pass-cell':isFa?'fail-cell':'';
+          sectionsHTML += `<tr><td><b>L-${loc.i}</b></td><td>${loc.wsoil}</td><td>${loc.cwt}</td>
+            <td>${loc.cws}</td><td>${loc.cwd}</td><td>${loc.wsand}</td>
+            <td>${loc.wc}</td><td>${loc.vh}</td><td>${loc.gd}</td>
+            <td class="${cls} bold">${loc.comp}</td>
+            <td class="${cls} bold">${loc.rb}</td></tr>`;
+          const comp=parseFloat(loc.comp);
+          if(!isNaN(comp)) locPts.push({i:loc.i, comp, req:parseFloat(card.req)||95});
         });
         sectionsHTML += `</tbody></table>`;
-        const ovPass = card.overall?.includes('PASS');
-        const ovFail = card.overall?.includes('FAIL');
-        sectionsHTML += `<div class="print-result-box">
-          <div class="print-kpi"><div class="print-kpi-val">${card.avgDD}</div><div class="print-kpi-lbl">Avg Dry Density (g/cm³)</div></div>
-          <div class="print-kpi"><div class="print-kpi-val" style="color:#c47700;">${card.avgWC}</div><div class="print-kpi-lbl">Avg Water Content</div></div>
-          <div class="print-kpi"><div class="print-kpi-val ${ovPass?'print-pass':ovFail?'print-fail':''}">${card.avgComp}</div><div class="print-kpi-lbl">Avg % Compaction</div></div>
-          <div class="print-kpi"><div class="print-kpi-val ${ovPass?'print-pass':ovFail?'print-fail':''}">${card.overall}</div><div class="print-kpi-lbl">Overall Result</div></div>
+        const ovPa=card.overall?.includes('PASS'); const ovFa=card.overall?.includes('FAIL');
+        sectionsHTML += `<div class="result-box">
+          <div class="rk"><div class="rv">${card.avgDD||'—'}</div><div class="rl">Avg Dry Density</div></div>
+          <div class="rk"><div class="rv" style="color:#b45309;">${card.avgWC||'—'}</div><div class="rl">Avg Water Content</div></div>
+          <div class="rk"><div class="rv ${ovPa?'pass-cell':ovFa?'fail-cell':''}">${card.avgComp||'—'}</div><div class="rl">Avg % Compaction</div></div>
+          <div class="rk"><div class="rv ${ovPa?'pass-cell':ovFa?'fail-cell':''}" style="font-size:9pt;letter-spacing:.5px;">${card.overall||'—'}</div><div class="rl">Overall Result</div></div>
         </div>`;
+        const scid = `chart-srt-${sec.id}-${card.code}`.replace(/[^a-zA-Z0-9-]/g,'_');
+        sectionsHTML += `<div class="chart-wrap"><canvas id="${scid}" height="80"></canvas></div>`;
+        srtChartData.push({cid:scid, label:`${card.name} — Compaction per Location`, locs:locPts, req:parseFloat(card.req)||95});
 
+      // ── STANDARD ROW-BASED CARD ─────────────────────
       } else if(card.rows?.length){
-        sectionsHTML += `<table class="print-table"><thead><tr>
-          <th>Parameter</th><th>Reference</th><th>Required</th><th>Measured Value</th><th>Result</th>
+        sectionsHTML += `<table class="pt"><thead><tr>
+          <th>Parameter</th><th>Standard / Clause</th><th>Required Value</th><th>Measured Value</th><th>Result</th>
         </tr></thead><tbody>`;
-        card.rows.forEach(row => {
-          const isPass = row.result?.includes('PASS');
-          const isFail = row.result?.includes('FAIL');
-          sectionsHTML += `<tr>
-            <td><strong>${row.p}</strong></td><td style="font-size:8pt;color:#555;">${row.req}</td>
-            <td>${row.req}</td><td><strong>${row.val}</strong></td>
-            <td class="${isPass?'print-pass':isFail?'print-fail':''}">${row.result}</td>
-          </tr>`;
+        card.rows.forEach(row=>{
+          const isPa=row.result?.includes('PASS'); const isFa=row.result?.includes('FAIL');
+          if(isPa){secPass++;grandPass++;} else if(isFa){secFail++;grandFail++;}
+          const cls=isPa?'pass-cell':isFa?'fail-cell':'';
+          sectionsHTML += `<tr><td><b>${row.p}</b></td><td class="mono small">${row.req}</td>
+            <td>${row.req}</td><td class="bold">${row.val}</td>
+            <td class="${cls} bold">${row.result}</td></tr>`;
         });
         sectionsHTML += `</tbody></table>`;
       }
     });
+    sectionTotals.push({title: sec.title.length>20?sec.title.substring(0,18)+'…':sec.title, pass:secPass, fail:secFail});
   });
 
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
-  <title>Test Report — ${rec.project}</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Segoe UI',Arial,sans-serif;font-size:10pt;color:#111;background:#fff;}
-    .print-doc{max-width:210mm;margin:0 auto;padding:12mm;}
-    .print-header{border-bottom:3px solid #1a3a6e;padding-bottom:12px;margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;}
-    .print-logo-area{display:flex;align-items:center;gap:12px;}
-    .print-emblem{width:52px;height:52px;background:#1a3a6e;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;}
-    .print-org{font-size:7.5pt;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
-    .print-title{font-size:15pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;}
-    .print-subtitle{font-size:8.5pt;color:#666;margin-top:2px;}
-    .print-doc-id{text-align:right;font-size:8pt;color:#888;font-family:monospace;}
-    .print-stamp{background:#1a3a6e;color:#fff;font-size:9pt;font-weight:700;padding:4px 12px;border-radius:3px;letter-spacing:1px;display:inline-block;margin-top:6px;}
-    .print-meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 20px;background:#f0f4fb;border:1.5px solid #c8d4e8;border-radius:4px;padding:12px 16px;margin-bottom:14px;}
-    .print-meta-item{display:flex;flex-direction:column;gap:1px;}
-    .print-meta-label{font-size:7pt;color:#666;text-transform:uppercase;letter-spacing:.8px;font-weight:700;}
-    .print-meta-value{font-size:9.5pt;color:#111;font-weight:500;}
-    .print-section-title{font-size:11pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #1a3a6e;padding-bottom:4px;margin:16px 0 8px;}
-    .print-card-title{font-size:9.5pt;font-weight:700;color:#1a3a6e;background:#eef2fb;padding:5px 10px;border-left:4px solid #1a3a6e;margin:10px 0 4px;}
-    .print-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin-bottom:10px;}
-    .print-table th{background:#1a3a6e;color:#fff;padding:5px 8px;text-align:left;font-size:7.5pt;text-transform:uppercase;letter-spacing:.4px;}
-    .print-table td{padding:4px 8px;border-bottom:1px solid #dde3ef;vertical-align:top;}
-    .print-table tr:nth-child(even) td{background:#f5f8ff;}
-    .print-pass{color:#16a34a;font-weight:700;}
-    .print-fail{color:#dc2626;font-weight:700;}
-    .print-result-box{border:1.5px solid #1a3a6e;border-radius:4px;padding:10px 16px;margin:10px 0;display:flex;gap:0;background:#f8faff;}
-    .print-kpi{text-align:center;flex:1;border-right:1px solid #c8d4e8;padding:0 8px;}
-    .print-kpi:last-child{border-right:none;}
-    .print-kpi-val{font-size:16pt;font-weight:700;color:#1a3a6e;}
-    .print-kpi-lbl{font-size:7pt;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
-    .print-footer{border-top:1.5px solid #c8d4e8;margin-top:24px;padding-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:7.5pt;color:#888;}
-    .print-sig-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:36px;}
-    .print-sig{border-top:1.5px solid #555;padding-top:6px;text-align:center;font-size:8pt;color:#333;}
-    .print-sig-blank{height:42px;}
-    .print-footer-center{font-weight:600;color:#555;}
-    @media print{@page{size:A4;margin:12mm 10mm;}body{font-size:9pt;}.print-doc{padding:0;}}
-  </style>
-  </head><body><div class="print-doc">
-    <div class="print-header" style="border-bottom:2px solid #1a3a6e;padding-bottom:12px;margin-bottom:14px;">
-      <table style="width:100%;border-collapse:collapse;">
-        <tr>
-          <td style="width:76px;vertical-align:middle;padding-right:10px;">
-            <div style="width:68px;height:68px;border:2px solid #1a3a6e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#1a3a6e;">🇧🇹</div>
-          </td>
-          <td style="vertical-align:middle;text-align:center;">
-            <div style="font-size:7.5pt;color:#333;letter-spacing:.5px;margin-bottom:2px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
-            <div style="font-size:11pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
-            <div style="font-size:9pt;font-weight:700;color:#1a3a6e;margin-top:1px;">Cabinet Secretariat</div>
-            <div style="font-size:9pt;font-weight:700;color:#1a3a6e;">Gyalyong Tshogkhang</div>
-          </td>
-          <td style="width:76px;vertical-align:middle;text-align:right;padding-left:10px;">
-            <div style="font-size:13pt;font-weight:900;color:#1a3a6e;letter-spacing:1px;">BHUTAN</div>
-            <div style="font-size:8pt;color:#555;font-style:italic;">Believe</div>
-          </td>
-        </tr>
-      </table>
-      <div style="border-top:1px solid #c8d4e8;margin-top:8px;padding-top:6px;display:flex;justify-content:space-between;align-items:flex-start;">
-        <div>
-          <div style="font-size:8.5pt;color:#333;margin-bottom:2px;">CS/OCASC/CQO-03/2025-2026/</div>
-          <div style="font-size:12pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.8px;margin-top:4px;">QUALITY TEST REPORT</div>
-          <div style="font-size:8pt;color:#666;margin-top:2px;">Construction Quality Division — ${rec.typeLabel||'TEST REPORT'}</div>
-        </div>
-        <div style="text-align:right;font-size:7.5pt;color:#888;font-family:monospace;">
-          <div>Record: ${rec.id}</div>
-          <div>Saved: ${savedStr}</div>
-        </div>
-      </div>
-    </div>
+  const total    = grandPass + grandFail;
+  const passRate = total > 0 ? Math.round((grandPass/total)*100) : 0;
+  const allPass  = total > 0 && grandFail === 0;
+  const statusTxt= total===0?'NO DATA':allPass?'FULLY COMPLIANT':'CORRECTIVE ACTION REQUIRED';
+  const statusClr= total===0?'#888':allPass?'#15803d':'#b91c1c';
+  const statusBg = total===0?'#f5f5f5':allPass?'#f0fdf4':'#fef2f2';
+  const statusBrd= total===0?'#ccc':allPass?'#86efac':'#fca5a5';
 
-    <div class="print-meta-grid">
-      ${meta('Project Name', rec.project)}
-      ${meta('Contract No.', rec.contract)}
-      ${meta('Contractor', rec.contractor)}
-      ${meta('Location / Chainage', rec.location)}
-      ${meta('Test Date', dateStr)}
-      ${meta('Prepared By', 'CQD, OCASC')}
-    </div>
+  // All chart data serialised for the print window script
+  const allChartData = JSON.stringify({sectionTotals, sieveChartData, proctorChartData, srtChartData, grandPass, grandFail, total, passRate});
 
-    ${sectionsHTML}
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>QC Test Report — ${rec.project||'—'}</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\/script>
+<style>
+/* ══ RESET & BASE ══ */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:9.5pt;color:#1a1a2e;background:#fff;line-height:1.45;}
 
-    <div class="print-sig-row">
-      <div><div class="print-sig-blank"></div><div class="print-sig"><strong>___________________________</strong><br>Prepared By<br><span style="font-size:7.5pt;color:#555;">Construction Quality Division (CQD), OCASC</span><br><span style="font-size:7.5pt;color:#777;">Date: _______________</span></div></div>
-      <div><div class="print-sig-blank"></div><div class="print-sig"><strong>___________________________</strong><br>Verified By<br><span style="font-size:7.5pt;color:#555;">Quality Assurance Engineer</span><br><span style="font-size:7.5pt;color:#777;">Date: _______________</span></div></div>
-    </div>
+/* ══ PAGE ══ */
+.page{max-width:210mm;margin:0 auto;padding:14mm 14mm 12mm;}
 
-    <!-- OFFICIAL LETTERHEAD FOOTER -->
-    <div style="border-top:2px solid #1a3a6e;margin-top:20px;padding-top:6px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;font-size:7pt;color:#333;">
-        <span>Gyalyong Tshogkhang, Thimphu P.O Box No. 1011 &nbsp;|&nbsp; Tel. +975-2-336842, 331487 (Director)</span>
-        <span style="font-weight:600;color:#555;">${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</span>
-      </div>
-      <div style="text-align:center;font-size:7pt;color:#333;margin-top:2px;">Web: www.cabinet.gov.bt &nbsp;|&nbsp; Construction Quality Inspection</div>
-    </div>
-  </div></body></html>`;
+/* ══ LETTERHEAD ══ */
+.lh{display:flex;align-items:stretch;border-bottom:3px solid #1a3a6e;padding-bottom:10px;margin-bottom:12px;gap:14px;}
+.lh-flag{width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:38px;flex-shrink:0;}
+.lh-center{flex:1;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:1px;}
+.lh-dzongkha{font-size:8pt;color:#555;letter-spacing:.3px;}
+.lh-gov{font-size:12pt;font-weight:700;color:#1a3a6e;letter-spacing:.4px;}
+.lh-cab{font-size:8.5pt;font-weight:600;color:#1a3a6e;}
+.lh-dept{font-size:8pt;color:#555;}
+.lh-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px;}
+.lh-bhutan{font-size:14pt;font-weight:900;color:#1a3a6e;letter-spacing:2px;}
+.lh-believe{font-size:8pt;color:#888;font-style:italic;}
+/* Doc title strip */
+.doc-strip{display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px;padding-top:6px;border-top:1px solid #d0d8e8;}
+.doc-title{font-size:12.5pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.8px;}
+.doc-sub{font-size:7.5pt;color:#666;margin-top:1px;}
+.doc-ref{font-size:7pt;color:#888;font-family:Consolas,monospace;text-align:right;line-height:1.6;}
+
+/* ══ META TABLE ══ */
+.meta-table{width:100%;border-collapse:collapse;margin-bottom:12px;border:1px solid #c8d4e8;border-radius:4px;overflow:hidden;}
+.meta-table td{padding:5px 10px;font-size:8.5pt;border:1px solid #dde6f0;vertical-align:top;}
+.meta-table td:first-child{font-weight:700;color:#1a3a6e;text-transform:uppercase;font-size:7pt;letter-spacing:.8px;background:#f0f4fb;width:22%;white-space:nowrap;}
+
+/* ══ KPI STRIP ══ */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.kpi-box{border:1.5px solid #c8d4e8;border-radius:5px;padding:8px 10px;text-align:center;background:#f8faff;}
+.kpi-box .kv{font-size:18pt;font-weight:700;color:#1a3a6e;line-height:1;}
+.kpi-box .kl{font-size:7pt;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-top:3px;}
+
+/* ══ OVERALL STATUS ══ */
+.status-bar{text-align:center;padding:8px 14px;border-radius:5px;font-size:10.5pt;font-weight:700;letter-spacing:1.5px;margin-bottom:14px;border:1.5px solid;}
+
+/* ══ SUMMARY BAR CHART ══ */
+.summary-chart-wrap{background:#f8faff;border:1px solid #dde6f0;border-radius:5px;padding:12px 14px;margin-bottom:14px;page-break-inside:avoid;}
+.summary-chart-title{font-size:8pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:5px;}
+
+/* ══ SECTION HEADERS ══ */
+.sec-header{background:#1a3a6e;color:#fff;font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:6px 10px;margin:14px 0 6px;page-break-after:avoid;}
+.card-header{display:flex;align-items:baseline;gap:8px;padding:5px 0 4px;border-bottom:1px solid #e8edf5;margin-bottom:5px;}
+.card-code{background:#e8f0fc;color:#1a3a6e;font-size:7pt;font-weight:700;font-family:Consolas,monospace;padding:2px 6px;border-radius:3px;white-space:nowrap;}
+.card-name{font-size:9.5pt;font-weight:700;color:#1a2236;flex:1;}
+.card-std{font-size:7.5pt;color:#888;white-space:nowrap;}
+.card-note{font-size:8pt;color:#555;margin-bottom:5px;padding:3px 0;}
+.sample-label{font-size:8pt;font-weight:700;color:#1a3a6e;margin:7px 0 3px;background:#eef2fb;padding:3px 8px;border-left:3px solid #1a3a6e;}
+
+/* ══ TABLES ══ */
+.pt{width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:8px;}
+.pt thead tr{background:#1a3a6e;}
+.pt thead th{color:#fff;padding:5px 7px;text-align:left;font-size:7pt;text-transform:uppercase;letter-spacing:.4px;font-weight:700;white-space:nowrap;}
+.pt tbody td{padding:4px 7px;border-bottom:1px solid #e8edf5;vertical-align:top;color:#1a2236;}
+.pt tbody tr:nth-child(even) td{background:#f5f8ff;}
+.pt tbody tr:hover td{background:#fef9f0;}
+.pass-cell{color:#15803d;font-weight:700;}
+.fail-cell{color:#b91c1c;font-weight:700;}
+.bold{font-weight:700;}
+.mono{font-family:Consolas,monospace;}
+.small{font-size:7.5pt;}
+
+/* ══ RESULT BOX ══ */
+.result-box{display:flex;border:1.5px solid #c8d4e8;border-radius:4px;background:#f8faff;margin:6px 0 10px;overflow:hidden;}
+.rk{flex:1;text-align:center;padding:8px 6px;border-right:1px solid #dde6f0;}
+.rk:last-child{border-right:none;}
+.rv{font-size:14pt;font-weight:700;color:#1a3a6e;line-height:1;}
+.rl{font-size:6.5pt;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;margin-top:3px;}
+
+/* ══ INLINE CHART ══ */
+.chart-wrap{background:#f8faff;border:1px solid #e2e8f0;border-radius:4px;padding:10px 12px;margin:6px 0 12px;page-break-inside:avoid;}
+
+/* ══ SIGNATURES ══ */
+.sig-section{margin-top:22px;page-break-inside:avoid;}
+.sig-title{font-size:8pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:1px;border-bottom:1.5px solid #1a3a6e;padding-bottom:4px;margin-bottom:14px;}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+.sig-box{text-align:center;}
+.sig-line{border-top:1px solid #888;margin:0 auto 5px;width:85%;}
+.sig-role{font-size:8.5pt;font-weight:700;color:#1a2236;}
+.sig-name{font-size:7.5pt;color:#555;margin-top:2px;}
+.sig-date{font-size:7.5pt;color:#888;margin-top:2px;}
+
+/* ══ FOOTER ══ */
+.footer{border-top:2px solid #1a3a6e;margin-top:16px;padding-top:6px;display:flex;justify-content:space-between;font-size:7pt;color:#555;}
+.footer-center{text-align:center;margin-top:3px;font-size:6.5pt;color:#888;}
+
+/* ══ PRINT ══ */
+@media print{
+  @page{size:A4;margin:10mm 10mm;}
+  body{font-size:9pt;}
+  .page{padding:0;max-width:100%;}
+  .sec-header,.summary-chart-wrap,.result-box,.chart-wrap{page-break-inside:avoid;}
+  canvas{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
+</style>
+</head>
+<body><div class="page">
+
+<!-- ══ LETTERHEAD ══ -->
+<div class="lh">
+  <div class="lh-flag">🇧🇹</div>
+  <div class="lh-center">
+    <div class="lh-dzongkha">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+    <div class="lh-gov">ROYAL GOVERNMENT OF BHUTAN</div>
+    <div class="lh-cab">Office of the Prime Minister and Cabinet — OPMC / OCASC</div>
+    <div class="lh-dept">Construction Quality Division (CQD) · Gyalyong Tshogkhang, Thimphu</div>
+  </div>
+  <div class="lh-right">
+    <div class="lh-bhutan">BHUTAN</div>
+    <div class="lh-believe">Believe</div>
+  </div>
+</div>
+<div class="doc-strip">
+  <div>
+    <div class="doc-title">Quality Test Report — SBRW 2025</div>
+    <div class="doc-sub">Construction Quality Division · Chapter 21 Inspection · MOIT Standard</div>
+  </div>
+  <div class="doc-ref">
+    Ref: ${refNo}<br>
+    Record: ${rec.id}<br>
+    Saved: ${savedStr}
+  </div>
+</div>
+
+<!-- ══ PROJECT META ══ -->
+<table class="meta-table" style="margin-top:10px;">
+  <tr>
+    <td>Project Name</td><td>${rec.project||'—'}</td>
+    <td>Contract No.</td><td>${rec.contract||'—'}</td>
+  </tr>
+  <tr>
+    <td>Contractor</td><td>${rec.contractor||'—'}</td>
+    <td>Test Date</td><td>${dateStr}</td>
+  </tr>
+  <tr>
+    <td>Location / Chainage</td><td>${rec.location||'—'}</td>
+    <td>Prepared By</td><td>CQD, OCASC</td>
+  </tr>
+</table>
+
+<!-- ══ KPI STRIP ══ -->
+<div class="kpi-strip">
+  <div class="kpi-box"><div class="kv" style="color:#1a3a6e;" id="ki-total">—</div><div class="kl">Total Tests</div></div>
+  <div class="kpi-box"><div class="kv" style="color:#15803d;" id="ki-pass">—</div><div class="kl">Passed</div></div>
+  <div class="kpi-box"><div class="kv" style="color:#b91c1c;" id="ki-fail">—</div><div class="kl">Failed</div></div>
+  <div class="kpi-box"><div class="kv" id="ki-rate">—</div><div class="kl">Pass Rate</div></div>
+</div>
+
+<!-- ══ OVERALL STATUS ══ -->
+<div class="status-bar" id="status-bar" style="background:${statusBg};color:${statusClr};border-color:${statusBrd};">
+  ${allPass ? '✓' : (total===0 ? '○' : '✗')} &nbsp; ${statusTxt}
+</div>
+
+<!-- ══ SUMMARY BAR CHART — Pass/Fail per Section ══ -->
+<div class="summary-chart-wrap">
+  <div class="summary-chart-title">Test Summary — Pass / Fail by Section &amp; Overall Distribution</div>
+  <div style="display:grid;grid-template-columns:3fr 1fr;gap:14px;align-items:center;">
+    <div><canvas id="chart-summary-bar" height="80"></canvas></div>
+    <div><canvas id="chart-summary-doughnut" height="80"></canvas></div>
+  </div>
+</div>
+
+<!-- ══ DETAILED TEST DATA ══ -->
+${sectionsHTML}
+
+<!-- ══ SIGNATURES ══ -->
+<div class="sig-section">
+  <div class="sig-title">Authorisation &amp; Certification</div>
+  <div class="sig-grid">
+    <div class="sig-box">
+      <div style="height:32px;"></div>
+      <div class="sig-line"></div>
+      <div class="sig-role">Prepared By</div>
+      <div class="sig-name">Construction Quality Division</div>
+      <div class="sig-name">OCASC, OPMC</div>
+      <div class="sig-date">Date: _________________</div>
+    </div>
+    <div class="sig-box">
+      <div style="height:32px;"></div>
+      <div class="sig-line"></div>
+      <div class="sig-role">Verified By</div>
+      <div class="sig-name">Quality Assurance Engineer</div>
+      <div class="sig-date">Date: _________________</div>
+    </div>
+    <div class="sig-box">
+      <div style="height:32px;"></div>
+      <div class="sig-line"></div>
+      <div class="sig-role">Acknowledged By</div>
+      <div class="sig-name">Contractor Representative</div>
+      <div class="sig-date">Date: _________________</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="footer">
+  <span>Gyalyong Tshogkhang, Thimphu &nbsp;|&nbsp; P.O. Box 1011 &nbsp;|&nbsp; Tel: +975-2-336842</span>
+  <span style="font-weight:700;">${todayStr}</span>
+</div>
+<div class="footer-center">www.cabinet.gov.bt &nbsp;·&nbsp; SBRW 2025 Construction Quality Inspection System &nbsp;·&nbsp; ${refNo}</div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  const D = ${allChartData};
+
+  // ── Fill KPI boxes ──
+  document.getElementById('ki-total').textContent = D.total;
+  document.getElementById('ki-pass').textContent  = D.grandPass;
+  document.getElementById('ki-fail').textContent  = D.grandFail;
+  const rEl = document.getElementById('ki-rate');
+  rEl.textContent = D.total>0 ? D.passRate+'%' : '—';
+  rEl.style.color = D.grandFail===0&&D.total>0 ? '#15803d' : '#b91c1c';
+
+  // ── Summary BAR — pass/fail by section ──
+  const hasSections = D.sectionTotals.some(s=>s.pass+s.fail>0);
+  if(hasSections){
+    new Chart(document.getElementById('chart-summary-bar'),{
+      type:'bar',
+      data:{
+        labels: D.sectionTotals.map(s=>s.title),
+        datasets:[
+          {label:'Pass',data:D.sectionTotals.map(s=>s.pass),backgroundColor:'rgba(21,128,61,.75)',borderColor:'#15803d',borderWidth:1,borderRadius:3},
+          {label:'Fail',data:D.sectionTotals.map(s=>s.fail),backgroundColor:'rgba(185,28,28,.65)',borderColor:'#b91c1c',borderWidth:1,borderRadius:3}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:true,
+        plugins:{
+          legend:{position:'bottom',labels:{font:{size:8},padding:8,boxWidth:10}},
+          title:{display:true,text:'Pass / Fail Count by SBRW Section',font:{size:9,weight:'bold'},color:'#1a3a6e',padding:{bottom:6}}
+        },
+        scales:{
+          x:{ticks:{font:{size:7},color:'#555',maxRotation:35},grid:{display:false}},
+          y:{beginAtZero:true,ticks:{font:{size:8},stepSize:1,color:'#555'},grid:{color:'rgba(0,0,0,.05)'}}
+        }
+      }
+    });
+  }
+
+  // ── Summary DOUGHNUT ──
+  if(D.total>0){
+    new Chart(document.getElementById('chart-summary-doughnut'),{
+      type:'doughnut',
+      data:{
+        labels:['Pass','Fail'],
+        datasets:[{data:[D.grandPass,D.grandFail],backgroundColor:['rgba(21,128,61,.8)','rgba(185,28,28,.75)'],borderColor:['#15803d','#b91c1c'],borderWidth:2}]
+      },
+      options:{
+        responsive:true,cutout:'58%',
+        plugins:{
+          legend:{position:'bottom',labels:{font:{size:8},padding:6,boxWidth:10}},
+          title:{display:true,text:'Overall',font:{size:9,weight:'bold'},color:'#1a3a6e',padding:{bottom:4}}
+        }
+      }
+    });
+  }
+
+  // ── SIEVE LINE GRAPHS — % Passing curve with spec envelope ──
+  D.sieveChartData.forEach(sd => {
+    const el = document.getElementById(sd.cid);
+    if(!el || !sd.sieves.length) return;
+    const labels = sd.sieves.map(s=>s.size);
+    const ppData = sd.sieves.map(s=>s.pp);
+    // Parse spec ranges like "40–70" or "100"
+    const specMin=[], specMax=[];
+    sd.sieves.forEach(s=>{
+      const sp=String(s.spec);
+      const m=sp.match(/([\d.]+)[–\-]([\d.]+)/);
+      if(m){specMin.push(parseFloat(m[1]));specMax.push(parseFloat(m[2]));}
+      else{const v=parseFloat(sp);specMin.push(isNaN(v)?0:v);specMax.push(isNaN(v)?100:v);}
+    });
+    new Chart(el,{
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          {label:'% Passing (Measured)',data:ppData,borderColor:'#1a3a6e',backgroundColor:'rgba(26,58,110,.08)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#1a3a6e',tension:.35,fill:false},
+          {label:'Spec Upper',data:specMax,borderColor:'rgba(185,28,28,.45)',borderWidth:1.5,borderDash:[5,4],pointRadius:2,pointBackgroundColor:'rgba(185,28,28,.4)',tension:.35,fill:false},
+          {label:'Spec Lower',data:specMin,borderColor:'rgba(21,128,61,.45)',borderWidth:1.5,borderDash:[5,4],pointRadius:2,pointBackgroundColor:'rgba(21,128,61,.4)',tension:.35,fill:'+1',backgroundColor:'rgba(21,128,61,.05)'}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:true,
+        plugins:{
+          legend:{position:'bottom',labels:{font:{size:7.5},padding:8,boxWidth:10}},
+          title:{display:true,text:'Grading Curve — '+sd.label,font:{size:8.5,weight:'bold'},color:'#1a3a6e',padding:{bottom:5}}
+        },
+        scales:{
+          x:{title:{display:true,text:'Sieve Size (mm)',font:{size:7.5},color:'#555'},ticks:{font:{size:7.5},color:'#555'},grid:{color:'rgba(0,0,0,.05)'}},
+          y:{title:{display:true,text:'% Passing',font:{size:7.5},color:'#555'},min:0,max:100,ticks:{font:{size:8},color:'#555'},grid:{color:'rgba(0,0,0,.05)'}}
+        }
+      }
+    });
+  });
+
+  // ── PROCTOR LINE GRAPHS — Dry Density vs Water Content ──
+  D.proctorChartData.forEach(pd => {
+    const el = document.getElementById(pd.cid);
+    if(!el || !pd.trials.length) return;
+    const sorted = [...pd.trials].sort((a,b)=>a.wc-b.wc);
+    new Chart(el,{
+      type:'line',
+      data:{
+        labels:sorted.map(t=>t.wc+'%'),
+        datasets:[
+          {label:'Dry Density (g/cm³)',data:sorted.map(t=>t.dd),borderColor:'#1a3a6e',backgroundColor:'rgba(26,58,110,.08)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#1a3a6e',tension:.4,fill:true},
+          ...(pd.mdd>0?[{label:'MDD = '+pd.mdd+' g/cm³',data:sorted.map(()=>pd.mdd),borderColor:'rgba(185,28,28,.6)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false}]:[])
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:true,
+        plugins:{
+          legend:{position:'bottom',labels:{font:{size:7.5},padding:8,boxWidth:10}},
+          title:{display:true,text:'Compaction Curve — '+pd.label,font:{size:8.5,weight:'bold'},color:'#1a3a6e',padding:{bottom:5}}
+        },
+        scales:{
+          x:{title:{display:true,text:'Water Content (%)',font:{size:7.5},color:'#555'},ticks:{font:{size:7.5}}},
+          y:{title:{display:true,text:'Dry Density (g/cm³)',font:{size:7.5},color:'#555'},ticks:{font:{size:8}},grid:{color:'rgba(0,0,0,.05)'}}
+        }
+      }
+    });
+  });
+
+  // ── SRT BAR CHARTS — % Compaction per location with required line ──
+  D.srtChartData.forEach(sd => {
+    const el = document.getElementById(sd.cid);
+    if(!el || !sd.locs.length) return;
+    const req = sd.req||95;
+    new Chart(el,{
+      type:'bar',
+      data:{
+        labels:sd.locs.map(l=>'Loc '+l.i),
+        datasets:[
+          {label:'% Compaction',data:sd.locs.map(l=>l.comp),backgroundColor:sd.locs.map(l=>l.comp>=req?'rgba(21,128,61,.75)':'rgba(185,28,28,.65)'),borderColor:sd.locs.map(l=>l.comp>=req?'#15803d':'#b91c1c'),borderWidth:1.5,borderRadius:4},
+          {label:'Required ('+req+'%)',data:sd.locs.map(()=>req),type:'line',borderColor:'rgba(185,28,28,.55)',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:true,
+        plugins:{
+          legend:{position:'bottom',labels:{font:{size:7.5},padding:8,boxWidth:10}},
+          title:{display:true,text:'Sand Replacement — '+sd.label,font:{size:8.5,weight:'bold'},color:'#1a3a6e',padding:{bottom:5}}
+        },
+        scales:{
+          x:{ticks:{font:{size:8},color:'#555'},grid:{display:false}},
+          y:{title:{display:true,text:'% Compaction',font:{size:7.5},color:'#555'},ticks:{font:{size:8}},grid:{color:'rgba(0,0,0,.05)'},min:Math.max(0,req-15),max:105}
+        }
+      }
+    });
+  });
+
+})();
+<\/script>
+</body></html>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INDIVIDUAL CARD SAVE & PRINT — per QC Test Card
+// ═══════════════════════════════════════════════════════════════
+
+function sbrwGetCardSnapshot(secId, cardIdx){
+  const sec  = SBRW_SECTIONS.find(s=>s.id===secId);
+  if(!sec) return null;
+  const card = sec.cards[cardIdx];
+  if(!card) return null;
+
+  const cardData = {
+    code: card.code, name: card.name, std: card.std,
+    desc: card.desc||'', type: card.type||'standard',
+    secTitle: sec.title, secSub: sec.sub||'',
+    rows: []
+  };
+
+  if(card.type==='sieve-v3'){
+    const sid = `${secId}-${cardIdx}`;
+    const ti  = parseInt(document.getElementById('v3-type-'+sid)?.value)||0;
+    const gi  = parseInt(document.getElementById('v3-grad-'+sid)?.value)||0;
+    const type = card.types?.[ti];
+    cardData.gradingType = type?.name||'';
+    cardData.gradingName = type?.gradingNames?.[gi]||'';
+    cardData.sieves = type?.sieves?.map((sv,si)=>{
+      const samples=[];
+      for(let s=0;s<(card.numSamples||5);s++){
+        const tw  = document.getElementById(`v3-tw-${sid}-${s}`)?.value||'';
+        const r   = document.getElementById(`v3-r-${sid}-${s}-${si}`)?.value||'';
+        const cr  = document.getElementById(`v3-cr-${sid}-${s}-${si}`)?.textContent||'';
+        const pcr = document.getElementById(`v3-pcr-${sid}-${s}-${si}`)?.textContent||'';
+        const pp  = document.getElementById(`v3-pp-${sid}-${s}-${si}`)?.textContent||'';
+        const rb  = document.getElementById(`v3-rb-${sid}-${s}-${si}`)?.textContent?.trim()||'';
+        samples.push({tw,r,cr,pcr,pp,rb});
+      }
+      return {size:sv.size, spec:sv.g?.[gi]||'—', samples};
+    })||[];
+  } else if(card.type==='proctor'){
+    const pid  = `${secId}-${cardIdx}`;
+    const nT   = parseInt(document.getElementById('prc-trials-'+pid)?.value)||5;
+    cardData.proctorType = document.getElementById('prc-type-'+pid)?.value||'standard';
+    cardData.material    = document.getElementById('prc-mat-'+pid)?.value||'';
+    cardData.mdd   = document.getElementById('prc-mdd-'+pid)?.textContent||'';
+    cardData.mddkn = document.getElementById('prc-mdd-kn-'+pid)?.textContent||'';
+    cardData.omc   = document.getElementById('prc-omc-'+pid)?.textContent||'';
+    cardData.mdd95 = document.getElementById('prc-95mdd-'+pid)?.textContent||'';
+    cardData.trials = [];
+    for(let t=1;t<=nT;t++){
+      const g = id=>document.getElementById(id)?.value||'';
+      const wc   = document.getElementById(`prc-wc-${pid}-${t}`)?.textContent||'';
+      const dd   = document.getElementById(`prc-dd-${pid}-${t}`)?.textContent||'';
+      const ddkn = document.getElementById(`prc-ddkn-${pid}-${t}`)?.textContent||'';
+      cardData.trials.push({t,mw:g(`prc-mw-${pid}-${t}`),mws:g(`prc-mws-${pid}-${t}`),cwt:g(`prc-cwt-${pid}-${t}`),cws:g(`prc-cws-${pid}-${t}`),cwd:g(`prc-cwd-${pid}-${t}`),wc,dd,ddkn});
+    }
+  } else if(card.type==='srt'){
+    const srid = `${secId}-${cardIdx}`;
+    cardData.rho      = document.getElementById('srt-rho-'+srid)?.value||'';
+    cardData.mdd      = document.getElementById('srt-mdd-'+srid)?.value||'';
+    cardData.req      = document.getElementById('srt-req-'+srid)?.value||'95';
+    cardData.material = document.getElementById('srt-mat-'+srid)?.value||'';
+    cardData.avgDD    = document.getElementById('srt-avg-dd-'+srid)?.textContent||'';
+    cardData.avgWC    = document.getElementById('srt-avg-wc-'+srid)?.textContent||'';
+    cardData.avgComp  = document.getElementById('srt-avg-comp-'+srid)?.textContent||'';
+    cardData.overall  = document.getElementById('srt-overall-'+srid)?.textContent||'';
+    cardData.locs = [];
+    for(let i=1;i<=3;i++){
+      const g = id=>document.getElementById(id)?.value||'';
+      cardData.locs.push({
+        i, wsoil:g(`srt-wsoil-${srid}-${i}`),cwt:g(`srt-cwt-${srid}-${i}`),
+        cws:g(`srt-cws-${srid}-${i}`),cwd:g(`srt-cwd-${srid}-${i}`),wsand:g(`srt-wsand-${srid}-${i}`),
+        wc:document.getElementById(`srt-wc-${srid}-${i}`)?.textContent||'',
+        vh:document.getElementById(`srt-vh-${srid}-${i}`)?.textContent||'',
+        gw:document.getElementById(`srt-gw-${srid}-${i}`)?.textContent||'',
+        gd:document.getElementById(`srt-gd-${srid}-${i}`)?.textContent||'',
+        comp:document.getElementById(`srt-comp-${srid}-${i}`)?.textContent||'',
+        rb:document.getElementById(`srt-rb-${srid}-${i}`)?.textContent?.trim()||'',
+      });
+    }
+  } else {
+    card.rows?.forEach((row,ri)=>{
+      const inp = document.querySelector(`[data-sbid="${secId}-${cardIdx}-${ri}"]`);
+      const rb  = inp?.closest('tr')?.querySelector('.sbrw-rb');
+      if(inp?.value) cardData.rows.push({p:row.p,req:row.req,val:inp.value,result:rb?.textContent?.trim()||''});
+    });
+  }
+  return cardData;
+}
+
+function sbrwSaveCard(secId, cardIdx){
+  const pN = document.getElementById('sbrw-pN')?.value?.trim()||'';
+  if(!pN){ showToast('⚠️ Enter a Project Name first.'); return; }
+  const snap = sbrwGetCardSnapshot(secId, cardIdx);
+  if(!snap){ showToast('⚠️ Could not read card data.'); return; }
+  const record = {
+    id: 'CARD-'+Date.now(),
+    type: 'test',
+    typeLabel: snap.name,
+    savedAt: new Date().toISOString(),
+    project: pN,
+    contract: document.getElementById('sbrw-pC')?.value?.trim()||'',
+    contractor: document.getElementById('sbrw-pCo')?.value?.trim()||'',
+    date: document.getElementById('sbrw-pD')?.value||today(),
+    engineer: document.getElementById('sbrw-pE')?.value?.trim()||'',
+    location: document.getElementById('sbrw-pL')?.value?.trim()||'',
+    snapshot: { sections:[{ id:secId, title:snap.secTitle, cards:[snap] }] },
+  };
+  const records = dlGetRecords();
+  records.unshift(record);
+  dlSetRecords(records);
+  showToast('✅ '+snap.name+' saved to Downloads.');
+}
+
+function sbrwPrintCard(secId, cardIdx){
+  const pN = document.getElementById('sbrw-pN')?.value?.trim()||'(Not specified)';
+  const pC = document.getElementById('sbrw-pC')?.value?.trim()||'';
+  const pCo= document.getElementById('sbrw-pCo')?.value?.trim()||'';
+  const pD = document.getElementById('sbrw-pD')?.value||today();
+  const pE = document.getElementById('sbrw-pE')?.value?.trim()||'';
+  const pL = document.getElementById('sbrw-pL')?.value?.trim()||'';
+  const snap = sbrwGetCardSnapshot(secId, cardIdx);
+  if(!snap){ showToast('⚠️ No data to print for this test.'); return; }
+
+  const dateStr  = pD ? new Date(pD).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const todayStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const refNo    = `CS/OCASC/CQD/${new Date().getFullYear()}/QC`;
+
+  // ── Build table + chart data for this card ──
+  let bodyHTML = '';
+  let grandPass=0, grandFail=0;
+  const chartData = { type: snap.type, sieveData:[], proctorData:null, srtData:null };
+
+  if(snap.type==='sieve-v3' && snap.sieves?.length){
+    bodyHTML += `<p class="cn"><b>Material Type:</b> ${snap.gradingType} &nbsp;·&nbsp; <b>Grading:</b> ${snap.gradingName}</p>`;
+    for(let s=0;s<(snap.sieves[0]?.samples?.length||5);s++){
+      const hasData = snap.sieves.some(sv=>sv.samples?.[s]?.r);
+      if(!hasData) continue;
+      const tw = snap.sieves[0]?.samples?.[s]?.tw||'—';
+      bodyHTML += `<div class="slbl">Sample S-${s+1} &nbsp;·&nbsp; Total Weight: ${tw} g</div>`;
+      bodyHTML += `<table class="pt"><thead><tr>
+        <th>Sieve (mm)</th><th>Spec % Passing</th><th>Wt. Retained (g)</th>
+        <th>Cum. Retained</th><th>% Cum. Ret.</th><th>% Passing</th><th>Result</th>
+      </tr></thead><tbody>`;
+      const pts=[];
+      snap.sieves.forEach(sv=>{
+        const sp=sv.samples?.[s];
+        if(!sp?.r) return;
+        const isPa=sp.rb?.includes('PASS'), isFa=sp.rb?.includes('FAIL');
+        if(isPa)grandPass++; else if(isFa)grandFail++;
+        const cls=isPa?'pc':isFa?'fc':'';
+        bodyHTML+=`<tr><td><b>${sv.size}</b></td><td>${sv.spec}</td><td>${sp.r}</td><td>${sp.cr}</td><td>${sp.pcr}</td><td class="${cls}">${sp.pp}</td><td class="${cls} bld">${sp.rb}</td></tr>`;
+        const m=String(sv.spec).match(/([\d.]+)[–\-]([\d.]+)/);
+        pts.push({size:sv.size,pp:parseFloat(sp.pp)||0,spMin:m?parseFloat(m[1]):(parseFloat(sv.spec)||0),spMax:m?parseFloat(m[2]):(parseFloat(sv.spec)||100)});
+      });
+      bodyHTML+=`</tbody></table>`;
+      const cid=`cv-s-${s}`;
+      bodyHTML+=`<div class="cwrap"><canvas id="${cid}" height="100"></canvas></div>`;
+      chartData.sieveData.push({cid,label:`Sample S-${s+1}`,pts});
+    }
+  } else if(snap.type==='proctor'){
+    const pType=snap.proctorType==='modified'?'Modified Proctor (IS 2720 Pt.8)':'Standard Proctor (IS 2720 Pt.7)';
+    bodyHTML+=`<p class="cn"><b>Test Type:</b> ${pType} &nbsp;·&nbsp; <b>Material:</b> ${snap.material||'—'}</p>`;
+    bodyHTML+=`<table class="pt"><thead><tr>
+      <th>Trial</th><th>Mold Wt (g)</th><th>Mold+Wet (g)</th><th>Cont Wt (g)</th>
+      <th>Cont+Wet (g)</th><th>Cont+Dry (g)</th><th>Water Content (%)</th><th>Dry Density (g/cm³)</th>
+    </tr></thead><tbody>`;
+    const pts=[];
+    (snap.trials||[]).forEach(t=>{
+      bodyHTML+=`<tr><td><b>T-${t.t}</b></td><td>${t.mw}</td><td>${t.mws}</td><td>${t.cwt}</td><td>${t.cws}</td><td>${t.cwd}</td><td>${t.wc}</td><td><b>${t.dd}</b></td></tr>`;
+      const wc=parseFloat(t.wc),dd=parseFloat(t.dd);
+      if(!isNaN(wc)&&!isNaN(dd)) pts.push({wc,dd,t:t.t});
+    });
+    bodyHTML+=`</tbody></table>`;
+    bodyHTML+=`<div class="rbox">
+      <div class="rk"><div class="rv">${snap.mdd||'—'}</div><div class="rl">MDD (g/cm³)</div></div>
+      <div class="rk"><div class="rv">${snap.mddkn||'—'}</div><div class="rl">MDD (kN/m³)</div></div>
+      <div class="rk"><div class="rv" style="color:#b45309">${snap.omc||'—'}</div><div class="rl">OMC (%)</div></div>
+      <div class="rk"><div class="rv" style="color:#1d4ed8">${snap.mdd95||'—'}</div><div class="rl">95% MDD (g/cm³)</div></div>
+    </div>`;
+    bodyHTML+=`<div class="cwrap"><canvas id="cv-prc" height="100"></canvas></div>`;
+    chartData.proctorData={cid:'cv-prc',label:'Compaction Curve',pts,mdd:parseFloat(snap.mdd)||0,omc:parseFloat(snap.omc)||0};
+    if(snap.mdd) grandPass++;
+  } else if(snap.type==='srt'){
+    bodyHTML+=`<p class="cn"><b>Material:</b> ${snap.material||'—'} &nbsp;·&nbsp; <b>Sand Density:</b> ${snap.rho} g/cm³ &nbsp;·&nbsp; <b>MDD:</b> ${snap.mdd} g/cm³ &nbsp;·&nbsp; <b>Required:</b> ${snap.req}%</p>`;
+    bodyHTML+=`<table class="pt"><thead><tr>
+      <th>Loc.</th><th>Soil Wt (g)</th><th>Cont Wt (g)</th><th>Cont+Wet (g)</th><th>Cont+Dry (g)</th>
+      <th>Sand Wt (g)</th><th>W.C (%)</th><th>Hole Vol (cm³)</th><th>Dry Density</th><th>% Comp.</th><th>Result</th>
+    </tr></thead><tbody>`;
+    const pts=[];
+    (snap.locs||[]).forEach(loc=>{
+      const isPa=loc.rb?.includes('PASS'),isFa=loc.rb?.includes('FAIL');
+      if(isPa)grandPass++; else if(isFa)grandFail++;
+      const cls=isPa?'pc':isFa?'fc':'';
+      bodyHTML+=`<tr><td><b>L-${loc.i}</b></td><td>${loc.wsoil}</td><td>${loc.cwt}</td><td>${loc.cws}</td><td>${loc.cwd}</td><td>${loc.wsand}</td><td>${loc.wc}</td><td>${loc.vh}</td><td>${loc.gd}</td><td class="${cls} bld">${loc.comp}</td><td class="${cls} bld">${loc.rb}</td></tr>`;
+      const comp=parseFloat(loc.comp);
+      if(!isNaN(comp)) pts.push({i:loc.i,comp,req:parseFloat(snap.req)||95});
+    });
+    bodyHTML+=`</tbody></table>`;
+    const ovPa=snap.overall?.includes('PASS'),ovFa=snap.overall?.includes('FAIL');
+    bodyHTML+=`<div class="rbox">
+      <div class="rk"><div class="rv">${snap.avgDD||'—'}</div><div class="rl">Avg Dry Density</div></div>
+      <div class="rk"><div class="rv" style="color:#b45309">${snap.avgWC||'—'}</div><div class="rl">Avg Water Content</div></div>
+      <div class="rk"><div class="rv ${ovPa?'pc':ovFa?'fc':''}">${snap.avgComp||'—'}</div><div class="rl">Avg % Compaction</div></div>
+      <div class="rk"><div class="rv ${ovPa?'pc':ovFa?'fc':''}" style="font-size:9pt">${snap.overall||'—'}</div><div class="rl">Overall Result</div></div>
+    </div>`;
+    bodyHTML+=`<div class="cwrap"><canvas id="cv-srt" height="90"></canvas></div>`;
+    chartData.srtData={cid:'cv-srt',label:'% Compaction per Location',pts,req:parseFloat(snap.req)||95};
+  } else {
+    bodyHTML+=`<table class="pt"><thead><tr>
+      <th>Parameter</th><th>Clause / Ref.</th><th>Required Value</th><th>Measured Value</th><th>Result</th>
+    </tr></thead><tbody>`;
+    (snap.rows||[]).forEach(row=>{
+      const isPa=row.result?.includes('PASS'),isFa=row.result?.includes('FAIL');
+      if(isPa)grandPass++; else if(isFa)grandFail++;
+      const cls=isPa?'pc':isFa?'fc':'';
+      bodyHTML+=`<tr><td><b>${row.p}</b></td><td class="mono sm">${row.req}</td><td>${row.req}</td><td class="bld">${row.val}</td><td class="${cls} bld">${row.result}</td></tr>`;
+    });
+    bodyHTML+=`</tbody></table>`;
+  }
+
+  const total=grandPass+grandFail;
+  const rate=total>0?Math.round(grandPass/total*100):0;
+  const allPa=total>0&&grandFail===0;
+  const stTxt=total===0?'NO DATA ENTERED':allPa?'COMPLIANT — ALL TESTS PASSED':'NON-COMPLIANT — CORRECTIVE ACTION REQUIRED';
+  const stClr=total===0?'#888':allPa?'#15803d':'#b91c1c';
+  const stBg =total===0?'#f5f5f5':allPa?'#f0fdf4':'#fef2f2';
+  const stBrd=total===0?'#ccc':allPa?'#86efac':'#fca5a5';
+
+  const cd=JSON.stringify(chartData);
+
+  const html=`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>${snap.name} — QC Test</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\/script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:9.5pt;color:#1a1a2e;background:#fff;line-height:1.45;}
+.page{max-width:210mm;margin:0 auto;padding:12mm 14mm 10mm;}
+
+/* ── TITLE STRIP (no letterhead) ── */
+.title-strip{border-bottom:3px solid #1a3a6e;padding-bottom:8px;margin-bottom:10px;display:flex;align-items:flex-end;justify-content:space-between;}
+.ts-left{}
+.ts-org{font-size:7.5pt;color:#555;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px;}
+.ts-title{font-size:13pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;text-transform:uppercase;}
+.ts-sub{font-size:7.5pt;color:#888;margin-top:1px;}
+.ts-right{text-align:right;font-size:7pt;color:#888;font-family:Consolas,monospace;line-height:1.6;}
+
+/* ── CODE BADGE ── */
+.code-badge{display:inline-block;background:#1a3a6e;color:#fff;font-size:7pt;font-weight:700;font-family:Consolas,monospace;padding:2px 8px;border-radius:3px;letter-spacing:.4px;margin-bottom:4px;}
+.card-title{font-size:11.5pt;font-weight:700;color:#1a3a6e;margin-bottom:1px;}
+.card-std{font-size:7.5pt;color:#888;}
+.card-desc{font-size:8pt;color:#555;background:#f0f4fb;border-left:3px solid #1a3a6e;padding:5px 10px;margin:7px 0 9px;border-radius:0 3px 3px 0;}
+
+/* ── META TABLE ── */
+.meta-tbl{width:100%;border-collapse:collapse;margin-bottom:10px;border:1px solid #d0d8e8;}
+.meta-tbl td{padding:4px 9px;font-size:8pt;border:1px solid #e2e8f0;}
+.meta-tbl td.ml{font-weight:700;color:#1a3a6e;text-transform:uppercase;font-size:7pt;letter-spacing:.7px;background:#f0f4fb;width:18%;white-space:nowrap;}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px;}
+.kpi-b{border:1.5px solid #c8d4e8;border-radius:4px;padding:7px 8px;text-align:center;background:#f8faff;}
+.kpi-b .kv{font-size:16pt;font-weight:700;color:#1a3a6e;line-height:1;}
+.kpi-b .kl{font-size:6.5pt;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;margin-top:3px;}
+
+/* ── STATUS ── */
+.status{text-align:center;padding:7px 12px;border-radius:4px;font-size:10pt;font-weight:700;letter-spacing:1.2px;margin-bottom:10px;border:1.5px solid;}
+
+/* ── SECTION LABEL ── */
+.sec-lbl{background:#1a3a6e;color:#fff;font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:5px 10px;margin:10px 0 5px;border-radius:2px;}
+.slbl{font-size:8pt;font-weight:700;color:#1a3a6e;background:#eef2fb;padding:3px 8px;border-left:3px solid #1a3a6e;margin:6px 0 3px;}
+.cn{font-size:8pt;color:#555;margin-bottom:5px;padding:3px 0;}
+
+/* ── TABLES ── */
+.pt{width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:7px;}
+.pt thead tr{background:#1a3a6e;}
+.pt thead th{color:#fff;padding:5px 7px;text-align:left;font-size:7pt;text-transform:uppercase;letter-spacing:.3px;font-weight:700;white-space:nowrap;}
+.pt tbody td{padding:4px 7px;border-bottom:1px solid #e8edf5;color:#1a2236;vertical-align:top;}
+.pt tbody tr:nth-child(even) td{background:#f5f8ff;}
+.pc{color:#15803d;font-weight:700;}
+.fc{color:#b91c1c;font-weight:700;}
+.bld{font-weight:700;}
+.mono{font-family:Consolas,monospace;}
+.sm{font-size:7.5pt;}
+
+/* ── RESULT BOX ── */
+.rbox{display:flex;border:1.5px solid #c8d4e8;border-radius:4px;background:#f8faff;margin:6px 0 8px;overflow:hidden;}
+.rk{flex:1;text-align:center;padding:7px 5px;border-right:1px solid #dde6f0;}
+.rk:last-child{border-right:none;}
+.rv{font-size:14pt;font-weight:700;color:#1a3a6e;line-height:1;}
+.rl{font-size:6.5pt;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-top:2px;}
+
+/* ── CHART ── */
+.cwrap{background:#f8faff;border:1px solid #e2e8f0;border-radius:4px;padding:9px 11px;margin:5px 0 10px;page-break-inside:avoid;}
+
+/* ── SIGNATURES ── */
+.sig-wrap{margin-top:18px;page-break-inside:avoid;}
+.sig-ttl{font-size:8pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.8px;border-bottom:1.5px solid #1a3a6e;padding-bottom:3px;margin-bottom:11px;}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+.sig-box{text-align:center;}
+.sig-line{border-top:1px solid #888;margin:0 auto 4px;width:80%;}
+.sig-role{font-size:8.5pt;font-weight:700;color:#1a2236;}
+.sig-name{font-size:7.5pt;color:#555;margin-top:1px;}
+.sig-date{font-size:7pt;color:#888;margin-top:2px;}
+
+/* ── FOOTER ── */
+.ft{border-top:2px solid #1a3a6e;margin-top:14px;padding-top:5px;display:flex;justify-content:space-between;font-size:6.5pt;color:#555;}
+.ft-c{text-align:center;margin-top:2px;font-size:6pt;color:#888;}
+
+@media print{
+  @page{size:A4;margin:10mm 10mm;}
+  body{font-size:9pt;}
+  .page{padding:0;max-width:100%;}
+  canvas{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .cwrap,.rbox,.sig-wrap{page-break-inside:avoid;}
+}
+</style>
+</head>
+<body><div class="page">
+
+<!-- ── TITLE STRIP (no full letterhead) ── -->
+<div class="title-strip">
+  <div class="ts-left">
+    <div class="ts-org">Royal Government of Bhutan &nbsp;·&nbsp; OPMC / OCASC &nbsp;·&nbsp; Construction Quality Division</div>
+    <div class="ts-title">Quality Test Record — SBRW 2025</div>
+    <div class="ts-sub">${snap.secTitle} &nbsp;·&nbsp; Chapter 21 · MOIT Standard</div>
+  </div>
+  <div class="ts-right">
+    Ref: ${refNo}<br>
+    Date: ${todayStr}
+  </div>
+</div>
+
+<!-- ── TEST IDENTITY ── -->
+<div style="margin-bottom:9px;">
+  <div class="code-badge">${snap.code}</div>
+  <div class="card-title">${snap.name}</div>
+  <div class="card-std">${snap.std||''} &nbsp;·&nbsp; ${snap.secTitle}</div>
+  ${snap.desc?`<div class="card-desc">${snap.desc}</div>`:''}
+</div>
+
+<!-- ── PROJECT META ── -->
+<table class="meta-tbl">
+  <tr>
+    <td class="ml">Project</td><td>${pN}</td>
+    <td class="ml">Contract No.</td><td>${pC||'—'}</td>
+  </tr>
+  <tr>
+    <td class="ml">Contractor</td><td>${pCo||'—'}</td>
+    <td class="ml">Test Date</td><td>${dateStr}</td>
+  </tr>
+  <tr>
+    <td class="ml">Location / Chainage</td><td>${pL||'—'}</td>
+    <td class="ml">Engineer</td><td>${pE||'—'}</td>
+  </tr>
+</table>
+
+<!-- ── KPI ── -->
+<div class="kpi-row">
+  <div class="kpi-b"><div class="kv" style="color:#1a3a6e" id="ki-t">—</div><div class="kl">Tests / Samples</div></div>
+  <div class="kpi-b"><div class="kv" style="color:#15803d" id="ki-p">—</div><div class="kl">Passed</div></div>
+  <div class="kpi-b"><div class="kv" style="color:#b91c1c" id="ki-f">—</div><div class="kl">Failed</div></div>
+  <div class="kpi-b"><div class="kv" id="ki-r">—</div><div class="kl">Pass Rate</div></div>
+</div>
+
+<!-- ── STATUS ── -->
+<div class="status" style="background:${stBg};color:${stClr};border-color:${stBrd};">
+  ${allPa?'✓':total===0?'○':'✗'} &nbsp; ${stTxt}
+</div>
+
+<!-- ── TEST DATA ── -->
+<div class="sec-lbl">Test Data — ${snap.name}</div>
+${bodyHTML}
+
+<!-- ── SIGNATURES ── -->
+<div class="sig-wrap">
+  <div class="sig-ttl">Authorisation</div>
+  <div class="sig-grid">
+    <div class="sig-box">
+      <div style="height:28px;"></div>
+      <div class="sig-line"></div>
+      <div class="sig-role">Tested By</div>
+      <div class="sig-name">Site Engineer / Technician</div>
+      <div class="sig-date">Date: _______________</div>
+    </div>
+    <div class="sig-box">
+      <div style="height:28px;"></div>
+      <div class="sig-line"></div>
+      <div class="sig-role">Verified By</div>
+      <div class="sig-name">QA Engineer, CQD — OCASC</div>
+      <div class="sig-date">Date: _______________</div>
+    </div>
+    <div class="sig-box">
+      <div style="height:28px;"></div>
+      <div class="sig-line"></div>
+      <div class="sig-role">Contractor Representative</div>
+      <div class="sig-name">Contractor</div>
+      <div class="sig-date">Date: _______________</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="ft">
+  <span>Gyalyong Tshogkhang, Thimphu &nbsp;|&nbsp; P.O. Box 1011 &nbsp;|&nbsp; Tel: +975-2-336842</span>
+  <span style="font-weight:700;">${refNo}</span>
+</div>
+<div class="ft-c">www.cabinet.gov.bt &nbsp;·&nbsp; SBRW 2025 Construction Quality Inspection System</div>
+
+</div>
+<script>
+(function(){
+  const D=${cd};
+  const tot=${total}, gp=${grandPass}, gf=${grandFail}, rate=${rate};
+
+  document.getElementById('ki-t').textContent = tot||'—';
+  document.getElementById('ki-p').textContent = gp||'0';
+  document.getElementById('ki-f').textContent = gf||'0';
+  const rEl=document.getElementById('ki-r');
+  rEl.textContent = tot>0? rate+'%':'—';
+  rEl.style.color = gf===0&&tot>0?'#15803d':'#b91c1c';
+
+  // ── Sieve line graphs ──
+  (D.sieveData||[]).forEach(sd=>{
+    const el=document.getElementById(sd.cid);
+    if(!el||!sd.pts.length) return;
+    new Chart(el,{
+      type:'line',
+      data:{
+        labels:sd.pts.map(p=>p.size),
+        datasets:[
+          {label:'% Passing (Measured)',data:sd.pts.map(p=>p.pp),borderColor:'#1a3a6e',backgroundColor:'rgba(26,58,110,.07)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#1a3a6e',tension:.35,fill:false},
+          {label:'Spec Upper',data:sd.pts.map(p=>p.spMax),borderColor:'rgba(185,28,28,.5)',borderWidth:1.5,borderDash:[5,4],pointRadius:2,pointBackgroundColor:'rgba(185,28,28,.4)',tension:.35,fill:false},
+          {label:'Spec Lower',data:sd.pts.map(p=>p.spMin),borderColor:'rgba(21,128,61,.5)',borderWidth:1.5,borderDash:[5,4],pointRadius:2,pointBackgroundColor:'rgba(21,128,61,.4)',tension:.35,fill:'+1',backgroundColor:'rgba(21,128,61,.05)'}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:true,
+        plugins:{
+          legend:{position:'bottom',labels:{font:{size:7.5},padding:8,boxWidth:10}},
+          title:{display:true,text:'Grading Curve — '+sd.label+' (% Passing vs Sieve Size)',font:{size:9,weight:'bold'},color:'#1a3a6e',padding:{bottom:5}}
+        },
+        scales:{
+          x:{title:{display:true,text:'Sieve Size (mm)',font:{size:7.5},color:'#555'},ticks:{font:{size:7.5},color:'#555'},grid:{color:'rgba(0,0,0,.05)'}},
+          y:{title:{display:true,text:'% Passing',font:{size:7.5},color:'#555'},min:0,max:100,ticks:{font:{size:8},color:'#555'},grid:{color:'rgba(0,0,0,.05)'}}
+        }
+      }
+    });
+  });
+
+  // ── Proctor compaction curve ──
+  if(D.proctorData){
+    const pd=D.proctorData;
+    const el=document.getElementById(pd.cid);
+    if(el&&pd.pts.length){
+      const sorted=[...pd.pts].sort((a,b)=>a.wc-b.wc);
+      new Chart(el,{
+        type:'line',
+        data:{
+          labels:sorted.map(t=>t.wc+'%'),
+          datasets:[
+            {label:'Dry Density (g/cm³)',data:sorted.map(t=>t.dd),borderColor:'#1a3a6e',backgroundColor:'rgba(26,58,110,.08)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#1a3a6e',tension:.4,fill:true},
+            ...(pd.mdd>0?[{label:'MDD = '+pd.mdd+' g/cm³',data:sorted.map(()=>pd.mdd),borderColor:'rgba(185,28,28,.6)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false}]:[])
+          ]
+        },
+        options:{responsive:true,maintainAspectRatio:true,
+          plugins:{
+            legend:{position:'bottom',labels:{font:{size:7.5},padding:8,boxWidth:10}},
+            title:{display:true,text:'Compaction Curve — Dry Density vs Water Content',font:{size:9,weight:'bold'},color:'#1a3a6e',padding:{bottom:5}}
+          },
+          scales:{
+            x:{title:{display:true,text:'Water Content (%)',font:{size:7.5},color:'#555'},ticks:{font:{size:8}}},
+            y:{title:{display:true,text:'Dry Density (g/cm³)',font:{size:7.5},color:'#555'},ticks:{font:{size:8}},grid:{color:'rgba(0,0,0,.05)'}}
+          }
+        }
+      });
+    }
+  }
+
+  // ── SRT bar chart ──
+  if(D.srtData){
+    const sd=D.srtData;
+    const el=document.getElementById(sd.cid);
+    if(el&&sd.pts.length){
+      const req=sd.req||95;
+      new Chart(el,{
+        type:'bar',
+        data:{
+          labels:sd.pts.map(l=>'Loc '+l.i),
+          datasets:[
+            {label:'% Compaction',data:sd.pts.map(l=>l.comp),backgroundColor:sd.pts.map(l=>l.comp>=req?'rgba(21,128,61,.75)':'rgba(185,28,28,.65)'),borderColor:sd.pts.map(l=>l.comp>=req?'#15803d':'#b91c1c'),borderWidth:1.5,borderRadius:4},
+            {label:'Required ('+req+'%)',data:sd.pts.map(()=>req),type:'line',borderColor:'rgba(185,28,28,.55)',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false}
+          ]
+        },
+        options:{responsive:true,maintainAspectRatio:true,
+          plugins:{
+            legend:{position:'bottom',labels:{font:{size:7.5},padding:8,boxWidth:10}},
+            title:{display:true,text:'Sand Replacement — % Compaction per Location',font:{size:9,weight:'bold'},color:'#1a3a6e',padding:{bottom:5}}
+          },
+          scales:{
+            x:{ticks:{font:{size:8},color:'#555'},grid:{display:false}},
+            y:{title:{display:true,text:'% Compaction',font:{size:7.5},color:'#555'},ticks:{font:{size:8}},grid:{color:'rgba(0,0,0,.05)'},min:Math.max(0,req-15),max:105}
+          }
+        }
+      });
+    }
+  }
+})();
+<\/script>
+</body></html>`;
+
+  _doPrint(html);
+}
+
 
 function dlPrintRecord(id){
   const rec = dlGetRecords().find(r=>r.id===id);
@@ -10311,8 +11532,8 @@ function _doPrint(html){
   win.document.open();
   win.document.write(html);
   win.document.close();
-  // Use setTimeout to ensure full render before printing
-  setTimeout(()=>{ win.focus(); win.print(); }, 800);
+  // Use 1400ms to ensure Chart.js finishes rendering before printing
+  setTimeout(()=>{ win.focus(); win.print(); }, 1400);
 }
 
 function _printInspectionReport(){
