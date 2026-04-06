@@ -1187,6 +1187,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
   [onclick*="v3ToggleChart"],[onclick*="prcToggleChart"],[onclick*="srtToggleChart"],
   .sbrw-wrap>nav, #dl-grid, #tab-downloads, #tab-dashboard, #tab-data,
   #tab-entry, #tab-atr, #tab-analytics, #tab-instructions, #tab-map,
+  .ncr-actions-col, .atr-rmk-actions-col,
   #tab-projupdates, #tab-compliance-contractor, #tab-compliance-area{display:none!important;}
   [id^="tab-"]{display:none!important;}
   #print-area{display:block!important;}
@@ -1661,7 +1662,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div class="lp-tc-name">Luv Kumar Chhetri</div>
           <div class="lp-tc-pos">Chief Engineer</div>
           <div class="lp-tc-dept">Construction Quality Division</div>
-          <a class="lp-tc-email" href="mailto:luvchhetri@cabinet.gov.bt"><i class="fa fa-envelope"></i> luvchhetri@cabinet.gov.bt</a>
+          <a class="lp-tc-email" href="/cdn-cgi/l/email-protection#365a4340555e5e5342445f765557545f58534218515940185442"><i class="fa fa-envelope"></i> <span class="__cf_email__" data-cfemail="6e021b180d06060b1a1c072e0d0f0c07000b1a40090118400c1a">[email&#160;protected]</span></a>
         </div>
       </div>
     </div>
@@ -1672,7 +1673,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div class="lp-tc-name">Kuenzang Dendup</div>
           <div class="lp-tc-pos">Executive Engineer</div>
           <div class="lp-tc-dept">Construction Quality Division</div>
-          <a class="lp-tc-email" href="mailto:kdendup@cabinet.gov.bt"><i class="fa fa-envelope"></i> kdendup@cabinet.gov.bt</a>
+          <a class="lp-tc-email" href="/cdn-cgi/l/email-protection#0f646b6a616b7a7f4f6c6e6d66616a7b21686079216d7b"><i class="fa fa-envelope"></i> <span class="__cf_email__" data-cfemail="ddb6b9b8b3b9a8ad9dbebcbfb4b3b8a9f3bab2abf3bfa9">[email&#160;protected]</span></a>
         </div>
       </div>
       <div class="lp-team-card">
@@ -1681,7 +1682,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div class="lp-tc-name">Tenzin Norbu</div>
           <div class="lp-tc-pos">Junior Engineer</div>
           <div class="lp-tc-dept">Construction Quality Division</div>
-          <a class="lp-tc-email" href="mailto:tnorbu@cabinet.gov.bt"><i class="fa fa-envelope"></i> tnorbu@cabinet.gov.bt</a>
+          <a class="lp-tc-email" href="/cdn-cgi/l/email-protection#52263c3d203027123133303b3c37267c353d247c3026"><i class="fa fa-envelope"></i> <span class="__cf_email__" data-cfemail="73071d1c011106331012111a1d16075d141c055d1107">[email&#160;protected]</span></a>
         </div>
       </div>
       <div class="lp-team-card">
@@ -1690,7 +1691,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div class="lp-tc-name">Pema Namgay</div>
           <div class="lp-tc-pos">Assistant Engineer</div>
           <div class="lp-tc-dept">Construction Quality Division</div>
-          <a class="lp-tc-email" href="mailto:pnamgay@cabinet.gov.bt"><i class="fa fa-envelope"></i> pnamgay@cabinet.gov.bt</a>
+          <a class="lp-tc-email" href="/cdn-cgi/l/email-protection#f5859b949892948cb59694979c9b9081db929a83db9781"><i class="fa fa-envelope"></i> <span class="__cf_email__" data-cfemail="55253b343832342c153634373c3b30217b323a237b3721">[email&#160;protected]</span></a>
         </div>
       </div>
     </div>
@@ -2053,6 +2054,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-icon"><i class="fa fa-file-alt"></i></span>
       <span class="sb-label">Report</span>
     </button>
+    <button class="nav-tab" onclick="showTab('followup',this)">
+      <span class="sb-icon"><i class="fa fa-clipboard-list"></i></span>
+      <span class="sb-label">Follow Up Report</span>
+    </button>
     <button class="nav-tab" onclick="showTab('downloads',this)">
       <span class="sb-icon"><i class="fa fa-download"></i></span>
       <span class="sb-label">Downloads</span>
@@ -2198,7 +2203,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <span style="font-size:28px;">🔒</span>
         <div>
           <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#d97706;letter-spacing:1px;">VIEW ONLY ACCESS</div>
-          <div style="font-size:13px;color:#374151;margin-top:3px;">You are signed in as a <strong>Viewer</strong>. Only administrators can add inspection entries.</div>
+          <div style="font-size:13px;color:#374151;margin-top:3px;">You are signed in as a <strong>Viewer</strong>. Only administrators and registered users can add inspection entries.</div>
         </div>
       </div>
       <div class="form-success" id="formSuccess">✅ Inspection entry saved successfully!</div>
@@ -2825,7 +2830,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:#374151;">All Defect Entries — ATR Status</div>
           <select class="filter-select" id="atrFilter" onchange="renderATR()"><option value="">All Statuses</option><option value="OVERDUE">Overdue Only</option><option value="DUE SOON">Due Soon Only</option><option value="Pending">Pending Only</option><option value="Submitted">Submitted Only</option></select>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Mark Submitted</th><th>Action</th></tr></thead><tbody id="atrBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Review Status</th><th class="atr-rmk-actions-col">Actions</th><th>Remarks</th><th class="atr-rmk-actions-col" style="width:90px;">Rmk Actions</th></tr></thead><tbody id="atrBody"></tbody></table></div>
         <div class="no-data" id="noATR" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">✅</div>No ATR records found.</div>
       </div>
     </div>
@@ -3044,6 +3049,18 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <option value="project">🏗️ Full Project Report (by Project)</option>
           </select>
         </div>
+        <!-- Monthly filter — shown only for summary report -->
+        <div id="summaryMonthSelector" style="display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Filter by Month</span>
+          <select id="reportMonthFilter" onchange="renderReport()"
+            style="background:#f8f9fc;border:1.5px solid #d97706;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:200px;">
+            <option value="">— All Months —</option>
+            <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+            <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+            <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
         <!-- Project selector — shown only for project report -->
         <div id="projectReportSelector" style="display:none;flex:1;min-width:260px;display:flex;flex-direction:column;gap:4px;">
           <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Select Project</span>
@@ -3106,6 +3123,75 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       </div>
     </div>
 
+    <!-- FOLLOW-UP REPORT TAB -->
+    <div id="tab-followup" style="display:none">
+      <div class="section-header">
+        <div><div class="section-title">FOLLOW UP REPORT</div><div class="section-badge">Non-Conformance Reports (NCR) — Directly from ATR Tracker</div></div>
+      </div>
+
+      <!-- NCR Filter Bar -->
+      <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:18px 20px;margin-bottom:20px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Filter by Month</span>
+          <select id="ncrMonthFilter" onchange="renderNCRReport()"
+            style="background:#f8f9fc;border:1.5px solid #e8820c;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:200px;">
+            <option value="">— All Months —</option>
+            <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+            <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+            <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Filter by Status</span>
+          <select id="ncrStatusFilter" onchange="renderNCRReport()"
+            style="background:#f8f9fc;border:1.5px solid #d97706;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:180px;">
+            <option value="">— All Statuses —</option>
+            <option value="Submitted">✅ Submitted</option>
+            <option value="Pending">🟡 Pending</option>
+            <option value="DUE SOON">🟠 Due Soon</option>
+            <option value="OVERDUE">🔴 Overdue</option>
+          </select>
+        </div>
+        <div id="ncrRecordCount" style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;color:#6b7280;padding:9px 0;"></div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+          <button onclick="printNCRReport()" style="background:linear-gradient(135deg,#e8820c,#1d4ed8);border:none;border-radius:7px;padding:9px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;">🖨️ Print / Export PDF</button>
+        </div>
+      </div>
+
+      <!-- NCR Preview Table -->
+      <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;overflow:hidden;margin-bottom:20px;">
+        <div style="padding:14px 20px;background:#f8f9fc;border-bottom:1px solid #e2e6ef;display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px;color:#d97706;">📋 FOLLOW UP REPORT — NCR REGISTER</span>
+          <span style="font-size:11px;color:#6b7280;">— Preview before printing</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="font-size:12px;width:100%;">
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th>NCR / Project Name</th>
+                <th>Procuring Agency<br><span style="font-size:9px;font-weight:400;">(Dzongkhag / RO / Thromde)</span></th>
+                <th>Date Raised</th>
+                <th>Defect Description</th>
+                <th>ATR Deadline</th>
+                <th>Status</th>
+                <th>Remarks</th>
+                <th class="ncr-actions-col" style="width:90px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ncrPreviewBody">
+              <tr><td colspan="9" style="text-align:center;padding:32px;color:#6b7280;">Loading NCR data…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="ncrEmptyMsg" style="display:none;text-align:center;padding:48px 20px;color:#6b7280;">
+          <div style="font-size:36px;margin-bottom:12px;">✅</div>
+          <div style="font-size:14px;font-weight:600;">No NCR records found for the selected filters.</div>
+        </div>
+      </div>
+    </div>
+
     <!-- INSTRUCTIONS -->
     <div id="tab-instructions" style="display:none">
       <div class="section-header"><div><div class="section-title">USER GUIDE</div><div class="section-badge">How to use the Highway Quality Inspection System</div></div></div>
@@ -3113,7 +3199,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <div class="inst-card"><div class="inst-card-title">🛣️ Dashboard</div><div class="inst-card-body">Filter by Year, Month, Dzongkhag, and RO. All KPI cards and breakdown tables auto-update based on your selection.</div></div>
         <div class="inst-card"><div class="inst-card-title">➕ New Entry + Auto QC</div><div class="inst-card-body">Select Work Type and enter test results. The system <strong>automatically checks against SBRW 2025 / Chapter 21 thresholds</strong> and shows PASS / FAIL instantly. Manual override available.</div></div>
         <div class="inst-card"><div class="inst-card-title">🔬 SBRW QC Tool</div><div class="inst-card-body">Full SBRW 2025 Chapter 21 test tool with all 209 Road Works items. Enter measured values and get instant Pass/Fail against standard thresholds. Generate full QC reports.</div></div>
-        <div class="inst-card"><div class="inst-card-title">⚠️ ATR Tracker</div><div class="inst-card-body">All defect entries are auto-shown here. 🔴 OVERDUE | 🟠 DUE SOON (≤7 days) | 🟡 Pending | 🟢 Submitted. Click Mark Submitted to update status.</div></div>
+        <div class="inst-card"><div class="inst-card-title">⚠️ ATR Tracker</div><div class="inst-card-body">All defect entries are auto-shown here. 🔴 OVERDUE | 🟠 DUE SOON (≤7 days) | 🟡 Pending | 🟢 Submitted. Use <strong>Review Status</strong> to log review notes and <strong>Remarks</strong> to add follow-up comments per record. Upload the ATR file and use View/Download links to access it.</div></div>
         <div class="inst-card"><div class="inst-card-title">📈 Analytics</div><div class="inst-card-body">4 charts: Monthly trend, Pass vs Fail doughnut, Dzongkhag bar, RO comparison. Auto-update with each new entry.</div></div>
         <div class="inst-card"><div class="inst-card-title">🔐 Login &amp; Roles</div><div class="inst-card-body"><strong>Admin</strong> — full access. <strong>User (Dzongkhag/RO/Thromde)</strong> — add project updates, print reports, location locked. <strong>Viewer</strong> — read-only access via Google.</div></div>
       </div>
@@ -4016,7 +4102,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
 <div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ================================================================
 //  FIREBASE CONFIGURATION — cqis-bhutan project
 // ================================================================
@@ -4523,8 +4609,8 @@ function finishLogin() {
   // Update banner text based on role
   if (!currentUser.isAdmin && banner) {
     const msg = currentUser.isUser
-      ? '👤 <strong>User Access</strong> — You can add Project Updates and print saved test reports. Inspection data entry is restricted to administrators.'
-      : '👁 <strong>Viewer Access</strong> — You can view all data and print reports. Add/Edit/Delete is restricted to administrators and users.';
+      ? '👤 <strong>User Access</strong> — You can add inspection entries, project updates, upload ATR files and print reports. Once saved, records <strong>cannot be edited or deleted</strong>.'
+      : '👁 <strong>Viewer Access</strong> — You can view all data and print reports. Adding, editing and deleting is restricted to administrators and registered users.';
     const msgEl = banner.querySelector('span:last-child');
     if (msgEl) msgEl.innerHTML = msg;
   }
@@ -4540,15 +4626,6 @@ function finishLogin() {
     const topPx = (currentUser.isAdmin || currentUser.isUser) ? '136px' : '100px';
     sidebar.style.top    = topPx;
     sidebar.style.height = 'calc(100vh - ' + topPx + ')';
-  }
-
-  // Update banner text based on role
-  if (!currentUser.isAdmin && banner) {
-    const msg = currentUser.isUser
-      ? '👤 <strong>User Access</strong> — You can add Project Updates and print saved test reports. Inspection data entry is restricted to administrators.'
-      : '👁 <strong>Viewer Access</strong> — You can view all data and print reports. Add/Edit/Delete is restricted to administrators and users.';
-    const msgEl = banner.querySelector('span:last-child');
-    if (msgEl) msgEl.innerHTML = msg;
   }
 
   // Role badge colour
@@ -4642,6 +4719,7 @@ function showTab(id,btn){
   if(id==='entry') { setTimeout(entryPopulateScheduleDropdown, 100); }
   if(id==='analytics') renderCharts();
   if(id==='report') renderReport();
+  if(id==='followup') renderNCRReport();
   if(id==='dashboard') refreshDash();
   if(id==='qc') sbrwUpdateSum();
   if(id==='projupdates'){
@@ -4668,11 +4746,16 @@ function showTab(id,btn){
     }, 50);
   }
   if(id==='entry'){
-    const isAdmin=currentUser&&currentUser.isAdmin;
-    const notice=document.getElementById('viewerLockNotice');
-    const formSections=document.querySelectorAll('#tab-entry .form-section, #tab-entry .form-actions');
-    if(notice) notice.style.display=isAdmin?'none':'flex';
-    formSections.forEach(s=>{s.style.opacity=isAdmin?'1':'0.4';s.style.pointerEvents=isAdmin?'':'none';});
+    const isAdmin  = currentUser && currentUser.isAdmin;
+    const isUser   = currentUser && currentUser.isUser;
+    const canAccess = isAdmin || isUser;
+    const notice   = document.getElementById('viewerLockNotice');
+    const formSections = document.querySelectorAll('#tab-entry .form-section, #tab-entry .form-actions');
+    if(notice) notice.style.display = canAccess ? 'none' : 'flex';
+    formSections.forEach(s=>{
+      s.style.opacity       = canAccess ? '1' : '0.4';
+      s.style.pointerEvents = canAccess ? '' : 'none';
+    });
   }
   if(id==='projupdates'){
     renderPUTable();
@@ -5607,7 +5690,7 @@ function toggleDefect(){
 }
 
 function saveEntry(){
-  if(!currentUser||!currentUser.isAdmin){alert('Access Denied: Only administrators can add inspection entries.');return;}
+  if(!currentUser||(!currentUser.isAdmin&&!currentUser.isUser)){alert('Access Denied: Only administrators and registered users can add inspection entries.');return;}
   const proj=document.getElementById('fProjectName').value.trim();
   const cont=document.getElementById('fContractor').value.trim();
   const dt=document.getElementById('fDateInspected').value;
@@ -5752,6 +5835,7 @@ function renderATR(){
   document.getElementById('noATR').style.display='none';
   const isAdmin=currentUser&&currentUser.isAdmin;
   const isUser=currentUser&&currentUser.isUser;
+  const canEditFields = isAdmin || isUser;
   body.innerHTML=rows.map(r=>{
     const idx=inspections.indexOf(r),status=calcATRStatus(r);
     const dLeft=r.atrDeadline?daysFromNow(r.atrDeadline):'—';
@@ -5760,22 +5844,36 @@ function renderATR(){
     else if(status==='DUE SOON')rowStyle='background:rgba(249,115,22,.04);';
     else if(status==='Submitted')rowStyle='background:rgba(22,163,74,.04);';
 
-    // ATR File cell — show upload button or file link if already uploaded
+    // ATR File cell — show upload + view + download if file exists
     let fileCell = '';
     if(r.atrFile && r.atrFileName){
-      // File exists — show open + download link
+      const isPDF = r.atrFileName.match(/\.pdf$/i);
+      const isImg = r.atrFileName.match(/\.(jpg|jpeg|png)$/i);
       fileCell = `
-        <div style="display:flex;flex-direction:column;gap:4px;min-width:120px;">
-          <a class="atr-file-link" href="${r.atrFile}" download="${r.atrFileName}" title="Download ${r.atrFileName}">
-            📄 ${r.atrFileName.length>18?r.atrFileName.substring(0,15)+'…':r.atrFileName}
-          </a>
-          <div style="display:flex;gap:4px;">
-            <a class="atr-file-link" href="${r.atrFile}" target="_blank" style="font-size:10px;padding:2px 8px;">🔍 Open</a>
-            ${(isAdmin||isUser)?`<button class="atr-file-del" onclick="deleteATRFile(${idx})" title="Remove file">✕</button>`:''}
+        <div style="display:flex;flex-direction:column;gap:5px;min-width:130px;">
+          <div style="font-size:10px;color:#374151;font-weight:600;word-break:break-all;">📄 ${r.atrFileName.length>20?r.atrFileName.substring(0,18)+'…':r.atrFileName}</div>
+          ${r.atrFileSize?`<div style="font-size:9px;color:#6b7280;">${r.atrFileSize}${r.atrFileDate?' · '+r.atrFileDate:''}</div>`:''}
+          ${isImg?`<img src="${r.atrFile}" alt="ATR" style="max-width:100px;max-height:60px;border-radius:4px;border:1px solid #e2e6ef;cursor:pointer;" onclick="window.open('${r.atrFile}','_blank')" title="Click to view full size">`:''}
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <a href="${r.atrFile}" target="_blank"
+              style="font-size:10px;font-weight:700;padding:3px 8px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;color:#4338ca;text-decoration:none;font-family:'Rajdhani',sans-serif;letter-spacing:.3px;">
+              🔍 View
+            </a>
+            <a href="${r.atrFile}" download="${r.atrFileName}"
+              style="font-size:10px;font-weight:700;padding:3px 8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;color:#16a34a;text-decoration:none;font-family:'Rajdhani',sans-serif;letter-spacing:.3px;">
+              ⬇ Download
+            </a>
+            ${(isAdmin||isUser)?`<button onclick="deleteATRFile(${idx})"
+              style="font-size:10px;font-weight:700;padding:3px 8px;background:#fff0f0;border:1px solid #fecaca;border-radius:4px;color:#dc2626;cursor:pointer;font-family:'Rajdhani',sans-serif;">
+              ✕ Remove
+            </button>`:''}
           </div>
+          ${(isAdmin||isUser)?`<label style="font-size:10px;color:#e8820c;cursor:pointer;font-weight:600;font-family:'Rajdhani',sans-serif;">
+            🔄 Replace
+            <input type="file" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx" onchange="handleATRFileUpload(event,${idx})">
+          </label>`:''}
         </div>`;
     } else if(isAdmin||isUser){
-      // No file yet — show upload button
       fileCell = `
         <label class="atr-file-btn" title="Upload ATR document">
           📎 Upload ATR
@@ -5785,6 +5883,40 @@ function renderATR(){
     } else {
       fileCell = '<span style="color:#6b7280;font-size:11px;">—</span>';
     }
+
+    // Review Status editable cell
+    const savedReview = _atrLoadField(idx,'review');
+    const reviewCell = canEditFields
+      ? `<div id="atrRevView_${idx}" style="display:${savedReview?'block':'none'};font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap;">${savedReview}</div>
+         <textarea id="atrRevArea_${idx}" rows="2"
+           style="display:${savedReview?'none':'block'};width:120px;font-size:11px;font-family:'Poppins',sans-serif;border:1.5px solid #e8820c;border-radius:5px;padding:4px 6px;color:#1a2236;resize:vertical;outline:none;background:#fffdf8;"
+           placeholder="Review status…">${savedReview}</textarea>`
+      : `<span style="font-size:12px;color:#374151;">${savedReview||'—'}</span>`;
+    const reviewActions = canEditFields
+      ? `<button id="atrRevSaveBtn_${idx}" onclick="atrFieldSave(${idx},'review')"
+           style="display:${savedReview?'none':'block'};width:100%;margin-bottom:3px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,#e8820c,#c46a08);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">💾 Save</button>
+         <button id="atrRevEditBtn_${idx}" onclick="atrFieldEdit(${idx},'review')"
+           style="display:${savedReview?'block':'none'};width:100%;margin-bottom:3px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:#f0f2f7;color:#374151;border:1px solid #cbd2e0;border-radius:5px;padding:5px 0;cursor:pointer;">✏️ Edit</button>
+         <button id="atrRevUpdateBtn_${idx}" onclick="atrFieldSave(${idx},'review')"
+           style="display:none;width:100%;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">✅ Update</button>`
+      : `<span style="font-size:10px;color:#9ca3af;">—</span>`;
+
+    // Remarks editable cell
+    const savedRmk = _atrLoadField(idx,'remarks');
+    const remarksCell = canEditFields
+      ? `<div id="atrRmkView_${idx}" style="display:${savedRmk?'block':'none'};font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap;">${savedRmk}</div>
+         <textarea id="atrRmkArea_${idx}" rows="2"
+           style="display:${savedRmk?'none':'block'};width:140px;font-size:11px;font-family:'Poppins',sans-serif;border:1.5px solid #6366f1;border-radius:5px;padding:4px 6px;color:#1a2236;resize:vertical;outline:none;background:#f8f7ff;"
+           placeholder="Type remarks…">${savedRmk}</textarea>`
+      : `<span style="font-size:12px;color:#374151;">${savedRmk||'—'}</span>`;
+    const remarksActions = canEditFields
+      ? `<button id="atrRmkSaveBtn_${idx}" onclick="atrFieldSave(${idx},'remarks')"
+           style="display:${savedRmk?'none':'block'};width:100%;margin-bottom:3px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">💾 Save</button>
+         <button id="atrRmkEditBtn_${idx}" onclick="atrFieldEdit(${idx},'remarks')"
+           style="display:${savedRmk?'block':'none'};width:100%;margin-bottom:3px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:#f0f2f7;color:#374151;border:1px solid #cbd2e0;border-radius:5px;padding:5px 0;cursor:pointer;">✏️ Edit</button>
+         <button id="atrRmkUpdateBtn_${idx}" onclick="atrFieldSave(${idx},'remarks')"
+           style="display:none;width:100%;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">✅ Update</button>`
+      : `<span style="font-size:10px;color:#9ca3af;">—</span>`;
 
     return `<tr style="${rowStyle}">
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.sn}</td>
@@ -5797,7 +5929,10 @@ function renderATR(){
       <td>${badgeHtml(status)}</td>
       <td>${r.atrSubmitted||'—'}</td>
       <td>${fileCell}</td>
-      <td>${(isAdmin&&status!=='Submitted')?`<button class="action-btn" onclick="markSubmitted(${idx})">✅ Submit</button>`:'—'}</td>
+      <td style="min-width:130px;padding:5px 7px;">${reviewCell}</td>
+      <td class="atr-rmk-actions-col" style="width:85px;padding:5px 6px;vertical-align:middle;">${reviewActions}</td>
+      <td style="min-width:150px;padding:5px 7px;">${remarksCell}</td>
+      <td class="atr-rmk-actions-col" style="width:85px;padding:5px 6px;vertical-align:middle;">${remarksActions}</td>
     </tr>`;
   }).join('');
 }
@@ -5807,6 +5942,42 @@ function markSubmitted(i){
   save();
   renderATR();
   fbMarkATRSubmitted(inspections[i]).then(()=>toast('✅ ATR marked Submitted in Firebase.'));
+}
+
+// ── ATR Review Status & Remarks — per-row editable fields ──
+function _atrFieldKey(idx, field){ return `atrField::${field}::${idx}::`+(inspections[idx]?.projectName||'').replace(/\s/g,'_'); }
+function _atrLoadField(idx, field){ try{ return localStorage.getItem(_atrFieldKey(idx,field))||''; }catch(e){return '';} }
+
+function atrFieldEdit(idx, field){
+  const pre = field==='review'?'atrRev':'atrRmk';
+  const view      = document.getElementById(pre+'View_'+idx);
+  const area      = document.getElementById(pre+'Area_'+idx);
+  const saveBtn   = document.getElementById(pre+'SaveBtn_'+idx);
+  const editBtn   = document.getElementById(pre+'EditBtn_'+idx);
+  const updateBtn = document.getElementById(pre+'UpdateBtn_'+idx);
+  if(view)      view.style.display='none';
+  if(area){     area.style.display='block'; area.focus(); area.select(); }
+  if(saveBtn)   saveBtn.style.display='none';
+  if(editBtn)   editBtn.style.display='none';
+  if(updateBtn) updateBtn.style.display='block';
+}
+
+function atrFieldSave(idx, field){
+  const pre = field==='review'?'atrRev':'atrRmk';
+  const view      = document.getElementById(pre+'View_'+idx);
+  const area      = document.getElementById(pre+'Area_'+idx);
+  const saveBtn   = document.getElementById(pre+'SaveBtn_'+idx);
+  const editBtn   = document.getElementById(pre+'EditBtn_'+idx);
+  const updateBtn = document.getElementById(pre+'UpdateBtn_'+idx);
+  if(!area) return;
+  const val = area.value.trim();
+  try{ localStorage.setItem(_atrFieldKey(idx,field), val); }catch(e){}
+  if(view){ view.textContent=val; view.style.display=val?'block':'none'; }
+  if(area)      area.style.display      = val?'none':'block';
+  if(saveBtn)   saveBtn.style.display   = val?'none':'block';
+  if(editBtn)   editBtn.style.display   = val?'block':'none';
+  if(updateBtn) updateBtn.style.display = 'none';
+  showToast(val ? '✅ Saved.' : '🗑 Cleared.');
 }
 
 // ===== ATR FILE UPLOAD =====
@@ -6171,10 +6342,33 @@ function renderReport(){
   // Print button visibility: Admin and User can print
   const printBtn = document.querySelector('#tab-report .btn-print');
   if (printBtn) printBtn.style.display = (currentUser && (currentUser.isAdmin || currentUser.isUser)) ? '' : 'none';
-  document.getElementById('reportDate').textContent='Report Date: '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  const total=inspections.length;
-  const defects=inspections.filter(r=>r.defect==='Yes');
-  const tests=inspections.filter(r=>r.passFailResult);
+
+  // Apply month filter
+  const monthFilter = document.getElementById('reportMonthFilter')?.value || '';
+  let recs = inspections;
+  if(monthFilter){
+    recs = inspections.filter(r=>{
+      if(!r.dateInspected) return false;
+      const m = r.dateInspected.substring(5,7); // YYYY-MM-DD
+      return m === monthFilter;
+    });
+  }
+
+  const monthLabel = monthFilter ? (() => {
+    const names = {
+      '01':'January','02':'February','03':'March','04':'April','05':'May','06':'June',
+      '07':'July','08':'August','09':'September','10':'October','11':'November','12':'December'
+    };
+    return names[monthFilter] || '';
+  })() : '';
+  const dateLabel = monthLabel
+    ? `Report Period: ${monthLabel} ${new Date().getFullYear()}`
+    : `Report Date: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;
+  document.getElementById('reportDate').textContent = dateLabel;
+
+  const total=recs.length;
+  const defects=recs.filter(r=>r.defect==='Yes');
+  const tests=recs.filter(r=>r.passFailResult);
   const passed=tests.filter(r=>r.passFailResult==='Pass').length;
   const failed=tests.filter(r=>r.passFailResult==='Fail').length;
   const rate=tests.length?Math.round(passed/tests.length*100):0;
@@ -6188,7 +6382,11 @@ function renderReport(){
   document.getElementById('rATRPend').textContent=defects.filter(r=>['Pending','DUE SOON'].includes(calcATRStatus(r))).length;
   document.getElementById('rATROvd').textContent=defects.filter(r=>calcATRStatus(r)==='OVERDUE').length;
   const db=document.getElementById('reportDefects');
-  if(!defects.length){db.innerHTML='';document.getElementById('noReportDefects').style.display='';return;}
+  if(!defects.length){db.innerHTML='';document.getElementById('noReportDefects').style.display='';
+    // Also populate project dropdown
+    _populateProjectDropdown();
+    return;
+  }
   document.getElementById('noReportDefects').style.display='none';
   db.innerHTML=defects.map((r,i)=>`<tr><td>${i+1}</td><td>${r.projectName||'—'}</td><td>${r.dzongkhag||'—'}</td><td>${r.dateInspected||'—'}</td><td>${r.defectDesc||'—'}</td><td>${r.action||'—'}</td><td>${r.atrDeadline||'—'}</td></tr>`).join('');
   // Also populate project dropdown
@@ -6201,16 +6399,20 @@ function onReportTypeChange(){
   const sumPanel = document.getElementById('report-summary-panel');
   const projPanel = document.getElementById('report-project-panel');
   const projSel = document.getElementById('projectReportSelector');
+  const monthSel = document.getElementById('summaryMonthSelector');
   if(type==='project'){
     if(sumPanel) sumPanel.style.display='none';
     if(projPanel) projPanel.style.display='block';
     if(projSel) projSel.style.display='flex';
+    if(monthSel) monthSel.style.display='none';
     _populateProjectDropdown();
     renderProjectReport();
   } else {
     if(sumPanel) sumPanel.style.display='block';
     if(projPanel) projPanel.style.display='none';
     if(projSel) projSel.style.display='none';
+    if(monthSel) monthSel.style.display='flex';
+    renderReport();
   }
 }
 
@@ -6220,6 +6422,239 @@ function _populateProjectDropdown(){
   const cur = sel.value;
   sel.innerHTML = '<option value="">— Select a project —</option>' +
     projects.map(p=>`<option value="${p}" ${p===cur?'selected':''}>${p}</option>`).join('');
+}
+
+// ===== NCR (FOLLOW-UP) REPORT =====
+function _getNCRRecords(){
+  const monthFilter = document.getElementById('ncrMonthFilter')?.value || '';
+  const statusFilter = document.getElementById('ncrStatusFilter')?.value || '';
+  let recs = (inspections||[]).filter(r=>r.defect==='Yes');
+  if(monthFilter){
+    recs = recs.filter(r=>{
+      const d = r.dateInspected||r.atrDeadline||'';
+      return d.substring(5,7) === monthFilter;
+    });
+  }
+  if(statusFilter){
+    recs = recs.filter(r=>{
+      const st = r.atrSubmitted ? 'Submitted' : calcATRStatus(r);
+      return st === statusFilter;
+    });
+  }
+  return recs;
+}
+
+// ── NCR remarks storage helpers ──
+function _ncrRemarksKey(r){ return 'ncrRmk::'+(r.id||r.projectName+r.dateInspected).replace(/\s/g,'_'); }
+function _loadNcrRemarks(r){ try{ return localStorage.getItem(_ncrRemarksKey(r))||''; }catch(e){return '';} }
+function _saveNcrRemarks(r, val){ try{ localStorage.setItem(_ncrRemarksKey(r), val); }catch(e){} }
+
+function renderNCRReport(){
+  const recs = _getNCRRecords();
+  const tbody = document.getElementById('ncrPreviewBody');
+  const empty = document.getElementById('ncrEmptyMsg');
+  const count = document.getElementById('ncrRecordCount');
+  const monthSel = document.getElementById('ncrMonthFilter');
+  const monthVal = monthSel?.value || '';
+  const monthNames = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June',
+    '07':'July','08':'August','09':'September','10':'October','11':'November','12':'December'};
+  const periodLabel = monthVal ? `For the Month of ${monthNames[monthVal]} ${new Date().getFullYear()}` : 'All Months';
+  if(count) count.textContent = `${recs.length} NCR${recs.length!==1?'s':''} · ${monthVal ? monthNames[monthVal]+' '+new Date().getFullYear() : 'All Months'}`;
+
+  if(!recs.length){
+    if(tbody) tbody.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+
+  const canEditRemarks = currentUser && (currentUser.isAdmin || currentUser.isUser);
+
+  const statusStyle = (st) => {
+    if(st==='Submitted') return 'color:#15803d;font-weight:700;';
+    if(st==='OVERDUE')   return 'color:#b91c1c;font-weight:700;';
+    if(st==='DUE SOON')  return 'color:#ea580c;font-weight:700;';
+    return 'color:#d97706;font-weight:700;';
+  };
+  const statusLabel = (r) => {
+    if(r.atrSubmitted) return '✅ Submitted';
+    const st = calcATRStatus(r);
+    if(st==='OVERDUE')  return '🔴 Overdue';
+    if(st==='DUE SOON') return '🟠 Due Soon';
+    return '🟡 Pending';
+  };
+  const procuringAgency = (r) => {
+    if(r.dzongkhag) return r.dzongkhag + ' Dzongkhag';
+    if(r.ro) return r.ro + ' RO';
+    return '—';
+  };
+
+  tbody.innerHTML = recs.map((r,i)=>{
+    const savedRemark = _loadNcrRemarks(r);
+    const rKey = _ncrRemarksKey(r);
+    const remarksCell = canEditRemarks
+      ? `<div id="ncrRmkView_${i}" style="display:${savedRemark?'block':'none'};font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap;">${savedRemark||''}</div>
+         <textarea id="ncrRmkArea_${i}" rows="2"
+           style="display:${savedRemark?'none':'block'};width:100%;font-size:12px;font-family:'Poppins',sans-serif;border:1.5px solid #e8820c;border-radius:5px;padding:5px 7px;color:#1a2236;resize:vertical;outline:none;background:#fffdf8;"
+           placeholder="Type remarks here…">${savedRemark}</textarea>`
+      : `<span style="font-size:12px;color:#374151;">${savedRemark||'—'}</span>`;
+    const actionsCell = canEditRemarks
+      ? `<button id="ncrRmkSaveBtn_${i}" onclick="ncrRmkSave(${i},'${rKey.replace(/'/g,"\\'")}')"
+           style="display:${savedRemark?'none':'block'};width:100%;margin-bottom:4px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;background:linear-gradient(135deg,#e8820c,#c46a08);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">💾 Save</button>
+         <button id="ncrRmkEditBtn_${i}" onclick="ncrRmkEdit(${i})"
+           style="display:${savedRemark?'block':'none'};width:100%;margin-bottom:4px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;background:#f0f2f7;color:#374151;border:1px solid #cbd2e0;border-radius:5px;padding:5px 0;cursor:pointer;">✏️ Edit</button>
+         <button id="ncrRmkUpdateBtn_${i}" onclick="ncrRmkSave(${i},'${rKey.replace(/'/g,"\\'")}')"
+           style="display:none;width:100%;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">✅ Update</button>`
+      : `<span style="font-size:10px;color:#9ca3af;">—</span>`;
+    return `
+    <tr style="border-bottom:1px solid rgba(0,0,0,.06);${i%2===1?'background:rgba(37,99,235,.03)':''}">
+      <td style="text-align:center;font-weight:700;font-size:11px;">${i+1}</td>
+      <td><strong style="color:#1a2236;">${r.projectName||'—'}</strong>${r.contractNo?'<br><span style="font-size:10px;color:#6b7280;">'+r.contractNo+'</span>':''}</td>
+      <td style="font-size:12px;color:#374151;">${procuringAgency(r)}</td>
+      <td style="font-size:12px;">${r.dateInspected||'—'}</td>
+      <td style="font-size:12px;max-width:180px;">${r.defectDesc||'—'}</td>
+      <td style="font-size:12px;">${r.atrDeadline||'—'}</td>
+      <td><span style="${statusStyle(r.atrSubmitted?'Submitted':calcATRStatus(r))}">${statusLabel(r)}</span></td>
+      <td style="min-width:170px;padding:5px 7px;">${remarksCell}</td>
+      <td class="ncr-actions-col" style="width:90px;padding:5px 6px;text-align:center;vertical-align:middle;">${actionsCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+function ncrRmkEdit(i){
+  const view   = document.getElementById('ncrRmkView_'+i);
+  const area   = document.getElementById('ncrRmkArea_'+i);
+  const saveBtn   = document.getElementById('ncrRmkSaveBtn_'+i);
+  const editBtn   = document.getElementById('ncrRmkEditBtn_'+i);
+  const updateBtn = document.getElementById('ncrRmkUpdateBtn_'+i);
+  if(view)      view.style.display='none';
+  if(area){     area.style.display='block'; area.focus(); area.select(); }
+  if(saveBtn)   saveBtn.style.display='none';
+  if(editBtn)   editBtn.style.display='none';
+  if(updateBtn) updateBtn.style.display='block';
+}
+
+function ncrRmkSave(i, rKey){
+  const area      = document.getElementById('ncrRmkArea_'+i);
+  const view      = document.getElementById('ncrRmkView_'+i);
+  const saveBtn   = document.getElementById('ncrRmkSaveBtn_'+i);
+  const editBtn   = document.getElementById('ncrRmkEditBtn_'+i);
+  const updateBtn = document.getElementById('ncrRmkUpdateBtn_'+i);
+  if(!area) return;
+  const val = area.value.trim();
+  try{ localStorage.setItem(rKey, val); }catch(e){}
+  // Update view text
+  if(view){ view.textContent = val; view.style.display = val ? 'block' : 'none'; }
+  // Toggle textarea
+  if(area) area.style.display = val ? 'none' : 'block';
+  // Toggle buttons
+  if(saveBtn)   saveBtn.style.display   = val ? 'none'  : 'block';
+  if(editBtn)   editBtn.style.display   = val ? 'block' : 'none';
+  if(updateBtn) updateBtn.style.display = 'none';
+  showToast(val ? '✅ Remark saved.' : '🗑 Remark cleared.');
+}
+
+function printNCRReport(){
+  const recs = _getNCRRecords();
+  if(!recs.length){ showToast('⚠️ No NCR records to print.'); return; }
+
+  const now = new Date();
+  const printed = now.toLocaleString('en-GB',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const monthSel = document.getElementById('ncrMonthFilter');
+  const monthVal = monthSel?.value || '';
+  const monthNames = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June',
+    '07':'July','08':'August','09':'September','10':'October','11':'November','12':'December'};
+  const monthLabel = monthVal ? monthNames[monthVal]+' '+now.getFullYear() : '';
+  const statusFil = document.getElementById('ncrStatusFilter')?.value || '';
+
+  const statusStyle = (r) => {
+    const st = r.atrSubmitted ? 'Submitted' : calcATRStatus(r);
+    if(st==='Submitted') return '#15803d';
+    if(st==='OVERDUE')   return '#b91c1c';
+    if(st==='DUE SOON')  return '#ea580c';
+    return '#d97706';
+  };
+  const statusText = (r) => {
+    if(r.atrSubmitted) return 'Submitted';
+    const st = calcATRStatus(r);
+    return st==='OVERDUE'?'Overdue':st==='DUE SOON'?'Due Soon':'Pending';
+  };
+  const procuringAgency = (r) => {
+    if(r.dzongkhag) return r.dzongkhag + ' Dzongkhag';
+    if(r.ro) return r.ro + ' RO';
+    return '—';
+  };
+
+  const tableRows = recs.map((r,i)=>{
+    const savedRemark = _loadNcrRemarks(r);
+    return `
+    <tr>
+      <td style="text-align:center;">${i+1}</td>
+      <td><strong>${r.projectName||'—'}</strong>${r.contractNo?'<br><span style="font-size:7pt;color:#555;">'+r.contractNo+'</span>':''}</td>
+      <td style="font-size:8pt;">${procuringAgency(r)}</td>
+      <td style="font-size:8pt;">${r.dateInspected||'—'}</td>
+      <td style="font-size:8pt;">${r.defectDesc||'—'}</td>
+      <td style="font-size:8pt;">${r.atrDeadline||'—'}</td>
+      <td style="font-weight:700;color:${statusStyle(r)};">${statusText(r)}</td>
+      <td style="font-size:8pt;color:#333;">${savedRemark||''}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Follow Up Report — CQD OCASC</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:9.5pt;color:#1a1a2e;background:#fff;line-height:1.5;}
+.page{max-width:297mm;margin:0 auto;padding:14mm 15mm 12mm;}
+.gov-hdr{text-align:center;border-bottom:2px solid #e8820c;padding-bottom:10px;margin-bottom:12px;}
+.gov-name{font-size:10pt;font-weight:700;color:#111;letter-spacing:.5px;}
+.org-name{font-size:8.5pt;color:#c46a08;font-weight:600;}
+.sub{font-size:8.5pt;color:#555;}
+.doc-title{font-size:15pt;font-weight:700;color:#c46a08;letter-spacing:1px;margin:8px 0 0;}
+.month-line{font-size:9pt;color:#374151;font-weight:600;margin-top:4px;}
+.info-bar{margin:10px 0 14px;padding:6px 12px;background:#fff8f0;border:1px solid #f59e0b;border-radius:5px;font-size:8.5pt;color:#92400e;font-weight:600;}
+table{width:100%;border-collapse:collapse;margin-top:8px;}
+thead tr{background:#1a2236;color:#fff;}
+th{padding:7px 8px;font-size:8pt;text-align:left;letter-spacing:.04em;}
+td{padding:6px 8px;font-size:8.5pt;border-bottom:1px solid #e2e6ef;vertical-align:top;}
+tr:nth-child(even){background:#f8f9fc;}
+.footer{text-align:center;margin-top:22px;font-size:7.5pt;color:#9ca3af;padding-top:10px;border-top:1px solid #e2e6ef;}
+@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}@page{size:A4 landscape;margin:15mm 12mm;}}
+</style></head><body>
+<div class="page">
+  <div class="gov-hdr">
+    <div class="gov-name">GOVERNMENT OF BHUTAN</div>
+    <div class="org-name">Office of Prime Minister and Cabinet — OCASC</div>
+    <div class="sub">Construction Quality Division (CQD)</div>
+    <div class="doc-title">FOLLOW UP REPORT</div>
+    ${monthLabel ? `<div class="month-line">For the Month of ${monthLabel}</div>` : ''}
+  </div>
+  <div class="info-bar">For the Month of: ${monthLabel||'All Months'} &nbsp;·&nbsp; Total NCRs: ${recs.length}${statusFil?' &nbsp;·&nbsp; Status: '+statusFil:''}</div>
+  <table>
+    <thead><tr>
+      <th style="width:32px;">#</th>
+      <th>NCR / Project Name</th>
+      <th>Procuring Agency<br>(Dzongkhag / RO / Thromde)</th>
+      <th>Date Raised</th>
+      <th>Defect Description</th>
+      <th>ATR Deadline</th>
+      <th>Status</th>
+      <th>Remarks</th>
+    </tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+  <div class="footer">
+    CQIS v2025 · OPMC/OCASC · CQD &nbsp;|&nbsp; This document is computer generated.
+  </div>
+</div>
+<script>window.onload=()=>window.print();<\/script>
+</body></html>`;
+
+  const win = window.open('','_blank');
+  if(!win){ showToast('⚠️ Pop-up blocked. Please allow pop-ups and try again.'); return; }
+  win.document.write(html);
+  win.document.close();
 }
 
 function renderProjectReport(){
@@ -11955,14 +12390,22 @@ function _doPrint(html){
 // ═══════════════════════════════════════════════════════════════
 
 function _printInspectionReport(){
+  // Apply month filter from the summary report dropdown
+  const monthFilter = document.getElementById('reportMonthFilter')?.value || '';
+  const monthNames = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June',
+    '07':'July','08':'August','09':'September','10':'October','11':'November','12':'December'};
   // Only records that have actual data (project name + date at minimum)
-  const recs = (inspections||[]).filter(r=>r.projectName&&r.dateInspected);
-  if(!recs.length){ showToast('⚠️ No inspection records to print.'); return; }
+  let recs = (inspections||[]).filter(r=>r.projectName&&r.dateInspected);
+  if(monthFilter){
+    recs = recs.filter(r=>r.dateInspected.substring(5,7)===monthFilter);
+  }
+  if(!recs.length){ showToast('⚠️ No inspection records to print for the selected period.'); return; }
 
   const now     = new Date();
   const refNo   = `CS/OCASC/CQD/${now.getFullYear()}-${String(now.getFullYear()+1).slice(-2)}/${String(now.getMonth()+1).padStart(2,'0')}`;
   const today   = now.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
   const printed = now.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const periodLabel = monthFilter ? `${monthNames[monthFilter]} ${now.getFullYear()}` : 'All Months';
 
   // Aggregate summary
   const total    = recs.length;
@@ -12143,6 +12586,7 @@ tbody tr:hover td{background:#fef9f0;}
 <div class="doc-title-strip">
   <div class="doc-title">Construction Quality Inspection Report</div>
   <div class="doc-date">SBRW 2025 · Chapter 21 · MOIT Standard · ${today}</div>
+  <div style="margin-top:4px;font-size:8pt;color:#92400e;background:#fff8f0;border:1px solid #f59e0b;border-radius:4px;padding:4px 10px;display:inline-block;font-weight:600;">⏱ As of: ${printed} &nbsp;|&nbsp; Period: ${periodLabel} &nbsp;|&nbsp; Inspections: ${total}</div>
 </div>
 
 <!-- KPI Strip -->
@@ -14006,17 +14450,4 @@ function ispExportCSV(){
         <input class="field-input" type="email" id="mAdminEmail" placeholder="admin@cqis.bt" autocomplete="email">
       </div>
       <div class="field-group" style="margin-bottom:18px;">
-        <label class="field-label">Password</label>
-        <input class="field-input" type="password" id="mAdminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doModalLogin()">
-      </div>
-      <button class="btn-login" onclick="doModalLogin()" style="width:100%;">
-        <i class="fa fa-sign-in-alt" style="margin-right:8px;"></i>SIGN IN
-      </button>
-    </div>
-    <!-- User panel -->
-    <div id="mlpanel-user" style="display:none;">
-      <div class="field-group" style="margin-bottom:14px;">
-        <label class="field-label">Username</label>
-        <input class="field-input" type="text" id="mUserName" placeholder="e.g. THIMDZK" autocomplete="username">
-      </div>
-      <di
+        <label class="field-label">Password</labe
