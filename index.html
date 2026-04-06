@@ -2830,7 +2830,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:#374151;">All Defect Entries — ATR Status</div>
           <select class="filter-select" id="atrFilter" onchange="renderATR()"><option value="">All Statuses</option><option value="OVERDUE">Overdue Only</option><option value="DUE SOON">Due Soon Only</option><option value="Pending">Pending Only</option><option value="Submitted">Submitted Only</option></select>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Review Status</th><th class="atr-rmk-actions-col">Actions</th><th>Remarks</th><th class="atr-rmk-actions-col" style="width:90px;">Rmk Actions</th></tr></thead><tbody id="atrBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Review Status<br><span style="font-size:9px;font-weight:400;color:#fbbf24;">Admin only after submission</span></th><th>Remarks</th><th class="atr-rmk-actions-col" style="width:90px;">Rmk Actions</th></tr></thead><tbody id="atrBody"></tbody></table></div>
         <div class="no-data" id="noATR" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">✅</div>No ATR records found.</div>
       </div>
     </div>
@@ -5836,70 +5836,92 @@ function renderATR(){
   const isAdmin=currentUser&&currentUser.isAdmin;
   const isUser=currentUser&&currentUser.isUser;
   const canEditFields = isAdmin || isUser;
+
   body.innerHTML=rows.map(r=>{
     const idx=inspections.indexOf(r),status=calcATRStatus(r);
-    const dLeft=r.atrDeadline?daysFromNow(r.atrDeadline):'—';
-    let rowStyle='';
-    if(status==='OVERDUE')rowStyle='background:rgba(220,38,38,.04);';
-    else if(status==='DUE SOON')rowStyle='background:rgba(249,115,22,.04);';
-    else if(status==='Submitted')rowStyle='background:rgba(22,163,74,.04);';
 
-    // ATR File cell — show upload + view + download if file exists
+    // Load review decision (Accepted/Rejected/Pending) from localStorage
+    const reviewDecision = _atrLoadField(idx,'reviewDecision') || '';
+
+    // Days Left: freeze (show ✅ Closed) if ATR was Accepted
+    let dLeftHtml = '—';
+    if(r.atrDeadline){
+      if(reviewDecision === 'Accepted'){
+        dLeftHtml = `<span style="color:#15803d;font-weight:700;font-size:11px;">✅ Closed</span>`;
+      } else {
+        const dLeft = daysFromNow(r.atrDeadline);
+        const dColor = typeof dLeft==='number'&&dLeft<0?'#dc2626':dLeft<=7?'#f97316':'#1a2236';
+        dLeftHtml = `<span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${dColor};">${dLeft}</span>`;
+      }
+    }
+
+    let rowStyle='';
+    if(reviewDecision==='Accepted') rowStyle='background:rgba(22,163,74,.06);';
+    else if(reviewDecision==='Rejected') rowStyle='background:rgba(220,38,38,.05);';
+    else if(status==='OVERDUE') rowStyle='background:rgba(220,38,38,.04);';
+    else if(status==='DUE SOON') rowStyle='background:rgba(249,115,22,.04);';
+    else if(status==='Submitted') rowStyle='background:rgba(22,163,74,.04);';
+
+    // ── ATR Files — multi-file support ──
+    const atrFiles = r.atrFiles || (r.atrFile ? [{data:r.atrFile,name:r.atrFileName,size:r.atrFileSize,date:r.atrFileDate}] : []);
     let fileCell = '';
-    if(r.atrFile && r.atrFileName){
-      const isPDF = r.atrFileName.match(/\.pdf$/i);
-      const isImg = r.atrFileName.match(/\.(jpg|jpeg|png)$/i);
-      fileCell = `
-        <div style="display:flex;flex-direction:column;gap:5px;min-width:130px;">
-          <div style="font-size:10px;color:#374151;font-weight:600;word-break:break-all;">📄 ${r.atrFileName.length>20?r.atrFileName.substring(0,18)+'…':r.atrFileName}</div>
-          ${r.atrFileSize?`<div style="font-size:9px;color:#6b7280;">${r.atrFileSize}${r.atrFileDate?' · '+r.atrFileDate:''}</div>`:''}
-          ${isImg?`<img src="${r.atrFile}" alt="ATR" style="max-width:100px;max-height:60px;border-radius:4px;border:1px solid #e2e6ef;cursor:pointer;" onclick="window.open('${r.atrFile}','_blank')" title="Click to view full size">`:''}
-          <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            <a href="${r.atrFile}" target="_blank"
-              style="font-size:10px;font-weight:700;padding:3px 8px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;color:#4338ca;text-decoration:none;font-family:'Rajdhani',sans-serif;letter-spacing:.3px;">
-              🔍 View
-            </a>
-            <a href="${r.atrFile}" download="${r.atrFileName}"
-              style="font-size:10px;font-weight:700;padding:3px 8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;color:#16a34a;text-decoration:none;font-family:'Rajdhani',sans-serif;letter-spacing:.3px;">
-              ⬇ Download
-            </a>
-            ${(isAdmin||isUser)?`<button onclick="deleteATRFile(${idx})"
-              style="font-size:10px;font-weight:700;padding:3px 8px;background:#fff0f0;border:1px solid #fecaca;border-radius:4px;color:#dc2626;cursor:pointer;font-family:'Rajdhani',sans-serif;">
-              ✕ Remove
-            </button>`:''}
+    if(atrFiles.length > 0){
+      const fileList = atrFiles.map((f,fi)=>{
+        const isImg = f.name && f.name.match(/\.(jpg|jpeg|png)$/i);
+        return `<div style="border:1px solid #e2e6ef;border-radius:6px;padding:5px 7px;background:#f8f9fc;margin-bottom:4px;">
+          <div style="font-size:10px;font-weight:600;color:#374151;word-break:break-all;">📄 ${f.name&&f.name.length>20?f.name.substring(0,18)+'…':f.name||'File '+(fi+1)}</div>
+          ${f.size?`<div style="font-size:9px;color:#6b7280;">${f.size}${f.date?' · '+f.date:''}</div>`:''}
+          ${isImg?`<img src="${f.data}" alt="ATR" style="max-width:90px;max-height:50px;border-radius:3px;border:1px solid #e2e6ef;margin:2px 0;cursor:pointer;" onclick="window.open('${f.data}','_blank')">`:''}
+          <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;">
+            <a href="${f.data}" target="_blank" style="font-size:9px;font-weight:700;padding:2px 6px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:3px;color:#4338ca;text-decoration:none;">🔍 View</a>
+            <a href="${f.data}" download="${f.name}" style="font-size:9px;font-weight:700;padding:2px 6px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:3px;color:#16a34a;text-decoration:none;">⬇ DL</a>
+            ${(isAdmin||isUser)?`<button onclick="deleteATRFileAt(${idx},${fi})" style="font-size:9px;font-weight:700;padding:2px 6px;background:#fff0f0;border:1px solid #fecaca;border-radius:3px;color:#dc2626;cursor:pointer;">✕</button>`:''}
           </div>
-          ${(isAdmin||isUser)?`<label style="font-size:10px;color:#e8820c;cursor:pointer;font-weight:600;font-family:'Rajdhani',sans-serif;">
-            🔄 Replace
-            <input type="file" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx" onchange="handleATRFileUpload(event,${idx})">
-          </label>`:''}
         </div>`;
+      }).join('');
+      fileCell = `<div style="min-width:140px;max-width:180px;">
+        ${fileList}
+        ${(isAdmin||isUser)?`<label style="display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:10px;color:#e8820c;cursor:pointer;font-weight:700;font-family:'Rajdhani',sans-serif;padding:3px 8px;background:#fff8f0;border:1px solid #fed7aa;border-radius:4px;">
+          ➕ Add File
+          <input type="file" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx" multiple onchange="handleATRFileUpload(event,${idx})">
+        </label>`:''}
+      </div>`;
     } else if(isAdmin||isUser){
-      fileCell = `
-        <label class="atr-file-btn" title="Upload ATR document">
-          📎 Upload ATR
-          <input type="file" class="atr-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
-            onchange="handleATRFileUpload(event, ${idx})">
-        </label>`;
+      fileCell = `<label class="atr-file-btn" title="Upload ATR document(s)" style="cursor:pointer;">
+        📎 Upload ATR
+        <input type="file" class="atr-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx" multiple onchange="handleATRFileUpload(event,${idx})">
+      </label>`;
     } else {
       fileCell = '<span style="color:#6b7280;font-size:11px;">—</span>';
     }
 
-    // Review Status editable cell
-    const savedReview = _atrLoadField(idx,'review');
-    const reviewCell = canEditFields
-      ? `<div id="atrRevView_${idx}" style="display:${savedReview?'block':'none'};font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap;">${savedReview}</div>
-         <textarea id="atrRevArea_${idx}" rows="2"
-           style="display:${savedReview?'none':'block'};width:120px;font-size:11px;font-family:'Poppins',sans-serif;border:1.5px solid #e8820c;border-radius:5px;padding:4px 6px;color:#1a2236;resize:vertical;outline:none;background:#fffdf8;"
-           placeholder="Review status…">${savedReview}</textarea>`
-      : `<span style="font-size:12px;color:#374151;">${savedReview||'—'}</span>`;
-    const reviewActions = canEditFields
-      ? `<button id="atrRevSaveBtn_${idx}" onclick="atrFieldSave(${idx},'review')"
-           style="display:${savedReview?'none':'block'};width:100%;margin-bottom:3px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,#e8820c,#c46a08);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">💾 Save</button>
-         <button id="atrRevEditBtn_${idx}" onclick="atrFieldEdit(${idx},'review')"
-           style="display:${savedReview?'block':'none'};width:100%;margin-bottom:3px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:#f0f2f7;color:#374151;border:1px solid #cbd2e0;border-radius:5px;padding:5px 0;cursor:pointer;">✏️ Edit</button>
-         <button id="atrRevUpdateBtn_${idx}" onclick="atrFieldSave(${idx},'review')"
-           style="display:none;width:100%;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">✅ Update</button>`
-      : `<span style="font-size:10px;color:#9ca3af;">—</span>`;
+    // ── Review Status — dropdown, admin-only when ATR is submitted ──
+    const isSubmitted = !!r.atrSubmitted;
+    const canReview = isAdmin && isSubmitted; // only admin can set review after submission
+    const rdColor = reviewDecision==='Accepted'?'#15803d':reviewDecision==='Rejected'?'#b91c1c':'#d97706';
+    const rdBg    = reviewDecision==='Accepted'?'#f0fdf4':reviewDecision==='Rejected'?'#fff0f0':'#fffdf8';
+    let reviewCell = '';
+    if(canReview){
+      reviewCell = `<select onchange="atrSetReviewDecision(${idx},this.value)"
+        style="width:120px;font-size:11px;font-weight:700;font-family:'Poppins',sans-serif;
+               border:1.5px solid ${rdColor};border-radius:6px;padding:5px 8px;
+               color:${rdColor};background:${rdBg};outline:none;cursor:pointer;">
+        <option value="" ${reviewDecision===''?'selected':''} style="color:#6b7280;">— Select —</option>
+        <option value="Pending"  ${reviewDecision==='Pending' ?'selected':''} style="color:#d97706;">🟡 Pending</option>
+        <option value="Accepted" ${reviewDecision==='Accepted'?'selected':''} style="color:#15803d;">✅ Accepted</option>
+        <option value="Rejected" ${reviewDecision==='Rejected'?'selected':''} style="color:#b91c1c;">❌ Rejected</option>
+      </select>
+      ${reviewDecision?`<div style="font-size:9px;color:#6b7280;margin-top:3px;">Last updated: ${_atrLoadField(idx,'reviewDate')||'—'}</div>`:''}`;
+    } else if(reviewDecision){
+      const rdLabel = reviewDecision==='Accepted'?'✅ Accepted':reviewDecision==='Rejected'?'❌ Rejected':'🟡 Pending';
+      reviewCell = `<span style="font-size:11px;font-weight:700;color:${rdColor};background:${rdBg};border:1px solid ${rdColor};border-radius:5px;padding:3px 8px;">${rdLabel}</span>
+        ${isSubmitted?'':'<div style="font-size:9px;color:#9ca3af;margin-top:2px;">Awaiting ATR submission</div>'}`;
+    } else {
+      reviewCell = isSubmitted
+        ? `<span style="font-size:10px;color:#9ca3af;">Awaiting admin review</span>`
+        : `<span style="font-size:10px;color:#9ca3af;">Not yet submitted</span>`;
+    }
+    // No separate actions col for review — dropdown saves instantly
 
     // Remarks editable cell
     const savedRmk = _atrLoadField(idx,'remarks');
@@ -5925,12 +5947,11 @@ function renderATR(){
       <td style="max-width:180px;">${r.defectDesc||'—'}</td>
       <td style="max-width:140px;">${r.action||'—'}</td>
       <td>${r.inspector||'—'}</td><td>${r.atrDeadline||'—'}</td>
-      <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${typeof dLeft==='number'&&dLeft<0?'#dc2626':dLeft<=7?'#f97316':'#1a2236'}">${dLeft}</td>
+      <td>${dLeftHtml}</td>
       <td>${badgeHtml(status)}</td>
       <td>${r.atrSubmitted||'—'}</td>
       <td>${fileCell}</td>
       <td style="min-width:130px;padding:5px 7px;">${reviewCell}</td>
-      <td class="atr-rmk-actions-col" style="width:85px;padding:5px 6px;vertical-align:middle;">${reviewActions}</td>
       <td style="min-width:150px;padding:5px 7px;">${remarksCell}</td>
       <td class="atr-rmk-actions-col" style="width:85px;padding:5px 6px;vertical-align:middle;">${remarksActions}</td>
     </tr>`;
@@ -5942,6 +5963,18 @@ function markSubmitted(i){
   save();
   renderATR();
   fbMarkATRSubmitted(inspections[i]).then(()=>toast('✅ ATR marked Submitted in Firebase.'));
+}
+
+// ── ATR Review Decision — dropdown (admin-only, after submission) ──
+function atrSetReviewDecision(idx, decision){
+  if(!currentUser||!currentUser.isAdmin){ showToast('⚠️ Only admins can set the review decision.'); renderATR(); return; }
+  try{
+    localStorage.setItem(_atrFieldKey(idx,'reviewDecision'), decision);
+    localStorage.setItem(_atrFieldKey(idx,'reviewDate'), today());
+  }catch(e){}
+  const label = decision==='Accepted'?'✅ Accepted':decision==='Rejected'?'❌ Rejected':decision==='Pending'?'🟡 Pending':'—';
+  showToast(decision ? `Review set to: ${label}` : '🗑 Review cleared.');
+  renderATR();
 }
 
 // ── ATR Review Status & Remarks — per-row editable fields ──
@@ -5980,89 +6013,88 @@ function atrFieldSave(idx, field){
   showToast(val ? '✅ Saved.' : '🗑 Cleared.');
 }
 
-// ===== ATR FILE UPLOAD =====
+// ===== ATR FILE UPLOAD — multi-file =====
 function handleATRFileUpload(event, idx) {
-  const file = event.target.files[0];
-  if (!file) return;
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
 
-  // Max file size 5MB
-  if (file.size > 5 * 1024 * 1024) {
-    toast('⚠️ File too large. Maximum size is 5MB.');
-    event.target.value = '';
-    return;
-  }
-
-  const allowedTypes = ['application/pdf','application/msword',
+  const allowed = ['application/pdf','application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'image/jpeg','image/png',
     'application/vnd.ms-excel',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 
-  if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|jpg|jpeg|png|xls|xlsx)$/i)) {
-    toast('⚠️ File type not supported. Use PDF, DOC, DOCX, JPG, PNG, XLS, XLSX.');
-    event.target.value = '';
-    return;
+  for(const file of files){
+    if(file.size > 5*1024*1024){ toast(`⚠️ "${file.name}" exceeds 5MB limit — skipped.`); continue; }
+    if(!allowed.includes(file.type)&&!file.name.match(/\.(pdf|doc|docx|jpg|jpeg|png|xls|xlsx)$/i)){
+      toast(`⚠️ "${file.name}" type not supported — skipped.`); continue;
+    }
   }
 
-  dbLoading(true, 'Reading ATR file…');
+  const validFiles = files.filter(f=>f.size<=5*1024*1024&&(allowed.includes(f.type)||f.name.match(/\.(pdf|doc|docx|jpg|jpeg|png|xls|xlsx)$/i)));
+  if(!validFiles.length){ event.target.value=''; return; }
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataURL = e.target.result;
-    inspections[idx].atrFile     = dataURL;
-    inspections[idx].atrFileName = file.name;
-    inspections[idx].atrFileSize = (file.size / 1024).toFixed(1) + ' KB';
-    inspections[idx].atrFileDate = today();
-    save();
+  dbLoading(true,`Reading ${validFiles.length} file(s)…`);
 
-    // Update Firebase
-    if (inspections[idx].id) {
-      db.collection('inspections').doc(inspections[idx].id).update({
-        atrFile:     dataURL,
-        atrFileName: file.name,
-        atrFileSize: inspections[idx].atrFileSize,
-        atrFileDate: today()
-      }).then(() => {
-        dbLoading(false);
-        toast('📎 ATR file uploaded successfully!');
-        renderATR();
-      }).catch(() => {
-        dbLoading(false);
-        toast('📎 ATR file saved locally!');
-        renderATR();
+  // Ensure atrFiles array exists, migrate legacy single-file if needed
+  if(!inspections[idx].atrFiles){
+    inspections[idx].atrFiles = inspections[idx].atrFile
+      ? [{data:inspections[idx].atrFile, name:inspections[idx].atrFileName, size:inspections[idx].atrFileSize, date:inspections[idx].atrFileDate}]
+      : [];
+    delete inspections[idx].atrFile;
+    delete inspections[idx].atrFileName;
+    delete inspections[idx].atrFileSize;
+    delete inspections[idx].atrFileDate;
+  }
+
+  let done = 0;
+  validFiles.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = function(e){
+      inspections[idx].atrFiles.push({
+        data: e.target.result,
+        name: file.name,
+        size: (file.size/1024).toFixed(1)+' KB',
+        date: today()
       });
-    } else {
-      dbLoading(false);
-      toast('📎 ATR file saved!');
-      renderATR();
-    }
-  };
-  reader.onerror = function() {
-    dbLoading(false);
-    toast('⚠️ Failed to read file. Please try again.');
-  };
-  reader.readAsDataURL(file);
+      done++;
+      if(done === validFiles.length){
+        save();
+        // Update Firebase
+        if(inspections[idx].id){
+          db.collection('inspections').doc(inspections[idx].id).update({
+            atrFiles: inspections[idx].atrFiles
+          }).then(()=>{ dbLoading(false); toast(`📎 ${done} ATR file(s) uploaded!`); renderATR(); })
+            .catch(()=>{ dbLoading(false); toast(`📎 ${done} ATR file(s) saved locally.`); renderATR(); });
+        } else {
+          dbLoading(false);
+          toast(`📎 ${done} ATR file(s) saved!`);
+          renderATR();
+        }
+      }
+    };
+    reader.onerror = ()=>{ done++; toast('⚠️ Failed to read a file.'); if(done===validFiles.length){ dbLoading(false); renderATR(); } };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
 }
 
-function deleteATRFile(idx) {
-  if (!confirm('Remove this ATR file?')) return;
-  delete inspections[idx].atrFile;
-  delete inspections[idx].atrFileName;
-  delete inspections[idx].atrFileSize;
-  delete inspections[idx].atrFileDate;
+function deleteATRFileAt(idx, fileIdx){
+  if(!confirm('Remove this ATR file?')) return;
+  if(!inspections[idx].atrFiles) return;
+  inspections[idx].atrFiles.splice(fileIdx,1);
   save();
-
-  // Remove from Firebase too
-  if (inspections[idx].id) {
-    db.collection('inspections').doc(inspections[idx].id).update({
-      atrFile: firebase.firestore.FieldValue.delete(),
-      atrFileName: firebase.firestore.FieldValue.delete(),
-      atrFileSize: firebase.firestore.FieldValue.delete(),
-      atrFileDate: firebase.firestore.FieldValue.delete()
-    }).catch(e => console.warn('Firebase ATR file delete:', e));
+  if(inspections[idx].id){
+    db.collection('inspections').doc(inspections[idx].id).update({ atrFiles: inspections[idx].atrFiles })
+      .catch(e=>console.warn('Firebase ATR file remove:',e));
   }
   toast('🗑️ ATR file removed.');
   renderATR();
+}
+
+function deleteATRFile(idx) {
+  // Legacy single-file delete — kept for compatibility
+  deleteATRFileAt(idx, 0);
 }
 
 // ===== ANALYTICS =====
@@ -6623,10 +6655,23 @@ tr:nth-child(even){background:#f8f9fc;}
 @media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}@page{size:A4 landscape;margin:15mm 12mm;}}
 </style></head><body>
 <div class="page">
-  <div class="gov-hdr">
-    <div class="gov-name">GOVERNMENT OF BHUTAN</div>
-    <div class="org-name">Office of Prime Minister and Cabinet — OCASC</div>
-    <div class="sub">Construction Quality Division (CQD)</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:12px;border-bottom:2.5px solid #1a3a6e;">
+    <div style="width:72px;flex-shrink:0;text-align:center;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Coat_of_arms_of_Bhutan.svg/120px-Coat_of_arms_of_Bhutan.svg.png" alt="Bhutan Emblem" style="width:68px;height:68px;object-fit:contain;" onerror="this.style.display='none';this.nextSibling.style.display='block'">
+      <span style="display:none;font-size:46px;line-height:1;">🇧🇹</span>
+    </div>
+    <div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 12px;">
+      <div style="font-size:8.5pt;color:#1a3a6e;letter-spacing:.3px;margin-bottom:3px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+      <div style="font-size:12pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
+      <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Cabinet Secretariat</div>
+      <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Gyalyong Tshogkhang</div>
+    </div>
+    <div style="width:90px;flex-shrink:0;text-align:right;">
+      <div style="font-size:19pt;font-weight:900;color:#1a3a6e;letter-spacing:2px;line-height:1.1;">BHUTAN</div>
+      <div style="font-size:9pt;color:#1a3a6e;font-style:italic;letter-spacing:1px;">Believe</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-bottom:10px;">
     <div class="doc-title">FOLLOW UP REPORT</div>
     ${monthLabel ? `<div class="month-line">For the Month of ${monthLabel}</div>` : ''}
   </div>
@@ -11754,17 +11799,20 @@ body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:9.5pt;color:#1a1a
 <body><div class="page">
 
 <!-- ══ LETTERHEAD ══ -->
-<div class="lh">
-  <div class="lh-flag">🇧🇹</div>
-  <div class="lh-center">
-    <div class="lh-dzongkha">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
-    <div class="lh-gov">ROYAL GOVERNMENT OF BHUTAN</div>
-    <div class="lh-cab">Office of the Prime Minister and Cabinet — OPMC / OCASC</div>
-    <div class="lh-dept">Construction Quality Division (CQD) · Gyalyong Tshogkhang, Thimphu</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:12px;border-bottom:2.5px solid #1a3a6e;">
+  <div style="width:72px;flex-shrink:0;text-align:center;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Coat_of_arms_of_Bhutan.svg/120px-Coat_of_arms_of_Bhutan.svg.png" alt="Bhutan Emblem" style="width:68px;height:68px;object-fit:contain;" onerror="this.style.display='none';this.nextSibling.style.display='block'">
+    <span style="display:none;font-size:46px;line-height:1;">🇧🇹</span>
   </div>
-  <div class="lh-right">
-    <div class="lh-bhutan">BHUTAN</div>
-    <div class="lh-believe">Believe</div>
+  <div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 12px;">
+    <div style="font-size:8.5pt;color:#1a3a6e;letter-spacing:.3px;margin-bottom:3px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+    <div style="font-size:12pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
+    <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Cabinet Secretariat</div>
+    <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Gyalyong Tshogkhang</div>
+  </div>
+  <div style="width:90px;flex-shrink:0;text-align:right;">
+    <div style="font-size:19pt;font-weight:900;color:#1a3a6e;letter-spacing:2px;line-height:1.1;">BHUTAN</div>
+    <div style="font-size:9pt;color:#1a3a6e;font-style:italic;letter-spacing:1px;">Believe</div>
   </div>
 </div>
 <div class="doc-strip">
@@ -12312,10 +12360,27 @@ body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:9.5pt;color:#1a1a
 </head>
 <body><div class="page">
 
+<!-- Letterhead -->
+<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:12px;border-bottom:2.5px solid #1a3a6e;">
+  <div style="width:72px;flex-shrink:0;text-align:center;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Coat_of_arms_of_Bhutan.svg/120px-Coat_of_arms_of_Bhutan.svg.png" alt="Bhutan Emblem" style="width:68px;height:68px;object-fit:contain;" onerror="this.style.display='none';this.nextSibling.style.display='block'">
+    <span style="display:none;font-size:46px;line-height:1;">🇧🇹</span>
+  </div>
+  <div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 12px;">
+    <div style="font-size:8.5pt;color:#1a3a6e;letter-spacing:.3px;margin-bottom:3px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+    <div style="font-size:12pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
+    <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Cabinet Secretariat</div>
+    <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Gyalyong Tshogkhang</div>
+  </div>
+  <div style="width:90px;flex-shrink:0;text-align:right;">
+    <div style="font-size:19pt;font-weight:900;color:#1a3a6e;letter-spacing:2px;line-height:1.1;">BHUTAN</div>
+    <div style="font-size:9pt;color:#1a3a6e;font-style:italic;letter-spacing:1px;">Believe</div>
+  </div>
+</div>
+
 <!-- Title Strip -->
 <div class="tstrip">
   <div class="ts-l">
-    <div class="ts-org">Royal Government of Bhutan &nbsp;·&nbsp; OPMC / OCASC &nbsp;·&nbsp; Construction Quality Division</div>
     <div class="ts-title">Quality Test Record — SBRW 2025</div>
     <div class="ts-sub">${snap.secTitle} &nbsp;·&nbsp; Chapter 21 · MOIT Standard</div>
   </div>
@@ -12568,17 +12633,20 @@ tbody tr:hover td{background:#fef9f0;}
 <body><div class="page">
 
 <!-- Letterhead -->
-<div class="lh">
-  <div class="lh-flag">🇧🇹</div>
-  <div class="lh-center">
-    <div class="lh-dzong">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
-    <div class="lh-gov">ROYAL GOVERNMENT OF BHUTAN</div>
-    <div class="lh-dept">Office of the Prime Minister & Cabinet — OPMC / OCASC</div>
-    <div class="lh-addr">Construction Quality Division (CQD) · Gyalyong Tshogkhang, Thimphu · P.O. Box 1011</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:12px;border-bottom:2.5px solid #1a3a6e;">
+  <div style="width:72px;flex-shrink:0;text-align:center;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Coat_of_arms_of_Bhutan.svg/120px-Coat_of_arms_of_Bhutan.svg.png" alt="Bhutan Emblem" style="width:68px;height:68px;object-fit:contain;" onerror="this.style.display='none';this.nextSibling.style.display='block'">
+    <span style="display:none;font-size:46px;line-height:1;">🇧🇹</span>
   </div>
-  <div class="lh-right">
-    <div class="lh-stamp">CQD REPORT</div>
-    <div class="lh-ref">${refNo}<br>Printed: ${printed}</div>
+  <div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 12px;">
+    <div style="font-size:8.5pt;color:#1a3a6e;letter-spacing:.3px;margin-bottom:3px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+    <div style="font-size:12pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
+    <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Cabinet Secretariat</div>
+    <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Gyalyong Tshogkhang</div>
+  </div>
+  <div style="width:90px;flex-shrink:0;text-align:right;">
+    <div style="font-size:19pt;font-weight:900;color:#1a3a6e;letter-spacing:2px;line-height:1.1;">BHUTAN</div>
+    <div style="font-size:9pt;color:#1a3a6e;font-style:italic;letter-spacing:1px;">Believe</div>
   </div>
 </div>
 
@@ -12725,17 +12793,20 @@ tbody tr:nth-child(even) td{background:#f5f8ff;}
 .ft{border-top:2px solid #1a3a6e;margin-top:14px;padding-top:5px;display:flex;justify-content:space-between;font-size:7pt;color:#555;}
 @media print{@page{size:A4 landscape;margin:8mm 10mm;}body{font-size:8.5pt;}.page{padding:0;max-width:100%;}}
 </style></head><body><div class="page">
-<div class="lh">
-  <div class="lh-flag">🇧🇹</div>
-  <div class="lh-center">
-    <div style="font-size:8pt;color:#555;margin-bottom:2px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
-    <div class="lh-gov">ROYAL GOVERNMENT OF BHUTAN</div>
-    <div class="lh-dept">OPMC / OCASC — Construction Quality Division</div>
-    <div class="lh-addr">Gyalyong Tshogkhang, Thimphu · P.O. Box 1011</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:12px;border-bottom:2.5px solid #1a3a6e;">
+  <div style="width:72px;flex-shrink:0;text-align:center;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Coat_of_arms_of_Bhutan.svg/120px-Coat_of_arms_of_Bhutan.svg.png" alt="Bhutan Emblem" style="width:68px;height:68px;object-fit:contain;" onerror="this.style.display='none';this.nextSibling.style.display='block'">
+    <span style="display:none;font-size:46px;line-height:1;">🇧🇹</span>
   </div>
-  <div class="lh-right">
-    <div class="lh-stamp">CQD REPORT</div>
-    <div class="lh-ref">${refNo}<br>Printed: ${printed}</div>
+  <div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 12px;">
+    <div style="font-size:8.5pt;color:#1a3a6e;letter-spacing:.3px;margin-bottom:3px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+    <div style="font-size:12pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
+    <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Cabinet Secretariat</div>
+    <div style="font-size:9.5pt;font-weight:700;color:#1a3a6e;">Gyalyong Tshogkhang</div>
+  </div>
+  <div style="width:90px;flex-shrink:0;text-align:right;">
+    <div style="font-size:19pt;font-weight:900;color:#1a3a6e;letter-spacing:2px;line-height:1.1;">BHUTAN</div>
+    <div style="font-size:9pt;color:#1a3a6e;font-style:italic;letter-spacing:1px;">Believe</div>
   </div>
 </div>
 <div class="title-strip">
