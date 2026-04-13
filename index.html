@@ -2095,6 +2095,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <select class="filter-select" id="fMonth" onchange="refreshDash()"><option value="">All Months</option><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
         <select class="filter-select" id="fDzong" onchange="refreshDash()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
         <select class="filter-select" id="fRO" onchange="refreshDash()"><option value="">All ROs</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+        <select class="filter-select" id="fOther" onchange="refreshDash()"><option value="">All Others</option></select>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card blue"><div class="kpi-icon">🛣️</div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="kpi1">0</div></div>
@@ -2107,6 +2108,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <div class="breakdown-grid">
         <div class="breakdown-card"><div class="breakdown-title">📍 By Dzongkhag</div><table class="breakdown-table"><thead><tr><th>Dzongkhag</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="dzongBody"></tbody></table></div>
         <div class="breakdown-card"><div class="breakdown-title">🏢 By RO / Thromde</div><table class="breakdown-table"><thead><tr><th>RO / Thromde</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="roBody"></tbody></table></div>
+        <div class="breakdown-card"><div class="breakdown-title">📌 By Other</div><table class="breakdown-table"><thead><tr><th>Other Agency</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="otherBody"></tbody></table></div>
         <div class="breakdown-card"><div class="breakdown-title">📅 By Month</div><table class="breakdown-table"><thead><tr><th>Month</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="monthBody"></tbody></table></div>
       </div>
 
@@ -2183,11 +2185,13 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <input class="table-search" id="tableSearch" placeholder="🔍 Search by project, contractor, location…" oninput="renderTable()">
           <div style="display:flex;gap:8px;align-items:center;">
             <select class="filter-select" id="tblDzong" onchange="renderTable()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
+            <select class="filter-select" id="tblRO" onchange="renderTable()"><option value="">All RO / Thromde</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+            <select class="filter-select" id="tblOther" onchange="renderTable()"><option value="">All Others</option></select>
             <select class="filter-select" id="tblDefect" onchange="renderTable()"><option value="">All Records</option><option value="Yes">Defects Only</option><option value="No">No Defects</option></select>
             <span id="tableCount" style="font-size:12px;color:#6b7280;">0 records</span>
           </div>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
         <div class="no-data" id="noData" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">🛣️</div>No inspection records found. Add a new entry to get started.</div>
       </div>
     </div>
@@ -2241,6 +2245,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <input type="radio" name="locType" value="rothromde" onchange="toggleLocType(this.value)" style="accent-color:#e8820c;">
             RO / Thromde
           </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#374151;">
+            <input type="radio" name="locType" value="other" onchange="toggleLocType(this.value)" style="accent-color:#e8820c;">
+            Other
+          </label>
         </div>
         <div class="form-grid">
           <div class="field-wrap"><label>Project Name <span style="color:#dc2626;">*</span></label><input type="text" id="fProjectName" placeholder="e.g. Thimphu–Paro Highway Upgrade" oninput="triggerQCCheck()"></div>
@@ -2254,6 +2262,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div class="field-wrap" id="roThromdeField" style="display:none;">
             <label>Regional Office / Thromde <span style="color:#dc2626;">*</span></label>
             <select id="fROForm"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+          </div>
+          <div class="field-wrap" id="otherLocField" style="display:none;">
+            <label>Other Agency / Location <span style="color:#dc2626;">*</span></label>
+            <input type="text" id="fOtherLoc" placeholder="e.g. NPPF, DoE, MoWHS, Ministry…">
           </div>
         </div>
       </div>
@@ -2625,13 +2637,21 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <input class="table-search" id="ispSearch" placeholder="🔍 Search project, contractor, inspector…" oninput="ispRender()" style="width:260px;">
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <select class="filter-select" id="ispFilterDz" onchange="ispRender()">
-              <option value="">All Dzongkhags</option>
+              <option value="">All Areas</option>
               <option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option>
               <option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option>
               <option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option>
               <option>Samtse</option><option>Sarpang</option><option>Thimphu</option>
               <option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option>
               <option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option>
+              <optgroup label="RO / Thromde">
+                <option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option>
+                <option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option>
+                <option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option>
+                <option>Thimphu Thromde</option><option>Phuentshogling Thromde</option>
+                <option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option>
+              </optgroup>
+              <optgroup label="Other"><option value="Other">Other Agency</option></optgroup>
             </select>
             <select class="filter-select" id="ispFilterStatus" onchange="ispRender()">
               <option value="">All Statuses</option>
@@ -2713,7 +2733,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <div class="field-wrap"><label>Project Name <span style="color:#dc2626;">*</span></label><input type="text" id="ispFProject" placeholder="e.g. Tsirang–Damphu Road"></div>
             <div class="field-wrap"><label>Contract No.</label><input type="text" id="ispFContract" placeholder="e.g. DoI/2025/RW-01"></div>
             <div class="field-wrap">
-              <label>Dzongkhag <span style="color:#dc2626;">*</span></label>
+              <label>Dzongkhag / Agency <span style="color:#dc2626;">*</span></label>
               <select id="ispFDz">
                 <option value="">— Select —</option>
                 <option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option>
@@ -2722,6 +2742,16 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
                 <option>Samtse</option><option>Sarpang</option><option>Thimphu</option>
                 <option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option>
                 <option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option>
+                <optgroup label="RO / Thromde">
+                  <option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option>
+                  <option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option>
+                  <option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option>
+                  <option>Thimphu Thromde</option><option>Phuentshogling Thromde</option>
+                  <option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="Other">Other Agency</option>
+                </optgroup>
               </select>
             </div>
             <div class="field-wrap"><label>Road / Chainage</label><input type="text" id="ispFRoad" placeholder="e.g. Ch. 0+000 to 5+200"></div>
@@ -2830,7 +2860,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:#374151;">All Defect Entries — ATR Status</div>
           <select class="filter-select" id="atrFilter" onchange="renderATR()"><option value="">All Statuses</option><option value="OVERDUE">Overdue Only</option><option value="DUE SOON">Due Soon Only</option><option value="Pending">Pending Only</option><option value="Submitted">Submitted Only</option></select>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Review Status<br><span style="font-size:9px;font-weight:400;color:#fbbf24;">Admin only after submission</span></th><th>Remarks</th><th class="atr-rmk-actions-col" style="width:90px;">Rmk Actions</th></tr></thead><tbody id="atrBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Other</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Review Status<br><span style="font-size:9px;font-weight:400;color:#fbbf24;">Admin only after submission</span></th><th>Remarks</th><th class="atr-rmk-actions-col" style="width:90px;">Rmk Actions</th></tr></thead><tbody id="atrBody"></tbody></table></div>
         <div class="no-data" id="noATR" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">✅</div>No ATR records found.</div>
       </div>
     </div>
@@ -2878,6 +2908,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <option>Thimphu Thromde</option><option>Phuentshogling Thromde</option>
           <option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option>
         </select>
+        <select class="filter-select" id="aOther" onchange="renderCharts()"><option value="">All Others</option></select>
         <button class="btn-secondary" style="padding:7px 14px;font-size:12px;" onclick="clearAnalyticsFilters()">✕ Clear</button>
         <span id="aFilterLabel" style="font-size:11px;color:#f97316;margin-left:4px;font-style:italic;"></span>
       </div>
@@ -2916,6 +2947,11 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <div class="analytics-grid">
         <div class="chart-card"><div class="chart-title">📍 Inspections by Dzongkhag</div><canvas id="chartDzong" height="260"></canvas></div>
         <div class="chart-card"><div class="chart-title">🏢 Inspections by RO / Thromde</div><canvas id="chartRO" height="260"></canvas></div>
+      </div>
+
+      <!-- CHARTS ROW 3 -->
+      <div class="analytics-grid" style="grid-template-columns:1fr;">
+        <div class="chart-card"><div class="chart-title">🏛️ Inspections by Other Agency</div><canvas id="chartOther" height="160"></canvas></div>
       </div>
 
       <!-- MONTHLY SUMMARY TABLE -->
@@ -3201,7 +3237,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <div class="inst-card"><div class="inst-card-title">🔬 SBRW QC Tool</div><div class="inst-card-body">Full SBRW 2025 Chapter 21 test tool with all 209 Road Works items. Enter measured values and get instant Pass/Fail against standard thresholds. Generate full QC reports.</div></div>
         <div class="inst-card"><div class="inst-card-title">⚠️ ATR Tracker</div><div class="inst-card-body">All defect entries are auto-shown here. 🔴 OVERDUE | 🟠 DUE SOON (≤7 days) | 🟡 Pending | 🟢 Submitted. Use <strong>Review Status</strong> to log review notes and <strong>Remarks</strong> to add follow-up comments per record. Upload the ATR file and use View/Download links to access it.</div></div>
         <div class="inst-card"><div class="inst-card-title">📈 Analytics</div><div class="inst-card-body">4 charts: Monthly trend, Pass vs Fail doughnut, Dzongkhag bar, RO comparison. Auto-update with each new entry.</div></div>
-        <div class="inst-card"><div class="inst-card-title">🔐 Login &amp; Roles</div><div class="inst-card-body"><strong>Admin</strong> — full access. <strong>User (Dzongkhag/RO/Thromde)</strong> — add project updates, print reports, location locked. <strong>Viewer</strong> — read-only access via Google.</div></div>
+        <div class="inst-card"><div class="inst-card-title">🔐 Login &amp; Roles</div><div class="inst-card-body"><strong>Admin</strong> — full access. <strong>User (Dzongkhag/RO/Thromde/Other)</strong> — add project updates, print reports, location locked. <strong>Viewer</strong> — read-only access via Google.</div></div>
       </div>
 
       <!-- COMPLIANCE RATING GUIDE -->
@@ -3382,7 +3418,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
     <!-- ═══ AREA COMPLIANCE TAB ═══ -->
     <div id="tab-compliance-area" style="display:none">
       <div class="section-header">
-        <div><div class="section-title">AREA COMPLIANCE</div><div class="section-badge">Dzongkhag · RO · Thromde — Conditions 1 to 5</div></div>
+        <div><div class="section-title">AREA COMPLIANCE</div><div class="section-badge">Dzongkhag · RO · Thromde · Other — Conditions 1 to 5</div></div>
         <button class="btn-print" onclick="_printCompliancePage(this.closest('[id^=tab-]')?.id)">🖨️ Print Report</button>
       </div>
 
@@ -3392,6 +3428,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <select class="filter-select" id="acType" onchange="renderAreaCompliance()">
           <option value="dzongkhag">Dzongkhag</option>
           <option value="ro">RO / Thromde</option>
+          <option value="other">Other</option>
         </select>
         <select class="filter-select" id="acArea" onchange="renderAreaCompliance()">
           <option value="">All Areas</option>
@@ -3466,6 +3503,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option>
             <option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option>
           </select>
+          <select id="mapFilterOther" onchange="renderBhutanMap()" style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:6px;padding:7px 12px;color:#1a2236;font-size:12px;cursor:pointer;outline:none;"><option value="">All Others</option></select>
           <select id="mapFilterDefect" onchange="renderBhutanMap()" style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:6px;padding:7px 12px;color:#1a2236;font-size:12px;cursor:pointer;outline:none;">
             <option value="">All Inspections</option>
             <option value="Yes">Defects Only</option>
@@ -3853,6 +3891,12 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
                 <optgroup label="Thromde">
                   <option value="Thimphu Thromde|thromde">Thimphu Thromde</option><option value="Phuentshogling Thromde|thromde">Phuentshogling Thromde</option><option value="Gelephu Thromde|thromde">Gelephu Thromde</option><option value="Samdrup Jongkhar Thromde|thromde">Samdrup Jongkhar Thromde</option>
                 </optgroup>
+                <optgroup label="Other">
+                  <option value="NPPF|other">NPPF</option>
+                  <option value="DoE|other">DoE</option>
+                  <option value="MoWHS|other">MoWHS</option>
+                  <option value="Other Agency|other">Other Agency (specify in project name)</option>
+                </optgroup>
               </select>
             </div>
             <div class="field-wrap" style="grid-column:1/-1;"><label>Project Name <span style="color:#dc2626">*</span></label><input type="text" id="prProjectName" placeholder="e.g. Tsirang–Damphu Road Upgrade"></div>
@@ -3948,7 +3992,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <div style="display:none;">
               <div id="puDzongField"><select id="puDzongkhag"><option value="">—</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select></div>
               <div id="puROField"><select id="puRO"><option value="">—</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option></select></div>
-              <input type="radio" name="puLocType" value="dzongkhag" checked><input type="radio" name="puLocType" value="rothromde">
+              <input type="radio" name="puLocType" value="dzongkhag" checked><input type="radio" name="puLocType" value="rothromde"><input type="radio" name="puLocType" value="other">
             </div>
 
             <!-- This month's progress -->
@@ -5131,14 +5175,24 @@ function renderBhutanMap(){
 
   const filterDz     = document.getElementById('mapFilterDz')?.value     || '';
   const filterDefect = document.getElementById('mapFilterDefect')?.value  || '';
+  const filterOther  = document.getElementById('mapFilterOther')?.value   || '';
 
-  let data = (inspections||[]).filter(r=>r.dzongkhag||r.ro);
+  // Populate mapFilterOther dynamically
+  const mapOtherSel = document.getElementById('mapFilterOther');
+  if(mapOtherSel){
+    const allOthers = [...new Set((inspections||[]).map(r=>r.other).filter(Boolean))].sort();
+    const cur = mapOtherSel.value;
+    mapOtherSel.innerHTML = '<option value="">All Others</option>' + allOthers.map(o=>`<option value="${o}"${o===cur?' selected':''}>${o}</option>`).join('');
+  }
+
+  let data = (inspections||[]).filter(r=>r.dzongkhag||r.ro||r.other);
   if(filterDefect) data = data.filter(r=>r.defect===filterDefect);
+  if(filterOther)  data = data.filter(r=>r.other===filterOther);
 
   const buckets = {};
   Object.keys(DZ_COORDS).forEach(dz=>buckets[dz]=[]);
   data.forEach(r=>{
-    const key = r.dzongkhag||r.ro||'';
+    const key = r.dzongkhag||r.ro||r.other||'';
     const match = Object.keys(DZ_COORDS).find(k=>k===key||key.includes(k)||k.includes(key));
     if(match) buckets[match].push(r);
   });
@@ -5495,6 +5549,28 @@ function refreshDash(){
     roHtml+=`<tr><td>${ro}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
   });
   document.getElementById('roBody').innerHTML=roHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:#6b7280;">No data</td></tr>';
+  // Other (non-dzongkhag, non-RO/Thromde)
+  const otherEntries=fd.filter(r=>r.other);
+  const otherNames=[...new Set(otherEntries.map(r=>r.other).filter(Boolean))].sort();
+  // Populate fOther dropdown dynamically
+  const fOtherSel=document.getElementById('fOther');
+  if(fOtherSel){
+    const curOther=fOtherSel.value;
+    fOtherSel.innerHTML='<option value="">All Others</option>'+otherNames.map(o=>`<option value="${o}"${o===curOther?' selected':''}>${o}</option>`).join('');
+  }
+  // Also populate aOther (analytics tab) dropdown
+  const aOtherSel=document.getElementById('aOther');
+  if(aOtherSel){
+    const curAO=aOtherSel.value;
+    aOtherSel.innerHTML='<option value="">All Others</option>'+otherNames.map(o=>`<option value="${o}"${o===curAO?' selected':''}>${o}</option>`).join('');
+  }
+  let otherHtml='';
+  otherNames.forEach(oth=>{
+    const rows=fd.filter(r=>r.other===oth);if(!rows.length)return;
+    const def=rows.filter(r=>r.defect==='Yes').length;
+    otherHtml+=`<tr><td>${oth}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
+  });
+  document.getElementById('otherBody').innerHTML=otherHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:#6b7280;">No data</td></tr>';
   const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
   let moHtml='';
   months.forEach(mo=>{
@@ -5615,11 +5691,13 @@ function dashDrawChart(){ dashDrawAllCharts(); }
 function getFiltered(){
   const yr=document.getElementById('fYear').value,mo=document.getElementById('fMonth').value;
   const dz=document.getElementById('fDzong').value,ro=document.getElementById('fRO').value;
+  const oth=(document.getElementById('fOther')||{}).value||'';
   return inspections.filter(r=>{
     if(yr&&getYear(r.dateInspected)!==yr)return false;
     if(mo&&r.month!==mo)return false;
     if(dz&&r.dzongkhag!==dz)return false;
     if(ro&&r.ro!==ro)return false;
+    if(oth&&r.other!==oth)return false;
     return true;
   });
 }
@@ -5628,9 +5706,20 @@ function getFiltered(){
 function renderTable(){
   const search=document.getElementById('tableSearch').value.toLowerCase();
   const dzF=document.getElementById('tblDzong').value;
+  const roF=(document.getElementById('tblRO')||{}).value||'';
+  const othF=(document.getElementById('tblOther')||{}).value||'';
   const defF=document.getElementById('tblDefect').value;
+  // Populate tblOther dynamically
+  const tblOtherSel=document.getElementById('tblOther');
+  if(tblOtherSel){
+    const allOthers=[...new Set(inspections.map(r=>r.other).filter(Boolean))].sort();
+    const cur=tblOtherSel.value;
+    tblOtherSel.innerHTML='<option value="">All Others</option>'+allOthers.map(o=>`<option value="${o}"${o===cur?' selected':''}>${o}</option>`).join('');
+  }
   let rows=inspections.filter(r=>{
     if(dzF&&r.dzongkhag!==dzF)return false;
+    if(roF&&r.ro!==roF)return false;
+    if(othF&&r.other!==othF)return false;
     if(defF&&r.defect!==defF)return false;
     if(search&&!JSON.stringify(r).toLowerCase().includes(search))return false;
     return true;
@@ -5648,8 +5737,8 @@ function renderTable(){
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.contractNo||'—'}</td>
       <td>${r.roadSection||'—'}</td><td>${r.contractor||'—'}</td>
       <td>${r.dzongkhag||'—'}</td><td>${r.ro||'—'}</td>
+      <td>${r.other||'—'}</td>
       <td>${r.workType||'—'}</td><td>${r.workItem||'—'}</td>
-      <td>${r.dateInspected||'—'}</td>
       <td>${badgeHtml(r.defect)}</td>
       <td style="max-width:150px;">${r.defectDesc||'—'}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.moitRef||'—'}</td>
@@ -5659,7 +5748,12 @@ function renderTable(){
       <td>${r.test||'—'}</td><td>${r.reqVal||'—'}</td><td>${r.result||'—'}</td>
       <td>${badgeHtml(r.passFailResult)}</td>
       <td>${r.month||'—'}</td><td>${r.year||'—'}</td>
-      <td>${isAdmin?`<button class="action-btn del" onclick="deleteEntry(${inspections.indexOf(r)})" style="color:#b91c1c;border-color:#fca5a5;font-weight:700;font-size:10px;">🗑 Delete</button>`:'<span style="color:#6b7280;font-size:10px;">—</span>'}</td>
+      <td>${isAdmin
+        ? `<div style="display:flex;gap:5px;flex-wrap:wrap;">
+            <button class="action-btn" onclick="editEntry(${inspections.indexOf(r)})" style="color:#1d4ed8;border-color:#bfdbfe;background:rgba(219,234,254,.5);font-weight:700;font-size:10px;padding:4px 8px;">✏️ Edit</button>
+            <button class="action-btn del" onclick="deleteEntry(${inspections.indexOf(r)})" style="color:#b91c1c;border-color:#fca5a5;font-weight:700;font-size:10px;padding:4px 8px;">🗑 Delete</button>
+           </div>`
+        : '<span style="color:#6b7280;font-size:10px;">—</span>'}</td>
     </tr>`;
   }).join('');
 }
@@ -5680,6 +5774,86 @@ function deleteEntry(i){
   }).catch(()=>dbLoading(false));
 }
 
+// ===== EDIT INSPECTION MODAL =====
+function editEntry(i){
+  if(!currentUser||!currentUser.isAdmin){showToast('⚠️ Only administrators can edit records.');return;}
+  const r=inspections[i];
+  if(!r) return;
+  // Populate modal fields
+  document.getElementById('eiIdx').value=i;
+  document.getElementById('eiProjectName').value=r.projectName||'';
+  document.getElementById('eiContractNo').value=r.contractNo||'';
+  document.getElementById('eiRoadSection').value=r.roadSection||'';
+  document.getElementById('eiContractor').value=r.contractor||'';
+  document.getElementById('eiDzongkhag').value=r.dzongkhag||'';
+  document.getElementById('eiRO').value=r.ro||'';
+  document.getElementById('eiOther').value=r.other||'';
+  document.getElementById('eiWorkType').value=r.workType||'';
+  document.getElementById('eiWorkItem').value=r.workItem||'';
+  document.getElementById('eiDateInspected').value=r.dateInspected||'';
+  document.getElementById('eiInspector').value=r.inspector||'';
+  document.getElementById('eiDefect').value=r.defect||'';
+  document.getElementById('eiDefectDesc').value=r.defectDesc||'';
+  document.getElementById('eiMoitRef').value=r.moitRef||'';
+  document.getElementById('eiAction').value=r.action||'';
+  document.getElementById('eiAtrDeadline').value=r.atrDeadline||'';
+  document.getElementById('eiAtrSubmitted').value=r.atrSubmitted||'';
+  document.getElementById('eiTest').value=r.test||'';
+  document.getElementById('eiReqVal').value=r.reqVal||'';
+  document.getElementById('eiResult').value=r.result||'';
+  document.getElementById('eiPassFail').value=r.passFailResult||'';
+  document.getElementById('eiRemarks').value=r.remarks||'';
+  document.getElementById('editInspectionModal').style.display='flex';
+}
+
+function closeEditModal(){
+  document.getElementById('editInspectionModal').style.display='none';
+}
+
+function saveEditEntry(){
+  const i=parseInt(document.getElementById('eiIdx').value);
+  if(isNaN(i)||!inspections[i]){closeEditModal();return;}
+  const r=inspections[i];
+  const dt=document.getElementById('eiDateInspected').value;
+  // Preserve original sn and firebase key fields
+  inspections[i]={
+    ...r,
+    projectName:document.getElementById('eiProjectName').value.trim(),
+    contractNo:document.getElementById('eiContractNo').value.trim(),
+    roadSection:document.getElementById('eiRoadSection').value.trim(),
+    contractor:document.getElementById('eiContractor').value.trim(),
+    dzongkhag:document.getElementById('eiDzongkhag').value,
+    ro:document.getElementById('eiRO').value,
+    other:document.getElementById('eiOther').value.trim(),
+    workType:document.getElementById('eiWorkType').value.trim(),
+    workItem:document.getElementById('eiWorkItem').value.trim(),
+    dateInspected:dt,
+    inspector:document.getElementById('eiInspector').value.trim(),
+    defect:document.getElementById('eiDefect').value,
+    defectDesc:document.getElementById('eiDefectDesc').value.trim(),
+    moitRef:document.getElementById('eiMoitRef').value.trim(),
+    action:document.getElementById('eiAction').value.trim(),
+    atrDeadline:document.getElementById('eiAtrDeadline').value,
+    atrSubmitted:document.getElementById('eiAtrSubmitted').value,
+    test:document.getElementById('eiTest').value.trim(),
+    reqVal:document.getElementById('eiReqVal').value.trim(),
+    result:document.getElementById('eiResult').value.trim(),
+    passFailResult:document.getElementById('eiPassFail').value,
+    remarks:document.getElementById('eiRemarks').value.trim(),
+    month:dt?getMonth(dt):(r.month||''),
+    year:dt?getYear(dt):(r.year||''),
+  };
+  save();
+  closeEditModal();
+  renderTable();
+  refreshDash();
+  dbLoading(true,'Updating Firebase…');
+  fbSaveInspection(inspections[i]).then(()=>{
+    dbLoading(false);
+    toast('✅ Inspection updated successfully!');
+  }).catch(()=>dbLoading(false));
+}
+
 // ===== FORM =====
 function toggleDefect(){
   const val=document.getElementById('fDefect').value,show=val==='Yes';
@@ -5697,15 +5871,16 @@ function saveEntry(){
   const insp=document.getElementById('fInspector').value.trim();
   const def=document.getElementById('fDefect').value;
 
-  // Determine active location type — only require ONE of dz or ro
+  // Determine active location type — only require ONE of dz, ro, or other
   const locType=document.querySelector('input[name="locType"]:checked')?.value||'dzongkhag';
   const dz=locType==='dzongkhag'?document.getElementById('fDzongkhag').value:'';
   const ro=locType==='rothromde'?document.getElementById('fROForm').value:'';
-  const loc=dz||ro;
+  const other=locType==='other'?(document.getElementById('fOtherLoc')?.value.trim()||''):'';
+  const loc=dz||ro||other;
 
   // Validate with specific messages — no mandatory asterisks
   if(!proj){alert('Please enter the Project Name.');return;}
-  if(!loc){alert('Please select a '+(locType==='dzongkhag'?'Dzongkhag':'RO / Thromde')+'.');return;}
+  if(!loc){alert('Please select a '+(locType==='dzongkhag'?'Dzongkhag':locType==='rothromde'?'RO / Thromde':'Other Agency / Location')+'.');return;}
   if(!dt){alert('Please select the Date Inspected.');return;}
   if(!insp){alert('Please enter the Inspector Name.');return;}
   if(!def){alert('Please select whether a Defect was Found.');return;}
@@ -5729,7 +5904,7 @@ function saveEntry(){
     sn:inspections.length+1,projectName:proj,
     contractNo:document.getElementById('fContractNo').value.trim(),
     roadSection:document.getElementById('fRoadSection').value.trim(),
-    contractor:cont,dzongkhag:dz,ro,
+    contractor:cont,dzongkhag:dz,ro,other,
     workType:getSelectedWorkTypes().join(', '),
     workItem:document.getElementById('fWorkItem').value.trim(),
     dateInspected:dt,defect:def,
@@ -5754,8 +5929,8 @@ function saveEntry(){
   notifAdd(
     'inspection',
     `New Inspection: ${entry.projectName}`,
-    `${entry.dzongkhag||entry.ro||''}${entry.roadSection?' · '+entry.roadSection:''} — ${entry.workType||'General'} — ${entry.defect==='Yes'?'⚠️ Defect found':'✅ No defect'}`,
-    { projectName: entry.projectName, workType: entry.workType, dzongkhag: entry.dzongkhag||entry.ro, defect: entry.defect }
+    `${entry.dzongkhag||entry.ro||entry.other||''}${entry.roadSection?' · '+entry.roadSection:''} — ${entry.workType||'General'} — ${entry.defect==='Yes'?'⚠️ Defect found':'✅ No defect'}`,
+    { projectName: entry.projectName, workType: entry.workType, dzongkhag: entry.dzongkhag||entry.ro||entry.other, defect: entry.defect }
   );
 
   // Mark linked schedule as completed
@@ -5944,6 +6119,7 @@ function renderATR(){
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.sn}</td>
       <td><strong>${r.projectName||'—'}</strong></td>
       <td>${r.dzongkhag||'—'}</td><td>${r.ro||'—'}</td>
+      <td>${r.other||'—'}</td>
       <td style="max-width:180px;">${r.defectDesc||'—'}</td>
       <td style="max-width:140px;">${r.action||'—'}</td>
       <td>${r.inspector||'—'}</td><td>${r.atrDeadline||'—'}</td>
@@ -6113,12 +6289,14 @@ function getAnalyticsFiltered(){
   const mo  = document.getElementById('aMonth')?.value || '';
   const dz  = document.getElementById('aDzong')?.value || '';
   const ro  = document.getElementById('aRO')?.value    || '';
+  const oth = document.getElementById('aOther')?.value || '';
   // Update filter label
   const parts=[];
   if(yr) parts.push(yr);
   if(mo) parts.push(mo);
   if(dz) parts.push(dz);
   if(ro) parts.push(ro);
+  if(oth) parts.push(oth);
   const lbl = document.getElementById('aFilterLabel');
   if(lbl) lbl.textContent = parts.length ? 'Showing: '+parts.join(' · ') : '';
   return inspections.filter(r=>{
@@ -6126,12 +6304,13 @@ function getAnalyticsFiltered(){
     if(mo && r.month!==mo) return false;
     if(dz && r.dzongkhag!==dz) return false;
     if(ro && r.ro!==ro) return false;
+    if(oth && r.other!==oth) return false;
     return true;
   });
 }
 
 function clearAnalyticsFilters(){
-  ['aYear','aMonth','aDzong','aRO'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ['aYear','aMonth','aDzong','aRO','aOther'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   renderCharts();
 }
 
@@ -6169,6 +6348,23 @@ function renderCharts(){
   destroyChart('ro');
   const roData = RO_NAMES.map(r=>fd.filter(x=>x.ro===r).length);
   charts['ro']=new Chart(document.getElementById('chartRO'),{type:'bar',data:{labels:RO_NAMES,datasets:[{label:'Inspections',data:roData,backgroundColor:CC.orange,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#9ca3af'},grid:{color:'rgba(0,0,0,.06)'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{display:false}}}}});
+
+  // ---- Other Agency bar ----
+  destroyChart('other');
+  const otherNames = [...new Set(inspections.map(r=>r.other).filter(Boolean))].sort();
+  // Populate aOther dropdown
+  const aOtherSel = document.getElementById('aOther');
+  if(aOtherSel){
+    const curAOther = aOtherSel.value;
+    aOtherSel.innerHTML = '<option value="">All Others</option>' + otherNames.map(o=>`<option value="${o}"${o===curAOther?' selected':''}>${o}</option>`).join('');
+  }
+  if(otherNames.length){
+    const otherData = otherNames.map(o=>fd.filter(x=>x.other===o).length);
+    charts['other']=new Chart(document.getElementById('chartOther'),{type:'bar',data:{labels:otherNames,datasets:[{label:'Inspections',data:otherData,backgroundColor:'rgba(139,92,246,0.7)',borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#9ca3af'},grid:{color:'rgba(0,0,0,.06)'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{display:false}}}}});
+  } else {
+    const ctx = document.getElementById('chartOther');
+    if(ctx){ const p=document.createElement('p'); p.style.cssText='text-align:center;padding:20px;color:#9ca3af;font-size:13px;'; p.textContent='No Other Agency inspections yet'; ctx.replaceWith(p); }
+  }
 
   // ---- Monthly summary table ----
   const tbody = document.getElementById('analyticsMonthBody');
@@ -6213,17 +6409,20 @@ function renderFinancials(){
   const aYear = document.getElementById('aYear')?.value || '';
   const aDz   = document.getElementById('aDzong')?.value || '';
   const aRO   = document.getElementById('aRO')?.value || '';
+  const aOth  = document.getElementById('aOther')?.value || '';
 
   // Filter project updates by location filters
   let puRows = projectUpdates.filter(r=>{
     if(aDz && r.location!==aDz && r.locType==='dzongkhag') return false;
     if(aRO && r.location!==aRO && r.locType==='rothromde') return false;
+    if(aOth && r.location!==aOth && r.locType==='other') return false;
     if(aDz && r.locType!=='dzongkhag') return false;
     if(aRO && r.locType!=='rothromde') return false;
+    if(aOth && r.locType!=='other') return false;
     return true;
   });
-  // If both filters empty, show all
-  if(!aDz && !aRO) puRows = [...projectUpdates];
+  // If all filters empty, show all
+  if(!aDz && !aRO && !aOth) puRows = [...projectUpdates];
 
   // Filter by year (updatedDate)
   if(aYear) puRows = puRows.filter(r=> r.updatedDate && getYear(r.updatedDate)===aYear);
@@ -6256,7 +6455,7 @@ function renderFinancials(){
       return `<tr>
         <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${i+1}</td>
         <td><strong>${r.projectName||'—'}</strong></td>
-        <td>${r.location||'—'}<br><span style="font-size:10px;color:#6b7280;">${r.locType==='dzongkhag'?'Dzongkhag':'RO/Thromde'}</span></td>
+        <td>${r.location||'—'}<br><span style="font-size:10px;color:#6b7280;">${r.locType==='dzongkhag'?'Dzongkhag':r.locType==='rothromde'?'RO/Thromde':'Other'}</span></td>
         <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#d97706;">${bud?fmtNu(bud):'—'}</td>
         <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#f97316;">${con?fmtNu(con):'—'}</td>
         <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${variColor};">${bud&&con?fmtNu(vari):'—'}</td>
@@ -6735,7 +6934,7 @@ function renderProjectReport(){
         <div style="display:grid;grid-template-columns:repeat(3,auto);gap:6px 28px;font-size:12px;">
           <div><span style="color:#6b7280;">Contract No:</span> <strong>${first.contractNo||'—'}</strong></div>
           <div><span style="color:#6b7280;">Contractor:</span> <strong>${first.contractor||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Location:</span> <strong>${first.dzongkhag||first.ro||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Location:</span> <strong>${first.dzongkhag||first.ro||first.other||first.other||'—'}</strong></div>
           <div><span style="color:#6b7280;">Road Section:</span> <strong>${first.roadSection||'—'}</strong></div>
           <div><span style="color:#6b7280;">Generated:</span> <strong>${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</strong></div>
           <div><span style="color:#6b7280;">Prepared by:</span> <strong>CQD</strong></div>
@@ -6920,7 +7119,7 @@ function saveCurrentReport(){
     contractor: first.contractor||'',
     date: new Date().toISOString().slice(0,10),
     engineer: 'CQD',
-    location: first.dzongkhag||first.ro||'',
+    location: first.dzongkhag||first.ro||first.other||first.other||'',
     snapshot: { projectName: proj, isProjectReport: !!proj, inspectionCount: recs.length },
   };
   const records = dlGetRecords();
@@ -6983,7 +7182,7 @@ function _printProjectReport(){
       {label:'Project Name', value: proj},
       {label:'Contract No.', value: first.contractNo||'—'},
       {label:'Contractor', value: first.contractor||'—'},
-      {label:'Location / Dzongkhag', value: first.dzongkhag||first.ro||'—'},
+      {label:'Location / Dzongkhag', value: first.dzongkhag||first.ro||first.other||first.other||'—'},
       {label:'Road Section / Chainage', value: first.roadSection||'—'},
       {label:'Report Date', value: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})},
       {label:'Total Inspections', value: recs.length},
@@ -7361,7 +7560,7 @@ function entryPopulateScheduleDropdown(){
     opt.value=String(i); // stable index into ispSchedules
     const d=s.scheduledDate||'—';
     const dLabel=d===today?' 📌 TODAY':s.status==='Overdue'?' 🔴 OVERDUE':'';
-    const loc=s.dzongkhag||s.ro||'';
+    const loc=s.dzongkhag||s.ro||s.other||'';
     opt.textContent=`${d}${dLabel} · ${s.projectName||'—'}${loc?' · '+loc:''} · ${s.workType||'General Inspection'}`;
     // colour-code urgency
     if(s.status==='Overdue') opt.style.color='#b91c1c';
@@ -7430,7 +7629,7 @@ function entryFillFromSchedule(val){
     const fields=[
       {l:'Project',   v:s.projectName||'—'},
       {l:'Contract',  v:s.contractNo||'—'},
-      {l:'Location',  v:s.dzongkhag||s.ro||'—'},
+      {l:'Location',  v:s.dzongkhag||s.ro||s.other||'—'},
       {l:'Contractor',v:s.contractor||'—'},
       {l:'Inspector', v:s.inspector||'—'},
       {l:'Date',      v:s.scheduledDate||'—'},
@@ -9882,15 +10081,23 @@ function sbrwGenReport(){
 function toggleLocType(type) {
   const dzF = document.getElementById('dzongkhagField');
   const roF = document.getElementById('roThromdeField');
+  const othF = document.getElementById('otherLocField');
   if (!dzF || !roF) return;
+  dzF.style.display = 'none';
+  roF.style.display = 'none';
+  if (othF) othF.style.display = 'none';
   if (type === 'dzongkhag') {
     dzF.style.display = '';
-    roF.style.display = 'none';
     const roEl=document.getElementById('fROForm');if(roEl)roEl.selectedIndex=0;
-  } else {
-    dzF.style.display = 'none';
+    const othEl=document.getElementById('fOtherLoc');if(othEl)othEl.value='';
+  } else if (type === 'rothromde') {
     roF.style.display = '';
     document.getElementById('fDzongkhag').selectedIndex = 0;
+    const othEl=document.getElementById('fOtherLoc');if(othEl)othEl.value='';
+  } else {
+    if (othF) othF.style.display = '';
+    document.getElementById('fDzongkhag').selectedIndex = 0;
+    const roEl=document.getElementById('fROForm');if(roEl)roEl.selectedIndex=0;
   }
 }
 
@@ -10194,7 +10401,7 @@ function buildPRRow(r, i) {
     </td>
     <td style="font-size:11px;font-family:'JetBrains Mono',monospace;color:#1a3a6e;">${r.contractNo||'—'}</td>
     <td>${r.agencyLocation||'—'}</td>
-    <td><span style="background:${r.agencyType==='dzongkhag'?'rgba(37,99,235,.1)':r.agencyType==='ro'?'rgba(232,130,12,.1)':'rgba(16,163,74,.1)'};color:${r.agencyType==='dzongkhag'?'#1d4ed8':r.agencyType==='ro'?'#c46a08':'#15803d'};border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">${(r.agencyType||'').toUpperCase()}</span></td>
+    <td><span style="background:${r.agencyType==='dzongkhag'?'rgba(37,99,235,.1)':r.agencyType==='ro'?'rgba(232,130,12,.1)':r.agencyType==='thromde'?'rgba(16,163,74,.1)':'rgba(139,92,246,.1)'};color:${r.agencyType==='dzongkhag'?'#1d4ed8':r.agencyType==='ro'?'#c46a08':r.agencyType==='thromde'?'#15803d':'#7c3aed'};border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">${(r.agencyType||'').toUpperCase()}</span></td>
     <td style="font-size:12px;">${r.roadSection||'—'}</td>
     <td style="font-size:12px;">${r.contractorName||'—'}</td>
     <td style="font-size:12px;">${r.engineerName||'—'}</td>
@@ -10262,11 +10469,13 @@ function openPUFormForProject(regId) {
     // Set location
     const lt = reg.agencyType || 'dzongkhag';
     const isDzong = (lt === 'dzongkhag');
-    document.querySelectorAll('input[name="puLocType"]').forEach(rb => rb.checked = rb.value === (isDzong ? 'dzongkhag' : 'rothromde'));
-    togglePULocType(isDzong ? 'dzongkhag' : 'rothromde');
+    const isRO = (lt === 'ro' || lt === 'thromde');
+    const puLocVal = isDzong ? 'dzongkhag' : isRO ? 'rothromde' : 'other';
+    document.querySelectorAll('input[name="puLocType"]').forEach(rb => rb.checked = rb.value === puLocVal);
+    togglePULocType(puLocVal);
     if (isDzong) {
       document.getElementById('puDzongkhag').value = reg.agencyLocation || '';
-    } else {
+    } else if (isRO) {
       document.getElementById('puRO').value = reg.agencyLocation || '';
     }
   }, 80);
@@ -10449,8 +10658,10 @@ function togglePULocType(type){
   const dF=document.getElementById('puDzongField');
   const rF=document.getElementById('puROField');
   if(!dF||!rF) return;
-  if(type==='dzongkhag'){ dF.style.display=''; rF.style.display='none'; document.getElementById('puRO').selectedIndex=0; }
-  else { dF.style.display='none'; rF.style.display=''; document.getElementById('puDzongkhag').selectedIndex=0; }
+  dF.style.display='none'; rF.style.display='none';
+  if(type==='dzongkhag'){ dF.style.display=''; document.getElementById('puRO').selectedIndex=0; }
+  else if(type==='rothromde'){ rF.style.display=''; document.getElementById('puDzongkhag').selectedIndex=0; }
+  else { document.getElementById('puDzongkhag').selectedIndex=0; document.getElementById('puRO').selectedIndex=0; }
 }
 
 /* ── save ── */
@@ -10461,7 +10672,9 @@ function savePUEntry(){
   const locType = document.querySelector('input[name="puLocType"]:checked')?.value||'dzongkhag';
   const loc = locType==='dzongkhag'
     ? document.getElementById('puDzongkhag').value
-    : document.getElementById('puRO').value;
+    : locType==='rothromde'
+      ? document.getElementById('puRO').value
+      : (document.getElementById('puProjectName').value.trim()||'Other');
   const proj = document.getElementById('puProjectName').value.trim();
   if(!proj){ alert('Please enter a Project Name.'); return; }
   const updDate = document.getElementById('puUpdatedDate').value;
@@ -10593,7 +10806,8 @@ function editPU(i){
   document.querySelectorAll('input[name="puLocType"]').forEach(rb=>rb.checked=rb.value===lt);
   togglePULocType(lt);
   if(lt==='dzongkhag') document.getElementById('puDzongkhag').value=r.location||'';
-  else document.getElementById('puRO').value=r.location||'';
+  else if(lt==='rothromde') document.getElementById('puRO').value=r.location||'';
+  // (other: location stored as text, no dropdown to set)
   // work components
   puPopulateWC(r.workComponents||[]);
   puUpdateProgressBar();
@@ -11126,7 +11340,13 @@ function renderAreaCompliance() {
 
   // Update area dropdown
   const areaSel = document.getElementById('acArea');
-  const areaList = type === 'dzongkhag' ? DZK_LIST : RO_LIST;
+  let areaList;
+  if (type === 'dzongkhag') areaList = DZK_LIST;
+  else if (type === 'ro') areaList = RO_LIST;
+  else {
+    // Dynamically build 'other' list from actual data
+    areaList = [...new Set(inspections.map(r=>r.other).filter(Boolean))].sort();
+  }
   const curArea = areaSel?.value || '';
   if (areaSel) {
     areaSel.innerHTML = '<option value="">All Areas</option>' +
@@ -11135,13 +11355,21 @@ function renderAreaCompliance() {
 
   // Update table header
   const hdr = document.getElementById('acAreaHeader');
-  if (hdr) hdr.textContent = type === 'dzongkhag' ? 'Dzongkhag' : 'RO / Thromde';
+  if (hdr) hdr.textContent = type === 'dzongkhag' ? 'Dzongkhag' : type === 'ro' ? 'RO / Thromde' : 'Other Agency';
 
   let rows = getCompFiltered('acYear','acMonth');
-  if (selArea) rows = rows.filter(r => (type==='dzongkhag' ? r.dzongkhag : r.ro) === selArea);
+  if (selArea) rows = rows.filter(r => {
+    if (type === 'dzongkhag') return r.dzongkhag === selArea;
+    if (type === 'ro') return r.ro === selArea;
+    return r.other === selArea;
+  });
 
   // Get areas that have data
-  const areas = [...new Set(rows.map(r => type==='dzongkhag' ? r.dzongkhag : r.ro).filter(Boolean))].sort();
+  const areas = [...new Set(rows.map(r => {
+    if (type === 'dzongkhag') return r.dzongkhag;
+    if (type === 'ro') return r.ro;
+    return r.other;
+  }).filter(Boolean))].sort();
 
   const body  = document.getElementById('acBody');
   const empty = document.getElementById('acEmpty');
@@ -11151,7 +11379,11 @@ function renderAreaCompliance() {
   empty.style.display = 'none';
 
   const scored = areas.map(area => {
-    const aRows = rows.filter(r => (type==='dzongkhag' ? r.dzongkhag : r.ro) === area);
+    const aRows = rows.filter(r => {
+      if (type === 'dzongkhag') return r.dzongkhag === area;
+      if (type === 'ro') return r.ro === area;
+      return r.other === area;
+    });
     const s = buildCompStats(aRows);
     const score = areaScore(s);
     return { area, s, score };
@@ -12487,7 +12719,7 @@ function _printInspectionReport(){
     const k = r.projectName||'Unknown';
     if(!projMap[k]) projMap[k]={recs:[],loc:'',contractor:'',contract:''};
     projMap[k].recs.push(r);
-    if(!projMap[k].loc)        projMap[k].loc        = r.dzongkhag||r.ro||'';
+    if(!projMap[k].loc)        projMap[k].loc        = r.dzongkhag||r.ro||r.other||'';
     if(!projMap[k].contractor) projMap[k].contractor = r.contractor||'';
     if(!projMap[k].contract)   projMap[k].contract   = r.contractNo||'';
   });
@@ -12506,7 +12738,7 @@ function _printInspectionReport(){
     regRows += `<tr>
       <td style="text-align:center;font-weight:700;">${rn++}</td>
       <td><strong>${r.projectName||'—'}</strong>${r.contractNo?'<br><span style="font-size:7pt;color:#6b7280;">'+r.contractNo+'</span>':''}</td>
-      <td style="font-size:8pt;">${r.dzongkhag||r.ro||'—'}</td>
+      <td style="font-size:8pt;">${r.dzongkhag||r.ro||r.other||'—'}</td>
       <td style="font-size:8pt;">${r.roadSection||'—'}</td>
       <td style="font-size:8pt;">${r.workType||'—'}</td>
       <td style="font-size:8pt;">${r.dateInspected||'—'}</td>
@@ -12526,7 +12758,7 @@ function _printInspectionReport(){
     defRows += `<tr>
       <td style="text-align:center;">${i+1}</td>
       <td><strong>${r.projectName||'—'}</strong></td>
-      <td style="font-size:8pt;">${r.dzongkhag||r.ro||'—'}</td>
+      <td style="font-size:8pt;">${r.dzongkhag||r.ro||r.other||'—'}</td>
       <td style="font-size:8pt;">${r.dateInspected||'—'}</td>
       <td style="font-size:8pt;">${r.defectDesc||'—'}</td>
       <td style="font-size:8pt;">${r.moitRef||'—'}</td>
@@ -12934,6 +13166,142 @@ tbody tr:nth-child(even) td{background:#f5f8ff;}
   <div class="due-popup-title">⏰ ATR Due Date Reminder</div>
   <div id="dueDateList"></div>
   <div style="margin-top:10px;font-size:11px;color:#6b7280;">These defect actions require attention soon.</div>
+</div>
+
+<!-- ===== EDIT INSPECTION MODAL ===== -->
+<div id="editInspectionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:820px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#1e40af,#1d4ed8);padding:20px 24px;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;">✏️ EDIT INSPECTION RECORD</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;">Administrator — modify and save changes</div>
+      </div>
+      <button onclick="closeEditModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <input type="hidden" id="eiIdx">
+      <!-- Row 1 -->
+      <div style="grid-column:1/-1;">
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">PROJECT NAME</label>
+        <input id="eiProjectName" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="Project name">
+      </div>
+      <!-- Row 2 -->
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">CONTRACT NO.</label>
+        <input id="eiContractNo" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="e.g. OPMC/2024/001">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">CONTRACTOR</label>
+        <input id="eiContractor" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="Contractor name">
+      </div>
+      <!-- Row 3 -->
+      <div style="grid-column:1/-1;">
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">ROAD / CHAINAGE</label>
+        <input id="eiRoadSection" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="e.g. Thimphu–Paro Road, Ch: 12+500">
+      </div>
+      <!-- Row 4 – Location -->
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">DZONGKHAG</label>
+        <select id="eiDzongkhag" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;">
+          <option value="">— None —</option>
+          <option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">RO / THROMDE</label>
+        <select id="eiRO" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;">
+          <option value="">— None —</option>
+          <option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">OTHER AGENCY</label>
+        <input id="eiOther" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="e.g. NPPF, DoE, MoWHS">
+      </div>
+      <!-- Row 5 -->
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">WORK TYPE</label>
+        <input id="eiWorkType" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="e.g. Bituminous, Retaining Wall">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">WORK ITEM</label>
+        <input id="eiWorkItem" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="Specific item">
+      </div>
+      <!-- Row 6 -->
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">DATE INSPECTED</label>
+        <input id="eiDateInspected" type="date" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">INSPECTOR</label>
+        <input id="eiInspector" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="Inspector name">
+      </div>
+      <!-- Row 7 -->
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">DEFECT FOUND?</label>
+        <select id="eiDefect" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;">
+          <option value="">— Select —</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">MOIT REF</label>
+        <input id="eiMoitRef" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="MOIT reference(s)">
+      </div>
+      <!-- Row 8 -->
+      <div style="grid-column:1/-1;">
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">DEFECT DESCRIPTION</label>
+        <textarea id="eiDefectDesc" rows="2" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;resize:vertical;" placeholder="Describe the defect…"></textarea>
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">ACTION REQUIRED</label>
+        <textarea id="eiAction" rows="2" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;resize:vertical;" placeholder="Action required…"></textarea>
+      </div>
+      <!-- Row 9 – ATR -->
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">ATR DEADLINE</label>
+        <input id="eiAtrDeadline" type="date" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">ATR SUBMITTED DATE</label>
+        <input id="eiAtrSubmitted" type="date" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;">
+      </div>
+      <!-- Row 10 – Test -->
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">TEST</label>
+        <input id="eiTest" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="Test name">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">REQUIRED VALUE</label>
+        <input id="eiReqVal" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="e.g. ≥ 98%">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">RESULT</label>
+        <input id="eiResult" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="e.g. 96%">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">PASS / FAIL</label>
+        <select id="eiPassFail" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;">
+          <option value="">— N/A —</option>
+          <option value="Pass">Pass</option>
+          <option value="Fail">Fail</option>
+        </select>
+      </div>
+      <!-- Remarks -->
+      <div style="grid-column:1/-1;">
+        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">REMARKS</label>
+        <textarea id="eiRemarks" rows="2" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;resize:vertical;" placeholder="Additional remarks…"></textarea>
+      </div>
+    </div>
+    <!-- Footer buttons -->
+    <div style="padding:16px 24px 24px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #f1f5f9;">
+      <button onclick="closeEditModal()" style="padding:10px 22px;border:1px solid #e2e6ef;border-radius:8px;background:#f8fafc;color:#374151;font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
+      <button onclick="saveEditEntry()" style="padding:10px 26px;border:none;border-radius:8px;background:linear-gradient(135deg,#1e40af,#1d4ed8);color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">💾 SAVE CHANGES</button>
+    </div>
+  </div>
 </div>
 
 <!-- Bootstrap 4 JS -->
@@ -13534,7 +13902,7 @@ function renderPubMap(){
   const buckets = {};
   Object.keys(DZ_COORDS).forEach(dz=>buckets[dz]=[]);
   data.forEach(r=>{
-    const key = r.dzongkhag||r.ro||'';
+    const key = r.dzongkhag||r.ro||r.other||'';
     const match = Object.keys(DZ_COORDS).find(k=>k===key||key.includes(k)||k.includes(key));
     if(match) buckets[match].push(r);
   });
@@ -14418,7 +14786,7 @@ function ispSave(){
   const sDate   = document.getElementById('ispFSchedDate').value||'';
 
   if(!project){ showToast('⚠️ Project Name is required.'); return; }
-  if(!dz)      { showToast('⚠️ Please select a Dzongkhag.'); return; }
+  if(!dz)      { showToast('⚠️ Please select a Dzongkhag / Agency.'); return; }
   if(!inspector){ showToast('⚠️ Inspector name is required.'); return; }
   if(!sDate)   { showToast('⚠️ Scheduled Date is required.'); return; }
 
