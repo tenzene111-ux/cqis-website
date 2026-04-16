@@ -2115,7 +2115,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       </div>
       <div class="filters">
         <span class="filter-label">📅 VIEW BY:</span>
-        <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select>
+        <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select>
         <select class="filter-select" id="fMonth" onchange="refreshDash()"><option value="">All Months</option><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
         <select class="filter-select" id="fDzong" onchange="refreshDash()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
         <select class="filter-select" id="fRO" onchange="refreshDash()"><option value="">All ROs</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
@@ -3053,10 +3053,12 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <span class="filter-label">🔍 FILTER BY:</span>
         <select class="filter-select" id="aYear" onchange="renderCharts()">
           <option value="">All Years</option>
-          <option value="2024">2024</option>
           <option value="2025">2025</option>
           <option value="2026">2026</option>
           <option value="2027">2027</option>
+          <option value="2028">2028</option>
+          <option value="2029">2029</option>
+          <option value="2030">2030</option>
         </select>
         <select class="filter-select" id="aMonth" onchange="renderCharts()">
           <option value="">All Months</option>
@@ -4372,6 +4374,17 @@ async function loadAllDataFromFirebase() {
     const insSnap = await db.collection(COL_INSPECTIONS).orderBy('sn').get();
     inspections = [];
     insSnap.forEach(doc => inspections.push({id: doc.id, ...doc.data()}));
+
+    // ── De-duplicate: remove entries with identical contractNo + projectName + contractor + dateInspected ──
+    // Keep the first (lowest sn) occurrence of each true duplicate group
+    const dedupSeen = new Set();
+    inspections = inspections.filter(r => {
+      const key = [r.contractNo||'', r.projectName||'', r.contractor||'', r.dateInspected||''].join('|||');
+      if(dedupSeen.has(key)) return false;
+      dedupSeen.add(key);
+      return true;
+    });
+
     // Cache locally as backup
     localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
 
@@ -5575,7 +5588,7 @@ function badgeHtml(val){
   const map={Yes:'badge-yes',No:'badge-no',Pass:'badge-pass',Fail:'badge-fail',OVERDUE:'badge-overdue','DUE SOON':'badge-due',Pending:'badge-pending',Submitted:'badge-submitted','N/A':'badge-na'};
   return `<span class="badge ${map[val]||'badge-na'}">${val}</span>`;
 }
-function save(){localStorage.setItem('inspections_hqis',JSON.stringify(inspections));}
+function save(){localStorage.setItem('inspections_cqis',JSON.stringify(inspections));}
 function toast(msg){
   const t=document.getElementById('toast');
   document.getElementById('toastMsg').textContent=msg;
@@ -6174,14 +6187,34 @@ function saveEntry(){
   // ── ASYNC SAVE with atomic SN and duplicate contract check ──
   (async ()=>{
     try {
-      // 1) Warn (not block) if same contract number exists
+      // 1) Block true duplicates (same contract + project + contractor + date); warn on same contract with different date
+      const trueDupLocal = (inspections||[]).find(r =>
+        r.contractNo === contractNo &&
+        r.projectName === proj &&
+        r.contractor === cont &&
+        r.dateInspected === dt
+      );
+      let trueDupFirebase = false;
+      if(contractNo && proj && dt){
+        try {
+          const dupSnap = await db.collection('inspections')
+            .where('contractNo','==',contractNo)
+            .where('projectName','==',proj)
+            .where('dateInspected','==',dt)
+            .limit(1).get();
+          trueDupFirebase = !dupSnap.empty;
+        } catch(e) { /* ignore query error — local check sufficient */ }
+      }
+      if(trueDupLocal || trueDupFirebase){
+        dbLoading(false);
+        alert(`⛔ Duplicate Entry Blocked!\n\nAn inspection for:\n  • Project: "${proj}"\n  • Contract No: "${contractNo}"\n  • Contractor: "${cont}"\n  • Date: "${dt}"\n\nalready exists in the register. Please check the Inspection Register.\n\nIf this is a new inspection on a different date, update the date and resubmit.`);
+        return;
+      }
+      // Warn (but allow) if same contract number exists with a different date — legitimate re-inspection
       if(contractNo){
-        const dupSnap = await db.collection('inspections')
-          .where('contractNo','==',contractNo)
-          .limit(1).get();
-        const localDup = (inspections||[]).find(r=>r.contractNo===contractNo);
-        if(!dupSnap.empty || localDup){
-          const proceed = confirm(`⚠️ Contract / Project No. "${contractNo}" already exists in another record.\n\nAre you sure you want to use the same number? Click OK to proceed or Cancel to change it.`);
+        const sameContractLocal = (inspections||[]).find(r => r.contractNo===contractNo);
+        if(sameContractLocal){
+          const proceed = confirm(`⚠️ Contract / Project No. "${contractNo}" already has a previous inspection on ${sameContractLocal.dateInspected}.\n\nThis appears to be a new inspection on a different date (${dt}).\n\nClick OK to proceed or Cancel to review.`);
           if(!proceed){ dbLoading(false); return; }
         }
       }
