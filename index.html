@@ -31,6 +31,7 @@
 #tab-entry, #tab-atr, #tab-analytics, #tab-instructions,
 #tab-compliance-contractor, #tab-compliance-area,
 #tab-report, #tab-downloads, #tab-notifications, #tab-projupdates,
+#tab-email-notify,
 .sbrw-wrap, .sbrw-section, .sbrw-item,
 .filters, .filter-group,
 .comp-table, .data-table,
@@ -615,6 +616,24 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .focal-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(232,130,12,.08);border:1px solid rgba(232,130,12,.25);border-radius:20px;padding:4px 10px;font-size:12px;color:#f97316;}
 .focal-tag button{background:none;border:none;cursor:pointer;color:#6b7280;font-size:13px;padding:0;line-height:1;}
 .focal-tag button:hover{color:#dc2626;}
+
+/* EMAIL NOTIFICATION TAB */
+.em-card{background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:24px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.em-card-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;color:#1a2236;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e2e6ef;padding-bottom:10px;}
+.em-group-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid #e2e6ef;border-radius:6px;background:#f8f9fc;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;color:#374151;transition:all .15s;}
+.em-group-btn:hover{border-color:#e8820c;background:rgba(232,130,12,.05);color:#e8820c;}
+.em-group-btn.active{border-color:#e8820c;background:rgba(232,130,12,.1);color:#e8820c;}
+.em-recipient-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.25);border-radius:20px;padding:3px 10px;font-size:11px;color:#1d4ed8;margin:2px;}
+.em-recipient-tag .em-tag-remove{background:none;border:none;cursor:pointer;color:#6b7280;font-size:12px;padding:0;line-height:1;margin-left:2px;}
+.em-recipient-tag .em-tag-remove:hover{color:#dc2626;}
+.em-recipients-box{min-height:44px;background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:4px;align-items:flex-start;cursor:text;}
+.em-template-btn{padding:8px 14px;border:1px solid #e2e6ef;border-radius:6px;background:#f8f9fc;cursor:pointer;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;color:#374151;transition:all .15s;text-align:left;}
+.em-template-btn:hover{border-color:#e8820c;background:rgba(232,130,12,.05);color:#e8820c;}
+.em-history-item{background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px 14px;margin-bottom:8px;}
+.em-history-item:hover{border-color:#cbd2e0;}
+.em-setup-step{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #f0f2f7;}
+.em-setup-step:last-child{border-bottom:none;}
+.em-step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e8820c,#d97706);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 
 .analytics-table{background:#fff;border:1px solid #e2e6ef;border-radius:12px;overflow:hidden;color:#111827;}
 
@@ -2008,6 +2027,11 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-label">Notifications</span>
       <span class="sb-badge new" id="notifBadgeCount" style="display:none;">0</span>
     </button>
+    <button class="nav-tab" onclick="showTab('email-notify',this)" id="emailNotifNavBtn">
+      <span class="sb-icon"><i class="fa fa-envelope"></i></span>
+      <span class="sb-label">Email Notifications</span>
+      <span class="sb-badge" style="background:rgba(232,130,12,.2);border-color:rgba(232,130,12,.4);color:#fbbf24;">ADMIN</span>
+    </button>
 
     <div class="sb-group">Data</div>
     <button class="nav-tab" onclick="showTab('projupdates',this)">
@@ -2054,7 +2078,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-icon"><i class="fa fa-file-alt"></i></span>
       <span class="sb-label">Report</span>
     </button>
-    <button class="nav-tab" onclick="showTab('followup',this)">
+    <button class="nav-tab" onclick="showTab('followup',this)" id="followupNavBtn">
       <span class="sb-icon"><i class="fa fa-clipboard-list"></i></span>
       <span class="sb-label">Follow Up Report</span>
     </button>
@@ -2178,7 +2202,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
     <div id="tab-data" style="display:none">
       <div class="section-header">
         <div><div class="section-title">INSPECTION DATA REGISTER</div><div class="section-badge">Master Data — MOIT Standard</div></div>
-        <button class="btn-primary" onclick="showTab('entry',document.getElementById('entryTabBtn'))">+ New Entry</button>
+        <button id="dataNewEntryBtn" class="btn-primary" onclick="showTab('entry',document.getElementById('entryTabBtn'))">+ New Entry</button>
       </div>
       <div class="table-card">
         <div class="table-toolbar">
@@ -2848,6 +2872,153 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         No notifications yet. Activity will appear here when users update projects or submit inspections.
       </div>
     </div>
+
+    <!-- EMAIL NOTIFICATION TAB -->
+    <div id="tab-email-notify" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-title">📧 EMAIL NOTIFICATIONS</div>
+          <div class="section-badge">Send emails to selected admins, Dzongkhags, ROs, Thromdes or custom recipients</div>
+        </div>
+      </div>
+
+      <!-- Sub-tab navigation -->
+      <div style="display:flex;gap:6px;margin-bottom:18px;background:#f0f2f7;border-radius:8px;padding:4px;width:fit-content;">
+        <button id="emSubTab_compose" onclick="emShowSubTab('compose')"
+          style="padding:8px 18px;border:1px solid #e8820c;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;background:linear-gradient(135deg,#e8820c,#d97706);color:#fff;">
+          ✉️ Compose
+        </button>
+        <button id="emSubTab_addressbook" onclick="emShowSubTab('addressbook')"
+          style="padding:8px 18px;border:1px solid #e2e6ef;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;background:none;color:#6b7280;">
+          📒 Address Book
+        </button>
+        <button id="emSubTab_history" onclick="emShowSubTab('history')"
+          style="padding:8px 18px;border:1px solid #e2e6ef;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;background:none;color:#6b7280;">
+          📬 Sent History
+        </button>
+      </div>
+
+      <!-- ── COMPOSE PANEL ── -->
+      <div id="emPanel_compose">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;">
+          <!-- LEFT: Recipients + Compose -->
+          <div>
+            <div class="em-card">
+              <div class="em-card-title">👥 Select Recipients</div>
+              <div style="margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">
+                  Quick Groups
+                  <span style="font-weight:400;color:#9ca3af;font-size:10px;letter-spacing:0;text-transform:none;"> — add emails first in Address Book tab</span>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button id="emGroupBtn_admins"    class="em-group-btn" onclick="emAddGroup('admins')">👔 All Admins (0)</button>
+                  <button id="emGroupBtn_dzongkhag" class="em-group-btn" onclick="emAddGroup('dzongkhag')">🏔 All Dzongkhags (0)</button>
+                  <button id="emGroupBtn_ro"        class="em-group-btn" onclick="emAddGroup('ro')">🏢 All ROs (0)</button>
+                  <button id="emGroupBtn_thromde"   class="em-group-btn" onclick="emAddGroup('thromde')">🏙 All Thromdes (0)</button>
+                  <button id="emGroupBtn_all"       class="em-group-btn" onclick="emAddGroup('all')" style="border-color:#e8820c;color:#e8820c;">📢 All Users (0)</button>
+                  <button class="em-group-btn" onclick="emClearRecipients()" style="border-color:#dc2626;color:#dc2626;">✕ Clear All</button>
+                </div>
+              </div>
+              <div style="margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Individual</div>
+                <div style="display:flex;gap:6px;">
+                  <select id="emIndividualSel" class="filter-select" style="flex:1;font-size:12px;">
+                    <option value="">— Loading… —</option>
+                  </select>
+                  <button class="btn-primary" onclick="emAddIndividual()" style="padding:8px 14px;font-size:12px;white-space:nowrap;">+ Add</button>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:6px;">
+                  <input type="email" id="emCustomEmail" class="field-input" placeholder="Or type any email address…" style="font-size:12px;flex:1;" onkeydown="if(event.key==='Enter')emAddCustom()">
+                  <input type="text" id="emCustomName" class="field-input" placeholder="Name" style="font-size:12px;width:120px;">
+                  <button class="btn-secondary" onclick="emAddCustom()" style="padding:8px 12px;font-size:12px;white-space:nowrap;">+ Add</button>
+                </div>
+              </div>
+              <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Recipients <span id="emRecipientCount" style="color:#e8820c;">(0)</span></div>
+              <div class="em-recipients-box" id="emRecipientsBox">
+                <span style="font-size:11px;color:#9ca3af;padding:4px;">No recipients added yet…</span>
+              </div>
+            </div>
+
+            <div class="em-card">
+              <div class="em-card-title">✉️ Compose Message</div>
+              <div style="margin-bottom:12px;">
+                <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#374151;display:block;margin-bottom:6px;">Subject</label>
+                <input type="text" id="emSubject" class="field-input" placeholder="e.g. Monthly Inspection Update — OPMC/OCASC">
+              </div>
+              <div style="margin-bottom:14px;">
+                <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#374151;display:block;margin-bottom:6px;">Message</label>
+                <textarea id="emBody" style="width:100%;min-height:180px;background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px;font-size:13px;font-family:'Source Sans 3',sans-serif;color:#1a2236;outline:none;resize:vertical;transition:border-color .2s;line-height:1.6;" placeholder="Type your message here…" onfocus="this.style.borderColor='#e8820c'" onblur="this.style.borderColor='#e2e6ef'"></textarea>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <button class="btn-primary" onclick="emSend()" id="emSendBtn" style="padding:11px 28px;font-size:13px;font-weight:700;">📬 Open in Email App &amp; Send</button>
+                <button class="btn-secondary" onclick="emClearCompose()" style="padding:11px 14px;font-size:12px;">🗑 Clear</button>
+              </div>
+              <div style="margin-top:8px;font-size:11px;color:#6b7280;background:#f8f9fc;border:1px solid #e2e6ef;border-radius:6px;padding:8px 12px;">
+                💡 Clicking Send will open your email app (Outlook, Gmail, etc.) with all recipients, subject, and message pre-filled. Just click <strong>Send</strong> in your email app.
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Templates -->
+          <div class="em-card">
+            <div class="em-card-title">📄 Quick Templates</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <button class="em-template-btn" onclick="emLoadTemplate('monthly_update')">
+                <div style="font-weight:700;color:#1a2236;font-size:12px;">📊 Monthly Inspection Update</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Summary with live stats from your data</div>
+              </button>
+              <button class="em-template-btn" onclick="emLoadTemplate('defect_alert')">
+                <div style="font-weight:700;color:#dc2626;font-size:12px;">⚠️ Defect Alert Notification</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Alert for outstanding defects requiring ATR</div>
+              </button>
+              <button class="em-template-btn" onclick="emLoadTemplate('atr_reminder')">
+                <div style="font-weight:700;color:#f97316;font-size:12px;">🔔 ATR Submission Reminder</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Reminder for overdue/due-soon ATRs</div>
+              </button>
+              <button class="em-template-btn" onclick="emLoadTemplate('inspection_notice')">
+                <div style="font-weight:700;color:#1d4ed8;font-size:12px;">📋 Inspection Schedule Notice</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Upcoming inspection notification</div>
+              </button>
+              <button class="em-template-btn" onclick="emLoadTemplate('general')">
+                <div style="font-weight:700;color:#374151;font-size:12px;">📝 General Circular</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Blank general-purpose notification</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /compose panel -->
+
+      <!-- ── ADDRESS BOOK PANEL ── -->
+      <div id="emPanel_addressbook" style="display:none;">
+        <div class="em-card">
+          <div class="em-card-title" style="justify-content:space-between;">
+            📒 Email Address Book
+            <button class="btn-secondary" onclick="emLoadAddressBook()" style="padding:7px 14px;font-size:12px;">🔄 Refresh</button>
+          </div>
+          <div style="background:rgba(232,130,12,.06);border:1px solid rgba(232,130,12,.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#92400e;line-height:1.6;">
+            <strong>How it works:</strong> Enter the real email address for each Dzongkhag, RO, Thromde or admin user below. Emails are saved to Firebase so all admins share the same address book. Once saved, those users will appear in the recipient selector on the Compose tab.
+          </div>
+          <div id="emAddressBook">
+            <div style="text-align:center;padding:24px;color:#9ca3af;font-size:13px;">⏳ Loading address book…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HISTORY PANEL ── -->
+      <div id="emPanel_history" style="display:none;">
+        <div class="em-card">
+          <div class="em-card-title" style="justify-content:space-between;">
+            📬 Sent History
+            <button class="em-group-btn" onclick="emClearHistory()" style="font-size:10px;border-color:#dc2626;color:#dc2626;padding:4px 10px;">🗑 Clear All</button>
+          </div>
+          <div id="emHistoryList">
+            <div style="font-size:12px;color:#9ca3af;text-align:center;padding:16px;">No emails sent yet.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-email-notify -->
+
 
     <!-- ATR TRACKER -->
     <div id="tab-atr" style="display:none">
@@ -4724,23 +4895,60 @@ function finishLogin() {
 
 // ===== ROLE-BASED UI RESTRICTIONS =====
 function applyRoleRestrictions() {
-  const isAdmin   = currentUser.isAdmin;
-  const isUser    = currentUser.isUser;
-  const isViewer  = currentUser.isViewer;
+  const isAdmin  = currentUser.isAdmin;
+  const isUser   = currentUser.isUser;
+  const isViewer = currentUser.isViewer;
 
-  // New Entry tab: admins only
-  const entryTab = document.getElementById('entryTabBtn');
-  if (entryTab) entryTab.style.display = isAdmin ? '' : 'none';
+  // ── Sidebar tabs: ADMIN ONLY ──
+  const adminOnlyNavBtns = [
+    'entryTabBtn',       // New Entry sidebar tab
+    'inspSchedTabBtn',   // Inspection Schedule sidebar tab
+    'notifNavBtn',       // Notifications sidebar tab
+    'emailNotifNavBtn',  // Email Notifications sidebar tab
+    'followupNavBtn',    // Follow Up ATR Report sidebar tab
+  ];
+  adminOnlyNavBtns.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAdmin ? '' : 'none';
+  });
 
-  // Project Updates tab: visible to admin + user
-  // (nav tab shown to all, but "Add" button inside is hidden for viewers)
-  // SBRW print button: visible to admin + user
-  const printBtns = document.querySelectorAll('.sbrw-wrap button[onclick*="print"]');
-  printBtns.forEach(b => { b.style.display = (isAdmin || isUser) ? '' : 'none'; });
+  // ── "+ New Entry" button inside Inspection Register tab ──
+  const dataNewBtn = document.getElementById('dataNewEntryBtn');
+  if (dataNewBtn) dataNewBtn.style.display = isAdmin ? '' : 'none';
+
+  // ── SBRW print button: admin + user ──
+  document.querySelectorAll('.sbrw-wrap button[onclick*="print"]').forEach(b => {
+    b.style.display = (isAdmin || isUser) ? '' : 'none';
+  });
 }
 
+// ===== LOCATION-BASED DATA FILTER =====
+// Returns a filter function: records matching this user's location only.
+// Admins get everything. Users see only their own location. Viewers see all (read-only).
+function getUserLocationFilter() {
+  if (!currentUser || currentUser.isAdmin) return () => true; // admin: all records
+  if (!currentUser.isUser) return () => true;                  // viewer: all records
+  // User: filter by their location
+  const locType = currentUser.locType || 'dzongkhag';
+  const location = currentUser.location || '';
+  if (!location) return () => true;
+  return (r) => {
+    if (locType === 'dzongkhag') return r.dzongkhag === location;
+    if (locType === 'ro')        return r.ro === location;
+    if (locType === 'thromde')   return r.ro === location; // thromde stored in ro field
+    if (locType === 'other')     return r.other === location;
+    return true;
+  };
+}
+
+// Convenience: get only records this user is allowed to see
+function getUserVisibleInspections() {
+  const f = getUserLocationFilter();
+  return (inspections || []).filter(f);
+}
+
+// ===== LOGOUT =====
 function doLogout() {
-  if(window._removeCurrentUserFromOnlineBar) window._removeCurrentUserFromOnlineBar();
   currentUser = null;
   try { localStorage.removeItem('cqis_session'); } catch(e){}
   document.getElementById('app').style.display = 'none';
@@ -4792,6 +5000,7 @@ function showTab(id,btn){
   if(id==='compliance-area'){ renderAreaCompliance(); }
   if(id==='downloads') dlRender();
   if(id==='notifications'){ notifRender(); notifClearBadge(); }
+  if(id==='email-notify'){ emLoadAddressBook(true).then(()=>{ emRefreshDropdownAndButtons(); }); emRenderHistory(); emShowSubTab('compose'); }
   if(id==='insp-schedule'){
     ispRender();
     if(typeof ispView!=='undefined'&&ispView==='calendar') ispRenderCal();
@@ -5532,6 +5741,24 @@ function triggerQCCheck(){
 // ===== DASHBOARD =====
 function refreshDash(){
   document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Show location badge for users
+  let locBanner = document.getElementById('userLocBanner');
+  if (!locBanner) {
+    locBanner = document.createElement('div');
+    locBanner.id = 'userLocBanner';
+    locBanner.style.cssText = 'display:none;background:linear-gradient(135deg,rgba(232,130,12,.1),rgba(245,158,11,.06));border:1px solid rgba(232,130,12,.3);border-radius:8px;padding:8px 16px;margin-bottom:16px;font-size:12px;color:#92400e;font-family:Poppins,sans-serif;display:flex;align-items:center;gap:8px;';
+    const main = document.querySelector('.main');
+    if (main) main.insertBefore(locBanner, main.firstChild);
+  }
+  if (currentUser && currentUser.isUser && currentUser.location) {
+    locBanner.style.display = 'flex';
+    locBanner.innerHTML = `<span style="font-size:16px;">📍</span><span>You are logged in as <strong>${currentUser.name}</strong> — Overview shows all inspections. Your location <strong>(${currentUser.location})</strong> is highlighted below.</span>`;
+  } else {
+    locBanner.style.display = 'none';
+  }
+
+  // Dashboard overview: all inspections (location restriction only in Register/ATR/Report)
   const fd=getFiltered();
   const defects=fd.filter(r=>r.defect==='Yes');
   const atrOverdue=defects.filter(r=>calcATRStatus(r)==='OVERDUE');
@@ -5548,32 +5775,43 @@ function refreshDash(){
   // Mirror to public overview section
   if(typeof syncPublicKPIs === 'function') syncPublicKPIs();
   const tot=fd.length||1;
+
+  // User's own location for highlighting
+  const userLoc = (currentUser && currentUser.isUser) ? currentUser.location : null;
+  const userLocType = (currentUser && currentUser.isUser) ? (currentUser.locType || 'dzongkhag') : null;
+
   const dzNames=['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
   let dzHtml='';
   dzNames.forEach(dz=>{
     const rows=fd.filter(r=>r.dzongkhag===dz);if(!rows.length)return;
     const def=rows.filter(r=>r.defect==='Yes').length;
-    dzHtml+=`<tr><td>${dz}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
+    const isMyLoc = userLocType==='dzongkhag' && userLoc===dz;
+    const rowStyle = isMyLoc ? 'background:rgba(232,130,12,.08);font-weight:700;' : '';
+    const badge = isMyLoc ? ' <span style="font-size:9px;background:#e8820c;color:#fff;border-radius:3px;padding:1px 5px;margin-left:4px;">YOU</span>' : '';
+    dzHtml+=`<tr style="${rowStyle}"><td>${dz}${badge}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
   });
   document.getElementById('dzongBody').innerHTML=dzHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:#6b7280;">No data</td></tr>';
+
   const roNames=['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'];
   let roHtml='';
   roNames.forEach(ro=>{
     const rows=fd.filter(r=>r.ro===ro);if(!rows.length)return;
     const def=rows.filter(r=>r.defect==='Yes').length;
-    roHtml+=`<tr><td>${ro}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
+    const isMyLoc = (userLocType==='ro'||userLocType==='thromde') && userLoc===ro;
+    const rowStyle = isMyLoc ? 'background:rgba(232,130,12,.08);font-weight:700;' : '';
+    const badge = isMyLoc ? ' <span style="font-size:9px;background:#e8820c;color:#fff;border-radius:3px;padding:1px 5px;margin-left:4px;">YOU</span>' : '';
+    roHtml+=`<tr style="${rowStyle}"><td>${ro}${badge}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
   });
   document.getElementById('roBody').innerHTML=roHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:#6b7280;">No data</td></tr>';
-  // Other (non-dzongkhag, non-RO/Thromde)
+
+  // Other
   const otherEntries=fd.filter(r=>r.other);
   const otherNames=[...new Set(otherEntries.map(r=>r.other).filter(Boolean))].sort();
-  // Populate fOther dropdown dynamically
   const fOtherSel=document.getElementById('fOther');
   if(fOtherSel){
     const curOther=fOtherSel.value;
     fOtherSel.innerHTML='<option value="">All Others</option>'+otherNames.map(o=>`<option value="${o}"${o===curOther?' selected':''}>${o}</option>`).join('');
   }
-  // Also populate aOther (analytics tab) dropdown
   const aOtherSel=document.getElementById('aOther');
   if(aOtherSel){
     const curAO=aOtherSel.value;
@@ -5583,9 +5821,13 @@ function refreshDash(){
   otherNames.forEach(oth=>{
     const rows=fd.filter(r=>r.other===oth);if(!rows.length)return;
     const def=rows.filter(r=>r.defect==='Yes').length;
-    otherHtml+=`<tr><td>${oth}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
+    const isMyLoc = userLocType==='other' && userLoc===oth;
+    const rowStyle = isMyLoc ? 'background:rgba(232,130,12,.08);font-weight:700;' : '';
+    const badge = isMyLoc ? ' <span style="font-size:9px;background:#e8820c;color:#fff;border-radius:3px;padding:1px 5px;margin-left:4px;">YOU</span>' : '';
+    otherHtml+=`<tr style="${rowStyle}"><td>${oth}${badge}</td><td>${rows.length}</td><td>${def}</td><td>${Math.round(rows.length/tot*100)}%</td></tr>`;
   });
   document.getElementById('otherBody').innerHTML=otherHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:#6b7280;">No data</td></tr>';
+
   const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
   let moHtml='';
   months.forEach(mo=>{
@@ -5704,10 +5946,14 @@ function dashDrawChart(){ dashDrawAllCharts(); }
 
 
 function getFiltered(){
+  // Dashboard filters (year/month/dzongkhag/ro dropdowns)
   const yr=document.getElementById('fYear').value,mo=document.getElementById('fMonth').value;
   const dz=document.getElementById('fDzong').value,ro=document.getElementById('fRO').value;
   const oth=(document.getElementById('fOther')||{}).value||'';
-  return inspections.filter(r=>{
+  // All users see all records in the overview/dashboard (for big-picture awareness)
+  // but location filter dropdowns still apply
+  // Dashboard/charts show ALL inspections — location restriction only in Register/ATR/Report
+  return (inspections||[]).filter(r=>{
     if(yr&&getYear(r.dateInspected)!==yr)return false;
     if(mo&&r.month!==mo)return false;
     if(dz&&r.dzongkhag!==dz)return false;
@@ -5724,15 +5970,17 @@ function renderTable(){
   const roF=(document.getElementById('tblRO')||{}).value||'';
   const othF=(document.getElementById('tblOther')||{}).value||'';
   const defF=document.getElementById('tblDefect').value;
-  // Populate tblOther dynamically
+
+  // Users see only their location; admins/viewers see all
+  const visiblePool = getUserVisibleInspections();
+
   const tblOtherSel=document.getElementById('tblOther');
   if(tblOtherSel){
-    const allOthers=[...new Set(inspections.map(r=>r.other).filter(Boolean))].sort();
+    const allOthers=[...new Set(visiblePool.map(r=>r.other).filter(Boolean))].sort();
     const cur=tblOtherSel.value;
     tblOtherSel.innerHTML='<option value="">All Others</option>'+allOthers.map(o=>`<option value="${o}"${o===cur?' selected':''}>${o}</option>`).join('');
   }
-  // Sort by stored sn ascending so order is stable across all admins
-  const sorted=[...inspections].sort((a,b)=>(a.sn||0)-(b.sn||0));
+  const sorted=[...visiblePool].sort((a,b)=>(a.sn||0)-(b.sn||0));
   let rows=sorted.filter(r=>{
     if(dzF&&r.dzongkhag!==dzF)return false;
     if(roF&&r.ro!==roF)return false;
@@ -5748,7 +5996,7 @@ function renderTable(){
   const isAdmin=currentUser&&currentUser.isAdmin;
   body.innerHTML=rows.map((r,i)=>{
     const status=calcATRStatus(r);
-    const displaySN = i+1; // always sequential regardless of stored sn
+    const displaySN=i+1;
     return `<tr>
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${displaySN}</td>
       <td><strong>${r.projectName||'—'}</strong></td>
@@ -6038,8 +6286,10 @@ function clearForm(){
 // ===== ATR =====
 function renderATR(){
   const flt=document.getElementById('atrFilter').value;
+  // Apply location restriction for users
+  const locFilter = getUserLocationFilter();
   // Sort defects by stored sn for stable ordering
-  const defects=[...inspections].sort((a,b)=>(a.sn||0)-(b.sn||0)).filter(r=>r.defect==='Yes');
+  const defects=[...inspections].filter(locFilter).sort((a,b)=>(a.sn||0)-(b.sn||0)).filter(r=>r.defect==='Yes');
   let overdue=0,dueSoon=0,pending=0,submitted=0;
   defects.forEach(r=>{
     const s=calcATRStatus(r);
@@ -6055,7 +6305,11 @@ function renderATR(){
   document.getElementById('noATR').style.display='none';
   const isAdmin=currentUser&&currentUser.isAdmin;
   const isUser=currentUser&&currentUser.isUser;
-  const canEditFields = isAdmin || isUser;
+  // Users can ONLY upload ATR file — everything else is locked/view-only for them
+  const canUploadFile = isAdmin || isUser;
+  const canEditRemarks = isAdmin;       // only admin can edit remarks
+  const canMarkSubmit = isAdmin;        // only admin can mark submitted
+  const canEditFields = isAdmin;        // remarks/review only admin
 
   body.innerHTML=rows.map((r,rowIndex)=>{
     const idx=inspections.indexOf(r),status=calcATRStatus(r);
@@ -6102,12 +6356,12 @@ function renderATR(){
       }).join('');
       fileCell = `<div style="min-width:140px;max-width:180px;">
         ${fileList}
-        ${(isAdmin||isUser)?`<label style="display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:10px;color:#e8820c;cursor:pointer;font-weight:700;font-family:'Rajdhani',sans-serif;padding:3px 8px;background:#fff8f0;border:1px solid #fed7aa;border-radius:4px;">
+        ${(canUploadFile)?`<label style="display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:10px;color:#e8820c;cursor:pointer;font-weight:700;font-family:'Rajdhani',sans-serif;padding:3px 8px;background:#fff8f0;border:1px solid #fed7aa;border-radius:4px;">
           ➕ Add File
           <input type="file" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx" multiple onchange="handleATRFileUpload(event,${idx})">
         </label>`:''}
       </div>`;
-    } else if(isAdmin||isUser){
+    } else if(canUploadFile){
       fileCell = `<label class="atr-file-btn" title="Upload ATR document(s)" style="cursor:pointer;">
         📎 Upload ATR
         <input type="file" class="atr-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx" multiple onchange="handleATRFileUpload(event,${idx})">
@@ -6144,22 +6398,22 @@ function renderATR(){
     }
     // No separate actions col for review — dropdown saves instantly
 
-    // Remarks editable cell
+    // Remarks editable cell — admin only
     const savedRmk = _atrLoadField(idx,'remarks');
-    const remarksCell = canEditFields
+    const remarksCell = canEditRemarks
       ? `<div id="atrRmkView_${idx}" style="display:${savedRmk?'block':'none'};font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap;">${savedRmk}</div>
          <textarea id="atrRmkArea_${idx}" rows="2"
            style="display:${savedRmk?'none':'block'};width:140px;font-size:11px;font-family:'Poppins',sans-serif;border:1.5px solid #6366f1;border-radius:5px;padding:4px 6px;color:#1a2236;resize:vertical;outline:none;background:#f8f7ff;"
            placeholder="Type remarks…">${savedRmk}</textarea>`
       : `<span style="font-size:12px;color:#374151;">${savedRmk||'—'}</span>`;
-    const remarksActions = canEditFields
+    const remarksActions = canEditRemarks
       ? `<button id="atrRmkSaveBtn_${idx}" onclick="atrFieldSave(${idx},'remarks')"
            style="display:${savedRmk?'none':'block'};width:100%;margin-bottom:3px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">💾 Save</button>
          <button id="atrRmkEditBtn_${idx}" onclick="atrFieldEdit(${idx},'remarks')"
            style="display:${savedRmk?'block':'none'};width:100%;margin-bottom:3px;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:#f0f2f7;color:#374151;border:1px solid #cbd2e0;border-radius:5px;padding:5px 0;cursor:pointer;">✏️ Edit</button>
          <button id="atrRmkUpdateBtn_${idx}" onclick="atrFieldSave(${idx},'remarks')"
            style="display:none;width:100%;font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:5px;padding:5px 0;cursor:pointer;">✅ Update</button>`
-      : `<span style="font-size:10px;color:#9ca3af;">—</span>`;
+      : `<span style="font-size:10px;color:#9ca3af;">🔒 Admin only</span>`;
 
     return `<tr style="${rowStyle}">
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${displaySN}</td>
@@ -6620,13 +6874,17 @@ function renderReport(){
   const printBtn = document.querySelector('#tab-report .btn-print');
   if (printBtn) printBtn.style.display = (currentUser && (currentUser.isAdmin || currentUser.isUser)) ? '' : 'none';
 
+  // Apply location restriction for users
+  const locFilter = getUserLocationFilter();
+  const visibleInspections = (inspections || []).filter(locFilter);
+
   // Apply month filter
   const monthFilter = document.getElementById('reportMonthFilter')?.value || '';
-  let recs = inspections;
+  let recs = visibleInspections;
   if(monthFilter){
-    recs = inspections.filter(r=>{
+    recs = visibleInspections.filter(r=>{
       if(!r.dateInspected) return false;
-      const m = r.dateInspected.substring(5,7); // YYYY-MM-DD
+      const m = r.dateInspected.substring(5,7);
       return m === monthFilter;
     });
   }
@@ -6665,7 +6923,7 @@ function renderReport(){
     return;
   }
   document.getElementById('noReportDefects').style.display='none';
-  db.innerHTML=defects.map((r,i)=>`<tr><td>${i+1}</td><td>${r.projectName||'—'}</td><td>${r.dzongkhag||'—'}</td><td>${r.dateInspected||'—'}</td><td>${r.defectDesc||'—'}</td><td>${r.action||'—'}</td><td>${r.atrDeadline||'—'}</td></tr>`).join('');
+  db.innerHTML=defects.map((r,i)=>`<tr><td>${i+1}</td><td>${r.projectName||'—'}</td><td>${r.dzongkhag||r.ro||r.other||'—'}</td><td>${r.dateInspected||'—'}</td><td>${r.defectDesc||'—'}</td><td>${r.action||'—'}</td><td>${r.atrDeadline||'—'}</td></tr>`).join('');
   // Also populate project dropdown
   _populateProjectDropdown();
 }
@@ -6695,7 +6953,7 @@ function onReportTypeChange(){
 
 function _populateProjectDropdown(){
   const sel = document.getElementById('reportProjectSelect'); if(!sel) return;
-  const projects = [...new Set(inspections.map(r=>r.projectName).filter(Boolean))].sort();
+  const projects = [...new Set(getUserVisibleInspections().map(r=>r.projectName).filter(Boolean))].sort();
   const cur = sel.value;
   sel.innerHTML = '<option value="">— Select a project —</option>' +
     projects.map(p=>`<option value="${p}" ${p===cur?'selected':''}>${p}</option>`).join('');
@@ -6705,7 +6963,8 @@ function _populateProjectDropdown(){
 function _getNCRRecords(){
   const monthFilter = document.getElementById('ncrMonthFilter')?.value || '';
   const statusFilter = document.getElementById('ncrStatusFilter')?.value || '';
-  let recs = (inspections||[]).filter(r=>r.defect==='Yes');
+  const locFilter = getUserLocationFilter();
+  let recs = getUserVisibleInspections().filter(r=>r.defect==='Yes');
   if(monthFilter){
     recs = recs.filter(r=>{
       const d = r.dateInspected||r.atrDeadline||'';
@@ -11675,7 +11934,8 @@ function showAtrLoginPopup() {
   if (sessionStorage.getItem(userKey)) return;
   sessionStorage.setItem(userKey, '1');
 
-  const defects = inspections.filter(r => r.defect === 'Yes' && !r.atrSubmitted);
+  // Filter by user's location — user only sees their own location's ATRs
+  const defects = getUserVisibleInspections().filter(r => r.defect === 'Yes' && !r.atrSubmitted);
   if (!defects.length) return;
 
   let overdue = [], dueSoon = [], pending = [];
@@ -15044,6 +15304,393 @@ function ispExportCSV(){
   a.download = 'CQIS_Inspection_Schedule_' + new Date().toISOString().substring(0,10) + '.csv';
   a.click();
 }
+
+// ================================================================
+//  EMAIL NOTIFICATION SYSTEM — Firebase Address Book + direct mailto
+// ================================================================
+
+const EM_HISTORY_KEY = 'cqis_email_history';
+const COL_EMAIL_BOOK = 'emailAddressBook';
+
+const EM_USER_SLOTS = [
+  { id:'adm_tenzin',   name:'Tenzin',                       group:'admins'    },
+  { id:'adm_pema',     name:'Pema Namgay',                  group:'admins'    },
+  { id:'adm_luv',      name:'Luv Chhetri',                  group:'admins'    },
+  { id:'adm_kdendup',  name:'K. Dendup',                    group:'admins'    },
+  { id:'BUMTDZK',  name:'Bumthang Dzongkhag',        group:'dzongkhag' },
+  { id:'CHHKDZK',  name:'Chhukha Dzongkhag',         group:'dzongkhag' },
+  { id:'DAGADZK',  name:'Dagana Dzongkhag',           group:'dzongkhag' },
+  { id:'GASADZK',  name:'Gasa Dzongkhag',             group:'dzongkhag' },
+  { id:'HAADZK',   name:'Haa Dzongkhag',              group:'dzongkhag' },
+  { id:'LHUEDZK',  name:'Lhuentse Dzongkhag',         group:'dzongkhag' },
+  { id:'MONGDZK',  name:'Mongar Dzongkhag',            group:'dzongkhag' },
+  { id:'PARODZK',  name:'Paro Dzongkhag',              group:'dzongkhag' },
+  { id:'PEMAGDZK', name:'Pemagatshel Dzongkhag',      group:'dzongkhag' },
+  { id:'PUNADZK',  name:'Punakha Dzongkhag',           group:'dzongkhag' },
+  { id:'SJKDZK',   name:'S/Jongkhar Dzongkhag',       group:'dzongkhag' },
+  { id:'SAMTDZK',  name:'Samtse Dzongkhag',            group:'dzongkhag' },
+  { id:'SARPDZK',  name:'Sarpang Dzongkhag',           group:'dzongkhag' },
+  { id:'THIMDZK',  name:'Thimphu Dzongkhag',           group:'dzongkhag' },
+  { id:'TRASDZK',  name:'Trashigang Dzongkhag',        group:'dzongkhag' },
+  { id:'TYANDZK',  name:'Trashi Yangtse Dzongkhag',   group:'dzongkhag' },
+  { id:'TRONDZK',  name:'Trongsa Dzongkhag',           group:'dzongkhag' },
+  { id:'TSIRDZK',  name:'Tsirang Dzongkhag',           group:'dzongkhag' },
+  { id:'WANGDZK',  name:'Wangdue Phodrang Dzongkhag', group:'dzongkhag' },
+  { id:'ZHEMDZK',  name:'Zhemgang Dzongkhag',          group:'dzongkhag' },
+  { id:'ROTHIM',  name:'RO Thimphu',            group:'ro' },
+  { id:'ROPHL',   name:'RO Phuentsholing',      group:'ro' },
+  { id:'ROSRP',   name:'RO Sarpang',            group:'ro' },
+  { id:'ROSJK',   name:'RO Samdrup Jongkhar',   group:'ro' },
+  { id:'ROTRN',   name:'RO Trongsa',            group:'ro' },
+  { id:'ROTNG',   name:'RO Tingtibi',           group:'ro' },
+  { id:'ROLMG',   name:'RO Lingmethang',        group:'ro' },
+  { id:'ROLBS',   name:'RO Lobeysa',            group:'ro' },
+  { id:'ROTRG',   name:'RO Trashigang',         group:'ro' },
+  { id:'THIMTRD', name:'Thimphu Thromde',              group:'thromde' },
+  { id:'PHLTRD',  name:'Phuentshogling Thromde',       group:'thromde' },
+  { id:'GELTRD',  name:'Gelephu Thromde',              group:'thromde' },
+  { id:'SJKTRD',  name:'Samdrup Jongkhar Thromde',     group:'thromde' },
+];
+
+let emEmailMap   = {};
+let emRecipients = [];
+
+// ── Load address book from Firestore ──
+async function emLoadAddressBook(silent) {
+  try {
+    const snap = await db.collection(COL_EMAIL_BOOK).get();
+    emEmailMap = {};
+    snap.forEach(doc => {
+      const email = doc.data().email || '';
+      if (email) emEmailMap[doc.id] = email;
+    });
+  } catch(e) {
+    console.warn('Address book load error:', e);
+  }
+  if (!silent) emRenderAddressBook();
+  emRefreshDropdownAndButtons();
+}
+
+// ── Save one email to Firestore ──
+async function emSaveEmailEntry(slotId) {
+  if (!currentUser || !currentUser.isAdmin) { toast('⚠️ Admin access required.'); return; }
+  const input = document.getElementById('emInput_' + slotId);
+  if (!input) return;
+  const email = input.value.trim();
+  if (email && !email.includes('@')) { toast('⚠️ Enter a valid email address.'); input.focus(); return; }
+  try {
+    if (email) {
+      await db.collection(COL_EMAIL_BOOK).doc(slotId).set({ email: email }, { merge: true });
+      emEmailMap[slotId] = email;
+    } else {
+      await db.collection(COL_EMAIL_BOOK).doc(slotId).delete();
+      delete emEmailMap[slotId];
+    }
+    const row = input.closest('[id^="emRow_"]');
+    if (row) {
+      row.style.background  = email ? '#f0fdf4' : '#fef9f0';
+      row.style.borderColor = email ? '#bbf7d0' : '#fed7aa';
+    }
+    const badge = document.getElementById('emBadge_' + slotId);
+    if (badge) { badge.textContent = email ? '✅ Saved' : '— Not set'; badge.style.color = email ? '#16a34a' : '#9ca3af'; }
+    emRefreshDropdownAndButtons();
+    const slotName = EM_USER_SLOTS.find(s => s.id === slotId)?.name || slotId;
+    toast(email ? ('✅ Email saved for ' + slotName) : '🗑 Email removed.');
+  } catch(e) {
+    toast('⚠️ Save failed: ' + (e.message || e));
+  }
+}
+
+// ── Render address book table ──
+function emRenderAddressBook() {
+  const container = document.getElementById('emAddressBook');
+  if (!container) return;
+  const groups = [
+    { key:'admins',    label:'👔 Admins',            color:'#8b5cf6' },
+    { key:'dzongkhag', label:'🏔 Dzongkhags',         color:'#e8820c' },
+    { key:'ro',        label:'🏢 Regional Offices',   color:'#3b82f6' },
+    { key:'thromde',   label:'🏙 Thromdes',           color:'#10b981' },
+  ];
+  let html = '';
+  groups.forEach(g => {
+    const slots  = EM_USER_SLOTS.filter(s => s.group === g.key);
+    const filled = slots.filter(s => emEmailMap[s.id]).length;
+    html += '<div style="margin-bottom:20px;">';
+    html += '<div style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:' + g.color + ';border-bottom:2px solid ' + g.color + '20;padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">';
+    html += '<span>' + g.label + '</span>';
+    html += '<span style="font-size:10px;font-family:Poppins,sans-serif;font-weight:400;color:#6b7280;">' + filled + '/' + slots.length + ' set</span>';
+    html += '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:5px;">';
+    slots.forEach(function(slot) {
+      var cur = emEmailMap[slot.id] || '';
+      html += '<div id="emRow_' + slot.id + '" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;border:1px solid ' + (cur?'#bbf7d0':'#fed7aa') + ';background:' + (cur?'#f0fdf4':'#fef9f0') + ';">';
+      html += '<div style="min-width:195px;max-width:195px;"><div style="font-size:12px;font-weight:600;color:#1a2236;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + slot.name + '</div>';
+      html += '<div style="font-size:10px;color:#9ca3af;font-family:JetBrains Mono,monospace;">' + slot.id + '</div></div>';
+      html += '<input type="email" id="emInput_' + slot.id + '" value="' + cur + '" placeholder="Enter real email address…" style="flex:1;background:#fff;border:1px solid #e2e6ef;border-radius:6px;padding:7px 10px;font-size:12px;outline:none;color:#1a2236;min-width:0;" onfocus="this.style.borderColor=\'#e8820c\'" onblur="this.style.borderColor=\'#e2e6ef\'" onkeydown="if(event.key===\'Enter\'){emSaveEmailEntry(\'' + slot.id + '\');event.preventDefault();}">';
+      html += '<button onclick="emSaveEmailEntry(\'' + slot.id + '\')" style="background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Save</button>';
+      html += '<span id="emBadge_' + slot.id + '" style="font-size:10px;min-width:60px;text-align:center;font-weight:600;color:' + (cur?'#16a34a':'#9ca3af') + ';">' + (cur?'✅ Saved':'— Not set') + '</span>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+// ── Refresh individual dropdown and group button counts ──
+function emRefreshDropdownAndButtons() {
+  const sel = document.getElementById('emIndividualSel');
+  if (sel) {
+    const groups = [
+      { key:'admins',    label:'Admins' },
+      { key:'dzongkhag', label:'Dzongkhags' },
+      { key:'ro',        label:'Regional Offices' },
+      { key:'thromde',   label:'Thromdes' },
+    ];
+    let html = '<option value="">— Select a person —</option>';
+    let missingCount = 0;
+    groups.forEach(function(g) {
+      const withEmail    = EM_USER_SLOTS.filter(s => s.group === g.key && emEmailMap[s.id]);
+      const withoutEmail = EM_USER_SLOTS.filter(s => s.group === g.key && !emEmailMap[s.id]);
+      if (withEmail.length) {
+        html += '<optgroup label="' + g.label + '">';
+        withEmail.forEach(function(s) {
+          html += '<option value="' + s.id + '">' + s.name + '  &lt;' + emEmailMap[s.id] + '&gt;</option>';
+        });
+        html += '</optgroup>';
+      }
+      missingCount += withoutEmail.length;
+    });
+    if (missingCount) {
+      html += '<optgroup label="── No email set (' + missingCount + ') — add in Address Book ──"></optgroup>';
+    }
+    sel.innerHTML = html;
+  }
+  const gKeys   = ['admins','dzongkhag','ro','thromde'];
+  const gLabels = { admins:'👔 All Admins', dzongkhag:'🏔 All Dzongkhags', ro:'🏢 All ROs', thromde:'🏙 All Thromdes' };
+  gKeys.forEach(function(g) {
+    const count = EM_USER_SLOTS.filter(s => s.group === g && emEmailMap[s.id]).length;
+    const btn   = document.getElementById('emGroupBtn_' + g);
+    if (btn) { btn.textContent = gLabels[g] + ' (' + count + ')'; btn.style.opacity = count ? '1' : '0.55'; }
+  });
+  const allCount = EM_USER_SLOTS.filter(s => emEmailMap[s.id]).length;
+  const allBtn   = document.getElementById('emGroupBtn_all');
+  if (allBtn) allBtn.textContent = '📢 All Users (' + allCount + ')';
+}
+
+// ── Add group to recipients ──
+function emAddGroup(group) {
+  const slots = (group === 'all')
+    ? EM_USER_SLOTS.filter(s => emEmailMap[s.id])
+    : EM_USER_SLOTS.filter(s => s.group === group && emEmailMap[s.id]);
+  if (!slots.length) {
+    toast('⚠️ No emails set for this group. Go to 📒 Address Book to add them.');
+    emShowSubTab('addressbook');
+    return;
+  }
+  let added = 0;
+  slots.forEach(function(s) {
+    if (!emRecipients.find(r => r.email === emEmailMap[s.id])) {
+      emRecipients.push({ name: s.name, email: emEmailMap[s.id] });
+      added++;
+    }
+  });
+  emRenderRecipients();
+  toast('✅ Added ' + added + ' recipient(s)');
+}
+
+// ── Add individual from dropdown ──
+function emAddIndividual() {
+  const sel = document.getElementById('emIndividualSel');
+  if (!sel || !sel.value) { toast('Please select a person first.'); return; }
+  const slot  = EM_USER_SLOTS.find(s => s.id === sel.value);
+  if (!slot) return;
+  const email = emEmailMap[slot.id];
+  if (!email) { toast('⚠️ No email for this person. Add it in Address Book.'); return; }
+  if (emRecipients.find(r => r.email === email)) { toast('Already added.'); return; }
+  emRecipients.push({ name: slot.name, email: email });
+  sel.selectedIndex = 0;
+  emRenderRecipients();
+}
+
+// ── Add custom email ──
+function emAddCustom() {
+  const emailEl = document.getElementById('emCustomEmail');
+  const nameEl  = document.getElementById('emCustomName');
+  const email   = emailEl ? emailEl.value.trim() : '';
+  const name    = (nameEl ? nameEl.value.trim() : '') || (email ? email.split('@')[0] : '');
+  if (!email || !email.includes('@')) { toast('⚠️ Enter a valid email address.'); return; }
+  if (emRecipients.find(r => r.email === email)) { toast('Already added.'); return; }
+  emRecipients.push({ name: name, email: email });
+  if (emailEl) emailEl.value = '';
+  if (nameEl)  nameEl.value  = '';
+  emRenderRecipients();
+}
+
+function emRemoveRecipient(email) {
+  emRecipients = emRecipients.filter(r => r.email !== email);
+  emRenderRecipients();
+}
+
+function emClearRecipients() {
+  emRecipients = [];
+  emRenderRecipients();
+}
+
+function emRenderRecipients() {
+  const box   = document.getElementById('emRecipientsBox');
+  const count = document.getElementById('emRecipientCount');
+  if (!box) return;
+  if (!emRecipients.length) {
+    box.innerHTML = '<span style="font-size:11px;color:#9ca3af;padding:4px;">No recipients added yet…</span>';
+    if (count) count.textContent = '(0)';
+    return;
+  }
+  box.innerHTML = emRecipients.map(function(r) {
+    const safeEmail = r.email.replace(/'/g, '&#39;');
+    return '<span class="em-recipient-tag" title="' + r.email + '">'
+      + '<span>👤 ' + r.name + '</span>'
+      + '<span style="font-size:10px;color:#6b7280;">&lt;' + r.email + '&gt;</span>'
+      + '<button class="em-tag-remove" onclick="emRemoveRecipient(\'' + safeEmail + '\')" title="Remove">×</button>'
+      + '</span>';
+  }).join('');
+  if (count) count.textContent = '(' + emRecipients.length + ')';
+}
+
+// ── Open in email app (mailto) ──
+function emSend() {
+  if (!emRecipients.length) { toast('⚠️ Please add at least one recipient.'); return; }
+  const subjectEl = document.getElementById('emSubject');
+  const bodyEl    = document.getElementById('emBody');
+  const subject   = subjectEl ? subjectEl.value.trim() : '';
+  const body      = bodyEl    ? bodyEl.value.trim()    : '';
+  if (!subject) { toast('⚠️ Please enter a subject.'); return; }
+  if (!body)    { toast('⚠️ Please write a message.'); return; }
+  const to  = emRecipients.map(r => r.email).join(',');
+  const url = 'mailto:' + to + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  window.open(url, '_blank');
+  toast('📬 Email opened for ' + emRecipients.length + ' recipient(s) — click Send in your email app.');
+  emSaveHistory({ subject: subject, body: body, recipients: emRecipients.slice(), sentAt: new Date().toISOString() });
+}
+
+// ── Quick templates ──
+function emLoadTemplate(type) {
+  const subEl  = document.getElementById('emSubject');
+  const bodyEl = document.getElementById('emBody');
+  const today  = new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const totalInsp    = (inspections || []).length;
+  const totalDefects = (inspections || []).filter(r => r.defect === 'Yes').length;
+  const overdueATR   = (inspections || []).filter(function(r) {
+    if (r.defect !== 'Yes' || !r.atrDeadline || r.atrSubmitted) return false;
+    return new Date(r.atrDeadline + 'T00:00:00') < new Date();
+  }).length;
+  const tpls = {
+    monthly_update:   { subject: 'Monthly Inspection Update — ' + new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'}) + ' — OPMC/OCASC · CQD',
+                        body: 'Dear Team,\n\nMonthly inspection summary:\n\n📋 Total Inspections : ' + totalInsp + '\n⚠️  Defects Found    : ' + totalDefects + '\n🔴 Overdue ATRs      : ' + overdueATR + '\n\nPlease ensure all outstanding ATRs are submitted.\n\nRegards,\nOPMC/OCASC · CQD\nDate: ' + today },
+    defect_alert:     { subject: '⚠️ Defect Alert — Action Required — OPMC/OCASC · CQD',
+                        body: 'Dear Focal Person,\n\n⚠️ Total Defects Found : ' + totalDefects + '\n🔴 Overdue ATRs        : ' + overdueATR + '\n\nPlease submit ATRs through CQIS immediately.\n\nRegards,\nOPMC/OCASC · CQD\nDate: ' + today },
+    atr_reminder:     { subject: '🔔 ATR Submission Reminder — OPMC/OCASC · CQD',
+                        body: 'Dear Focal Person,\n\nThis is a reminder that ATRs are due or overdue.\n\n🔴 Overdue ATRs : ' + overdueATR + '\n\nPlease log in to CQIS and submit your ATR immediately.\n\nRegards,\nOPMC/OCASC · CQD\nDate: ' + today },
+    inspection_notice:{ subject: '📋 Inspection Schedule Notice — OPMC/OCASC · CQD',
+                        body: 'Dear Team,\n\nConstruction quality inspections are scheduled for your area.\n\nKindly ensure:\n  • Site access and safety arrangements\n  • Contract documents and drawings\n  • Material test certificates\n  • Contractor and engineer on site\n\nRegards,\nOPMC/OCASC · CQD\nDate: ' + today },
+    general:          { subject: 'Official Circular — OPMC/OCASC · CQD — ' + today,
+                        body: 'Dear Team,\n\n[Write your message here]\n\nRegards,\nOPMC/OCASC · CQD\nDate: ' + today },
+  };
+  const tpl = tpls[type];
+  if (tpl) {
+    if (subEl)  subEl.value  = tpl.subject;
+    if (bodyEl) bodyEl.value = tpl.body;
+    toast('📄 Template loaded!');
+  }
+}
+
+function emClearCompose() {
+  const s = document.getElementById('emSubject');
+  const b = document.getElementById('emBody');
+  if (s) s.value = '';
+  if (b) b.value = '';
+}
+
+// ── Sent history (localStorage) ──
+function emSaveHistory(record) {
+  try {
+    const hist = JSON.parse(localStorage.getItem(EM_HISTORY_KEY) || '[]');
+    hist.unshift(record);
+    if (hist.length > 50) hist.length = 50;
+    localStorage.setItem(EM_HISTORY_KEY, JSON.stringify(hist));
+    emRenderHistory();
+  } catch(e) {}
+}
+
+function emRenderHistory() {
+  const list = document.getElementById('emHistoryList');
+  if (!list) return;
+  try {
+    const hist = JSON.parse(localStorage.getItem(EM_HISTORY_KEY) || '[]');
+    if (!hist.length) {
+      list.innerHTML = '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:20px;">No emails sent yet.</div>';
+      return;
+    }
+    list.innerHTML = hist.slice(0, 20).map(function(h) {
+      const dt = h.sentAt ? new Date(h.sentAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      const recs = h.recipients || [];
+      const recipSummary = recs.length > 3
+        ? recs.slice(0,2).map(r=>r.name).join(', ') + ' +' + (recs.length-2) + ' more'
+        : recs.map(r=>r.name).join(', ') || '—';
+      const hJson = JSON.stringify(h).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+      return '<div class="em-history-item">'
+        + '<div style="display:flex;justify-content:space-between;gap:8px;">'
+        + '<div style="font-size:12px;font-weight:600;color:#1a2236;flex:1;">' + (h.subject||'(no subject)') + '</div>'
+        + '<div style="font-size:10px;color:#9ca3af;white-space:nowrap;">' + dt + '</div>'
+        + '</div>'
+        + '<div style="font-size:11px;color:#6b7280;margin-top:4px;">👥 ' + recipSummary + ' · ' + recs.length + ' recipient(s)</div>'
+        + '<button onclick="emResend(' + hJson + ')" style="margin-top:6px;font-size:10px;background:none;border:1px solid #e8820c;color:#e8820c;border-radius:4px;padding:3px 10px;cursor:pointer;font-weight:600;">↩ Resend</button>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="font-size:12px;color:#9ca3af;">Error loading history.</div>';
+  }
+}
+
+function emResend(record) {
+  emRecipients = record.recipients || [];
+  emRenderRecipients();
+  const s = document.getElementById('emSubject');
+  const b = document.getElementById('emBody');
+  if (s) s.value = record.subject || '';
+  if (b) b.value = record.body    || '';
+  emShowSubTab('compose');
+  toast('📋 Loaded — edit and resend.');
+}
+
+function emClearHistory() {
+  if (!confirm('Clear all sent email history?')) return;
+  localStorage.removeItem(EM_HISTORY_KEY);
+  emRenderHistory();
+  toast('🗑 History cleared.');
+}
+
+// ── Sub-tab switcher ──
+function emShowSubTab(tab) {
+  ['compose','addressbook','history'].forEach(function(t) {
+    const panel = document.getElementById('emPanel_' + t);
+    const btn   = document.getElementById('emSubTab_' + t);
+    if (panel) panel.style.display = (t === tab) ? '' : 'none';
+    if (btn) {
+      btn.style.background  = (t === tab) ? 'linear-gradient(135deg,#e8820c,#d97706)' : 'none';
+      btn.style.color       = (t === tab) ? '#fff' : '#6b7280';
+      btn.style.borderColor = (t === tab) ? '#e8820c' : '#e2e6ef';
+    }
+  });
+  if (tab === 'addressbook') { emLoadAddressBook(); }
+  if (tab === 'history')     { emRenderHistory(); }
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', function() {
+  emLoadAddressBook(true);
+  emRenderHistory();
+});
+
 </script>
 
 
