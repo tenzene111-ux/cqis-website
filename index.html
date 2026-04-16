@@ -2252,20 +2252,23 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         </div>
         <div class="form-grid">
           <div class="field-wrap"><label>Project Name <span style="color:#dc2626;">*</span></label><input type="text" id="fProjectName" placeholder="e.g. Thimphu–Paro Highway Upgrade" oninput="triggerQCCheck()"></div>
-          <div class="field-wrap"><label>Contract / Project No.</label><input type="text" id="fContractNo" placeholder="e.g. OPMC/ROAD/2025/001"></div>
+          <div class="field-wrap">
+            <label>Contract / Project No.</label>
+            <input type="text" id="fContractNo" placeholder="e.g. CQD/INS/PNK/26/01">
+          </div>
           <div class="field-wrap"><label>Road Section / Chainage</label><input type="text" id="fRoadSection" placeholder="e.g. Ch. 0+000 to Ch. 5+200"></div>
           <div class="field-wrap"><label>Contractor Name</label><input type="text" id="fContractor" placeholder="e.g. Druk Construction Ltd."></div>
           <div class="field-wrap" id="dzongkhagField">
             <label>Dzongkhag <span style="color:#dc2626;">*</span></label>
-            <select id="fDzongkhag"><option value="">— Select Dzongkhag —</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
+            <select id="fDzongkhag" onchange="updateContractNoDropdown()"><option value="">— Select Dzongkhag —</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
           </div>
           <div class="field-wrap" id="roThromdeField" style="display:none;">
             <label>Regional Office / Thromde <span style="color:#dc2626;">*</span></label>
-            <select id="fROForm"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+            <select id="fROForm" onchange="updateContractNoDropdown()"><option value="">— Select RO / Thromde —</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
           </div>
           <div class="field-wrap" id="otherLocField" style="display:none;">
             <label>Other Agency / Location <span style="color:#dc2626;">*</span></label>
-            <input type="text" id="fOtherLoc" placeholder="e.g. NPPF, DoE, MoWHS, Ministry…">
+            <input type="text" id="fOtherLoc" placeholder="e.g. NPPF, DoE, MoWHS, Ministry…" oninput="clearTimeout(_contractDropdownTimer);_contractDropdownTimer=setTimeout(updateContractNoDropdown,600)">
           </div>
         </div>
       </div>
@@ -4201,6 +4204,18 @@ async function loadAllDataFromFirebase() {
     // Cache locally as backup
     localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
 
+    // Ensure the global SN counter is at least as high as the highest SN in data
+    if (inspections.length > 0) {
+      const maxSN = Math.max(...inspections.map(r => r.sn || 0));
+      const counterRef = db.collection('counters').doc('inspections');
+      const counterDoc = await counterRef.get();
+      const currentCounter = counterDoc.exists ? (counterDoc.data().value || 0) : 0;
+      if (maxSN > currentCounter) {
+        await counterRef.set({ value: maxSN }, { merge: true });
+        console.log(`✅ Counter synced to ${maxSN}`);
+      }
+    }
+
     // Load project registry
     const prSnap = await db.collection(COL_PROJ_REG).orderBy('sn').get();
     projectRegistry = [];
@@ -5716,7 +5731,9 @@ function renderTable(){
     const cur=tblOtherSel.value;
     tblOtherSel.innerHTML='<option value="">All Others</option>'+allOthers.map(o=>`<option value="${o}"${o===cur?' selected':''}>${o}</option>`).join('');
   }
-  let rows=inspections.filter(r=>{
+  // Sort by stored sn ascending so order is stable across all admins
+  const sorted=[...inspections].sort((a,b)=>(a.sn||0)-(b.sn||0));
+  let rows=sorted.filter(r=>{
     if(dzF&&r.dzongkhag!==dzF)return false;
     if(roF&&r.ro!==roF)return false;
     if(othF&&r.other!==othF)return false;
@@ -5731,14 +5748,16 @@ function renderTable(){
   const isAdmin=currentUser&&currentUser.isAdmin;
   body.innerHTML=rows.map((r,i)=>{
     const status=calcATRStatus(r);
+    const displaySN = i+1; // always sequential regardless of stored sn
     return `<tr>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.sn}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${displaySN}</td>
       <td><strong>${r.projectName||'—'}</strong></td>
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.contractNo||'—'}</td>
       <td>${r.roadSection||'—'}</td><td>${r.contractor||'—'}</td>
       <td>${r.dzongkhag||'—'}</td><td>${r.ro||'—'}</td>
       <td>${r.other||'—'}</td>
       <td>${r.workType||'—'}</td><td>${r.workItem||'—'}</td>
+      <td>${r.dateInspected||'—'}</td>
       <td>${badgeHtml(r.defect)}</td>
       <td style="max-width:150px;">${r.defectDesc||'—'}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.moitRef||'—'}</td>
@@ -5885,6 +5904,8 @@ function saveEntry(){
   if(!insp){alert('Please enter the Inspector Name.');return;}
   if(!def){alert('Please select whether a Defect was Found.');return;}
 
+  const contractNo = (document.getElementById('fContractNo').value||'').trim();
+
   // Collect multiple MOIT references from checkboxes
   const moitSelected=[...document.querySelectorAll('.moit-cb:checked')].map(cb=>cb.value);
   const moitRef=moitSelected.join(', ');
@@ -5900,65 +5921,88 @@ function saveEntry(){
   });
   const firstTest=testRows[0]||{};
 
-  const entry={
-    sn:inspections.length+1,projectName:proj,
-    contractNo:document.getElementById('fContractNo').value.trim(),
-    roadSection:document.getElementById('fRoadSection').value.trim(),
-    contractor:cont,dzongkhag:dz,ro,other,
-    workType:getSelectedWorkTypes().join(', '),
-    workItem:document.getElementById('fWorkItem').value.trim(),
-    dateInspected:dt,defect:def,
-    defectDesc:document.getElementById('fDefectDesc').value.trim(),
-    moitRef,
-    action:document.getElementById('fAction').value.trim(),
-    inspector:insp,
-    atrDeadline:document.getElementById('fATRDeadline').value||'',
-    atrSubmitted:'',
-    test:firstTest.test||'',
-    reqVal:firstTest.reqVal||'',
-    result:firstTest.result||'',
-    passFailResult:firstTest.passFailResult||'',
-    testRows:JSON.stringify(testRows),
-    month:dt?getMonth(dt):'',year:dt?getYear(dt):'',
-    remarks:document.getElementById('fRemarks').value.trim(),
-  };
-  inspections.push(entry);
-  save();
+  dbLoading(true,'Checking for duplicates & assigning serial…');
 
-  // ── fire notification ──
-  notifAdd(
-    'inspection',
-    `New Inspection: ${entry.projectName}`,
-    `${entry.dzongkhag||entry.ro||entry.other||''}${entry.roadSection?' · '+entry.roadSection:''} — ${entry.workType||'General'} — ${entry.defect==='Yes'?'⚠️ Defect found':'✅ No defect'}`,
-    { projectName: entry.projectName, workType: entry.workType, dzongkhag: entry.dzongkhag||entry.ro||entry.other, defect: entry.defect }
-  );
+  // ── ASYNC SAVE with atomic SN and duplicate contract check ──
+  (async ()=>{
+    try {
+      // 1) Warn (not block) if same contract number exists
+      if(contractNo){
+        const dupSnap = await db.collection('inspections')
+          .where('contractNo','==',contractNo)
+          .limit(1).get();
+        const localDup = (inspections||[]).find(r=>r.contractNo===contractNo);
+        if(!dupSnap.empty || localDup){
+          const proceed = confirm(`⚠️ Contract / Project No. "${contractNo}" already exists in another record.\n\nAre you sure you want to use the same number? Click OK to proceed or Cancel to change it.`);
+          if(!proceed){ dbLoading(false); return; }
+        }
+      }
 
-  // Mark linked schedule as completed
-  const schedSel=document.getElementById('fScheduleLink');
-  if(schedSel&&schedSel.value!==''){
-    const schedIdx=parseInt(schedSel.value);
-    if(!isNaN(schedIdx)&&ispSchedules[schedIdx]){
-      ispSchedules[schedIdx].status='Completed';
-      ispSchedules[schedIdx].completedDate=dt;
-      ispSaveLS();
-      ispRender&&ispRender();
-      setTimeout(entryPopulateScheduleDropdown,300);
+      // 2) Get globally unique, sequential SN via Firestore transaction
+      dbLoading(true,'Assigning serial number…');
+      const globalSN = await getNextGlobalSN();
+
+      const entry={
+        sn: globalSN,
+        projectName:proj,
+        contractNo: contractNo,
+        roadSection:document.getElementById('fRoadSection').value.trim(),
+        contractor:cont,dzongkhag:dz,ro,other,
+        workType:getSelectedWorkTypes().join(', '),
+        workItem:document.getElementById('fWorkItem').value.trim(),
+        dateInspected:dt,defect:def,
+        defectDesc:document.getElementById('fDefectDesc').value.trim(),
+        moitRef,
+        action:document.getElementById('fAction').value.trim(),
+        inspector:insp,
+        atrDeadline:document.getElementById('fATRDeadline').value||'',
+        atrSubmitted:'',
+        test:firstTest.test||'',
+        reqVal:firstTest.reqVal||'',
+        result:firstTest.result||'',
+        passFailResult:firstTest.passFailResult||'',
+        testRows:JSON.stringify(testRows),
+        month:dt?getMonth(dt):'',year:dt?getYear(dt):'',
+        remarks:document.getElementById('fRemarks').value.trim(),
+      };
+      inspections.push(entry);
+      save();
+
+      // ── fire notification ──
+      notifAdd(
+        'inspection',
+        `New Inspection: ${entry.projectName}`,
+        `${entry.dzongkhag||entry.ro||entry.other||''}${entry.roadSection?' · '+entry.roadSection:''} — ${entry.workType||'General'} — ${entry.defect==='Yes'?'⚠️ Defect found':'✅ No defect'}`,
+        { projectName: entry.projectName, workType: entry.workType, dzongkhag: entry.dzongkhag||entry.ro||entry.other, defect: entry.defect }
+      );
+
+      // Mark linked schedule as completed
+      const schedSel=document.getElementById('fScheduleLink');
+      if(schedSel&&schedSel.value!==''){
+        const schedIdx=parseInt(schedSel.value);
+        if(!isNaN(schedIdx)&&ispSchedules[schedIdx]){
+          ispSchedules[schedIdx].status='Completed';
+          ispSchedules[schedIdx].completedDate=dt;
+          ispSaveLS();
+          ispRender&&ispRender();
+          setTimeout(entryPopulateScheduleDropdown,300);
+        }
+      }
+
+      dbLoading(true,'Saving inspection to Firebase…');
+      await fbSaveInspection(entry);
+      dbLoading(false);
+      document.getElementById('formSuccess').style.display='block';
+      setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
+      clearForm();
+      toast(`✅ Inspection saved! S/N: ${globalSN} · Contract: ${contractNo}`);
+      refreshDash();
+    } catch(err){
+      dbLoading(false);
+      toast('⚠️ Saved locally — Firebase sync failed');
+      console.error(err);
     }
-  }
-
-  dbLoading(true,'Saving inspection to Firebase…');
-  fbSaveInspection(entry).then(()=>{
-    dbLoading(false);
-    document.getElementById('formSuccess').style.display='block';
-    setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
-    clearForm();
-    toast('✅ Inspection saved to Firebase cloud!');
-    refreshDash();
-  }).catch(err=>{
-    dbLoading(false);
-    toast('⚠️ Saved locally — Firebase sync failed');
-    console.error(err);
-  });
+  })();
 }
 
 function clearForm(){
@@ -5994,7 +6038,8 @@ function clearForm(){
 // ===== ATR =====
 function renderATR(){
   const flt=document.getElementById('atrFilter').value;
-  const defects=inspections.filter(r=>r.defect==='Yes');
+  // Sort defects by stored sn for stable ordering
+  const defects=[...inspections].sort((a,b)=>(a.sn||0)-(b.sn||0)).filter(r=>r.defect==='Yes');
   let overdue=0,dueSoon=0,pending=0,submitted=0;
   defects.forEach(r=>{
     const s=calcATRStatus(r);
@@ -6012,8 +6057,9 @@ function renderATR(){
   const isUser=currentUser&&currentUser.isUser;
   const canEditFields = isAdmin || isUser;
 
-  body.innerHTML=rows.map(r=>{
+  body.innerHTML=rows.map((r,rowIndex)=>{
     const idx=inspections.indexOf(r),status=calcATRStatus(r);
+    const displaySN = rowIndex + 1; // sequential within ATR tracker view
 
     // Load review decision (Accepted/Rejected/Pending) from localStorage
     const reviewDecision = _atrLoadField(idx,'reviewDecision') || '';
@@ -6116,7 +6162,7 @@ function renderATR(){
       : `<span style="font-size:10px;color:#9ca3af;">—</span>`;
 
     return `<tr style="${rowStyle}">
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.sn}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${displaySN}</td>
       <td><strong>${r.projectName||'—'}</strong></td>
       <td>${r.dzongkhag||'—'}</td><td>${r.ro||'—'}</td>
       <td>${r.other||'—'}</td>
@@ -7660,7 +7706,10 @@ function entryFillFromSchedule(val){
   if(!s) return;
   // Auto-fill entry form fields
   if(s.projectName){ const el=document.getElementById('fProjectName'); if(el) el.value=s.projectName; }
-  if(s.contractNo){  const el=document.getElementById('fContractNo');  if(el) el.value=s.contractNo; }
+  if(s.contractNo){
+    const el=document.getElementById('fContractNo');
+    if(el) el.value=s.contractNo;
+  }
   if(s.roadSection){ const el=document.getElementById('fRoadSection'); if(el) el.value=s.roadSection; }
   if(s.contractor){  const el=document.getElementById('fContractor');  if(el) el.value=s.contractor; }
   if(s.inspector){   const el=document.getElementById('fInspector');   if(el) el.value=s.inspector; }
@@ -7677,20 +7726,23 @@ function entryFillFromSchedule(val){
   showToast('✅ Entry auto-filled from schedule: '+s.projectName);
 }
 
-// Patch saveEntry to also update photo metadata and mark schedule complete
+// Patch saveEntry to also update photo metadata — capture form values BEFORE async save clears form
 const _origSaveEntry = saveEntry;
 saveEntry = function(){
-  _origSaveEntry();
-  // Update recently uploaded photos with this entry's project/area
+  // Capture values now (before async clearForm wipes them)
   const loc=(document.querySelector('input[name="locType"]:checked')?.value==='rothromde'
     ?document.getElementById('fROForm')?.value
     :document.getElementById('fDzongkhag')?.value)||'Unknown';
   const proj=document.getElementById('fProjectName')?.value?.trim()||'Unknown';
+  // Run the async original
+  _origSaveEntry();
+  // Update photo metadata immediately using captured values
   entryUpdatePhotoMetaOnSave(proj, loc);
   // Clear photo notes
   const pn=document.getElementById('fPhotoNotes');
   if(pn) pn.value='';
-  document.getElementById('photoPreviewGrid').innerHTML='';
+  const pg=document.getElementById('photoPreviewGrid');
+  if(pg) pg.innerHTML='';
 };
 
 // Patch ispSave to auto-register new projects into schedule dropdown
@@ -10098,6 +10150,146 @@ function toggleLocType(type) {
     if (othF) othF.style.display = '';
     document.getElementById('fDzongkhag').selectedIndex = 0;
     const roEl=document.getElementById('fROForm');if(roEl)roEl.selectedIndex=0;
+  }
+  // Contract number is now manual — no dropdown update needed
+}
+
+// ================================================================
+//  LOCATION CODE MAP — Short codes for Contract No. generation
+// ================================================================
+const LOCATION_CODE_MAP = {
+  // Dzongkhags
+  'Bumthang':'BUMT','Chhukha':'CHHK','Dagana':'DAGA','Gasa':'GASA','Haa':'HAA',
+  'Lhuentse':'LHUE','Mongar':'MONG','Paro':'PARO','Pemagatshel':'PEMG',
+  'Punakha':'PNK','S/Jongkhar':'SJK','Samtse':'SAMT','Sarpang':'SARP',
+  'Thimphu':'THIM','Trashigang':'TRAS','Trashi Yangtse':'TYAN','Trongsa':'TRON',
+  'Tsirang':'TSIR','Wangdue Phodrang':'WANG','Zhemgang':'ZHEM',
+  // Regional Offices
+  'RO Thimphu':'RTHM','RO Phuentsholing':'RPHL','RO Sarpang':'RSRP',
+  'RO Samdrup Jongkhar':'RSJK','RO Trongsa':'RTRN','RO Tingtibi':'RTNG',
+  'RO Lingmethang':'RLMG','RO Lobeysa':'RLBS','RO Trashigang':'RTRG',
+  // Thromdes
+  'Thimphu Thromde':'TTRD','Phuentshogling Thromde':'PTRD',
+  'Gelephu Thromde':'GTRD','Samdrup Jongkhar Thromde':'STRD',
+  // Other / fallback
+  'OTHER':'OTH'
+};
+
+function getLocationCode(location) {
+  if (!location) return 'OTH';
+  return LOCATION_CODE_MAP[location] || location.replace(/[^A-Z0-9]/gi,'').toUpperCase().substring(0,4);
+}
+
+// Returns current year last 2 digits, e.g. 2026 → "26"
+function getYY() { return String(new Date().getFullYear()).slice(-2); }
+
+// Build contract number string: CQD/INS/{LOC}/{YY}/{NN}
+function buildContractNo(locCode, yy, seq) {
+  return `CQD/INS/${locCode}/${yy}/${String(seq).padStart(2,'0')}`;
+}
+
+// Get active location value from the form
+function getActiveLocation() {
+  const locType = document.querySelector('input[name="locType"]:checked')?.value || 'dzongkhag';
+  if (locType === 'dzongkhag') return document.getElementById('fDzongkhag')?.value || '';
+  if (locType === 'rothromde') return document.getElementById('fROForm')?.value || '';
+  return document.getElementById('fOtherLoc')?.value?.trim() || '';
+}
+
+// ================================================================
+//  CONTRACT NUMBER DROPDOWN — Load existing + generate next
+// ================================================================
+let _contractDropdownCache = {}; // cache to avoid repeated Firebase calls
+let _contractDropdownTimer = null;
+
+async function updateContractNoDropdown() {
+  const sel = document.getElementById('fContractNo');
+  const preview = document.getElementById('contractNoPreview');
+  const spinner = document.getElementById('contractNoLoadingSpinner');
+  if (!sel) return;
+
+  const location = getActiveLocation();
+  if (!location) {
+    sel.innerHTML = '<option value="">— Select a location first —</option>';
+    if (preview) preview.textContent = '';
+    return;
+  }
+
+  const locCode = getLocationCode(location);
+  const yy = getYY();
+  const prefix = `CQD/INS/${locCode}/${yy}/`;
+
+  if (spinner) spinner.style.display = 'inline';
+  sel.innerHTML = '<option value="">⏳ Loading…</option>';
+
+  try {
+    // Fetch all existing inspections for this locCode + year
+    const snap = await db.collection('inspections')
+      .where('contractNo', '>=', prefix)
+      .where('contractNo', '<', prefix + '\uffff')
+      .get();
+
+    const existingNos = new Set();
+    snap.forEach(doc => {
+      const cn = doc.data().contractNo;
+      if (cn) existingNos.add(cn);
+    });
+
+    // Also check local inspections array in case not yet synced
+    (inspections || []).forEach(r => {
+      if (r.contractNo && r.contractNo.startsWith(prefix)) existingNos.add(r.contractNo);
+    });
+
+    // Find next sequential number
+    let nextSeq = 1;
+    while (existingNos.has(buildContractNo(locCode, yy, nextSeq))) nextSeq++;
+    const nextNo = buildContractNo(locCode, yy, nextSeq);
+
+    // Build dropdown: new number as first option, then existing ones
+    let html = `<option value="${nextNo}" data-new="true">🆕 ${nextNo} (New)</option>`;
+    const sorted = [...existingNos].sort();
+    sorted.forEach(cn => {
+      html += `<option value="${cn}">📋 ${cn} (Existing)</option>`;
+    });
+
+    sel.innerHTML = html;
+    if (preview) preview.textContent = `Next new: ${nextNo} · ${existingNos.size} existing for this location/year`;
+
+  } catch(e) {
+    console.warn('Contract No. load error:', e);
+    // Fallback: generate from local data only
+    const existingNos = new Set();
+    (inspections || []).forEach(r => {
+      if (r.contractNo && r.contractNo.startsWith(prefix)) existingNos.add(r.contractNo);
+    });
+    let nextSeq = 1;
+    while (existingNos.has(buildContractNo(locCode, yy, nextSeq))) nextSeq++;
+    const nextNo = buildContractNo(locCode, yy, nextSeq);
+    sel.innerHTML = `<option value="${nextNo}" data-new="true">🆕 ${nextNo} (New — offline)</option>`;
+    if (preview) preview.textContent = `Offline mode — generated from local cache`;
+  }
+
+  if (spinner) spinner.style.display = 'none';
+}
+
+// ================================================================
+//  GLOBAL SERIAL NUMBER — Atomic counter via Firestore transaction
+// ================================================================
+async function getNextGlobalSN() {
+  const counterRef = db.collection('counters').doc('inspections');
+  try {
+    const newSN = await db.runTransaction(async (txn) => {
+      const doc = await txn.get(counterRef);
+      const currentSN = doc.exists ? (doc.data().value || 0) : 0;
+      const next = currentSN + 1;
+      txn.set(counterRef, { value: next }, { merge: true });
+      return next;
+    });
+    return newSN;
+  } catch(e) {
+    console.warn('Counter transaction failed, falling back to local count:', e);
+    // Fallback: use inspections array length + 1
+    return (inspections || []).length + 1;
   }
 }
 
