@@ -4375,13 +4375,21 @@ async function loadAllDataFromFirebase() {
     inspections = [];
     insSnap.forEach(doc => inspections.push({id: doc.id, ...doc.data()}));
 
-    // ── De-duplicate: remove entries with identical contractNo + projectName + contractor + dateInspected ──
-    // Keep the first (lowest sn) occurrence of each true duplicate group
-    const dedupSeen = new Set();
+    // ── De-duplicate on load ──
+    // Pass 1: exact match — same contractNo + projectName + contractor + dateInspected
+    const dedupSeen1 = new Set();
     inspections = inspections.filter(r => {
       const key = [r.contractNo||'', r.projectName||'', r.contractor||'', r.dateInspected||''].join('|||');
-      if(dedupSeen.has(key)) return false;
-      dedupSeen.add(key);
+      if(dedupSeen1.has(key)) return false;
+      dedupSeen1.add(key);
+      return true;
+    });
+    // Pass 2: same Firestore doc ID (shouldn't happen with deterministic IDs, but guard anyway)
+    const dedupIds = new Set();
+    inspections = inspections.filter(r => {
+      if(!r.id) return true;
+      if(dedupIds.has(r.id)) return false;
+      dedupIds.add(r.id);
       return true;
     });
 
@@ -4429,12 +4437,15 @@ async function loadAllDataFromFirebase() {
 // ================================================================
 async function fbSaveInspection(entry) {
   try {
-    const docRef = await db.collection(COL_INSPECTIONS).add(entry);
-    // Store Firebase doc ID back into local entry
+    // Use a deterministic doc ID based on SN so re-saving never creates a duplicate
+    const docId = 'insp-' + (entry.sn || Date.now());
+    const entryWithId = { ...entry, id: docId };
+    await db.collection(COL_INSPECTIONS).doc(docId).set(entryWithId, { merge: true });
+    // Store doc ID back into local array
     const idx = inspections.findIndex(r => r.sn === entry.sn);
-    if (idx > -1) inspections[idx].id = docRef.id;
+    if (idx > -1) inspections[idx].id = docId;
     localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
-    return docRef.id;
+    return docId;
   } catch(e) {
     console.error('Firebase save inspection error:', e);
     throw e;
@@ -6143,7 +6154,9 @@ function toggleDefect(){
   document.getElementById('actionField').style.opacity=show?'1':'0.4';
 }
 
+let _saveEntryInProgress = false;
 function saveEntry(){
+  if(_saveEntryInProgress){ toast('⏳ Save already in progress, please wait…'); return; }
   if(!currentUser||(!currentUser.isAdmin&&!currentUser.isUser)){alert('Access Denied: Only administrators and registered users can add inspection entries.');return;}
   const proj=document.getElementById('fProjectName').value.trim();
   const cont=document.getElementById('fContractor').value.trim();
@@ -6182,6 +6195,7 @@ function saveEntry(){
   });
   const firstTest=testRows[0]||{};
 
+  _saveEntryInProgress = true;
   dbLoading(true,'Checking for duplicates & assigning serial…');
 
   // ── ASYNC SAVE with atomic SN and duplicate contract check ──
@@ -6207,6 +6221,7 @@ function saveEntry(){
       }
       if(trueDupLocal || trueDupFirebase){
         dbLoading(false);
+        _saveEntryInProgress = false;
         alert(`⛔ Duplicate Entry Blocked!\n\nAn inspection for:\n  • Project: "${proj}"\n  • Contract No: "${contractNo}"\n  • Contractor: "${cont}"\n  • Date: "${dt}"\n\nalready exists in the register. Please check the Inspection Register.\n\nIf this is a new inspection on a different date, update the date and resubmit.`);
         return;
       }
@@ -6215,7 +6230,7 @@ function saveEntry(){
         const sameContractLocal = (inspections||[]).find(r => r.contractNo===contractNo);
         if(sameContractLocal){
           const proceed = confirm(`⚠️ Contract / Project No. "${contractNo}" already has a previous inspection on ${sameContractLocal.dateInspected}.\n\nThis appears to be a new inspection on a different date (${dt}).\n\nClick OK to proceed or Cancel to review.`);
-          if(!proceed){ dbLoading(false); return; }
+          if(!proceed){ dbLoading(false); _saveEntryInProgress = false; return; }
         }
       }
 
@@ -6276,10 +6291,12 @@ function saveEntry(){
       document.getElementById('formSuccess').style.display='block';
       setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
       clearForm();
+      _saveEntryInProgress = false;
       toast(`✅ Inspection saved! S/N: ${globalSN} · Contract: ${contractNo}`);
       refreshDash();
     } catch(err){
       dbLoading(false);
+      _saveEntryInProgress = false;
       toast('⚠️ Saved locally — Firebase sync failed');
       console.error(err);
     }
