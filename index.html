@@ -2215,7 +2215,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <span id="tableCount" style="font-size:12px;color:#6b7280;">0 records</span>
           </div>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th style="font-size:10px;min-width:52px;">Reg<br>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
         <div class="no-data" id="noData" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">🛣️</div>No inspection records found. Add a new entry to get started.</div>
       </div>
     </div>
@@ -2277,8 +2277,13 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <div class="form-grid">
           <div class="field-wrap"><label>Project Name <span style="color:#dc2626;">*</span></label><input type="text" id="fProjectName" placeholder="e.g. Thimphu–Paro Highway Upgrade" oninput="triggerQCCheck()"></div>
           <div class="field-wrap">
-            <label>Contract / Project No.</label>
-            <input type="text" id="fContractNo" placeholder="e.g. CQD/INS/PNK/26/01">
+            <label>Contract / Project No.
+              <span id="contractNoLoadingSpinner" style="display:none;font-size:10px;color:#e8820c;margin-left:6px;">⏳ Loading…</span>
+            </label>
+            <select id="fContractNo" style="font-family:'JetBrains Mono',monospace;font-size:12px;">
+              <option value="">— Select location first —</option>
+            </select>
+            <div id="contractNoPreview" style="font-size:10px;color:#6b7280;margin-top:3px;"></div>
           </div>
           <div class="field-wrap"><label>Road Section / Chainage</label><input type="text" id="fRoadSection" placeholder="e.g. Ch. 0+000 to Ch. 5+200"></div>
           <div class="field-wrap"><label>Contractor Name</label><input type="text" id="fContractor" placeholder="e.g. Druk Construction Ltd."></div>
@@ -4376,7 +4381,26 @@ async function loadAllDataFromFirebase() {
     insSnap.forEach(doc => inspections.push({id: doc.id, ...doc.data()}));
 
     // ── De-duplicate on load ──
-    // Pass 1: exact match — same contractNo + projectName + contractor + dateInspected
+    // Pre-sort: for same SN, prefer the canonical doc ID ('insp-N') over
+    // old Date.now()-based IDs, and prefer newer updatedAt. This ensures
+    // edits (which save to 'insp-N') win over the original orphan doc.
+    inspections.sort((a, b) => {
+      if (a.sn !== b.sn) return (a.sn||0) - (b.sn||0);
+      const aCanon = (a.id||'').startsWith('insp-') ? 0 : 1;
+      const bCanon = (b.id||'').startsWith('insp-') ? 0 : 1;
+      if (aCanon !== bCanon) return aCanon - bCanon; // canonical first
+      // same canonicity — prefer newer updatedAt
+      return (b.updatedAt||'') > (a.updatedAt||'') ? 1 : -1;
+    });
+    // Pass 1: same SN — keep only the first (canonical/newest) occurrence
+    const dedupSNs = new Set();
+    inspections = inspections.filter(r => {
+      if(!r.sn) return true;
+      if(dedupSNs.has(r.sn)) return false;
+      dedupSNs.add(r.sn);
+      return true;
+    });
+    // Pass 2: exact match — same contractNo + projectName + contractor + dateInspected
     const dedupSeen1 = new Set();
     inspections = inspections.filter(r => {
       const key = [r.contractNo||'', r.projectName||'', r.contractor||'', r.dateInspected||''].join('|||');
@@ -4384,7 +4408,7 @@ async function loadAllDataFromFirebase() {
       dedupSeen1.add(key);
       return true;
     });
-    // Pass 2: same Firestore doc ID (shouldn't happen with deterministic IDs, but guard anyway)
+    // Pass 3: same Firestore doc ID
     const dedupIds = new Set();
     inspections = inspections.filter(r => {
       if(!r.id) return true;
@@ -4437,11 +4461,14 @@ async function loadAllDataFromFirebase() {
 // ================================================================
 async function fbSaveInspection(entry) {
   try {
-    // Use a deterministic doc ID based on SN so re-saving never creates a duplicate
-    const docId = 'insp-' + (entry.sn || Date.now());
+    // ALWAYS use the existing Firestore doc ID if the record already has one.
+    // Only generate a new ID for brand-new records that have never been saved.
+    // This prevents edits from creating a second parallel document in Firestore
+    // while leaving the original (with the old contractNo) intact.
+    const docId = entry.id || ('insp-' + (entry.sn || Date.now()));
     const entryWithId = { ...entry, id: docId };
     await db.collection(COL_INSPECTIONS).doc(docId).set(entryWithId, { merge: true });
-    // Store doc ID back into local array
+    // Store doc ID back into local array so future edits reuse the same doc
     const idx = inspections.findIndex(r => r.sn === entry.sn);
     if (idx > -1) inspections[idx].id = docId;
     localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
@@ -4485,11 +4512,20 @@ async function fbMarkATRSubmitted(entry) {
 // ================================================================
 async function fbSavePU(entry) {
   try {
-    const docRef = await db.collection(COL_PROJ_UPDATES).add(entry);
-    const idx = projectUpdates.findIndex(r => r.sn === entry.sn);
-    if (idx > -1) projectUpdates[idx].id = docRef.id;
-    localStorage.setItem('projectUpdates_cqis', JSON.stringify(projectUpdates));
-    return docRef.id;
+    let docId;
+    if (entry.id) {
+      // Existing record — update in place, never create a duplicate
+      await db.collection(COL_PROJ_UPDATES).doc(entry.id).set(entry, { merge: true });
+      docId = entry.id;
+    } else {
+      // Brand new record — let Firestore assign an ID
+      const docRef = await db.collection(COL_PROJ_UPDATES).add(entry);
+      docId = docRef.id;
+      const idx = projectUpdates.findIndex(r => r.sn === entry.sn);
+      if (idx > -1) projectUpdates[idx].id = docId;
+      localStorage.setItem('projectUpdates_cqis', JSON.stringify(projectUpdates));
+    }
+    return docId;
   } catch(e) {
     console.error('Firebase save PU error:', e);
     throw e;
@@ -4614,7 +4650,12 @@ const USER_ACCOUNTS = [
 let currentUser = null;
 let inspections = JSON.parse(localStorage.getItem('inspections_cqis') || '[]');
 let projectRegistry = JSON.parse(localStorage.getItem('projectRegistry_cqis') || '[]');
+let projectUpdates = JSON.parse(localStorage.getItem('projectUpdates_cqis') || '[]');
 let charts = {};
+
+// ── Guards to prevent double-init on refresh ──
+let _appInitialized = false;
+let _dueDateIntervalId = null;
 
 // ── RESTORE SESSION on page load ──
 (function restoreSession(){
@@ -4653,7 +4694,7 @@ let charts = {};
     // Load Firebase data silently in background
     loadAllDataFromFirebase().then(()=>{
       applyRoleRestrictions();
-      initApp();
+      if(!_appInitialized){ _appInitialized = true; initApp(); }
       // Panel stays CLOSED — user opens it by clicking
     });
   } catch(e){ localStorage.removeItem('cqis_session'); }
@@ -4914,7 +4955,7 @@ function finishLogin() {
     }
   }, 500);
   // Load from Firebase then initialize app
-  loadAllDataFromFirebase().then(() => initApp());
+  loadAllDataFromFirebase().then(() => { if(!_appInitialized){ _appInitialized = true; initApp(); } });
 }
 
 // ===== ROLE-BASED UI RESTRICTIONS =====
@@ -4974,6 +5015,8 @@ function getUserVisibleInspections() {
 // ===== LOGOUT =====
 function doLogout() {
   currentUser = null;
+  _appInitialized = false;  // reset so next login re-inits fresh
+  if(_dueDateIntervalId){ clearInterval(_dueDateIntervalId); _dueDateIntervalId = null; }
   try { localStorage.removeItem('cqis_session'); } catch(e){}
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginPage').style.display = 'flex';
@@ -6020,7 +6063,7 @@ function renderTable(){
   const isAdmin=currentUser&&currentUser.isAdmin;
   body.innerHTML=rows.map((r,i)=>{
     const status=calcATRStatus(r);
-    const displaySN=i+1;
+    const displaySN=r.sn||(i+1);
     return `<tr>
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${displaySN}</td>
       <td><strong>${r.projectName||'—'}</strong></td>
@@ -6133,16 +6176,31 @@ function saveEditEntry(){
     remarks:document.getElementById('eiRemarks').value.trim(),
     month:dt?getMonth(dt):(r.month||''),
     year:dt?getYear(dt):(r.year||''),
+    updatedAt: new Date().toISOString(),
   };
   save();
   closeEditModal();
   renderTable();
   refreshDash();
   dbLoading(true,'Updating Firebase…');
-  fbSaveInspection(inspections[i]).then(()=>{
-    dbLoading(false);
-    toast('✅ Inspection updated successfully!');
-  }).catch(()=>dbLoading(false));
+  // If the record previously had a different doc ID (e.g. saved with Date.now()),
+  // delete the old orphan doc first, then save under the canonical id
+  (async () => {
+    const updated = inspections[i];
+    const canonicalId = updated.id || ('insp-' + updated.sn);
+    const oldId = r.id; // captured before the update above
+    if (oldId && oldId !== canonicalId) {
+      try { await db.collection(COL_INSPECTIONS).doc(oldId).delete(); } catch(e) {}
+    }
+    try {
+      await fbSaveInspection(updated);
+      dbLoading(false);
+      toast('✅ Inspection updated successfully!');
+    } catch(e) {
+      dbLoading(false);
+      toast('⚠️ Saved locally — Firebase sync failed');
+    }
+  })();
 }
 
 // ===== FORM =====
@@ -6363,7 +6421,8 @@ function renderATR(){
 
   body.innerHTML=rows.map((r,rowIndex)=>{
     const idx=inspections.indexOf(r),status=calcATRStatus(r);
-    const displaySN = rowIndex + 1; // sequential within ATR tracker view
+    const displaySN = rowIndex + 1; // sequential within ATR tracker
+    const regSN = r.sn || '—'; // cross-reference back to Inspection Register
 
     // Load review decision (Accepted/Rejected/Pending) from localStorage
     const reviewDecision = _atrLoadField(idx,'reviewDecision') || '';
@@ -6467,6 +6526,7 @@ function renderATR(){
 
     return `<tr style="${rowStyle}">
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${displaySN}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b7280;">${regSN}</td>
       <td><strong>${r.projectName||'—'}</strong></td>
       <td>${r.dzongkhag||'—'}</td><td>${r.ro||'—'}</td>
       <td>${r.other||'—'}</td>
@@ -8057,12 +8117,7 @@ saveEntry = function(){
 // Patch ispSave to auto-register new projects into schedule dropdown
 const _origIspSave = typeof ispSave==='function'?ispSave:null;
 
-// Hook into initApp to populate schedule dropdown
-const _origInitApp=initApp;
-initApp=function(){
-  _origInitApp();
-  setTimeout(entryPopulateScheduleDropdown, 800);
-};
+// Note: entryPopulateScheduleDropdown is called inside initApp directly (see initApp below)
 
 // Also re-populate when project registry changes
 const _origSavePREntry=typeof savePREntry==='function'?savePREntry:null;
@@ -8083,8 +8138,10 @@ function initApp(){
   sbrwLoadTests();
   initTestRows(); // initialize multi-test rows
   setTimeout(checkDueDates, 1000);
-  setInterval(checkDueDates, 60000);
+  // Guard: only register the interval once — prevent duplicate timers on re-init
+  if(!_dueDateIntervalId){ _dueDateIntervalId = setInterval(checkDueDates, 60000); }
   setTimeout(showAtrLoginPopup, 1200);
+  setTimeout(entryPopulateScheduleDropdown, 800);
 }
 
 // ===== SBRW SECTIONS (embedded from SBRW2025 tool) =====
@@ -10515,7 +10572,8 @@ async function updateContractNoDropdown() {
   const sel = document.getElementById('fContractNo');
   const preview = document.getElementById('contractNoPreview');
   const spinner = document.getElementById('contractNoLoadingSpinner');
-  if (!sel) return;
+  // Guard: only run on the select element, not a plain text input
+  if (!sel || sel.tagName !== 'SELECT') return;
 
   const location = getActiveLocation();
   if (!location) {
@@ -10603,7 +10661,6 @@ async function getNextGlobalSN() {
 }
 
 // ===== PROJECT UPDATES (PU) — Enhanced =====
-let projectUpdates = JSON.parse(localStorage.getItem('projectUpdates_cqis') || '[]');
 
 // ══════════════════════════════════════════════════════════════════
 //  PROJECT REGISTRY — full CRUD with agency-scoped access control
@@ -11215,8 +11272,11 @@ function savePUEntry(){
     submittedAt: new Date().toISOString(),
   };
 
-  if(puEditIdx>=0){ projectUpdates[puEditIdx]=entry; }
-  else { projectUpdates.push(entry); }
+  if(puEditIdx>=0){
+    // Preserve the Firestore doc ID from the original so fbSavePU updates the same doc
+    entry.id = projectUpdates[puEditIdx].id || entry.id;
+    projectUpdates[puEditIdx]=entry;
+  } else { projectUpdates.push(entry); }
   savePU();
 
   // ── fire local notification ──
