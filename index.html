@@ -2213,6 +2213,12 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <select class="filter-select" id="tblOther" onchange="renderTable()"><option value="">All Others</option></select>
             <select class="filter-select" id="tblDefect" onchange="renderTable()"><option value="">All Records</option><option value="Yes">Defects Only</option><option value="No">No Defects</option></select>
             <span id="tableCount" style="font-size:12px;color:#6b7280;">0 records</span>
+            <button id="btnFixContractNos" onclick="bulkReassignContractNos()"
+              style="display:none;padding:6px 12px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;
+                     background:#7c3aed;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;"
+              title="Reassign all Contract/Project Nos based on location + year + SN order">
+              🔧 Fix Contract Nos
+            </button>
           </div>
         </div>
         <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th style="font-size:10px;min-width:52px;">Reg<br>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
@@ -5091,6 +5097,34 @@ function showTab(id,btn){
       s.style.opacity       = canAccess ? '1' : '0.4';
       s.style.pointerEvents = canAccess ? '' : 'none';
     });
+    // Auto-set location from logged-in user and trigger contract no dropdown
+    setTimeout(() => {
+      const uLoc     = (currentUser && currentUser.location)  || '';
+      const uLocType = (currentUser && currentUser.locType)   || '';
+      if (!uLoc || !uLocType) return;
+      if (uLocType === 'dzongkhag') {
+        const rb = document.querySelector('input[name="locType"][value="dzongkhag"]');
+        if (rb) { rb.checked = true; toggleLocType('dzongkhag'); }
+        setTimeout(() => {
+          const el = document.getElementById('fDzongkhag');
+          if (el && uLoc) { el.value = uLoc; updateContractNoDropdown(); }
+        }, 60);
+      } else if (uLocType === 'ro' || uLocType === 'thromde') {
+        const rb = document.querySelector('input[name="locType"][value="rothromde"]');
+        if (rb) { rb.checked = true; toggleLocType('rothromde'); }
+        setTimeout(() => {
+          const el = document.getElementById('fROForm');
+          if (el && uLoc) { el.value = uLoc; updateContractNoDropdown(); }
+        }, 60);
+      } else if (uLocType === 'other') {
+        const rb = document.querySelector('input[name="locType"][value="other"]');
+        if (rb) { rb.checked = true; toggleLocType('other'); }
+        setTimeout(() => {
+          const el = document.getElementById('fOtherLoc');
+          if (el && uLoc) { el.value = uLoc; updateContractNoDropdown(); }
+        }, 60);
+      }
+    }, 200);
   }
   if(id==='projupdates'){
     renderPUTable();
@@ -6061,6 +6095,8 @@ function renderTable(){
   if(!rows.length){body.innerHTML='';document.getElementById('noData').style.display='';return;}
   document.getElementById('noData').style.display='none';
   const isAdmin=currentUser&&currentUser.isAdmin;
+  const fixBtn=document.getElementById('btnFixContractNos');
+  if(fixBtn) fixBtn.style.display=isAdmin?'':'none';
   body.innerHTML=rows.map((r,i)=>{
     const status=calcATRStatus(r);
     const displaySN=r.sn||(i+1);
@@ -6090,6 +6126,133 @@ function renderTable(){
         : '<span style="color:#6b7280;font-size:10px;">—</span>'}</td>
     </tr>`;
   }).join('');
+}
+
+// ================================================================
+//  BULK CONTRACT NO REASSIGNMENT — Admin tool
+//  Derives 2-digit year from dateInspected (most reliable field).
+//  Groups by exact location value (dzongkhag / ro / other) + YY.
+//  Each group is sorted by global SN then numbered 01, 02, 03…
+//  Updates local cache + every Firestore doc in sequence.
+// ================================================================
+function _getRecordYY(r) {
+  // Prefer dateInspected (YYYY-MM-DD) — most reliable source of year
+  if (r.dateInspected && r.dateInspected.length >= 4) {
+    return r.dateInspected.slice(2, 4); // e.g. "2026-04-15" → "26"
+  }
+  // Fall back to r.year which getYear() stores as full "2026"
+  if (r.year) return String(r.year).slice(-2);
+  return getYY();
+}
+
+function _getRecordLoc(r) {
+  // Return the exact stored value — each is its own unique location
+  // r.dzongkhag = "Gasa", r.ro = "RO Thimphu" or "Thimphu Thromde", r.other = free text
+  return r.dzongkhag || r.ro || r.other || 'UNKNOWN';
+}
+
+async function bulkReassignContractNos() {
+  if (!currentUser || !currentUser.isAdmin) {
+    showToast('⚠️ Admin only.'); return;
+  }
+  const total = inspections.length;
+  if (!total) { showToast('No records to fix.'); return; }
+
+  // Preview what will happen before confirming
+  const previewGroups = {};
+  inspections.forEach(r => {
+    const loc = _getRecordLoc(r);
+    const yy  = _getRecordYY(r);
+    const key = loc + '|||' + yy;
+    if (!previewGroups[key]) previewGroups[key] = 0;
+    previewGroups[key]++;
+  });
+  const previewLines = Object.entries(previewGroups)
+    .sort(([a],[b]) => a.localeCompare(b))
+    .map(([k, cnt]) => {
+      const [loc, yy] = k.split('|||');
+      const code = getLocationCode(loc);
+      return `  ${loc} (${yy}) [${code}] — ${cnt} record${cnt>1?'s':''} → /01 … /${String(cnt).padStart(2,'0')}`;
+    }).join('\n');
+
+  const confirmed = confirm(
+    `🔧 Fix Contract / Project Nos\n\n` +
+    `${total} total records will be regrouped and renumbered:\n\n` +
+    `${previewLines}\n\n` +
+    `Format: CQD/INS/{LOC}/{YY}/{NN} sorted by global S/N.\n` +
+    `Both Firestore and local cache will be updated.\n\nProceed?`
+  );
+  if (!confirmed) return;
+
+  dbLoading(true, 'Grouping records…');
+
+  // Step 1: Sort ALL inspections by global SN ascending (preserves entry order)
+  const sorted = [...inspections].sort((a, b) => (a.sn || 0) - (b.sn || 0));
+
+  // Step 2: Group by exact location + 2-digit year
+  // Using "|||" as separator to avoid clashes with location names containing "|"
+  const groups = {};
+  sorted.forEach(r => {
+    const loc = _getRecordLoc(r);
+    const yy  = _getRecordYY(r);
+    const key = loc + '|||' + yy;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+
+  // Step 3: Build change list — assign 01, 02, 03… per group in SN order
+  const changes = [];
+  Object.entries(groups).forEach(([key, recs]) => {
+    const [loc, yy] = key.split('|||');
+    const locCode = getLocationCode(loc);
+    recs.forEach((r, idx) => {
+      const newNo = buildContractNo(locCode, yy, idx + 1);
+      changes.push({ record: r, newContractNo: newNo, oldNo: r.contractNo || '—' });
+    });
+  });
+
+  // Step 4: Apply to local inspections array first (by unique sn+id combination)
+  changes.forEach(({ record, newContractNo }) => {
+    const idx = inspections.findIndex(r =>
+      r.sn === record.sn && (r.id === record.id || (!r.id && !record.id))
+    );
+    if (idx > -1) inspections[idx].contractNo = newContractNo;
+  });
+  localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
+
+  // Step 5: Push each change to Firestore one by one
+  let done = 0, skipped = 0, errors = 0;
+  for (const { record, newContractNo, oldNo } of changes) {
+    if (oldNo === newContractNo) { skipped++; continue; } // already correct
+    try {
+      const docId = record.id || ('insp-' + record.sn);
+      await db.collection(COL_INSPECTIONS).doc(docId).update({ contractNo: newContractNo });
+      done++;
+    } catch(e) {
+      console.warn('[FixContractNo] Firestore update failed — SN:', record.sn, 'docId:', record.id, e);
+      errors++;
+    }
+    dbLoading(true, `Firestore: ${done + skipped + errors} / ${changes.length} done…`);
+  }
+
+  dbLoading(false);
+  renderTable();
+
+  const summaryLines = Object.entries(groups)
+    .sort(([a],[b]) => a.localeCompare(b))
+    .map(([k, recs]) => {
+      const [loc, yy] = k.split('|||');
+      const lc = getLocationCode(loc);
+      return `  ✅ ${loc} (${yy}): ${recs.length} records → ${buildContractNo(lc,yy,1)} … ${buildContractNo(lc,yy,recs.length)}`;
+    }).join('\n');
+
+  alert(
+    `✅ Contract Nos Reassigned!\n\n` +
+    `Firestore updated : ${done}\n` +
+    `Already correct   : ${skipped}\n` +
+    `Errors            : ${errors}\n\n` +
+    `${summaryLines}`
+  );
 }
 
 function deleteEntry(i){
@@ -10517,8 +10680,16 @@ function toggleLocType(type) {
     document.getElementById('fDzongkhag').selectedIndex = 0;
     const roEl=document.getElementById('fROForm');if(roEl)roEl.selectedIndex=0;
   }
-  // Contract number is now manual — no dropdown update needed
+  // Reset contract no dropdown when switching location type
+  const _cnSel = document.getElementById('fContractNo');
+  if (_cnSel && _cnSel.tagName === 'SELECT') {
+    _cnSel.innerHTML = '<option value="">— Select location first —</option>';
+    const _prev = document.getElementById('contractNoPreview');
+    if (_prev) _prev.textContent = '';
+  }
 }
+
+
 
 // ================================================================
 //  LOCATION CODE MAP — Short codes for Contract No. generation
@@ -10568,11 +10739,22 @@ function getActiveLocation() {
 let _contractDropdownCache = {}; // cache to avoid repeated Firebase calls
 let _contractDropdownTimer = null;
 
+// Helper: extract the highest serial number from a Set of contractNo strings
+function getMaxSerial(existingNos, locCode, yy) {
+  let maxSeq = 0;
+  existingNos.forEach(cn => {
+    const parts = cn.split('/');
+    const seqStr = parts[parts.length - 1];
+    const seq = parseInt(seqStr, 10);
+    if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
+  });
+  return maxSeq;
+}
+
 async function updateContractNoDropdown() {
-  const sel = document.getElementById('fContractNo');
+  const sel     = document.getElementById('fContractNo');
   const preview = document.getElementById('contractNoPreview');
   const spinner = document.getElementById('contractNoLoadingSpinner');
-  // Guard: only run on the select element, not a plain text input
   if (!sel || sel.tagName !== 'SELECT') return;
 
   const location = getActiveLocation();
@@ -10582,60 +10764,114 @@ async function updateContractNoDropdown() {
     return;
   }
 
-  const locCode = getLocationCode(location);
-  const yy = getYY();
-  const prefix = `CQD/INS/${locCode}/${yy}/`;
+  const locType = document.querySelector('input[name="locType"]:checked')?.value || 'dzongkhag';
+  const locCode  = getLocationCode(location);
+  const yy       = getYY();          // e.g. "26"
+  const fullYear = '20' + yy;        // e.g. "2026"
+  const prefix   = `CQD/INS/${locCode}/${yy}/`;
+
+  // Which Firestore field holds the location for this type?
+  // Saved entry always stores: dzongkhag:'Gasa' / ro:'RO Phuentsholing' / other:'...'
+  const locField = (locType === 'dzongkhag') ? 'dzongkhag'
+                 : (locType === 'rothromde') ? 'ro'
+                 :                             'other';
+
+  // ── DIAGNOSTIC: show what's in inspections array for this location ──
+  const diagSample = (inspections||[]).slice(0,3).map(r=>
+    `sn:${r.sn} dz:"${r.dzongkhag||''}" ro:"${r.ro||''}" other:"${r.other||''}" yr:"${r.year||''}" dt:"${r.dateInspected||''}"`
+  ).join('\n');
+  const diagMatches = (inspections||[]).filter(r=>(r[locField]||'')===location);
+  alert(
+    `[DEBUG] location="${location}" locType="${locType}" locField="${locField}"\n` +
+    `Total inspections loaded: ${(inspections||[]).length}\n` +
+    `Matches for this location: ${diagMatches.length}\n\n` +
+    `First 3 records in array:\n${diagSample||'(empty)'}`
+  );
 
   if (spinner) spinner.style.display = 'inline';
   sel.innerHTML = '<option value="">⏳ Loading…</option>';
 
-  try {
-    // Fetch all existing inspections for this locCode + year
-    const snap = await db.collection('inspections')
-      .where('contractNo', '>=', prefix)
-      .where('contractNo', '<', prefix + '\uffff')
-      .get();
-
-    const existingNos = new Set();
-    snap.forEach(doc => {
-      const cn = doc.data().contractNo;
-      if (cn) existingNos.add(cn);
-    });
-
-    // Also check local inspections array in case not yet synced
-    (inspections || []).forEach(r => {
-      if (r.contractNo && r.contractNo.startsWith(prefix)) existingNos.add(r.contractNo);
-    });
-
-    // Find next sequential number
-    let nextSeq = 1;
-    while (existingNos.has(buildContractNo(locCode, yy, nextSeq))) nextSeq++;
-    const nextNo = buildContractNo(locCode, yy, nextSeq);
-
-    // Build dropdown: new number as first option, then existing ones
-    let html = `<option value="${nextNo}" data-new="true">🆕 ${nextNo} (New)</option>`;
-    const sorted = [...existingNos].sort();
-    sorted.forEach(cn => {
-      html += `<option value="${cn}">📋 ${cn} (Existing)</option>`;
-    });
-
-    sel.innerHTML = html;
-    if (preview) preview.textContent = `Next new: ${nextNo} · ${existingNos.size} existing for this location/year`;
-
-  } catch(e) {
-    console.warn('Contract No. load error:', e);
-    // Fallback: generate from local data only
-    const existingNos = new Set();
-    (inspections || []).forEach(r => {
-      if (r.contractNo && r.contractNo.startsWith(prefix)) existingNos.add(r.contractNo);
-    });
-    let nextSeq = 1;
-    while (existingNos.has(buildContractNo(locCode, yy, nextSeq))) nextSeq++;
-    const nextNo = buildContractNo(locCode, yy, nextSeq);
-    sel.innerHTML = `<option value="${nextNo}" data-new="true">🆕 ${nextNo} (New — offline)</option>`;
-    if (preview) preview.textContent = `Offline mode — generated from local cache`;
+  // Helper — 4-digit year from a record
+  function recYear(r) {
+    if (r.year) return String(r.year).trim().slice(0, 4);
+    if (r.dateInspected && r.dateInspected.length >= 4) return r.dateInspected.slice(0, 4);
+    return '';
   }
 
+  // ── STEP 1: Count from local inspections array (fast, already loaded) ──
+  // Match on the correct location field AND year
+  const localMatches = (inspections || [])
+    .filter(r => (r[locField] || '') === location && recYear(r) === fullYear)
+    .sort((a, b) => (a.sn || 0) - (b.sn || 0));
+
+  const existingNos = new Set();
+
+  // For each local match assign what its contract no SHOULD be (positional)
+  // Use the actual stored contractNo if it already has the right prefix
+  localMatches.forEach((r, idx) => {
+    if (r.contractNo && r.contractNo.startsWith(prefix)) {
+      existingNos.add(r.contractNo);
+    } else {
+      existingNos.add(buildContractNo(locCode, yy, idx + 1));
+    }
+  });
+
+  // ── STEP 2: Firestore — try ALL possible location fields ──
+  // Old records may use 'ro', 'dzongkhag', 'other', OR the generic 'agencyLocation'
+  // We query ALL fields to find matching records regardless of how they were saved
+  try {
+    // Try the expected field first
+    let firestoreMatches = [];
+
+    // Query by the specific location field
+    const snap1 = await db.collection('inspections').where(locField, '==', location).get();
+    snap1.forEach(doc => {
+      const d = { id: doc.id, ...doc.data() };
+      if (recYear(d) === fullYear) firestoreMatches.push(d);
+    });
+
+    // Also try agencyLocation field (some older records may use this)
+    try {
+      const snap2 = await db.collection('inspections').where('agencyLocation', '==', location).get();
+      const existingIds = new Set(firestoreMatches.map(d => d.id));
+      snap2.forEach(doc => {
+        const d = { id: doc.id, ...doc.data() };
+        if (recYear(d) === fullYear && !existingIds.has(doc.id)) firestoreMatches.push(d);
+      });
+    } catch(e2) {}
+
+    // Sort by sn
+    firestoreMatches.sort((a, b) => (a.sn || 0) - (b.sn || 0));
+
+    // If Firestore found more than local cache, use Firestore count as source of truth
+    if (firestoreMatches.length >= localMatches.length && firestoreMatches.length > 0) {
+      existingNos.clear();
+      firestoreMatches.forEach((d, idx) => {
+        if (d.contractNo && d.contractNo.startsWith(prefix)) {
+          existingNos.add(d.contractNo);
+        } else {
+          existingNos.add(buildContractNo(locCode, yy, idx + 1));
+        }
+      });
+    }
+  } catch(e) {
+    console.warn('[ContractNo] Firestore query failed, using local cache:', e);
+  }
+
+  // ── STEP 3: Next serial = max + 1 ──
+  const maxSeq = getMaxSerial(existingNos, locCode, yy);
+  let nextSeq = maxSeq + 1;
+  while (existingNos.has(buildContractNo(locCode, yy, nextSeq))) nextSeq++;
+  const nextNo = buildContractNo(locCode, yy, nextSeq);
+
+  // Build dropdown
+  let html = `<option value="${nextNo}" data-new="true">🆕 ${nextNo} (New)</option>`;
+  [...existingNos].sort().forEach(cn => {
+    html += `<option value="${cn}">📋 ${cn} (Existing)</option>`;
+  });
+
+  sel.innerHTML = html;
+  if (preview) preview.textContent = `Next new: ${nextNo} · ${existingNos.size} existing for this location/year`;
   if (spinner) spinner.style.display = 'none';
 }
 
