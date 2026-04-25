@@ -1791,7 +1791,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <a href="#" onclick="openCqisPanel();return false;">Admin Login</a>
         <a href="#" onclick="openCqisPanel();return false;">Dzongkhag User Login</a>
         <a href="#" onclick="openCqisPanel();return false;">RO / Thromde Login</a>
-        <a href="#" onclick="openCqisPanel();return false;">Viewer Access (Google)</a>
+
         <a href="#lp-modules">QC Tool Reference</a>
         <a href="#lp-about">About CQD</a>
       </div>
@@ -1863,9 +1863,9 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         style="flex:1;padding:8px;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;background:none;color:#6b7280;">
         👤 USER
       </button>
-      <button id="ltab-google" onclick="switchLoginTab('google')"
+      <button id="ltab-observer" onclick="switchLoginTab('observer')"
         style="flex:1;padding:8px;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;background:none;color:#6b7280;">
-        🔍 VIEWER
+        👁 OBSERVER
       </button>
     </div>
 
@@ -1913,17 +1913,28 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <button class="btn-login" style="background:linear-gradient(135deg,#e8820c,#1d4ed8);" onclick="doUserLogin()">👤 SIGN IN AS USER</button>
     </div>
 
-    <!-- GOOGLE / VIEWER PANEL -->
-    <div id="lpanel-google" style="display:none;">
-      <div style="background:rgba(100,116,139,.07);border:1px solid rgba(100,116,139,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#374151;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
-        <span>👁</span> Viewer — read-only access. Can view all data and print reports.
+    <!-- OBSERVER LOGIN PANEL -->
+    <div id="lpanel-observer" style="display:none;">
+      <div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#7c3aed;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+        <span>👁</span> Observer — view dashboard, register, ATR, reports, compliance &amp; email. Can comment on activity.
       </div>
-      <button class="btn-google" id="googleSignInBtn" onclick="handleGoogleSignIn()">
-        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Sign in with Google (View Only)
-      </button>
-      <div style="margin-top:14px;font-size:11px;color:#6b7280;text-align:center;">Any Google account can sign in as Viewer.</div>
+      <div class="field-group">
+        <label class="field-label">Username</label>
+        <input class="field-input" id="observerUser" type="text" placeholder="e.g. DGOCASC or CABSEC"
+          onkeydown="if(event.key==='Enter')doObserverLogin()">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <div style="position:relative;">
+          <input class="field-input" id="observerPass" type="password" placeholder="Enter observer password"
+            style="padding-right:44px;" onkeydown="if(event.key==='Enter')doObserverLogin()">
+          <button onclick="togglePw('observerPass',this)" tabindex="-1"
+            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7280;font-size:16px;">👁</button>
+        </div>
+      </div>
+      <button class="btn-login" style="background:linear-gradient(135deg,#7c3aed,#1d4ed8);" onclick="doObserverLogin()">👁 SIGN IN AS OBSERVER</button>
     </div>
+
 
     <!-- Access levels legend -->
     <div style="margin-top:22px;background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px 16px;">
@@ -2034,10 +2045,6 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
     </button>
 
     <div class="sb-group">Data</div>
-    <button class="nav-tab" onclick="showTab('projupdates',this)">
-      <span class="sb-icon"><i class="fa fa-project-diagram"></i></span>
-      <span class="sb-label">Project Updates</span>
-    </button>
     <button class="nav-tab" onclick="showTab('data',this)">
       <span class="sb-icon"><i class="fa fa-table"></i></span>
       <span class="sb-label">Inspection Register</span>
@@ -2052,16 +2059,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-label">ATR Tracker</span>
     </button>
 
-    <div class="sb-group">QC Tools</div>
-    <button class="nav-tab" onclick="showTab('qc',this)">
-      <span class="sb-icon"><i class="fa fa-microscope"></i></span>
-      <span class="sb-label">SBRW QC Tool</span>
-    </button>
-    <button class="nav-tab" onclick="showTab('insp-schedule',this)" id="inspSchedTabBtn">
-      <span class="sb-icon"><i class="fa fa-calendar-check"></i></span>
-      <span class="sb-label">Insp. Schedule</span>
-      <span class="sb-badge" style="background:rgba(139,92,246,.2);border-color:rgba(139,92,246,.4);color:#c4b5fd;">ADMIN</span>
-    </button>
+
 
     <div class="sb-group">Compliance</div>
     <button class="nav-tab" onclick="showTab('compliance-contractor',this)">
@@ -2112,6 +2110,20 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div class="section-badge">🏗️ Construction Quality Monitoring — Bhutan</div>
         </div>
         <div style="font-size:12px;color:#6b7280;" id="dashDate"></div>
+      </div>
+
+      <!-- Observer Comment Panel — visible only to Observers -->
+      <div id="observerCommentPanel" style="display:none;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.25);border-radius:10px;padding:16px 20px;margin-bottom:18px;">
+        <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;color:#7c3aed;margin-bottom:10px;text-transform:uppercase;">💬 Submit Observation / Comment to Admin</div>
+        <textarea id="observerCommentText" rows="3" placeholder="Type your observation, instruction, or comment here…"
+          style="width:100%;box-sizing:border-box;border:1px solid rgba(124,58,237,.3);border-radius:7px;padding:10px 12px;font-size:13px;font-family:'Poppins',sans-serif;resize:vertical;background:#fff;color:#1f2937;outline:none;"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+          <button onclick="submitObserverComment()"
+            style="padding:9px 22px;background:linear-gradient(135deg,#7c3aed,#1d4ed8);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;letter-spacing:.5px;">
+            💬 Submit Comment &amp; Notify Admin
+          </button>
+        </div>
+        <div style="font-size:11px;color:#7c3aed;margin-top:8px;opacity:.7;">Your comment will be saved to the system and emailed to all administrators.</div>
       </div>
       <div class="filters">
         <span class="filter-label">📅 VIEW BY:</span>
@@ -2213,12 +2225,6 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <select class="filter-select" id="tblOther" onchange="renderTable()"><option value="">All Others</option></select>
             <select class="filter-select" id="tblDefect" onchange="renderTable()"><option value="">All Records</option><option value="Yes">Defects Only</option><option value="No">No Defects</option></select>
             <span id="tableCount" style="font-size:12px;color:#6b7280;">0 records</span>
-            <button id="btnFixContractNos" onclick="bulkReassignContractNos()"
-              style="display:none;padding:6px 12px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;
-                     background:#7c3aed;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;"
-              title="Reassign all Contract/Project Nos based on location + year + SN order">
-              🔧 Fix Contract Nos
-            </button>
           </div>
         </div>
         <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th style="font-size:10px;min-width:52px;">Reg<br>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
@@ -4599,6 +4605,18 @@ async function fbSaveAdminNotif(notif) {
 
 // ===== ACCESS CONFIGURATION =====
 // Admin accounts — email + shared password
+const SUPER_ADMIN_ACCOUNTS = [
+  { email: 'tenzene111@gmail.com', name: 'Tenzin' },
+];
+const _SAP = atob('U1VQRVJAMjAyNg=='); // SUPER@2026
+
+const OBSERVER_ACCOUNTS = [
+  { username:'DGOCASC', password:'DG@OBS2026',  name:'Director General',   title:'Director General, OCASC',      email:'dgocasc@cabinet.gov.bt' },
+  { username:'CABSEC',  password:'CAB@OBS2026',  name:'Cabinet Secretary',  title:'Cabinet Secretary',             email:'cabsec@cabinet.gov.bt' },
+  { username:'DIROPMC', password:'DIR@OBS2026',  name:'Director OPMC',      title:'Director, OPMC',                email:'diropmc@cabinet.gov.bt' },
+  { username:'HDCQD',   password:'HD@OBS2026',   name:'Head CQD',           title:'Head, Construction Quality Division', email:'hdcqd@cabinet.gov.bt' },
+];
+
 const ADMIN_ACCOUNTS = [
   { email: 'tenzene111@gmail.com',        name: 'Tenzin' },
   { email: 'pemanamgay70@gmail.com',       name: 'Pema Namgay' },
@@ -4688,12 +4706,13 @@ let _dueDateIntervalId = null;
     const uname = document.getElementById('userName');
     if(uname) uname.textContent = s.name;
     const urole = document.getElementById('userRole');
-    if(urole) urole.textContent = s.isAdmin ? 'Administrator' : (s.isUser ? 'User' : 'Viewer');
+    if(urole) urole.textContent = s.isSuperAdmin ? 'Super Admin' : s.isAdmin ? 'Administrator' : s.isObserver ? 'Observer' : 'User';
     const rb = document.getElementById('userRoleBadge');
     if(rb){
-      if(s.isAdmin){ rb.textContent='⚙️ ADMIN'; rb.style.color='#d97706'; }
-      else if(s.isUser){ rb.textContent='👤 USER'+(s.location?' · '+s.location:''); rb.style.color='#f97316'; }
-      else { rb.textContent='👁 VIEWER'; rb.style.color='#6b7280'; }
+      if(s.isSuperAdmin){ rb.textContent='⭐ SUPER ADMIN'; rb.style.color='#7c3aed'; rb.style.background='rgba(124,58,237,.12)'; rb.style.borderColor='rgba(124,58,237,.3)'; }
+      else if(s.isAdmin){ rb.textContent='⚙️ ADMIN'; rb.style.color='#d97706'; }
+      else if(s.isObserver){ rb.textContent='👁 OBSERVER · '+(s.title||s.name); rb.style.color='#7c3aed'; }
+      else { rb.textContent='👤 USER'+(s.location?' · '+s.location:''); rb.style.color='#f97316'; }
     }
     const banner = document.getElementById('viewerGlobalBanner');
     if(banner) banner.style.display = s.isAdmin ? 'none' : 'flex';
@@ -4708,7 +4727,7 @@ let _dueDateIntervalId = null;
 
 // ===== LOGIN TAB SWITCHER =====
 function switchLoginTab(tab) {
-  ['admin','user','google'].forEach(t => {
+  ['admin','user','observer'].forEach(t => {
     const btn = document.getElementById('ltab-'+t);
     const panel = document.getElementById('lpanel-'+t);
     const active = t === tab;
@@ -4734,59 +4753,515 @@ function togglePw(id, btn) {
   else { inp.type = 'password'; btn.textContent = '👁'; }
 }
 
-// ===== ADMIN LOGIN =====
+// ===== ADMIN / SUPER ADMIN LOGIN =====
 function doAdminLogin() {
   const email = (document.getElementById('adminEmail')?.value || '').trim().toLowerCase();
   const pass  = document.getElementById('adminPass')?.value || '';
   if (!email) { showLoginError('Please enter your email address.'); return; }
   if (!pass)  { showLoginError('Please enter the password.'); return; }
+  // Check Super Admin first
+  const saAcc = SUPER_ADMIN_ACCOUNTS.find(a => a.email.toLowerCase() === email);
+  if (saAcc && pass === _SAP) {
+    currentUser = {
+      username: saAcc.email, name: saAcc.name, email: saAcc.email,
+      picture: null, isSuperAdmin: true, isAdmin: true, role: 'Super Admin', isUser: false,
+      canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
+      canManageUsers: true, canManageSystem: true,
+    };
+    finishLogin(); return;
+  }
+  // Regular Admin
   if (pass !== _AP) { showLoginError('Incorrect password. Please try again.'); return; }
   const acc = ADMIN_ACCOUNTS.find(a => a.email.toLowerCase() === email);
   if (!acc) { showLoginError('This email is not registered as an admin account.'); return; }
   currentUser = {
     username: acc.email, name: acc.name, email: acc.email,
-    picture: null, isAdmin: true, role: 'Administrator', isUser: false, isViewer: false,
+    picture: null, isSuperAdmin: false, isAdmin: true, role: 'Administrator', isUser: false,
     canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
   };
   finishLogin();
 }
 
-// ===== USER LOGIN =====
-function doUserLogin() {
-  const username = (document.getElementById('userName2')?.value || '').trim().toUpperCase();
-  const pass     = document.getElementById('userPass')?.value || '';
+// ===== OBSERVER LOGIN =====
+function doObserverLogin() {
+  const username = (document.getElementById('observerUser')?.value || '').trim().toUpperCase();
+  const pass     = document.getElementById('observerPass')?.value || '';
   if (!username) { showLoginError('Please enter your Username.'); return; }
-  if (!pass)     { showLoginError('Please enter the Password.'); return; }
-
-  // Find matching account
-  const acc = USER_ACCOUNTS.find(a => a.username === username);
-  if (!acc) {
-    showLoginError('Username not found. Check your username and try again.'); return;
-  }
-  if (pass !== acc.password) {
-    showLoginError('Incorrect password. Please try again.'); return;
-  }
-
+  if (!pass)     { showLoginError('Please enter your Password.'); return; }
+  const acc = OBSERVER_ACCOUNTS.find(a => a.username === username);
+  if (!acc) { showLoginError('Username not found.'); return; }
+  if (pass !== acc.password) { showLoginError('Incorrect password.'); return; }
   currentUser = {
-    username:  acc.username,
-    name:      acc.name,
-    email:     '',
-    locType:   acc.locType,
-    location:  acc.location,
-    picture:   null,
-    isAdmin:   false,
-    role:      'User',
-    isUser:    true,
-    isViewer:  false,
-    canEdit:   false,
-    canDelete: false,
-    canAddPU:  true,
-    canPrint:  true,
+    username:   acc.username,
+    name:       acc.name,
+    title:      acc.title,
+    email:      acc.email,
+    picture:    null,
+    isAdmin:    false,
+    isSuperAdmin: false,
+    isUser:     false,
+    isObserver: true,
+    role:       'Observer',
+    canEdit:    false, canDelete: false, canAddPU: false, canPrint: false,
   };
   finishLogin();
 }
 
-// ===== GOOGLE SIGN-IN =====
+// ═══════════════════════════════════════════════
+//  OBSERVER PANEL SYSTEM — Fixed implementation
+// ═══════════════════════════════════════════════
+
+let _obsSelectedText = '';
+let _obsSelectedPage = '';
+let _obsPanelOpen    = false;
+
+function toggleObsPanel() {
+  const panel = document.getElementById('obsPanel');
+  const btn   = document.getElementById('obsFloatBtn');
+  if (!panel) return;
+  _obsPanelOpen = !_obsPanelOpen;
+  if (_obsPanelOpen) {
+    // Show panel — set display first, then animate
+    panel.style.display = 'flex';
+    requestAnimationFrame(() => {
+      panel.style.transform = 'translateX(0)';
+    });
+    // Populate header
+    const nameEl = document.getElementById('obsPanelUser');
+    if (nameEl && currentUser) nameEl.textContent = currentUser.name + (currentUser.title ? ' · ' + currentUser.title : '');
+    updateObsCurrentTab();
+    obsShowTab('comment');
+    // Auto-fill selected text if any
+    if (_obsSelectedText) {
+      const box = document.getElementById('obsSelectedTextBox');
+      const content = document.getElementById('obsSelectedTextContent');
+      if (box) box.style.display = '';
+      if (content) content.textContent = '"' + _obsSelectedText.slice(0, 200) + '"';
+    }
+    if (btn) btn.style.transform = 'scale(0.9)';
+  } else {
+    panel.style.transform = 'translateX(100%)';
+    setTimeout(() => { panel.style.display = 'none'; }, 350);
+    if (btn) btn.style.transform = 'scale(1)';
+  }
+}
+
+function updateObsCurrentTab() {
+  const activeLabel = document.querySelector('.nav-tab.active .sb-label');
+  const label = activeLabel ? activeLabel.textContent.trim() : 'Dashboard';
+  const el = document.getElementById('obsCurrentTab');
+  if (el) el.textContent = label;
+  _obsSelectedPage = label;
+}
+
+function obsShowTab(tab) {
+  ['comment','highlight','history'].forEach(t => {
+    const content = document.getElementById('obsContent-' + t);
+    const tabBtn  = document.getElementById('obsTab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (content) {
+      content.style.display = t === tab ? 'flex' : 'none';
+      content.style.flexDirection = 'column';
+    }
+    if (tabBtn) {
+      tabBtn.style.background = t === tab ? 'linear-gradient(135deg,#7c3aed,#1d4ed8)' : 'none';
+      tabBtn.style.color      = t === tab ? '#fff' : '#6b7280';
+    }
+  });
+  if (tab === 'history') loadObsHistory();
+}
+
+function obsInsertTag(tag) {
+  const ta = document.getElementById('observerCommentText');
+  if (!ta) return;
+  const start = ta.selectionStart || ta.value.length;
+  ta.value = ta.value.slice(0, start) + (ta.value ? ' ' : '') + tag + ' ' + ta.value.slice(start);
+  ta.focus();
+}
+
+function obsCaptureHighlight() {
+  if (_obsSelectedText) {
+    const box = document.getElementById('obsSelectedTextBox');
+    const content = document.getElementById('obsSelectedTextContent');
+    if (box) box.style.display = '';
+    if (content) content.textContent = '"' + _obsSelectedText.slice(0, 200) + '"';
+    // Also update highlight preview
+    const prev = document.getElementById('obsHighlightPreview');
+    if (prev) prev.textContent = '"' + _obsSelectedText.slice(0, 200) + '"';
+    obsShowTab('comment');
+  } else {
+    alert('No text selected. Please select text on the page first, then open the panel.');
+  }
+}
+
+function obsClearHighlight() {
+  _obsSelectedText = '';
+  const box = document.getElementById('obsSelectedTextBox');
+  if (box) box.style.display = 'none';
+  const prev = document.getElementById('obsHighlightPreview');
+  if (prev) prev.textContent = '(No text selected yet)';
+}
+
+// Capture any text selection on the page
+document.addEventListener('mouseup', function(e) {
+  if (!currentUser || !currentUser.isObserver) return;
+  // Don't capture selections inside the panel itself
+  const panel = document.getElementById('obsPanel');
+  if (panel && panel.contains(e.target)) return;
+  const sel = window.getSelection();
+  const txt = sel ? sel.toString().trim() : '';
+  if (txt && txt.length > 3) {
+    _obsSelectedText = txt;
+    const prev = document.getElementById('obsHighlightPreview');
+    if (prev) prev.textContent = '"' + txt.slice(0, 200) + (txt.length > 200 ? '…' : '') + '"';
+  }
+});
+
+// Map tab label → tab ID for navigation
+const OBS_TAB_MAP = {
+  'Dashboard':           'dashboard',
+  'Analytics':           'analytics',
+  'Inspection Register': 'data',
+  'ATR Tracker':         'atr',
+  'Contractor':          'compliance-contractor',
+  'Area':                'compliance-area',
+  'Report':              'report',
+  'Email Notifications': 'email-notify',
+  'Downloads':           'downloads',
+};
+
+async function submitObserverComment() {
+  if (!currentUser || !currentUser.isObserver) {
+    alert('You must be logged in as an Observer to submit comments.');
+    return;
+  }
+  const txt      = (document.getElementById('observerCommentText')?.value || '').trim();
+  const priority = document.getElementById('obsPriority')?.value || 'normal';
+  const ref      = (document.getElementById('obsRefInput')?.value || '').trim();
+  if (!txt) { alert('Please type a comment before submitting.'); return; }
+
+  updateObsCurrentTab();
+  const tsStr = new Date().toLocaleString('en-BT', {
+    day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+  });
+
+  // Detect comment type from quick tags in text
+  let commentType = 'General';
+  if (txt.includes('✅ Approved'))         commentType = '✅ Approved';
+  else if (txt.includes('❌ Action Required')) commentType = '❌ Action Required';
+  else if (txt.includes('🔴 Urgent'))      commentType = '🔴 Urgent';
+  else if (txt.includes('⚠️ Needs Review'))commentType = '⚠️ Needs Review';
+  else if (txt.includes('📌 Note'))        commentType = '📌 Note';
+  else if (txt.includes('👍 Good Progress'))commentType = '👍 Good Progress';
+
+  const tabId = OBS_TAB_MAP[_obsSelectedPage] || 'dashboard';
+
+  const commentData = {
+    author:       currentUser.name,
+    title:        currentUser.title  || '',
+    email:        currentUser.email  || '',
+    page:         _obsSelectedPage,
+    tabId:        tabId,
+    reference:    ref,
+    highlightRef: _obsSelectedText ? _obsSelectedText.slice(0, 200) : '',
+    commentType:  commentType,
+    text:         txt,
+    priority:     priority,
+    timestampStr: tsStr,
+    timestamp:    firebase.firestore.FieldValue.serverTimestamp(),
+  };
+
+  // 1. Save to Firestore
+  try {
+    await db.collection('observer_comments').add(commentData);
+  } catch(e) {
+    console.warn('Firestore save failed:', e);
+  }
+
+  // 2. Clear form
+  document.getElementById('observerCommentText').value = '';
+  if (document.getElementById('obsRefInput')) document.getElementById('obsRefInput').value = '';
+  obsClearHighlight();
+
+  // 3. Email all admins — rich formatted
+  const prioLabel = { normal:'🔵 Normal', review:'🟡 Needs Review', urgent:'🔴 URGENT' };
+  const subject = '[CQIS Observer] ' + currentUser.name + ' — ' + commentType + ' on ' + _obsSelectedPage + ' — ' + tsStr;
+  const body = [
+    '╔══════════════════════════════════════╗',
+    '  CQIS OBSERVER COMMENT NOTIFICATION',
+    '╚══════════════════════════════════════╝',
+    '',
+    'FROM      : ' + currentUser.name,
+    'POSITION  : ' + (currentUser.title || '—'),
+    'EMAIL     : ' + (currentUser.email || '—'),
+    '',
+    'TAB / PAGE: ' + _obsSelectedPage,
+    'TYPE      : ' + commentType,
+    'REFERENCE : ' + (ref || '—'),
+    'PRIORITY  : ' + (prioLabel[priority] || priority),
+    'TIME      : ' + tsStr,
+    '',
+    commentData.highlightRef ? 'SELECTED TEXT:' : '',
+    commentData.highlightRef ? '"' + commentData.highlightRef + '"' : '',
+    commentData.highlightRef ? '' : '',
+    'COMMENT:',
+    '─────────────────────────────────────',
+    txt,
+    '─────────────────────────────────────',
+    '',
+    'ACTION: Log in to CQIS and go to the ' + _obsSelectedPage + ' tab to review.',
+    '',
+    '— CQIS System, OPMC/OCASC',
+  ].filter(l => l !== undefined).join('\n');
+
+  const adminEmails = ADMIN_ACCOUNTS.map(a => a.email).join(',');
+  window.open('mailto:' + adminEmails + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body), '_blank');
+
+  showToast('✅ Comment submitted & emailed to admins!');
+  obsShowTab('history');
+}
+
+async function loadObsHistory() {
+  const list = document.getElementById('obsHistoryList');
+  if (!list) return;
+  list.innerHTML = '<div style="color:#9ca3af;font-size:12px;text-align:center;padding:30px;">Loading…</div>';
+  try {
+    const q = currentUser.isSuperAdmin || currentUser.isAdmin
+      ? db.collection('observer_comments').orderBy('timestamp','desc').limit(30)
+      : db.collection('observer_comments').orderBy('timestamp','desc').limit(30);
+    const snap = await q.get();
+    if (snap.empty) {
+      list.innerHTML = '<div style="color:#9ca3af;font-size:12px;text-align:center;padding:30px;">No comments yet.</div>';
+      return;
+    }
+    const prioColor = { normal:'#1d4ed8', review:'#d97706', urgent:'#dc2626' };
+    const prioLabel = { normal:'🔵 Normal', review:'🟡 Needs Review', urgent:'🔴 URGENT' };
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      const d = doc.data();
+      const prio = d.priority || 'normal';
+      const div = document.createElement('div');
+      div.style.cssText = 'background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;border-left:3px solid ' + (prioColor[prio]||'#7c3aed') + ';';
+      div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">' +
+        '<span style="font-size:12px;font-weight:700;color:#374151;">' + (d.author||'Observer') + '</span>' +
+        '<span style="font-size:10px;color:#9ca3af;white-space:nowrap;margin-left:8px;">' + (d.timestampStr||'') + '</span>' +
+        '</div>' +
+        '<div style="font-size:10px;color:#9ca3af;margin-bottom:4px;">📍 ' + (d.page||'—') + (d.reference ? '  📎 ' + d.reference : '') + '</div>' +
+        '<div style="font-size:10px;font-weight:700;color:' + (prioColor[prio]||'#7c3aed') + ';margin-bottom:6px;">' + (prioLabel[prio]||'') + '</div>' +
+        (d.highlightRef ? '<div style="font-size:11px;color:#7c3aed;font-style:italic;margin-bottom:6px;background:#faf5ff;padding:4px 8px;border-radius:4px;line-height:1.4;">"' + d.highlightRef.slice(0,100) + (d.highlightRef.length>100?'…':'') + '"</div>' : '') +
+        '<div style="font-size:13px;color:#1f2937;line-height:1.5;">' + (d.text||'') + '</div>';
+      list.appendChild(div);
+    });
+  } catch(e) {
+    list.innerHTML = '<div style="color:#ef4444;font-size:12px;text-align:center;padding:20px;">Error loading history: ' + e.message + '</div>';
+  }
+}
+
+function showObserverCommentPopup(commentData) {
+  const popup = document.getElementById('obsCommentPopup');
+  if (!popup) return;
+  const prioColor = { normal:'#1d4ed8', review:'#d97706', urgent:'#dc2626' };
+  const prioLabel = { normal:'🔵 Normal', review:'🟡 Needs Review', urgent:'🔴 URGENT' };
+  const prio = commentData.priority || 'normal';
+  const tabId = commentData.tabId || (OBS_TAB_MAP && OBS_TAB_MAP[commentData.page]) || 'dashboard';
+
+  // Build popup content
+  popup.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <span style="font-size:22px;flex-shrink:0;">💬</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:#7c3aed;text-transform:uppercase;">New Observer Comment</div>
+        <div style="font-size:13px;font-weight:700;color:#1f2937;margin-top:3px;">${commentData.author}</div>
+        <div style="font-size:11px;color:#6b7280;">${commentData.title || ''}</div>
+      </div>
+      <button onclick="closeObsCommentPopup()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#9ca3af;padding:0;flex-shrink:0;">✕</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <span style="background:#f3f4f6;border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;color:#374151;">📍 ${commentData.page || 'Dashboard'}</span>
+      <span style="background:rgba(124,58,237,.1);border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;color:#7c3aed;">${commentData.commentType || 'General'}</span>
+      <span style="color:${prioColor[prio]};font-size:11px;font-weight:700;">${prioLabel[prio]}</span>
+    </div>
+
+    ${commentData.reference ? `<div style="font-size:11px;color:#6b7280;margin-top:6px;">📎 Ref: <strong>${commentData.reference}</strong></div>` : ''}
+
+    <div style="font-size:13px;color:#1f2937;line-height:1.5;background:#faf5ff;border-radius:8px;
+                padding:10px 12px;border-left:3px solid ${prioColor[prio]};margin-top:8px;
+                max-height:80px;overflow-y:auto;">${commentData.text || ''}</div>
+
+    <div style="font-size:10px;color:#9ca3af;margin-top:6px;">${commentData.timestampStr || ''}</div>
+
+    <button onclick="obsPopupGoToTab('${tabId}', '${commentData.page || ''}')"
+      style="margin-top:10px;width:100%;padding:9px;background:linear-gradient(135deg,#7c3aed,#1d4ed8);
+             color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;
+             cursor:pointer;letter-spacing:.5px;">
+      👉 Go to ${commentData.page || 'Dashboard'} Tab
+    </button>`;
+
+  popup.style.display = 'flex';
+  popup.style.animation = 'obsPopIn .35s ease';
+  // Clear auto-dismiss if urgent
+  if (_obsPopupTimer) clearTimeout(_obsPopupTimer);
+  _obsPopupTimer = setTimeout(() => { popup.style.display = 'none'; }, prio === 'urgent' ? 30000 : 15000);
+}
+
+let _obsPopupTimer = null;
+
+function obsPopupGoToTab(tabId, pageName) {
+  closeObsCommentPopup();
+  const allBtns = document.querySelectorAll('.nav-tab');
+  let found = false;
+  allBtns.forEach(b => {
+    if (!found && (b.getAttribute('onclick')||'').includes(tabId)) {
+      b.click(); found = true;
+    }
+  });
+  showToast('📍 Navigated to ' + (pageName || tabId) + ' tab');
+}
+
+function closeObsCommentPopup() {
+  const p = document.getElementById('obsCommentPopup');
+  if (p) p.style.display = 'none';
+}
+
+function startObserverCommentListener() {
+  if (!currentUser || !currentUser.isAdmin) return;
+  const loginTime = Date.now();
+  db.collection('observer_comments')
+    .orderBy('timestamp','desc').limit(1)
+    .onSnapshot(snap => {
+      snap.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          const d = change.doc.data();
+          const ts = d.timestamp ? d.timestamp.toDate() : null;
+          if (ts && ts.getTime() > loginTime - 5000) {
+            showObserverCommentPopup({
+              author: d.author, title: d.title, page: d.page, tabId: d.tabId,
+              commentType: d.commentType, reference: d.reference,
+              timestampStr: d.timestampStr || ts.toLocaleString(),
+              text: d.text, priority: d.priority,
+            });
+          }
+        }
+      });
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INSPECTION NOTIFICATION → OBSERVERS
+//  Admin saves inspection → Firestore write →
+//  Observer sees real-time popup with full details
+// ═══════════════════════════════════════════════════════
+async function notifyObserversNewInspection(entry) {
+  try {
+    const tsStr = new Date().toLocaleString('en-BT', {
+      day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+    await db.collection('inspection_notifications').add({
+      type:         'new_inspection',
+      sn:           entry.sn,
+      projectName:  entry.projectName  || '',
+      contractNo:   entry.contractNo   || '',
+      location:     entry.dzongkhag || entry.ro || entry.other || '—',
+      roadSection:  entry.roadSection  || '',
+      contractor:   entry.contractor   || '',
+      workType:     entry.workType     || '',
+      defect:       entry.defect       || 'No',
+      defectStatus: entry.defect === 'Yes' ? '⚠️ Defect Found' : '✅ No Defect',
+      inspector:    entry.inspector    || '',
+      dateInspected:entry.dateInspected|| '',
+      savedBy:      currentUser ? currentUser.name : 'Admin',
+      savedByTitle: currentUser ? (currentUser.title || currentUser.role || 'Administrator') : 'Administrator',
+      timestampStr: tsStr,
+      timestamp:    firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch(e) {
+    console.warn('[ObserverNotify] Firestore write failed:', e);
+  }
+}
+
+// Observer listener — starts at observer login
+function startInspectionNotifyListener() {
+  if (!currentUser || !currentUser.isObserver) return;
+  const loginTime = Date.now();
+  db.collection('inspection_notifications')
+    .orderBy('timestamp', 'desc').limit(1)
+    .onSnapshot(snap => {
+      snap.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          const d = change.doc.data();
+          const ts = d.timestamp ? d.timestamp.toDate() : null;
+          if (!ts || ts.getTime() < loginTime - 5000) return;
+          showInspectionNotifyPopup(d);
+        }
+      });
+    });
+}
+
+function showInspectionNotifyPopup(d) {
+  const popup = document.getElementById('obsInspNotifyPopup');
+  if (!popup) return;
+  const defectColor = d.defect === 'Yes' ? '#dc2626' : '#16a34a';
+  const defectBg    = d.defect === 'Yes' ? 'rgba(220,38,38,.08)' : 'rgba(22,163,74,.08)';
+  popup.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <span style="font-size:24px;flex-shrink:0;">🏗️</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:#e8820c;text-transform:uppercase;margin-bottom:3px;">New Inspection Registered</div>
+        <div style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.3;">${d.projectName||'—'}</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px;">By ${d.savedBy||'Admin'}${d.savedByTitle?' · '+d.savedByTitle:''}</div>
+      </div>
+      <button onclick="closeInspNotifyPopup()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#9ca3af;padding:0;flex-shrink:0;">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;">
+      <div style="background:#f8f9fc;border-radius:7px;padding:8px 10px;">
+        <div style="font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Contract No.</div>
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-top:2px;font-family:'JetBrains Mono',monospace;">${d.contractNo||'—'}</div>
+      </div>
+      <div style="background:#f8f9fc;border-radius:7px;padding:8px 10px;">
+        <div style="font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">S/N</div>
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-top:2px;">#${d.sn||'—'}</div>
+      </div>
+      <div style="background:#f8f9fc;border-radius:7px;padding:8px 10px;">
+        <div style="font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Location</div>
+        <div style="font-size:12px;font-weight:600;color:#374151;margin-top:2px;">${d.location||'—'}</div>
+      </div>
+      <div style="background:#f8f9fc;border-radius:7px;padding:8px 10px;">
+        <div style="font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Contractor</div>
+        <div style="font-size:11px;font-weight:600;color:#374151;margin-top:2px;">${d.contractor||'—'}</div>
+      </div>
+    </div>
+    ${d.roadSection?`<div style="font-size:11px;color:#6b7280;margin-top:6px;">📍 ${d.roadSection}</div>`:''}
+    ${d.workType?`<div style="font-size:11px;color:#6b7280;margin-top:2px;">🔨 ${d.workType}</div>`:''}
+    <div style="margin-top:10px;padding:8px 12px;border-radius:7px;font-size:12px;font-weight:700;
+                color:${defectColor};background:${defectBg};border:1px solid ${defectColor}33;">
+      ${d.defectStatus||(d.defect==='Yes'?'⚠️ Defect Found':'✅ No Defect')}
+    </div>
+    <div style="font-size:10px;color:#9ca3af;margin-top:8px;">🕐 ${d.timestampStr||''} · Inspector: ${d.inspector||'—'}</div>
+    <button onclick="obsInspNotifyGoToRegister()"
+      style="margin-top:10px;width:100%;padding:9px;background:linear-gradient(135deg,#e8820c,#d97706);
+             color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.3px;">
+      👉 View in Inspection Register
+    </button>`;
+  popup.style.display = 'flex';
+  popup.style.animation = 'obsPopIn .35s ease';
+  if (window._inspNotifyTimer) clearTimeout(window._inspNotifyTimer);
+  window._inspNotifyTimer = setTimeout(() => { popup.style.display = 'none'; }, 20000);
+}
+
+function closeInspNotifyPopup() {
+  const p = document.getElementById('obsInspNotifyPopup');
+  if (p) p.style.display = 'none';
+  if (window._inspNotifyTimer) clearTimeout(window._inspNotifyTimer);
+}
+
+function obsInspNotifyGoToRegister() {
+  closeInspNotifyPopup();
+  const allBtns = document.querySelectorAll('.nav-tab');
+  allBtns.forEach(b => {
+    if ((b.getAttribute('onclick')||'').includes("'data'")) b.click();
+  });
+  showToast('📋 Navigated to Inspection Register');
+}
 const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 function handleGoogleSignIn() {
@@ -4900,15 +5375,15 @@ function finishLogin() {
     av.textContent = currentUser.name[0].toUpperCase();
   }
   document.getElementById('userName').textContent = currentUser.name;
-  const roleLabel = currentUser.isAdmin ? 'Administrator' : (currentUser.isUser ? 'User' : 'Viewer');
+  const roleLabel = currentUser.isSuperAdmin ? 'Super Admin' : currentUser.isAdmin ? 'Administrator' : currentUser.isObserver ? 'Observer' : 'User';
   document.getElementById('userRole').textContent = roleLabel;
 
   // Global viewer banner
   const banner = document.getElementById('viewerGlobalBanner');
-  if (banner) banner.style.display = currentUser.isAdmin ? 'none' : 'flex';
+  if (banner) banner.style.display = 'none'; // viewer role removed
 
   // Update banner text based on role
-  if (!currentUser.isAdmin && banner) {
+  if (false && banner) {
     const msg = currentUser.isUser
       ? '👤 <strong>User Access</strong> — You can add inspection entries, project updates, upload ATR files and print reports. Once saved, records <strong>cannot be edited or deleted</strong>.'
       : '👁 <strong>Viewer Access</strong> — You can view all data and print reports. Adding, editing and deleting is restricted to administrators and registered users.';
@@ -4919,7 +5394,7 @@ function finishLogin() {
   // Online bar: only visible to Admin and User — hidden for Viewer
   const onlineBar = document.getElementById('onlineBar');
   if(onlineBar){
-    onlineBar.style.display = (currentUser.isAdmin || currentUser.isUser) ? 'flex' : 'none';
+    onlineBar.style.display = (currentUser.isAdmin || currentUser.isUser || currentUser.isObserver) ? 'flex' : 'none';
   }
   // Adjust sidebar sticky top if online bar is hidden (viewer: 44+56=100px, others: 44+56+36=136px)
   const sidebar = document.getElementById('cqisSidebar');
@@ -4932,21 +5407,31 @@ function finishLogin() {
   // Role badge colour
   const roleBadge = document.getElementById('userRoleBadge');
   if (roleBadge) {
-    if (currentUser.isAdmin) {
+    if (currentUser.isSuperAdmin) {
+      roleBadge.textContent = '⭐ SUPER ADMIN'; roleBadge.style.color = '#7c3aed';
+      roleBadge.style.background = 'rgba(124,58,237,.12)'; roleBadge.style.borderColor = 'rgba(124,58,237,.3)';
+    } else if (currentUser.isAdmin) {
       roleBadge.textContent = '⚙️ ADMIN'; roleBadge.style.color = '#d97706';
-    } else if (currentUser.isUser) {
+    } else if (currentUser.isObserver) {
+      roleBadge.textContent = '👁 OBSERVER · ' + (currentUser.title || currentUser.name);
+      roleBadge.style.color = '#7c3aed';
+      roleBadge.style.background = 'rgba(124,58,237,.12)';
+      roleBadge.style.borderColor = 'rgba(124,58,237,.3)';
+    } else {
       const locLabel = currentUser.location ? ' · ' + currentUser.location : '';
       roleBadge.textContent = '👤 USER' + locLabel; roleBadge.style.color = '#f97316';
-    } else {
-      roleBadge.textContent = '👁 VIEWER'; roleBadge.style.color = '#6b7280';
     }
   }
 
   // Apply UI restrictions based on role
   applyRoleRestrictions();
+  // Start observer comment listener for admins
+  if (currentUser.isAdmin) setTimeout(startObserverCommentListener, 2000);
+  // Start inspection notify listener for observers
+  if (currentUser.isObserver) setTimeout(startInspectionNotifyListener, 2000);
   // Add current user to online bar — only Admin and User are tracked
   if(window._addCurrentUserToOnlineBar){
-    const role = currentUser.isAdmin ? 'admin' : (currentUser.isUser ? 'user' : 'viewer');
+    const role = currentUser.isAdmin ? 'admin' : (currentUser.isUser ? 'user' : 'observer');
     window._addCurrentUserToOnlineBar(currentUser.name, role);
   }
   // Notification: system login event
@@ -4966,22 +5451,26 @@ function finishLogin() {
 
 // ===== ROLE-BASED UI RESTRICTIONS =====
 function applyRoleRestrictions() {
-  const isAdmin  = currentUser.isAdmin;
-  const isUser   = currentUser.isUser;
-  const isViewer = currentUser.isViewer;
+  const isAdmin    = currentUser.isAdmin;
+  const isUser     = currentUser.isUser;
+  const isObserver = currentUser.isObserver;
 
   // ── Sidebar tabs: ADMIN ONLY ──
   const adminOnlyNavBtns = [
-    'entryTabBtn',       // New Entry sidebar tab
-    'inspSchedTabBtn',   // Inspection Schedule sidebar tab
-    'notifNavBtn',       // Notifications sidebar tab
-    'emailNotifNavBtn',  // Email Notifications sidebar tab
-    'followupNavBtn',    // Follow Up ATR Report sidebar tab
+    'entryTabBtn',       // New Entry
+    'notifNavBtn',       // Notifications
+    'followupNavBtn',    // Follow Up ATR Report
   ];
   adminOnlyNavBtns.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isAdmin ? '' : 'none';
   });
+
+  // Email Notifications: visible to admin AND observer
+  const emailBtn = document.getElementById('emailNotifNavBtn');
+  if (emailBtn) emailBtn.style.display = (isAdmin || isObserver) ? '' : 'none';
+
+
 
   // ── "+ New Entry" button inside Inspection Register tab ──
   const dataNewBtn = document.getElementById('dataNewEntryBtn');
@@ -4991,6 +5480,12 @@ function applyRoleRestrictions() {
   document.querySelectorAll('.sbrw-wrap button[onclick*="print"]').forEach(b => {
     b.style.display = (isAdmin || isUser) ? '' : 'none';
   });
+
+  // ── Observer: show floating comment button ──
+  const obsFloat = document.getElementById('obsFloatBtn');
+  if (obsFloat) { obsFloat.style.display = isObserver ? 'flex' : 'none'; obsFloat.style.alignItems = 'center'; obsFloat.style.justifyContent = 'center'; }
+  const obsDashPanel = document.getElementById('observerCommentPanel');
+  if (obsDashPanel) obsDashPanel.style.display = 'none'; // replaced by floating panel
 }
 
 // ===== LOCATION-BASED DATA FILTER =====
@@ -5050,6 +5545,10 @@ function doLogout() {
 
 // ===== NAVIGATION =====
 function showTab(id,btn){
+  // Update observer panel current tab label if panel is open
+  if (typeof _obsPanelOpen !== 'undefined' && _obsPanelOpen) {
+    setTimeout(updateObsCurrentTab, 100);
+  }
   document.querySelectorAll('[id^="tab-"]').forEach(t=>t.style.display='none');
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+id).style.display='';
@@ -5097,34 +5596,6 @@ function showTab(id,btn){
       s.style.opacity       = canAccess ? '1' : '0.4';
       s.style.pointerEvents = canAccess ? '' : 'none';
     });
-    // Auto-set location from logged-in user and trigger contract no dropdown
-    setTimeout(() => {
-      const uLoc     = (currentUser && currentUser.location)  || '';
-      const uLocType = (currentUser && currentUser.locType)   || '';
-      if (!uLoc || !uLocType) return;
-      if (uLocType === 'dzongkhag') {
-        const rb = document.querySelector('input[name="locType"][value="dzongkhag"]');
-        if (rb) { rb.checked = true; toggleLocType('dzongkhag'); }
-        setTimeout(() => {
-          const el = document.getElementById('fDzongkhag');
-          if (el && uLoc) { el.value = uLoc; updateContractNoDropdown(); }
-        }, 60);
-      } else if (uLocType === 'ro' || uLocType === 'thromde') {
-        const rb = document.querySelector('input[name="locType"][value="rothromde"]');
-        if (rb) { rb.checked = true; toggleLocType('rothromde'); }
-        setTimeout(() => {
-          const el = document.getElementById('fROForm');
-          if (el && uLoc) { el.value = uLoc; updateContractNoDropdown(); }
-        }, 60);
-      } else if (uLocType === 'other') {
-        const rb = document.querySelector('input[name="locType"][value="other"]');
-        if (rb) { rb.checked = true; toggleLocType('other'); }
-        setTimeout(() => {
-          const el = document.getElementById('fOtherLoc');
-          if (el && uLoc) { el.value = uLoc; updateContractNoDropdown(); }
-        }, 60);
-      }
-    }, 200);
   }
   if(id==='projupdates'){
     renderPUTable();
@@ -6095,8 +6566,6 @@ function renderTable(){
   if(!rows.length){body.innerHTML='';document.getElementById('noData').style.display='';return;}
   document.getElementById('noData').style.display='none';
   const isAdmin=currentUser&&currentUser.isAdmin;
-  const fixBtn=document.getElementById('btnFixContractNos');
-  if(fixBtn) fixBtn.style.display=isAdmin?'':'none';
   body.innerHTML=rows.map((r,i)=>{
     const status=calcATRStatus(r);
     const displaySN=r.sn||(i+1);
@@ -6126,133 +6595,6 @@ function renderTable(){
         : '<span style="color:#6b7280;font-size:10px;">—</span>'}</td>
     </tr>`;
   }).join('');
-}
-
-// ================================================================
-//  BULK CONTRACT NO REASSIGNMENT — Admin tool
-//  Derives 2-digit year from dateInspected (most reliable field).
-//  Groups by exact location value (dzongkhag / ro / other) + YY.
-//  Each group is sorted by global SN then numbered 01, 02, 03…
-//  Updates local cache + every Firestore doc in sequence.
-// ================================================================
-function _getRecordYY(r) {
-  // Prefer dateInspected (YYYY-MM-DD) — most reliable source of year
-  if (r.dateInspected && r.dateInspected.length >= 4) {
-    return r.dateInspected.slice(2, 4); // e.g. "2026-04-15" → "26"
-  }
-  // Fall back to r.year which getYear() stores as full "2026"
-  if (r.year) return String(r.year).slice(-2);
-  return getYY();
-}
-
-function _getRecordLoc(r) {
-  // Return the exact stored value — each is its own unique location
-  // r.dzongkhag = "Gasa", r.ro = "RO Thimphu" or "Thimphu Thromde", r.other = free text
-  return r.dzongkhag || r.ro || r.other || 'UNKNOWN';
-}
-
-async function bulkReassignContractNos() {
-  if (!currentUser || !currentUser.isAdmin) {
-    showToast('⚠️ Admin only.'); return;
-  }
-  const total = inspections.length;
-  if (!total) { showToast('No records to fix.'); return; }
-
-  // Preview what will happen before confirming
-  const previewGroups = {};
-  inspections.forEach(r => {
-    const loc = _getRecordLoc(r);
-    const yy  = _getRecordYY(r);
-    const key = loc + '|||' + yy;
-    if (!previewGroups[key]) previewGroups[key] = 0;
-    previewGroups[key]++;
-  });
-  const previewLines = Object.entries(previewGroups)
-    .sort(([a],[b]) => a.localeCompare(b))
-    .map(([k, cnt]) => {
-      const [loc, yy] = k.split('|||');
-      const code = getLocationCode(loc);
-      return `  ${loc} (${yy}) [${code}] — ${cnt} record${cnt>1?'s':''} → /01 … /${String(cnt).padStart(2,'0')}`;
-    }).join('\n');
-
-  const confirmed = confirm(
-    `🔧 Fix Contract / Project Nos\n\n` +
-    `${total} total records will be regrouped and renumbered:\n\n` +
-    `${previewLines}\n\n` +
-    `Format: CQD/INS/{LOC}/{YY}/{NN} sorted by global S/N.\n` +
-    `Both Firestore and local cache will be updated.\n\nProceed?`
-  );
-  if (!confirmed) return;
-
-  dbLoading(true, 'Grouping records…');
-
-  // Step 1: Sort ALL inspections by global SN ascending (preserves entry order)
-  const sorted = [...inspections].sort((a, b) => (a.sn || 0) - (b.sn || 0));
-
-  // Step 2: Group by exact location + 2-digit year
-  // Using "|||" as separator to avoid clashes with location names containing "|"
-  const groups = {};
-  sorted.forEach(r => {
-    const loc = _getRecordLoc(r);
-    const yy  = _getRecordYY(r);
-    const key = loc + '|||' + yy;
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(r);
-  });
-
-  // Step 3: Build change list — assign 01, 02, 03… per group in SN order
-  const changes = [];
-  Object.entries(groups).forEach(([key, recs]) => {
-    const [loc, yy] = key.split('|||');
-    const locCode = getLocationCode(loc);
-    recs.forEach((r, idx) => {
-      const newNo = buildContractNo(locCode, yy, idx + 1);
-      changes.push({ record: r, newContractNo: newNo, oldNo: r.contractNo || '—' });
-    });
-  });
-
-  // Step 4: Apply to local inspections array first (by unique sn+id combination)
-  changes.forEach(({ record, newContractNo }) => {
-    const idx = inspections.findIndex(r =>
-      r.sn === record.sn && (r.id === record.id || (!r.id && !record.id))
-    );
-    if (idx > -1) inspections[idx].contractNo = newContractNo;
-  });
-  localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
-
-  // Step 5: Push each change to Firestore one by one
-  let done = 0, skipped = 0, errors = 0;
-  for (const { record, newContractNo, oldNo } of changes) {
-    if (oldNo === newContractNo) { skipped++; continue; } // already correct
-    try {
-      const docId = record.id || ('insp-' + record.sn);
-      await db.collection(COL_INSPECTIONS).doc(docId).update({ contractNo: newContractNo });
-      done++;
-    } catch(e) {
-      console.warn('[FixContractNo] Firestore update failed — SN:', record.sn, 'docId:', record.id, e);
-      errors++;
-    }
-    dbLoading(true, `Firestore: ${done + skipped + errors} / ${changes.length} done…`);
-  }
-
-  dbLoading(false);
-  renderTable();
-
-  const summaryLines = Object.entries(groups)
-    .sort(([a],[b]) => a.localeCompare(b))
-    .map(([k, recs]) => {
-      const [loc, yy] = k.split('|||');
-      const lc = getLocationCode(loc);
-      return `  ✅ ${loc} (${yy}): ${recs.length} records → ${buildContractNo(lc,yy,1)} … ${buildContractNo(lc,yy,recs.length)}`;
-    }).join('\n');
-
-  alert(
-    `✅ Contract Nos Reassigned!\n\n` +
-    `Firestore updated : ${done}\n` +
-    `Already correct   : ${skipped}\n` +
-    `Errors            : ${errors}\n\n` +
-    `${summaryLines}`
-  );
 }
 
 function deleteEntry(i){
@@ -6509,6 +6851,10 @@ function saveEntry(){
       dbLoading(true,'Saving inspection to Firebase…');
       await fbSaveInspection(entry);
       dbLoading(false);
+
+      // ── Notify observers about new inspection ──
+      notifyObserversNewInspection(entry);
+
       document.getElementById('formSuccess').style.display='block';
       setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
       clearForm();
@@ -7104,7 +7450,7 @@ function renderFinancials(){
 }
 
 function printAnalytics(){
-  if(!currentUser||(currentUser.isViewer)){alert('Print access is for Admins and Users only.');return;}
+  if(!currentUser){alert('Please log in to print.');return;}
   const total=inspections.length;
   const defTotal=inspections.filter(r=>r.defect==='Yes').length;
   const passTotal=inspections.filter(r=>r.passFailResult==='Pass').length;
@@ -10680,16 +11026,8 @@ function toggleLocType(type) {
     document.getElementById('fDzongkhag').selectedIndex = 0;
     const roEl=document.getElementById('fROForm');if(roEl)roEl.selectedIndex=0;
   }
-  // Reset contract no dropdown when switching location type
-  const _cnSel = document.getElementById('fContractNo');
-  if (_cnSel && _cnSel.tagName === 'SELECT') {
-    _cnSel.innerHTML = '<option value="">— Select location first —</option>';
-    const _prev = document.getElementById('contractNoPreview');
-    if (_prev) _prev.textContent = '';
-  }
+  // Contract number is now manual — no dropdown update needed
 }
-
-
 
 // ================================================================
 //  LOCATION CODE MAP — Short codes for Contract No. generation
@@ -10739,22 +11077,11 @@ function getActiveLocation() {
 let _contractDropdownCache = {}; // cache to avoid repeated Firebase calls
 let _contractDropdownTimer = null;
 
-// Helper: extract the highest serial number from a Set of contractNo strings
-function getMaxSerial(existingNos, locCode, yy) {
-  let maxSeq = 0;
-  existingNos.forEach(cn => {
-    const parts = cn.split('/');
-    const seqStr = parts[parts.length - 1];
-    const seq = parseInt(seqStr, 10);
-    if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
-  });
-  return maxSeq;
-}
-
 async function updateContractNoDropdown() {
-  const sel     = document.getElementById('fContractNo');
+  const sel = document.getElementById('fContractNo');
   const preview = document.getElementById('contractNoPreview');
   const spinner = document.getElementById('contractNoLoadingSpinner');
+  // Guard: only run on the select element, not a plain text input
   if (!sel || sel.tagName !== 'SELECT') return;
 
   const location = getActiveLocation();
@@ -10764,114 +11091,60 @@ async function updateContractNoDropdown() {
     return;
   }
 
-  const locType = document.querySelector('input[name="locType"]:checked')?.value || 'dzongkhag';
-  const locCode  = getLocationCode(location);
-  const yy       = getYY();          // e.g. "26"
-  const fullYear = '20' + yy;        // e.g. "2026"
-  const prefix   = `CQD/INS/${locCode}/${yy}/`;
-
-  // Which Firestore field holds the location for this type?
-  // Saved entry always stores: dzongkhag:'Gasa' / ro:'RO Phuentsholing' / other:'...'
-  const locField = (locType === 'dzongkhag') ? 'dzongkhag'
-                 : (locType === 'rothromde') ? 'ro'
-                 :                             'other';
-
-  // ── DIAGNOSTIC: show what's in inspections array for this location ──
-  const diagSample = (inspections||[]).slice(0,3).map(r=>
-    `sn:${r.sn} dz:"${r.dzongkhag||''}" ro:"${r.ro||''}" other:"${r.other||''}" yr:"${r.year||''}" dt:"${r.dateInspected||''}"`
-  ).join('\n');
-  const diagMatches = (inspections||[]).filter(r=>(r[locField]||'')===location);
-  alert(
-    `[DEBUG] location="${location}" locType="${locType}" locField="${locField}"\n` +
-    `Total inspections loaded: ${(inspections||[]).length}\n` +
-    `Matches for this location: ${diagMatches.length}\n\n` +
-    `First 3 records in array:\n${diagSample||'(empty)'}`
-  );
+  const locCode = getLocationCode(location);
+  const yy = getYY();
+  const prefix = `CQD/INS/${locCode}/${yy}/`;
 
   if (spinner) spinner.style.display = 'inline';
   sel.innerHTML = '<option value="">⏳ Loading…</option>';
 
-  // Helper — 4-digit year from a record
-  function recYear(r) {
-    if (r.year) return String(r.year).trim().slice(0, 4);
-    if (r.dateInspected && r.dateInspected.length >= 4) return r.dateInspected.slice(0, 4);
-    return '';
-  }
-
-  // ── STEP 1: Count from local inspections array (fast, already loaded) ──
-  // Match on the correct location field AND year
-  const localMatches = (inspections || [])
-    .filter(r => (r[locField] || '') === location && recYear(r) === fullYear)
-    .sort((a, b) => (a.sn || 0) - (b.sn || 0));
-
-  const existingNos = new Set();
-
-  // For each local match assign what its contract no SHOULD be (positional)
-  // Use the actual stored contractNo if it already has the right prefix
-  localMatches.forEach((r, idx) => {
-    if (r.contractNo && r.contractNo.startsWith(prefix)) {
-      existingNos.add(r.contractNo);
-    } else {
-      existingNos.add(buildContractNo(locCode, yy, idx + 1));
-    }
-  });
-
-  // ── STEP 2: Firestore — try ALL possible location fields ──
-  // Old records may use 'ro', 'dzongkhag', 'other', OR the generic 'agencyLocation'
-  // We query ALL fields to find matching records regardless of how they were saved
   try {
-    // Try the expected field first
-    let firestoreMatches = [];
+    // Fetch all existing inspections for this locCode + year
+    const snap = await db.collection('inspections')
+      .where('contractNo', '>=', prefix)
+      .where('contractNo', '<', prefix + '\uffff')
+      .get();
 
-    // Query by the specific location field
-    const snap1 = await db.collection('inspections').where(locField, '==', location).get();
-    snap1.forEach(doc => {
-      const d = { id: doc.id, ...doc.data() };
-      if (recYear(d) === fullYear) firestoreMatches.push(d);
+    const existingNos = new Set();
+    snap.forEach(doc => {
+      const cn = doc.data().contractNo;
+      if (cn) existingNos.add(cn);
     });
 
-    // Also try agencyLocation field (some older records may use this)
-    try {
-      const snap2 = await db.collection('inspections').where('agencyLocation', '==', location).get();
-      const existingIds = new Set(firestoreMatches.map(d => d.id));
-      snap2.forEach(doc => {
-        const d = { id: doc.id, ...doc.data() };
-        if (recYear(d) === fullYear && !existingIds.has(doc.id)) firestoreMatches.push(d);
-      });
-    } catch(e2) {}
+    // Also check local inspections array in case not yet synced
+    (inspections || []).forEach(r => {
+      if (r.contractNo && r.contractNo.startsWith(prefix)) existingNos.add(r.contractNo);
+    });
 
-    // Sort by sn
-    firestoreMatches.sort((a, b) => (a.sn || 0) - (b.sn || 0));
+    // Find next sequential number
+    let nextSeq = 1;
+    while (existingNos.has(buildContractNo(locCode, yy, nextSeq))) nextSeq++;
+    const nextNo = buildContractNo(locCode, yy, nextSeq);
 
-    // If Firestore found more than local cache, use Firestore count as source of truth
-    if (firestoreMatches.length >= localMatches.length && firestoreMatches.length > 0) {
-      existingNos.clear();
-      firestoreMatches.forEach((d, idx) => {
-        if (d.contractNo && d.contractNo.startsWith(prefix)) {
-          existingNos.add(d.contractNo);
-        } else {
-          existingNos.add(buildContractNo(locCode, yy, idx + 1));
-        }
-      });
-    }
+    // Build dropdown: new number as first option, then existing ones
+    let html = `<option value="${nextNo}" data-new="true">🆕 ${nextNo} (New)</option>`;
+    const sorted = [...existingNos].sort();
+    sorted.forEach(cn => {
+      html += `<option value="${cn}">📋 ${cn} (Existing)</option>`;
+    });
+
+    sel.innerHTML = html;
+    if (preview) preview.textContent = `Next new: ${nextNo} · ${existingNos.size} existing for this location/year`;
+
   } catch(e) {
-    console.warn('[ContractNo] Firestore query failed, using local cache:', e);
+    console.warn('Contract No. load error:', e);
+    // Fallback: generate from local data only
+    const existingNos = new Set();
+    (inspections || []).forEach(r => {
+      if (r.contractNo && r.contractNo.startsWith(prefix)) existingNos.add(r.contractNo);
+    });
+    let nextSeq = 1;
+    while (existingNos.has(buildContractNo(locCode, yy, nextSeq))) nextSeq++;
+    const nextNo = buildContractNo(locCode, yy, nextSeq);
+    sel.innerHTML = `<option value="${nextNo}" data-new="true">🆕 ${nextNo} (New — offline)</option>`;
+    if (preview) preview.textContent = `Offline mode — generated from local cache`;
   }
 
-  // ── STEP 3: Next serial = max + 1 ──
-  const maxSeq = getMaxSerial(existingNos, locCode, yy);
-  let nextSeq = maxSeq + 1;
-  while (existingNos.has(buildContractNo(locCode, yy, nextSeq))) nextSeq++;
-  const nextNo = buildContractNo(locCode, yy, nextSeq);
-
-  // Build dropdown
-  let html = `<option value="${nextNo}" data-new="true">🆕 ${nextNo} (New)</option>`;
-  [...existingNos].sort().forEach(cn => {
-    html += `<option value="${cn}">📋 ${cn} (Existing)</option>`;
-  });
-
-  sel.innerHTML = html;
-  if (preview) preview.textContent = `Next new: ${nextNo} · ${existingNos.size} existing for this location/year`;
   if (spinner) spinner.style.display = 'none';
 }
 
@@ -16042,6 +16315,169 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 </div><!-- /#cqisPanel -->
+
+<!-- ═══════════════════════════════════════════════════════
+     OBSERVER SYSTEM — at body level, outside all panels
+═══════════════════════════════════════════════════════ -->
+
+<!-- Floating 💬 button — fixed bottom-right, observer only -->
+<button id="obsFloatBtn" onclick="toggleObsPanel()"
+  style="display:none;position:fixed;bottom:28px;right:28px;z-index:10001;
+         width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;
+         background:linear-gradient(135deg,#7c3aed,#1d4ed8);color:#fff;
+         font-size:26px;box-shadow:0 4px 20px rgba(124,58,237,.5);
+         align-items:center;justify-content:center;transition:transform .2s;">💬</button>
+
+<!-- Slide-in comment panel -->
+<div id="obsPanel"
+  style="position:fixed;top:0;right:0;height:100vh;width:390px;z-index:10000;
+         background:#fff;box-shadow:-4px 0 40px rgba(0,0,0,.2);
+         flex-direction:column;overflow:hidden;
+         transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+         display:none;">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#7c3aed,#1d4ed8);padding:16px 18px;
+              display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div>
+      <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:1px;">👁 OBSERVER PANEL</div>
+      <div id="obsPanelUser" style="font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;"></div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:1px;">📍 <span id="obsCurrentTab">Dashboard</span></div>
+    </div>
+    <button onclick="toggleObsPanel()"
+      style="background:rgba(255,255,255,.2);border:none;border-radius:6px;
+             color:#fff;padding:7px 12px;cursor:pointer;font-size:13px;font-weight:700;">✕</button>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;border-bottom:2px solid #e2e6ef;background:#f8f9fc;flex-shrink:0;">
+    <button onclick="obsShowTab('comment')" id="obsTabComment"
+      style="flex:1;padding:10px 4px;border:none;background:linear-gradient(135deg,#7c3aed,#1d4ed8);
+             color:#fff;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px;">✍️ COMMENT</button>
+    <button onclick="obsShowTab('highlight')" id="obsTabHighlight"
+      style="flex:1;padding:10px 4px;border:none;background:none;
+             color:#6b7280;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px;">🖊 HIGHLIGHT</button>
+    <button onclick="obsShowTab('history')" id="obsTabHistory"
+      style="flex:1;padding:10px 4px;border:none;background:none;
+             color:#6b7280;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px;">📋 HISTORY</button>
+  </div>
+
+  <!-- COMMENT tab -->
+  <div id="obsContent-comment"
+    style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+    <!-- Quick tags -->
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#6b7280;text-transform:uppercase;margin-bottom:7px;">Quick Tag</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        <button onclick="obsInsertTag('✅ Approved')"        style="padding:4px 9px;border:1px solid #16a34a;border-radius:20px;background:rgba(22,163,74,.07);color:#16a34a;font-size:11px;font-weight:600;cursor:pointer;">✅ Approved</button>
+        <button onclick="obsInsertTag('⚠️ Needs Review')"   style="padding:4px 9px;border:1px solid #d97706;border-radius:20px;background:rgba(217,119,6,.07);color:#d97706;font-size:11px;font-weight:600;cursor:pointer;">⚠️ Needs Review</button>
+        <button onclick="obsInsertTag('❌ Action Required')" style="padding:4px 9px;border:1px solid #dc2626;border-radius:20px;background:rgba(220,38,38,.07);color:#dc2626;font-size:11px;font-weight:600;cursor:pointer;">❌ Action Required</button>
+        <button onclick="obsInsertTag('🔴 Urgent')"          style="padding:4px 9px;border:1px solid #dc2626;border-radius:20px;background:rgba(220,38,38,.07);color:#dc2626;font-size:11px;font-weight:600;cursor:pointer;">🔴 Urgent</button>
+        <button onclick="obsInsertTag('📌 Note')"            style="padding:4px 9px;border:1px solid #7c3aed;border-radius:20px;background:rgba(124,58,237,.07);color:#7c3aed;font-size:11px;font-weight:600;cursor:pointer;">📌 Note</button>
+        <button onclick="obsInsertTag('👍 Good Progress')"   style="padding:4px 9px;border:1px solid #1d4ed8;border-radius:20px;background:rgba(29,78,216,.07);color:#1d4ed8;font-size:11px;font-weight:600;cursor:pointer;">👍 Good Progress</button>
+      </div>
+    </div>
+    <!-- Selected text reference -->
+    <div id="obsSelectedTextBox" style="display:none;background:#faf5ff;border:1px solid #ddd6fe;border-radius:8px;padding:10px 12px;">
+      <div style="font-size:10px;font-weight:700;color:#7c3aed;letter-spacing:1px;margin-bottom:4px;">🖊 REFERENCING SELECTED TEXT</div>
+      <div id="obsSelectedTextContent" style="font-size:12px;color:#374151;font-style:italic;line-height:1.5;"></div>
+      <button onclick="obsClearHighlight()" style="margin-top:6px;font-size:10px;color:#9ca3af;background:none;border:none;cursor:pointer;text-decoration:underline;">Clear</button>
+    </div>
+    <!-- Reference -->
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">Reference (optional)</div>
+      <input id="obsRefInput" type="text" placeholder="e.g. SN#12, Contract No., ATR item…"
+        style="width:100%;box-sizing:border-box;border:1px solid #ddd6fe;border-radius:7px;
+               padding:8px 12px;font-size:12px;font-family:'Poppins',sans-serif;
+               color:#374151;background:#fff;outline:none;">
+    </div>
+    <!-- Comment textarea -->
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">Your Comment</div>
+      <textarea id="observerCommentText" rows="5"
+        placeholder="Type your observation, instruction or comment here…"
+        style="width:100%;box-sizing:border-box;border:1px solid #ddd6fe;border-radius:8px;
+               padding:10px 12px;font-size:13px;font-family:'Poppins',sans-serif;
+               resize:vertical;background:#fff;color:#1f2937;outline:none;line-height:1.5;"></textarea>
+    </div>
+    <!-- Priority -->
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">Priority</div>
+      <select id="obsPriority"
+        style="width:100%;padding:8px 12px;border:1px solid #ddd6fe;border-radius:8px;
+               font-size:13px;font-family:'Poppins',sans-serif;color:#374151;background:#fff;">
+        <option value="normal">🔵 Normal</option>
+        <option value="review">🟡 Needs Review</option>
+        <option value="urgent">🔴 Urgent</option>
+      </select>
+    </div>
+    <!-- Submit -->
+    <button onclick="submitObserverComment()"
+      style="width:100%;padding:12px;background:linear-gradient(135deg,#7c3aed,#1d4ed8);
+             color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;
+             font-family:'Poppins',sans-serif;cursor:pointer;letter-spacing:.5px;">
+      💬 Submit &amp; Notify Admin
+    </button>
+    <div style="font-size:11px;color:#9ca3af;text-align:center;padding-bottom:8px;">Saved to system &amp; emailed to all administrators.</div>
+  </div>
+
+  <!-- HIGHLIGHT tab -->
+  <div id="obsContent-highlight"
+    style="display:none;flex:1;overflow-y:auto;padding:18px;flex-direction:column;gap:14px;">
+    <div style="background:#faf5ff;border:1px solid #ddd6fe;border-radius:10px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:8px;">HOW TO USE</div>
+      <div style="font-size:12px;color:#374151;line-height:1.8;">
+        1. <strong>Close panel</strong> (click ✕)<br>
+        2. <strong>Select any text</strong> on the page<br>
+        3. <strong>Reopen panel</strong> (click 💬)<br>
+        4. Go to ✍️ COMMENT tab and submit
+      </div>
+    </div>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;">CURRENTLY SELECTED TEXT</div>
+      <div id="obsHighlightPreview" style="font-size:13px;color:#7c3aed;font-style:italic;min-height:40px;line-height:1.5;">(No text selected yet)</div>
+    </div>
+    <button onclick="obsCaptureHighlight()"
+      style="padding:11px;background:#7c3aed;color:#fff;border:none;border-radius:8px;
+             font-size:13px;font-weight:700;cursor:pointer;width:100%;">
+      🖊 Use Selected Text as Reference
+    </button>
+  </div>
+
+  <!-- HISTORY tab -->
+  <div id="obsContent-history"
+    style="display:none;flex:1;overflow-y:auto;padding:16px;flex-direction:column;gap:10px;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#6b7280;text-transform:uppercase;margin-bottom:4px;">Your Comment History</div>
+    <div id="obsHistoryList">
+      <div style="color:#9ca3af;font-size:12px;text-align:center;padding:30px;">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin notification popup — bottom-left, content built dynamically -->
+<div id="obsCommentPopup"
+  style="display:none;position:fixed;bottom:24px;left:24px;z-index:10002;
+         background:#fff;border:2px solid #7c3aed;border-radius:14px;
+         padding:16px 20px;max-width:370px;width:370px;
+         box-shadow:0 8px 32px rgba(124,58,237,.3);
+         flex-direction:column;gap:0;font-family:'Poppins',sans-serif;">
+  <!-- Content injected dynamically by showObserverCommentPopup() -->
+</div>
+
+<!-- Observer inspection notification popup — bottom-right (for observers) -->
+<div id="obsInspNotifyPopup"
+  style="display:none;position:fixed;bottom:24px;right:100px;z-index:10002;
+         background:#fff;border:2px solid #e8820c;border-radius:14px;
+         padding:16px 20px;max-width:370px;width:370px;
+         box-shadow:0 8px 32px rgba(232,130,12,.3);
+         flex-direction:column;gap:0;font-family:'Poppins',sans-serif;">
+  <!-- Content injected dynamically by showInspectionNotifyPopup() -->
+</div>
+
+<style>
+#obsPanel { font-family: 'Poppins', sans-serif; }
+</style>
+
 </div><!-- /#bz-app-section -->
 </div><!-- /.wrapper -->
 
