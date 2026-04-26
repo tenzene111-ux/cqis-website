@@ -1920,7 +1920,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       </div>
       <div class="field-group">
         <label class="field-label">Username</label>
-        <input class="field-input" id="observerUser" type="text" placeholder="e.g. DGOCASC or CABSEC"
+        <input class="field-input" id="observerUser" type="text" placeholder="e.g. chencho@cabinet.gov.bt"
           onkeydown="if(event.key==='Enter')doObserverLogin()">
       </div>
       <div class="field-group">
@@ -2134,7 +2134,11 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-label">ATR Tracker</span>
     </button>
 
-
+    <div class="sb-group" id="qcToolsGroup">QC Tools</div>
+    <button class="nav-tab" id="qcToolBtn" onclick="showTab('qc',this)">
+      <span class="sb-icon"><i class="fa fa-microscope"></i></span>
+      <span class="sb-label">SBRW QC Tool</span>
+    </button>
 
     <div class="sb-group">Compliance</div>
     <button class="nav-tab" onclick="showTab('compliance-contractor',this)">
@@ -4686,8 +4690,8 @@ const SUPER_ADMIN_ACCOUNTS = [
 const _SAP = atob('U1VQRVJAMjAyNg=='); // SUPER@2026
 
 const OBSERVER_ACCOUNTS = [
-  { username:'DGOCASC', password:'DG@OBS2026',  name:'Director General',   title:'Director General, OCASC',      email:'dgocasc@cabinet.gov.bt' },
-  { username:'CABSEC',  password:'CAB@OBS2026',  name:'Cabinet Secretary',  title:'Cabinet Secretary',             email:'cabsec@cabinet.gov.bt' },
+  { username:'chencho@cabinet.gov.bt', password:'DG@OBS2026',  name:'Director General',   title:'Director General, OCASC',      email:'chencho@cabinet.gov.bt' },
+  { username:'kesangd@cabinet.gov.bt', password:'CAB@OBS2026',  name:'Cabinet Secretary',  title:'Cabinet Secretary',             email:'kesangd@cabinet.gov.bt' },
   { username:'DIROPMC', password:'DIR@OBS2026',  name:'Director OPMC',      title:'Director, OPMC',                email:'diropmc@cabinet.gov.bt' },
   { username:'HDCQD',   password:'HD@OBS2026',   name:'Head CQD',           title:'Head, Construction Quality Division', email:'hdcqd@cabinet.gov.bt' },
 ];
@@ -4863,8 +4867,8 @@ function doObserverLogin() {
   const pass     = document.getElementById('observerPass')?.value || '';
   if (!username) { showLoginError('Please enter your Username.'); return; }
   if (!pass)     { showLoginError('Please enter your Password.'); return; }
-  const acc = OBSERVER_ACCOUNTS.find(a => a.username === username);
-  if (!acc) { showLoginError('Username not found.'); return; }
+  const acc = OBSERVER_ACCOUNTS.find(a => a.username === username || a.username.toLowerCase() === username.toLowerCase());
+  if (!acc) { showLoginError('Username / Email not found.'); return; }
   if (pass !== acc.password) { showLoginError('Incorrect password.'); return; }
   currentUser = {
     username:   acc.username,
@@ -5012,6 +5016,7 @@ async function submitObserverComment() {
   const txt      = (document.getElementById('observerCommentText')?.value || '').trim();
   const priority = document.getElementById('obsPriority')?.value || 'normal';
   const ref      = (document.getElementById('obsRefInput')?.value || '').trim();
+  const method   = document.querySelector('input[name="obsNotifyMethod"]:checked')?.value || 'both';
   if (!txt) { alert('Please type a comment before submitting.'); return; }
 
   updateObsCurrentTab();
@@ -5019,79 +5024,88 @@ async function submitObserverComment() {
     day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
   });
 
-  // Detect comment type from quick tags in text
   let commentType = 'General';
-  if (txt.includes('✅ Approved'))         commentType = '✅ Approved';
-  else if (txt.includes('❌ Action Required')) commentType = '❌ Action Required';
-  else if (txt.includes('🔴 Urgent'))      commentType = '🔴 Urgent';
-  else if (txt.includes('⚠️ Needs Review'))commentType = '⚠️ Needs Review';
-  else if (txt.includes('📌 Note'))        commentType = '📌 Note';
-  else if (txt.includes('👍 Good Progress'))commentType = '👍 Good Progress';
+  if (txt.includes('✅ Approved'))           commentType = '✅ Approved';
+  else if (txt.includes('❌ Action Required'))commentType = '❌ Action Required';
+  else if (txt.includes('🔴 Urgent'))        commentType = '🔴 Urgent';
+  else if (txt.includes('⚠️ Needs Review'))  commentType = '⚠️ Needs Review';
+  else if (txt.includes('📌 Note'))          commentType = '📌 Note';
+  else if (txt.includes('👍 Good Progress')) commentType = '👍 Good Progress';
 
   const tabId = OBS_TAB_MAP[_obsSelectedPage] || 'dashboard';
-
   const commentData = {
-    author:       currentUser.name,
-    title:        currentUser.title  || '',
-    email:        currentUser.email  || '',
-    page:         _obsSelectedPage,
-    tabId:        tabId,
-    reference:    ref,
-    highlightRef: _obsSelectedText ? _obsSelectedText.slice(0, 200) : '',
-    commentType:  commentType,
-    text:         txt,
-    priority:     priority,
-    timestampStr: tsStr,
-    timestamp:    firebase.firestore.FieldValue.serverTimestamp(),
+    author: currentUser.name, title: currentUser.title || '',
+    email: currentUser.email || '', page: _obsSelectedPage, tabId,
+    reference: ref, highlightRef: _obsSelectedText ? _obsSelectedText.slice(0,200) : '',
+    commentType, text: txt, priority, method, timestampStr: tsStr,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
   };
 
   // 1. Save to Firestore
-  try {
-    await db.collection('observer_comments').add(commentData);
-  } catch(e) {
-    console.warn('Firestore save failed:', e);
+  try { await db.collection('observer_comments').add(commentData); }
+  catch(e) { console.warn('Firestore save failed:', e); }
+
+  // 2. System notification bar (if method = system or both)
+  if (method === 'system' || method === 'both') {
+    const prioEmoji = { normal:'🔵', review:'🟡', urgent:'🔴' }[priority] || '🔵';
+    try {
+      await db.collection('adminNotifications').add({
+        type: 'observer_comment',
+        title: prioEmoji + ' Observer: ' + currentUser.name + ' — ' + commentType,
+        desc: 'On ' + _obsSelectedPage + (ref ? ' · Ref: ' + ref : '') + ': "' + txt.slice(0,120) + (txt.length>120?'…':'"'),
+        observer: currentUser.name, observerTitle: currentUser.title || '',
+        page: _obsSelectedPage, tabId, priority, commentType, reference: ref,
+        timestampStr: tsStr, createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false,
+      });
+    } catch(e) { console.warn('adminNotification write failed:', e); }
+    // Push locally if admin is on same device
+    if (typeof notifAdd === 'function') {
+      notifAdd('observer_comment',
+        prioEmoji + ' Observer: ' + currentUser.name + ' — ' + commentType,
+        'On ' + _obsSelectedPage + (ref ? ' · Ref: ' + ref : '') + ': "' + txt.slice(0,120) + '"',
+        { observer: currentUser.name, page: _obsSelectedPage, tabId, priority }
+      );
+    }
   }
 
-  // 2. Clear form
+  // 3. Clear form
   document.getElementById('observerCommentText').value = '';
   if (document.getElementById('obsRefInput')) document.getElementById('obsRefInput').value = '';
   obsClearHighlight();
 
-  // 3. Email all admins — rich formatted
-  const prioLabel = { normal:'🔵 Normal', review:'🟡 Needs Review', urgent:'🔴 URGENT' };
-  const subject = '[CQIS Observer] ' + currentUser.name + ' — ' + commentType + ' on ' + _obsSelectedPage + ' — ' + tsStr;
-  const body = [
-    '╔══════════════════════════════════════╗',
-    '  CQIS OBSERVER COMMENT NOTIFICATION',
-    '╚══════════════════════════════════════╝',
-    '',
-    'FROM      : ' + currentUser.name,
-    'POSITION  : ' + (currentUser.title || '—'),
-    'EMAIL     : ' + (currentUser.email || '—'),
-    '',
-    'TAB / PAGE: ' + _obsSelectedPage,
-    'TYPE      : ' + commentType,
-    'REFERENCE : ' + (ref || '—'),
-    'PRIORITY  : ' + (prioLabel[priority] || priority),
-    'TIME      : ' + tsStr,
-    '',
-    commentData.highlightRef ? 'SELECTED TEXT:' : '',
-    commentData.highlightRef ? '"' + commentData.highlightRef + '"' : '',
-    commentData.highlightRef ? '' : '',
-    'COMMENT:',
-    '─────────────────────────────────────',
-    txt,
-    '─────────────────────────────────────',
-    '',
-    'ACTION: Log in to CQIS and go to the ' + _obsSelectedPage + ' tab to review.',
-    '',
-    '— CQIS System, OPMC/OCASC',
-  ].filter(l => l !== undefined).join('\n');
+  // 4. Email (if method = email or both)
+  if (method === 'email' || method === 'both') {
+    const prioLabel = { normal:'🔵 Normal', review:'🟡 Needs Review', urgent:'🔴 URGENT' };
+    const subject = '[CQIS Observer] ' + currentUser.name + ' — ' + commentType + ' — ' + _obsSelectedPage + ' — ' + tsStr;
+    const bodyLines = [
+      'CQIS OBSERVER COMMENT NOTIFICATION',
+      '─────────────────────────────────────',
+      'FROM      : ' + currentUser.name,
+      'POSITION  : ' + (currentUser.title||'—'),
+      'EMAIL     : ' + (currentUser.email||'—'),
+      '',
+      'TAB/PAGE  : ' + _obsSelectedPage,
+      'TYPE      : ' + commentType,
+      'REFERENCE : ' + (ref||'—'),
+      'PRIORITY  : ' + (prioLabel[priority]||priority),
+      'TIME      : ' + tsStr,
+      '',
+      commentData.highlightRef ? 'SELECTED TEXT: "' + commentData.highlightRef + '"' : '',
+      '',
+      'COMMENT:',
+      '─────────────────────────────────────',
+      txt,
+      '─────────────────────────────────────',
+      '',
+      'ACTION: Log in to CQIS → ' + _obsSelectedPage + ' tab.',
+      '— CQIS System, OPMC/OCASC',
+    ].filter(Boolean).join('\n');
+    const adminEmails = ADMIN_ACCOUNTS.map(a => a.email).join(',');
+    window.open('mailto:' + adminEmails + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyLines), '_blank');
+  }
 
-  const adminEmails = ADMIN_ACCOUNTS.map(a => a.email).join(',');
-  window.open('mailto:' + adminEmails + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body), '_blank');
-
-  showToast('✅ Comment submitted & emailed to admins!');
+  const msgs = { both:'✅ Comment submitted — admin notified via email & system notification!', system:'✅ Comment submitted — system notification sent to admin!', email:'✅ Comment submitted — email sent to admins!' };
+  showToast(msgs[method] || '✅ Comment submitted!');
   obsShowTab('history');
 }
 
@@ -5201,6 +5215,8 @@ function closeObsCommentPopup() {
 function startObserverCommentListener() {
   if (!currentUser || !currentUser.isAdmin) return;
   const loginTime = Date.now();
+
+  // Listen for observer popup comments
   db.collection('observer_comments')
     .orderBy('timestamp','desc').limit(1)
     .onSnapshot(snap => {
@@ -5215,6 +5231,30 @@ function startObserverCommentListener() {
               timestampStr: d.timestampStr || ts.toLocaleString(),
               text: d.text, priority: d.priority,
             });
+          }
+        }
+      });
+    });
+
+  // Listen for adminNotifications (system notification bar)
+  db.collection('adminNotifications')
+    .orderBy('createdAt','desc').limit(1)
+    .onSnapshot(snap => {
+      snap.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          const d = change.doc.data();
+          const ts = d.createdAt ? d.createdAt.toDate() : null;
+          if (!ts || ts.getTime() < loginTime - 5000) return;
+          // Push into local notification bar
+          if (typeof notifAdd === 'function') {
+            notifAdd(
+              d.type || 'observer_comment',
+              d.title || ('Observer Comment — ' + (d.observer||'')),
+              d.desc  || d.text || '',
+              { observer: d.observer, observerTitle: d.observerTitle,
+                page: d.page, tabId: d.tabId, priority: d.priority,
+                commentType: d.commentType, reference: d.reference }
+            );
           }
         }
       });
@@ -5694,7 +5734,11 @@ function applyRoleRestrictions() {
     'inspSchedTabBtn',   // Inspection Schedule — admin only
     'notifNavBtn',       // Notifications
     'followupNavBtn',    // Follow Up ATR Report
+    'qcToolBtn',         // SBRW QC Tool — admin only
   ];
+  // Also hide QC Tools group label for non-admins
+  const qcGroup = document.getElementById('qcToolsGroup');
+  if (qcGroup) qcGroup.style.display = isAdmin ? '' : 'none';
   adminOnlyNavBtns.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isAdmin ? '' : 'none';
@@ -16647,14 +16691,32 @@ document.addEventListener('DOMContentLoaded', function() {
         <option value="urgent">🔴 Urgent</option>
       </select>
     </div>
+    <!-- Notify Method -->
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#6b7280;text-transform:uppercase;margin-bottom:8px;">Notify Admin Via</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 12px;border:1px solid #ddd6fe;border-radius:8px;background:#faf5ff;">
+          <input type="radio" name="obsNotifyMethod" value="both" checked style="accent-color:#7c3aed;">
+          <span style="font-size:12px;font-weight:600;color:#374151;">📧 + 🔔 Email &amp; System Notification</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;">
+          <input type="radio" name="obsNotifyMethod" value="system" style="accent-color:#7c3aed;">
+          <span style="font-size:12px;font-weight:600;color:#374151;">🔔 System Notification Only</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;">
+          <input type="radio" name="obsNotifyMethod" value="email" style="accent-color:#7c3aed;">
+          <span style="font-size:12px;font-weight:600;color:#374151;">📧 Email Only</span>
+        </label>
+      </div>
+    </div>
     <!-- Submit -->
     <button onclick="submitObserverComment()"
       style="width:100%;padding:12px;background:linear-gradient(135deg,#7c3aed,#1d4ed8);
              color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;
              font-family:'Poppins',sans-serif;cursor:pointer;letter-spacing:.5px;">
-      💬 Submit &amp; Notify Admin
+      💬 Submit Comment
     </button>
-    <div style="font-size:11px;color:#9ca3af;text-align:center;padding-bottom:8px;">Saved to system &amp; emailed to all administrators.</div>
+    <div style="font-size:11px;color:#9ca3af;text-align:center;padding-bottom:8px;">Select how admin receives your comment above.</div>
   </div>
 
   <!-- HIGHLIGHT tab -->
