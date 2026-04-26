@@ -2010,10 +2010,80 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       ONLINE NOW
     </div>
     <div class="online-users-list" id="onlineUsersList">
-      <!-- populated by JS -->
     </div>
-    <div class="online-count-badge" id="onlineCountBadge">0 active</div>
   </div>
+
+  <!-- ══ SCROLLING NEWS BANNER ══ -->
+  <div id="newsBannerWrap" style="display:none;background:linear-gradient(135deg,#0f172a,#1e3a5f);
+       border-top:1px solid rgba(232,130,12,.3);border-bottom:2px solid #e8820c;
+       padding:0;overflow:hidden;flex-shrink:0;position:relative;width:100%;">
+
+    <!-- EDIT button — admin only, always visible to admin -->
+    <button id="newsBannerEditBtn" onclick="openNewsBannerEditor()"
+      style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);
+             z-index:10;background:#e8820c;border:none;
+             color:#fff;padding:4px 12px;border-radius:4px;font-size:10px;font-weight:800;
+             cursor:pointer;letter-spacing:.5px;white-space:nowrap;">✏️ EDIT NEWS</button>
+
+    <div style="display:flex;align-items:stretch;height:36px;">
+      <!-- Label -->
+      <div style="background:#e8820c;color:#fff;font-size:11px;font-weight:900;
+                  letter-spacing:2px;padding:0 16px;display:flex;align-items:center;
+                  white-space:nowrap;flex-shrink:0;border-right:2px solid rgba(255,255,255,.2);">
+        📢 LATEST
+      </div>
+      <!-- Scrolling track -->
+      <div style="flex:1;overflow:hidden;position:relative;display:flex;align-items:center;">
+        <div id="newsBannerTrack"
+          style="display:flex;align-items:center;white-space:nowrap;
+                 animation:newsBannerScroll 35s linear infinite;">
+          <span id="newsBannerText"
+            style="font-size:12.5px;color:#fff;font-weight:500;
+                   font-family:'Poppins',sans-serif;padding:0 60px;letter-spacing:.4px;"></span>
+          <span id="newsBannerText2"
+            style="font-size:12.5px;color:#fff;font-weight:500;
+                   font-family:'Poppins',sans-serif;padding:0 60px;letter-spacing:.4px;"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- News Banner Editor Modal — super admin only -->
+  <div id="newsBannerModal" style="display:none;position:fixed;inset:0;z-index:20000;
+       background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;padding:28px 28px 22px;
+                max-width:560px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,.3);">
+      <div style="font-size:14px;font-weight:800;color:#1f2937;margin-bottom:4px;letter-spacing:.5px;">📢 Edit News Banner</div>
+      <div style="font-size:11px;color:#6b7280;margin-bottom:10px;">Add your own announcement below. It will appear <strong>after</strong> the latest auto-inspection result. Separate items with <code style="background:#f3f4f6;padding:1px 5px;border-radius:3px;"> · </code></div>
+      <div id="bannerAutoPreview" style="font-size:10px;color:#e8820c;background:rgba(232,130,12,.07);border:1px solid rgba(232,130,12,.2);border-radius:6px;padding:6px 10px;margin-bottom:10px;font-family:'JetBrains Mono',monospace;">🔄 Latest auto: loading…</div>
+      <textarea id="newsBannerInput" rows="4"
+        style="width:100%;box-sizing:border-box;border:1px solid #e2e6ef;border-radius:8px;
+               padding:10px 14px;font-size:13px;font-family:'Poppins',sans-serif;
+               resize:vertical;outline:none;color:#374151;"
+        placeholder="e.g. Site inspection of Trongsa road completed · ATR deadline approaching for 3 projects · New inspection forms available"></textarea>
+      <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end;">
+        <button onclick="closeNewsBannerEditor()"
+          style="padding:9px 20px;border:1px solid #e2e6ef;border-radius:7px;background:#fff;
+                 font-size:13px;cursor:pointer;color:#6b7280;">Cancel</button>
+        <button onclick="clearNewsBanner()"
+          style="padding:9px 20px;border:1px solid #ef4444;border-radius:7px;background:rgba(239,68,68,.08);
+                 font-size:13px;cursor:pointer;color:#ef4444;font-weight:600;">🗑 Clear Banner</button>
+        <button onclick="saveNewsBanner()"
+          style="padding:9px 22px;background:linear-gradient(135deg,#e8820c,#d97706);
+                 color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;">
+          💾 Save & Publish
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes newsBannerScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    #newsBannerTrack:hover { animation-play-state: paused; }
+  </style>
 
   <!-- ══ APP LAYOUT: Sidebar + Content ══ -->
   <div id="appLayout">
@@ -2053,6 +2123,11 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-icon"><i class="fa fa-plus-circle"></i></span>
       <span class="sb-label">New Entry</span>
       <span class="sb-badge new">+</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('insp-schedule',this)" id="inspSchedTabBtn">
+      <span class="sb-icon"><i class="fa fa-calendar-check"></i></span>
+      <span class="sb-label">Insp. Schedule</span>
+      <span class="sb-badge" style="background:rgba(139,92,246,.2);border-color:rgba(139,92,246,.4);color:#c4b5fd;">ADMIN</span>
     </button>
     <button class="nav-tab" onclick="showTab('atr',this)">
       <span class="sb-icon"><i class="fa fa-exclamation-triangle"></i></span>
@@ -5262,6 +5337,160 @@ function obsInspNotifyGoToRegister() {
   });
   showToast('📋 Navigated to Inspection Register');
 }
+
+// ═══════════════════════════════════════════════
+//  SCROLLING NEWS BANNER
+//  Super Admin edits · All logged-in users see it
+//  Stored in Firestore: system_config/news_banner
+// ═══════════════════════════════════════════════
+const NEWS_BANNER_DOC = 'system_config/news_banner';
+
+function initNewsBanner() {
+  db.doc(NEWS_BANNER_DOC).onSnapshot(snap => {
+    const data = snap.exists ? snap.data() : null;
+    setNewsBannerText(data && data.text ? data.text.trim() : '');
+  }, () => {
+    setNewsBannerText(localStorage.getItem('cqis_news_banner') || '');
+  });
+}
+
+// Auto-called after every new inspection save
+async function autoUpdateBannerWithInspection(entry) {
+  const location   = entry.dzongkhag || entry.ro || entry.other || '—';
+  const pf         = entry.passFailResult || '';
+  const defect     = entry.defect || 'No';
+
+  // Build pass/fail badge text
+  let resultTag = '';
+  if (pf === 'Pass')      resultTag = '✅ PASS';
+  else if (pf === 'Fail') resultTag = '❌ FAIL';
+  else if (defect === 'Yes') resultTag = '⚠️ DEFECT';
+  else                       resultTag = '✅ CLEAR';
+
+  const ts = new Date().toLocaleString('en-BT', {
+    day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'
+  });
+
+  const autoText = `${resultTag} · ${entry.projectName || '—'} · ${location}${entry.roadSection ? ' · ' + entry.roadSection : ''} · ${entry.workType || ''} · S/N #${entry.sn} · ${ts}`;
+
+  try {
+    // Read current banner text
+    const snap = await db.doc(NEWS_BANNER_DOC).get();
+    const existing = snap.exists ? (snap.data().text || '') : '';
+    const manualText = snap.exists ? (snap.data().manualText || '') : '';
+
+    // Prepend new inspection result to existing manual text
+    const separator = manualText ? '  ·  ' : '';
+    const newText = autoText + separator + manualText;
+
+    await db.doc(NEWS_BANNER_DOC).set({
+      text:       newText,
+      manualText: manualText,
+      autoText:   autoText,
+      updatedBy:  currentUser ? currentUser.name : 'Admin',
+      updatedAt:  firebase.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+  } catch(e) {
+    // Firestore failed — update locally
+    setNewsBannerText(autoText);
+    console.warn('[Banner] Auto-update failed:', e);
+  }
+}
+
+function setNewsBannerText(text) {
+  const wrap    = document.getElementById('newsBannerWrap');
+  const t1      = document.getElementById('newsBannerText');
+  const t2      = document.getElementById('newsBannerText2');
+  const editBtn = document.getElementById('newsBannerEditBtn');
+  const track   = document.getElementById('newsBannerTrack');
+  const isAdmin = currentUser && currentUser.isAdmin;
+  if (!wrap || !t1 || !t2) return;
+
+  // Always show for admins; show for others only when text exists
+  if (!text && !isAdmin) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+
+  if (text) {
+    t1.innerHTML = text;
+    t2.innerHTML = text;
+    t2.style.display = '';
+    if (track) {
+      const speed = Math.max(20, Math.min(90, text.length * 0.45));
+      track.style.animation = `newsBannerScroll ${speed}s linear infinite`;
+    }
+  } else {
+    // Admin sees animated placeholder
+    t1.innerHTML = '<span style="opacity:.5;font-style:italic;color:#fbbf24;">No news yet — click ✏️ EDIT NEWS to publish an announcement for all users</span>';
+    t2.innerHTML = '';
+    t2.style.display = 'none';
+    if (track) track.style.animation = 'none';
+  }
+
+  // Show EDIT button for admins
+  if (editBtn) editBtn.style.display = isAdmin ? '' : 'none';
+}
+
+async function openNewsBannerEditor() {
+  if (!currentUser || !currentUser.isAdmin) return;
+  // Load manual text only (not the auto part)
+  let manualText = '';
+  let autoText   = '';
+  try {
+    const snap = await db.doc(NEWS_BANNER_DOC).get();
+    if (snap.exists) {
+      manualText = snap.data().manualText || '';
+      autoText   = snap.data().autoText   || '';
+    }
+  } catch(e) {}
+  document.getElementById('newsBannerInput').value = manualText;
+  const prev = document.getElementById('bannerAutoPreview');
+  if (prev) prev.textContent = '🔄 Latest auto: ' + (autoText || '(none yet — will appear after first inspection save)');
+  document.getElementById('newsBannerModal').style.display = 'flex';
+}
+
+function closeNewsBannerEditor() {
+  document.getElementById('newsBannerModal').style.display = 'none';
+}
+
+async function saveNewsBanner() {
+  if (!currentUser || !currentUser.isAdmin) return;
+  const manualText = (document.getElementById('newsBannerInput')?.value || '').trim();
+  // Combine: keep latest auto inspection result + manual text
+  let autoText = '';
+  try {
+    const snap = await db.doc(NEWS_BANNER_DOC).get();
+    if (snap.exists) autoText = snap.data().autoText || '';
+  } catch(e) {}
+  const separator = (autoText && manualText) ? '  ·  ' : '';
+  const combined = autoText + separator + manualText;
+  try {
+    await db.doc(NEWS_BANNER_DOC).set({
+      text:       combined,
+      manualText: manualText,
+      autoText:   autoText,
+      updatedBy:  currentUser.name,
+      updatedAt:  firebase.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+    localStorage.setItem('cqis_news_banner', combined);
+  } catch(e) {
+    setNewsBannerText(combined);
+    localStorage.setItem('cqis_news_banner', combined);
+  }
+  closeNewsBannerEditor();
+  showToast('📢 News banner updated for all users!');
+}
+
+async function clearNewsBanner() {
+  if (!currentUser || !currentUser.isAdmin) return;
+  if (!confirm('Clear the news banner? It will be hidden for all users.')) return;
+  try {
+    await db.doc(NEWS_BANNER_DOC).set({ text: '' }, { merge: true });
+    localStorage.removeItem('cqis_news_banner');
+  } catch(e) { setNewsBannerText(''); }
+  closeNewsBannerEditor();
+  showToast('🗑 News banner cleared.');
+}
+
 const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 function handleGoogleSignIn() {
@@ -5429,6 +5658,10 @@ function finishLogin() {
   if (currentUser.isAdmin) setTimeout(startObserverCommentListener, 2000);
   // Start inspection notify listener for observers
   if (currentUser.isObserver) setTimeout(startInspectionNotifyListener, 2000);
+  // Start news banner listener for everyone
+  setTimeout(initNewsBanner, 1000);
+  // Show banner shell immediately for admins (before Firestore loads)
+  if (currentUser.isAdmin) setNewsBannerText(localStorage.getItem('cqis_news_banner') || '');
   // Add current user to online bar — only Admin and User are tracked
   if(window._addCurrentUserToOnlineBar){
     const role = currentUser.isAdmin ? 'admin' : (currentUser.isUser ? 'user' : 'observer');
@@ -5458,6 +5691,7 @@ function applyRoleRestrictions() {
   // ── Sidebar tabs: ADMIN ONLY ──
   const adminOnlyNavBtns = [
     'entryTabBtn',       // New Entry
+    'inspSchedTabBtn',   // Inspection Schedule — admin only
     'notifNavBtn',       // Notifications
     'followupNavBtn',    // Follow Up ATR Report
   ];
@@ -6854,6 +7088,8 @@ function saveEntry(){
 
       // ── Notify observers about new inspection ──
       notifyObserversNewInspection(entry);
+      // ── Auto-update news banner with latest inspection result ──
+      autoUpdateBannerWithInspection(entry);
 
       document.getElementById('formSuccess').style.display='block';
       setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
