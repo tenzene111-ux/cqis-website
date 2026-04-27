@@ -1669,52 +1669,192 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 <section class="lp-section" id="lp-team">
   <div class="lp-container">
     <div class="lp-section-header">
-      <div class="lp-section-label">Our Team</div>
+      <div class="lp-section-label">Organisation</div>
       <h2 class="lp-section-h2">Construction Quality Division</h2>
       <p class="lp-section-sub" style="color:#6b7280;">OPMC / OCASC — dedicated engineering professionals ensuring construction quality across Bhutan</p>
     </div>
-    <div class="lp-team-chief">
-      <div class="lp-team-card lp-tc-chief">
-        <div class="lp-tc-photo"><i class="fa fa-user"></i></div>
-        <div class="lp-tc-info">
-          <div class="lp-tc-badge">Chief Engineer</div>
-          <div class="lp-tc-name">Luv Kumar Chhetri</div>
-          <div class="lp-tc-pos">Chief Engineer</div>
-          <div class="lp-tc-dept">Construction Quality Division</div>
-          <a class="lp-tc-email" href="/cdn-cgi/l/email-protection#365a4340555e5e5342445f765557545f58534218515940185442"><i class="fa fa-envelope"></i> <span class="__cf_email__" data-cfemail="6e021b180d06060b1a1c072e0d0f0c07000b1a40090118400c1a">[email&#160;protected]</span></a>
+
+    <style>
+      /* ── ORGANOGRAM ── */
+      .org-wrap { display:flex; flex-direction:column; align-items:center; gap:0; font-family:'Poppins',sans-serif; }
+      .org-level { display:flex; justify-content:center; align-items:flex-start; gap:28px; position:relative; }
+      .org-node  { display:flex; flex-direction:column; align-items:center; position:relative; }
+
+      /* Vertical connector from node down */
+      .org-node.has-below::after {
+        content:''; position:absolute; bottom:-28px; left:50%; transform:translateX(-50%);
+        width:2px; height:28px; background:linear-gradient(to bottom,#e8820c,rgba(232,130,12,.3));
+      }
+      /* Horizontal bar across children */
+      .org-hbar {
+        height:2px; background:linear-gradient(90deg,rgba(232,130,12,.2),#e8820c,rgba(232,130,12,.2));
+        margin-bottom:0; position:relative;
+      }
+      /* Vertical drop from hbar to each child */
+      .org-drop {
+        display:flex; justify-content:center; gap:28px;
+        position:relative;
+      }
+      .org-drop > .org-node::before {
+        content:''; position:absolute; top:-26px; left:50%; transform:translateX(-50%);
+        width:2px; height:26px; background:rgba(232,130,12,.5);
+      }
+      .org-spacer { height:28px; }
+
+      /* Cards */
+      .org-card {
+        background:#fff; border:1.5px solid #e2e8f0; border-radius:14px;
+        padding:18px 22px; display:flex; align-items:center; gap:16px;
+        box-shadow:0 3px 16px rgba(15,30,58,.08);
+        transition:transform .2s, box-shadow .2s; min-width:220px; max-width:320px;
+      }
+      .org-card:hover { transform:translateY(-3px); box-shadow:0 10px 30px rgba(15,30,58,.15); }
+      .org-card.org-top    { border-color:#7c3aed; box-shadow:0 4px 20px rgba(124,58,237,.2); min-width:300px; }
+      .org-card.org-dg     { border-color:#e8820c; box-shadow:0 4px 20px rgba(232,130,12,.2); min-width:280px; }
+      .org-card.org-chief  { border-color:#1d4ed8; box-shadow:0 3px 16px rgba(29,78,216,.15); min-width:260px; }
+      .org-card.org-member { min-width:200px; }
+
+      .org-photo {
+        width:54px; height:54px; border-radius:50%; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center;
+        font-size:22px; color:#fff;
+      }
+      .org-card.org-top   .org-photo { background:linear-gradient(135deg,#7c3aed,#1d4ed8); width:62px; height:62px; font-size:26px; }
+      .org-card.org-dg    .org-photo { background:linear-gradient(135deg,#e8820c,#f59e0b); width:58px; height:58px; }
+      .org-card.org-chief .org-photo { background:linear-gradient(135deg,#1d4ed8,#3b82f6); }
+      .org-card.org-member .org-photo { background:linear-gradient(135deg,#374151,#6b7280); width:46px; height:46px; font-size:18px; }
+
+      .org-badge {
+        display:inline-block; font-size:9px; font-weight:800; letter-spacing:1px;
+        padding:2px 8px; border-radius:3px; margin-bottom:4px; text-transform:uppercase;
+      }
+      .org-card.org-top   .org-badge { background:rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.3); color:#7c3aed; }
+      .org-card.org-dg    .org-badge { background:rgba(232,130,12,.1); border:1px solid rgba(232,130,12,.3); color:#c46a08; }
+      .org-card.org-chief .org-badge { background:rgba(29,78,216,.1);  border:1px solid rgba(29,78,216,.3);  color:#1d4ed8; }
+      .org-card.org-member .org-badge{ background:rgba(55,65,81,.08);  border:1px solid rgba(55,65,81,.2);   color:#374151; }
+
+      .org-name { font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700; color:#0f1e3a; letter-spacing:.3px; }
+      .org-card.org-top .org-name { font-size:18px; }
+      .org-pos  { font-size:11.5px; font-weight:600; margin-top:1px; }
+      .org-card.org-top   .org-pos { color:#7c3aed; }
+      .org-card.org-dg    .org-pos { color:#e8820c; }
+      .org-card.org-chief .org-pos { color:#1d4ed8; }
+      .org-card.org-member .org-pos{ color:#6b7280; }
+      .org-dept  { font-size:10.5px; color:#9ca3af; margin-top:1px; }
+      .org-email { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; color:#2563eb; text-decoration:none; margin-top:5px; }
+      .org-email:hover { text-decoration:underline; }
+      @media(max-width:900px){
+        .org-drop { flex-wrap:wrap; }
+        .org-card { min-width:180px; }
+      }
+    </style>
+
+    <div class="org-wrap">
+
+      <!-- Level 1: Cabinet Secretary -->
+      <div class="org-level">
+        <div class="org-node has-below">
+          <div class="org-card org-top">
+            <div class="org-photo"><i class="fa fa-user-tie"></i></div>
+            <div>
+              <div class="org-badge">Cabinet Secretary</div>
+              <div class="org-name">Dasho Kesang Deki</div>
+              <div class="org-pos">Cabinet Secretary</div>
+              <div class="org-dept">OCASC</div>
+              <a class="org-email" href="mailto:kesangd@cabinet.gov.bt"><i class="fa fa-envelope"></i> kesangd@cabinet.gov.bt</a>
+            </div>
+          </div>
         </div>
       </div>
+
+      <div class="org-spacer"></div>
+
+      <!-- Level 2: Director General -->
+      <div class="org-level">
+        <div class="org-node has-below">
+          <div class="org-card org-dg">
+            <div class="org-photo"><i class="fa fa-user"></i></div>
+            <div>
+              <div class="org-badge">Director General</div>
+              <div class="org-name">Chencho</div>
+              <div class="org-pos">Director General, OCASC</div>
+              <div class="org-dept">OPMC / OCASC</div>
+              <a class="org-email" href="mailto:chencho@cabinet.gov.bt"><i class="fa fa-envelope"></i> chencho@cabinet.gov.bt</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="org-spacer"></div>
+
+      <!-- Level 3: Chief Engineer -->
+      <div class="org-level">
+        <div class="org-node has-below">
+          <div class="org-card org-chief">
+            <div class="org-photo"><i class="fa fa-hard-hat"></i></div>
+            <div>
+              <div class="org-badge">Chief Engineer</div>
+              <div class="org-name">Luv Kumar Chhetri</div>
+              <div class="org-pos">Chief Engineer</div>
+              <div class="org-dept">Construction Quality Division</div>
+              <a class="org-email" href="mailto:luvchhetri@cabinet.gov.bt"><i class="fa fa-envelope"></i> luvchhetri@cabinet.gov.bt</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="org-spacer"></div>
+
+      <!-- Horizontal bar spanning 3 children -->
+      <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:780px;">
+        <div class="org-hbar" style="width:calc(100% - 160px);"></div>
+        <div class="org-spacer" style="height:0;"></div>
+        <div class="org-drop" style="width:100%;">
+          <!-- Member 1 -->
+          <div class="org-node">
+            <div class="org-card org-member">
+              <div class="org-photo"><i class="fa fa-user"></i></div>
+              <div>
+                <div class="org-badge">Executive Engineer</div>
+                <div class="org-name">Kuenzang Dendup</div>
+                <div class="org-pos">Executive Engineer</div>
+                <div class="org-dept">Construction Quality Division</div>
+                <a class="org-email" href="mailto:kdendup@cabinet.gov.bt"><i class="fa fa-envelope"></i> kdendup@cabinet.gov.bt</a>
+              </div>
+            </div>
+          </div>
+          <!-- Member 2 -->
+          <div class="org-node">
+            <div class="org-card org-member">
+              <div class="org-photo"><i class="fa fa-user"></i></div>
+              <div>
+                <div class="org-badge">Junior Engineer</div>
+                <div class="org-name">Tenzin Norbu</div>
+                <div class="org-pos">Junior Engineer</div>
+                <div class="org-dept">Construction Quality Division</div>
+                <a class="org-email" href="mailto:tenzene111@gmail.com"><i class="fa fa-envelope"></i> tenzene111@gmail.com</a>
+              </div>
+            </div>
+          </div>
+          <!-- Member 3 -->
+          <div class="org-node">
+            <div class="org-card org-member">
+              <div class="org-photo"><i class="fa fa-user"></i></div>
+              <div>
+                <div class="org-badge">Assistant Engineer</div>
+                <div class="org-name">Pema Namgay</div>
+                <div class="org-pos">Assistant Engineer</div>
+                <div class="org-dept">Construction Quality Division</div>
+                <a class="org-email" href="mailto:pemanamgay70@gmail.com"><i class="fa fa-envelope"></i> pemanamgay70@gmail.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-    <div class="lp-team-grid">
-      <div class="lp-team-card">
-        <div class="lp-tc-photo"><i class="fa fa-user"></i></div>
-        <div class="lp-tc-info">
-          <div class="lp-tc-name">Kuenzang Dendup</div>
-          <div class="lp-tc-pos">Executive Engineer</div>
-          <div class="lp-tc-dept">Construction Quality Division</div>
-          <a class="lp-tc-email" href="/cdn-cgi/l/email-protection#0f646b6a616b7a7f4f6c6e6d66616a7b21686079216d7b"><i class="fa fa-envelope"></i> <span class="__cf_email__" data-cfemail="ddb6b9b8b3b9a8ad9dbebcbfb4b3b8a9f3bab2abf3bfa9">[email&#160;protected]</span></a>
-        </div>
-      </div>
-      <div class="lp-team-card">
-        <div class="lp-tc-photo"><i class="fa fa-user"></i></div>
-        <div class="lp-tc-info">
-          <div class="lp-tc-name">Tenzin Norbu</div>
-          <div class="lp-tc-pos">Junior Engineer</div>
-          <div class="lp-tc-dept">Construction Quality Division</div>
-          <a class="lp-tc-email" href="/cdn-cgi/l/email-protection#52263c3d203027123133303b3c37267c353d247c3026"><i class="fa fa-envelope"></i> <span class="__cf_email__" data-cfemail="73071d1c011106331012111a1d16075d141c055d1107">[email&#160;protected]</span></a>
-        </div>
-      </div>
-      <div class="lp-team-card">
-        <div class="lp-tc-photo"><i class="fa fa-user"></i></div>
-        <div class="lp-tc-info">
-          <div class="lp-tc-name">Pema Namgay</div>
-          <div class="lp-tc-pos">Assistant Engineer</div>
-          <div class="lp-tc-dept">Construction Quality Division</div>
-          <a class="lp-tc-email" href="/cdn-cgi/l/email-protection#f5859b949892948cb59694979c9b9081db929a83db9781"><i class="fa fa-envelope"></i> <span class="__cf_email__" data-cfemail="55253b343832342c153634373c3b30217b323a237b3721">[email&#160;protected]</span></a>
-        </div>
-      </div>
-    </div>
-    <p style="text-align:center;font-family:'Poppins',sans-serif;font-size:12px;color:#94a3b8;margin-top:20px;">
+
+    <p style="text-align:center;font-family:'Poppins',sans-serif;font-size:12px;color:#94a3b8;margin-top:32px;">
       <i class="fa fa-info-circle"></i> Profile photos can be added by contacting the system administrator.
     </p>
   </div>
@@ -9125,6 +9265,12 @@ const SBRW_SECTIONS=[
     {code:'RW-SRT',name:'Sand Replacement Test — Field Density',std:'IS 2720 Part 28 / SBRW-2025',type:'srt',
      desc:'Determines in-situ dry density of compacted layers in the field. Compares field dry density against MDD from Proctor test to verify ≥95% compaction. Used for GSB, WMM, subgrade QC checks.',
     },
+    {code:'RW-SILT',name:'Silt Content Test — Field Method',std:'IS 2386 Part 1 / IRC:SP:20 / SBRW-2025',type:'silt-content',
+     desc:'Silt content of fine aggregate/sand by sedimentation (field) method per IS 2386 Part 1 Clause 3.4. Fill graduated cylinder with 1% salt solution to 50mL, add sand to 150mL, shake and leave 3 hrs. H₂=sand layer height, H₁=sand+silt height. Silt % = (H₁-H₂)/H₂×100. Specification: ≤8% (IRC:SP:20). 5 samples taken.',
+    },
+    {code:'RW-AIV',name:'Aggregate Impact Value (AIV) Test',std:'IS 2386 Part 4 / IS 383 / SBRW-2025',type:'aiv',
+     desc:'Measures resistance of aggregate to sudden impact (toughness) per IS 2386 Part 4. Machine: standard AIV apparatus. Sample: aggregate passing 12.5mm, retained on 10mm IS sieve. 3 layers × 25 blows tamped. AIV = C/A × 100 where A=initial weight (g), B=retained on 2.36mm IS sieve (g), C=passing 2.36mm IS sieve (g). Specification: <30% (SBRW-2025 / IS 383). 5 samples taken.',
+    },
   ]},
   {id:'bitu',title:'Bituminous Works',sub:'Clause 5.21.7 — DBM, BC, Prime Coat, Seal Coat',cards:[
     {code:'RW0220–0240',name:'Dense Bituminous Macadam (DBM)',std:'ASTM D1559 / IS 73',desc:'Marshall stability ≥9kN. Flow 2–4mm. Laying temp 130–140°C.',rows:[
@@ -9589,21 +9735,118 @@ function buildSBRWSections(){
             <div id="cc-bc-${ccid}" style="font-size:12px;color:#6b7280;">No BC cores entered.</div>
           </div>
         </div>`;
+      } else if(card.type==='silt-content' || card.type==='aiv'){
+        // handled below by separate if blocks — skip standard rows renderer
       } else {
         // ── STANDARD CARD (original behaviour) ──
-        html+=`<table class="sbrw-tt">
+        if(card.rows && card.rows.length){
+          html+=`<table class="sbrw-tt">
             <thead><tr><th style="width:30%">Parameter</th><th style="width:15%">Ref</th><th style="width:20%">Required</th><th style="width:18%">Measured</th><th style="width:17%">Result</th></tr></thead>
             <tbody>`;
-        card.rows.forEach((row, ri)=>{
-          html+=`<tr>
-            <td class="sbrw-pn">${row.p}</td>
-            <td class="sbrw-rs">${row.r}</td>
-            <td class="sbrw-rv">${row.req}</td>
-            <td><input class="sbrw-ti" type="number" placeholder="value" data-sbid="${sec.id}-${ci}-${ri}" oninput="${row.fn};sbrwUpdateCard(this.closest('.sbrw-card'));sbrwUpdateSum()"></td>
-            <td><span class="sbrw-rb pending">–</span></td>
-          </tr>`;
-        });
-        html+=`</tbody></table>`;
+          card.rows.forEach((row, ri)=>{
+            html+=`<tr>
+              <td class="sbrw-pn">${row.p}</td>
+              <td class="sbrw-rs">${row.r}</td>
+              <td class="sbrw-rv">${row.req}</td>
+              <td><input class="sbrw-ti" type="number" placeholder="value" data-sbid="${sec.id}-${ci}-${ri}" oninput="${row.fn};sbrwUpdateCard(this.closest('.sbrw-card'));sbrwUpdateSum()"></td>
+              <td><span class="sbrw-rb pending">–</span></td>
+            </tr>`;
+          });
+          html+=`</tbody></table>`;
+        }
+      }
+      if(card.type==='silt-content'){
+        // ── SILT CONTENT TEST ──
+        const sid=`silt-${sec.id}-${ci}`;
+        window._siltPending=window._siltPending||[];
+        window._siltPending.push(sid);
+        html+=`
+        <div style="background:#f0f2f7;border:1px solid #cbd2e0;border-radius:10px;padding:12px 16px;margin-bottom:10px;">
+          <div style="font-size:11px;color:#6b7280;margin-bottom:6px;">
+            Formula: <strong>% Silt = (H₁ − H₂) / H₂ × 100</strong> &nbsp;|&nbsp;
+            H₂ = Height of sand from bottom (cm) &nbsp;|&nbsp; H₁ = Height of silt from bottom (cm) &nbsp;|&nbsp;
+            Specification: <strong style="color:#dc2626;">≤ 8%</strong>
+          </div>
+        </div>
+        <div style="overflow-x:auto;margin-bottom:8px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:680px;background:#fff;border:1px solid #e2e6ef;border-radius:8px;overflow:hidden;">
+            <thead>
+              <tr style="background:#f8f9fc;">
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;width:60px;">No. of Test</th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#d97706;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">H₂ — Sand Height (cm)</th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#1d4ed8;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">H₁ — Silt Height (cm)</th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#f97316;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">% Silt<br><span style="font-weight:400;">(H₁-H₂)/H₂×100</span></th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">Result</th>
+              </tr>
+            </thead>
+            <tbody id="silt-tbody-${sid}"></tbody>
+            <tfoot>
+              <tr style="background:#f8f9fc;border-top:2px solid #e2e6ef;">
+                <td colspan="3" style="padding:9px 12px;font-size:12px;font-weight:700;color:#374151;text-align:right;">Average % of Silt:</td>
+                <td style="padding:9px 12px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;" id="silt-avg-${sid}">—</td>
+                <td style="padding:9px 12px;text-align:center;" id="silt-avgres-${sid}"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <!-- Bar chart -->
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:8px;padding:14px;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em;">% Silt per Sample — Bar Chart <span style="color:#dc2626;font-style:italic;">(≤ 8% limit shown)</span></div>
+          <canvas id="silt-chart-${sid}" height="160" style="width:100%;"></canvas>
+        </div>`;
+      } else if(card.type==='aiv'){
+        const aid=`aiv-${sec.id}-${ci}`;
+        window._aivPending=window._aivPending||[];
+        window._aivPending.push(aid);
+        html+=`
+        <div style="background:#f0f2f7;border:1px solid #cbd2e0;border-radius:10px;padding:12px 16px;margin-bottom:10px;">
+          <div style="font-size:11px;color:#6b7280;margin-bottom:4px;">
+            Formula: <strong>AIV = C / A × 100</strong> &nbsp;|&nbsp;
+            A = Initial weight (g) &nbsp;|&nbsp; B = Retained on 2.36mm IS sieve (g) &nbsp;|&nbsp; C = Passing through 2.36mm IS sieve (g)
+          </div>
+          <div style="font-size:11px;color:#6b7280;">
+            Specification: <span style="color:#16a34a;font-weight:700;">Max &lt; 30%</span> for road surfacing &nbsp;|&nbsp;
+            <span style="color:#d97706;font-weight:700;">&lt; 35%</span> suitability to be decided &nbsp;|&nbsp;
+            <span style="color:#dc2626;font-weight:700;">&gt; 35%</span> Weak for road surfacing
+          </div>
+        </div>
+        <div style="overflow-x:auto;margin-bottom:8px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:720px;background:#fff;border:1px solid #e2e6ef;border-radius:8px;overflow:hidden;">
+            <thead>
+              <tr style="background:#f8f9fc;">
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;width:60px;">Sr. No.</th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#374151;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">A — Initial Weight (g)</th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#d97706;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">B — Retained on 2.36mm IS (g)</th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#1d4ed8;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">C — Passing 2.36mm IS (g)</th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#f97316;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">% of Passing<br><span style="font-weight:400;">(100×C/A)</span></th>
+                <th style="padding:9px 12px;text-align:center;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #e2e6ef;">Result</th>
+              </tr>
+            </thead>
+            <tbody id="aiv-tbody-${aid}"></tbody>
+            <tfoot>
+              <tr style="background:#f8f9fc;border-top:2px solid #e2e6ef;">
+                <td colspan="4" style="padding:9px 12px;font-size:12px;font-weight:700;color:#374151;text-align:right;">Average Value (AIV):</td>
+                <td style="padding:9px 12px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;" id="aiv-avg-${aid}">—</td>
+                <td style="padding:9px 12px;text-align:center;" id="aiv-avgres-${aid}"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <!-- Remarks box -->
+        <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:11px;color:#374151;line-height:1.8;" id="aiv-remarks-${aid}">
+          <strong>Specification Reference:</strong><br>
+          &lt; 10% — Exceptionally strong &nbsp;|&nbsp; 10–20% — Strong &nbsp;|&nbsp;
+          20–30% — Satisfactory for road surfacing &nbsp;|&nbsp;
+          30–35% — Suitability to be decided in conjunction with other test parameters &nbsp;|&nbsp;
+          &gt; 35% — Weak for road surfacing &nbsp;|&nbsp;
+          30% — For cement concrete wearing course &nbsp;|&nbsp;
+          45% — For cement concrete sub-base and other works
+        </div>
+        <!-- Bar chart -->
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:8px;padding:14px;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em;">AIV % per Sample — Bar Chart <span style="color:#dc2626;font-style:italic;">(30% limit shown)</span></div>
+          <canvas id="aiv-chart-${aid}" height="170" style="width:100%;"></canvas>
+        </div>`;
       }
       html+=`</div></div>`;
     });
@@ -9635,6 +9878,16 @@ function buildSBRWSections(){
     window._rhPending.forEach(function(rhid){ rhInit(rhid); });
     window._rhPending=[];
   }
+  // Init all silt content cards
+  if(window._siltPending){
+    window._siltPending.forEach(function(sid){ siltInit(sid); });
+    window._siltPending=[];
+  }
+  // Init all AIV cards
+  if(window._aivPending){
+    window._aivPending.forEach(function(aid){ aivInit(aid); });
+    window._aivPending=[];
+  }
 }
 
 // SBRW helper functions
@@ -9647,8 +9900,17 @@ function sbrwShow(n,el){
 }
 
 function sbrwTog(h){
-  const b=h.nextElementSibling,a=h.querySelector('.sbrw-ct');
-  b.classList.toggle('open');a.classList.toggle('open');
+  const b=h.nextElementSibling, a=h.querySelector('.sbrw-ct');
+  b.classList.toggle('open'); a.classList.toggle('open');
+  // Redraw canvas charts when card opens (canvas needs visible width)
+  if (b.classList.contains('open')) {
+    setTimeout(() => {
+      const sc = b.querySelector('canvas[id^="silt-chart-"]');
+      const ac = b.querySelector('canvas[id^="aiv-chart-"]');
+      if (sc) siltUpdateAvgAndChart(sc.id.replace('silt-chart-',''));
+      if (ac) aivUpdateAvgAndChart(ac.id.replace('aiv-chart-',''));
+    }, 30);
+  }
 }
 
 function sbrwGetBadge(row){return row.querySelector('.sbrw-rb');}
@@ -11143,6 +11405,365 @@ function sieveCalc(sid){
       ovEl.textContent='✓ PASS — Within MOIT grading envelope';
     }
   }
+}
+
+// ═══════════════════════════════════════════════════
+//  SILT CONTENT TEST
+// ═══════════════════════════════════════════════════
+function siltInit(sid) {
+  const tbody = document.getElementById('silt-tbody-' + sid);
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #f0f2f7';
+    tr.innerHTML = `
+      <td style="padding:8px 12px;text-align:center;font-weight:700;color:#374151;">${i}</td>
+      <td style="padding:6px 8px;text-align:center;">
+        <input type="number" step="0.01" placeholder="H₂ cm"
+          style="width:90px;border:1px solid #ddd6fe;border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;outline:none;"
+          oninput="siltCalcRow(this, '${sid}', ${i})">
+      </td>
+      <td style="padding:6px 8px;text-align:center;">
+        <input type="number" step="0.01" placeholder="H₁ cm"
+          style="width:90px;border:1px solid #ddd6fe;border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;outline:none;"
+          oninput="siltCalcRow(this, '${sid}', ${i})">
+      </td>
+      <td style="padding:8px 12px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;" id="silt-pct-${sid}-${i}">—</td>
+      <td style="padding:8px 12px;text-align:center;" id="silt-res-${sid}-${i}"></td>`;
+    tbody.appendChild(tr);
+  }
+  siltUpdateChart(sid, []);
+}
+
+function siltCalcRow(input, sid, rowNum) {
+  const tr = input.closest('tr');
+  const inputs = tr.querySelectorAll('input');
+  const H2 = parseFloat(inputs[0].value);
+  const H1 = parseFloat(inputs[1].value);
+  const pctEl  = document.getElementById('silt-pct-' + sid + '-' + rowNum);
+  const resEl  = document.getElementById('silt-res-' + sid + '-' + rowNum);
+  if (!isNaN(H2) && !isNaN(H1) && H2 > 0) {
+    const pct = ((H1 - H2) / H2 * 100).toFixed(2);
+    pctEl.textContent = pct + '%';
+    const pass = parseFloat(pct) <= 8;
+    resEl.innerHTML = pass
+      ? '<span style="background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">✅ PASS</span>'
+      : '<span style="background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">❌ FAIL</span>';
+  } else {
+    pctEl.textContent = '—';
+    resEl.innerHTML = '';
+  }
+  siltUpdateAvgAndChart(sid);
+}
+
+function siltUpdateAvgAndChart(sid) {
+  const tbody = document.getElementById('silt-tbody-' + sid);
+  if (!tbody) return;
+  const pcts = [];
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('silt-pct-' + sid + '-' + i);
+    if (el && el.textContent && el.textContent !== '—') {
+      const v = parseFloat(el.textContent);
+      if (!isNaN(v)) pcts.push(v);
+    }
+  }
+  const avgEl  = document.getElementById('silt-avg-' + sid);
+  const avgRes = document.getElementById('silt-avgres-' + sid);
+  if (pcts.length > 0) {
+    const avg = (pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(2);
+    avgEl.textContent = avg + '%';
+    const pass = parseFloat(avg) <= 8;
+    if (avgRes) avgRes.innerHTML = pass
+      ? '<span style="background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">✅ PASS</span>'
+      : '<span style="background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">❌ FAIL</span>';
+  } else {
+    if (avgEl) avgEl.textContent = '—';
+    if (avgRes) avgRes.innerHTML = '';
+  }
+  siltUpdateChart(sid, pcts);
+}
+
+function siltUpdateChart(sid, pcts) {
+  const canvas = document.getElementById('silt-chart-' + sid);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = Math.max(canvas.offsetWidth, canvas.parentElement?.offsetWidth || 0, 480);
+  const h = 160;
+  canvas.width = w; canvas.height = h;
+  ctx.clearRect(0, 0, w, h);
+
+  const topPad = 20, botPad = 28, leftPad = 48, rightPad = 20;
+  const chartW = w - leftPad - rightPad;
+  const chartH = h - topPad - botPad;
+  const limit  = 8;
+  const n      = 5;
+
+  if (pcts.length === 0) {
+    ctx.fillStyle = '#d1d5db'; ctx.font = '12px Poppins,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Enter H₂ and H₁ values above to see the line graph', w/2, h/2);
+    return;
+  }
+
+  const maxVal = Math.max(limit * 1.6, ...pcts) * 1.05;
+  const toX = i => leftPad + (i / (n - 1)) * chartW;
+  const toY = v => topPad + chartH - (v / maxVal) * chartH;
+
+  // ── Background zone: danger area above limit ──
+  ctx.fillStyle = 'rgba(220,38,38,.05)';
+  ctx.fillRect(leftPad, topPad, chartW, toY(limit) - topPad);
+
+  // ── Grid lines + Y-axis labels ──
+  ctx.font = '9px Poppins,sans-serif'; ctx.textAlign = 'right'; ctx.fillStyle = '#9ca3af';
+  [0, 2, 4, 6, 8, 10, 12].forEach(v => {
+    if (v > maxVal) return;
+    const y = toY(v);
+    ctx.fillText(v + '%', leftPad - 6, y + 3);
+    ctx.strokeStyle = v === limit ? 'rgba(220,38,38,.25)' : '#f0f2f7';
+    ctx.lineWidth = v === limit ? 1.5 : 1;
+    ctx.setLineDash(v === limit ? [4,3] : []);
+    ctx.beginPath(); ctx.moveTo(leftPad, y); ctx.lineTo(w - rightPad, y); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // ── Limit line label ──
+  const limY = toY(limit);
+  ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2; ctx.setLineDash([7, 4]);
+  ctx.beginPath(); ctx.moveTo(leftPad, limY); ctx.lineTo(w - rightPad, limY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#dc2626'; ctx.font = 'bold 9px Poppins,sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('≤ 8% Limit (IS 2386-1)', leftPad + 6, limY - 5);
+
+  // ── X-axis sample labels ──
+  ctx.fillStyle = '#6b7280'; ctx.font = '9px Poppins,sans-serif'; ctx.textAlign = 'center';
+  for (let i = 0; i < n; i++) {
+    ctx.fillText('S' + (i + 1), toX(i), h - 6);
+  }
+
+  // ── Shaded area under line ──
+  if (pcts.length >= 2) {
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(pcts[0]));
+    pcts.forEach((v, i) => { if (i > 0) ctx.lineTo(toX(i), toY(v)); });
+    ctx.lineTo(toX(pcts.length - 1), topPad + chartH);
+    ctx.lineTo(toX(0), topPad + chartH);
+    ctx.closePath();
+    const areaGrad = ctx.createLinearGradient(0, topPad, 0, topPad + chartH);
+    areaGrad.addColorStop(0, 'rgba(29,78,216,.18)');
+    areaGrad.addColorStop(1, 'rgba(29,78,216,.02)');
+    ctx.fillStyle = areaGrad;
+    ctx.fill();
+  }
+
+  // ── Line ──
+  if (pcts.length >= 2) {
+    ctx.strokeStyle = '#1d4ed8'; ctx.lineWidth = 2.5; ctx.setLineDash([]);
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    pcts.forEach((v, i) => {
+      i === 0 ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v));
+    });
+    ctx.stroke();
+  }
+
+  // ── Data points + value labels ──
+  pcts.forEach((v, i) => {
+    const x = toX(i), y = toY(v);
+    const pass = v <= limit;
+    // Outer ring
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2);
+    ctx.fillStyle = pass ? 'rgba(22,163,74,.15)' : 'rgba(220,38,38,.15)'; ctx.fill();
+    // Inner dot
+    ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = pass ? '#16a34a' : '#dc2626'; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    // Value label
+    ctx.fillStyle = '#111827'; ctx.font = 'bold 10px Poppins,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(v.toFixed(2) + '%', x, y - 13);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  AGGREGATE IMPACT VALUE (AIV) TEST
+// ═══════════════════════════════════════════════════
+function aivInit(aid) {
+  const tbody = document.getElementById('aiv-tbody-' + aid);
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #f0f2f7';
+    tr.innerHTML = `
+      <td style="padding:8px 12px;text-align:center;font-weight:700;color:#374151;">${i}</td>
+      <td style="padding:6px 8px;text-align:center;">
+        <input type="number" step="0.01" placeholder="A (g)"
+          style="width:90px;border:1px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;outline:none;"
+          oninput="aivCalcRow(this, '${aid}', ${i})">
+      </td>
+      <td style="padding:6px 8px;text-align:center;">
+        <input type="number" step="0.01" placeholder="B (g)"
+          style="width:90px;border:1px solid #fde68a;border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;outline:none;"
+          oninput="aivCalcRow(this, '${aid}', ${i})">
+      </td>
+      <td style="padding:6px 8px;text-align:center;">
+        <input type="number" step="0.01" placeholder="C (g)"
+          style="width:90px;border:1px solid #bfdbfe;border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;outline:none;"
+          oninput="aivCalcRow(this, '${aid}', ${i})">
+      </td>
+      <td style="padding:8px 12px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;" id="aiv-pct-${aid}-${i}">—</td>
+      <td style="padding:8px 12px;text-align:center;" id="aiv-res-${aid}-${i}"></td>`;
+    tbody.appendChild(tr);
+  }
+  aivUpdateChart(aid, []);
+}
+
+function aivCalcRow(input, aid, rowNum) {
+  const tr = input.closest('tr');
+  const inputs = tr.querySelectorAll('input');
+  const A = parseFloat(inputs[0].value);
+  const B = parseFloat(inputs[1].value);
+  const C = parseFloat(inputs[2].value);
+  const pctEl = document.getElementById('aiv-pct-' + aid + '-' + rowNum);
+  const resEl = document.getElementById('aiv-res-' + aid + '-' + rowNum);
+  if (!isNaN(A) && !isNaN(C) && A > 0) {
+    const pct = (C / A * 100).toFixed(2);
+    pctEl.textContent = pct + '%';
+    const v = parseFloat(pct);
+    let color='#16a34a', label='✅ PASS', bg='#dcfce7';
+    if (v >= 35) { color='#dc2626'; label='❌ FAIL'; bg='#fee2e2'; }
+    else if (v >= 30) { color='#d97706'; label='⚠️ BORDERLINE'; bg='#fef3c7'; }
+    resEl.innerHTML = `<span style="background:${bg};color:${color};padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;">${label}</span>`;
+  } else {
+    pctEl.textContent = '—'; resEl.innerHTML = '';
+  }
+  aivUpdateAvgAndChart(aid);
+}
+
+function aivUpdateAvgAndChart(aid) {
+  const pcts = [];
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('aiv-pct-' + aid + '-' + i);
+    if (el && el.textContent !== '—') {
+      const v = parseFloat(el.textContent);
+      if (!isNaN(v)) pcts.push(v);
+    }
+  }
+  const avgEl  = document.getElementById('aiv-avg-' + aid);
+  const avgRes = document.getElementById('aiv-avgres-' + aid);
+  if (pcts.length > 0) {
+    const avg = (pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(2);
+    const v = parseFloat(avg);
+    if (avgEl) avgEl.textContent = avg + '%';
+    let color='#16a34a', label='✅ PASS (<30%)', bg='#dcfce7';
+    if (v >= 35) { color='#dc2626'; label='❌ FAIL (>35%)'; bg='#fee2e2'; }
+    else if (v >= 30) { color='#d97706'; label='⚠️ BORDERLINE (30–35%)'; bg='#fef3c7'; }
+    if (avgRes) avgRes.innerHTML = `<span style="background:${bg};color:${color};padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;">${label}</span>`;
+  } else {
+    if (avgEl) avgEl.textContent = '—';
+    if (avgRes) avgRes.innerHTML = '';
+  }
+  aivUpdateChart(aid, pcts);
+}
+
+function aivUpdateChart(aid, pcts) {
+  const canvas = document.getElementById('aiv-chart-' + aid);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = Math.max(canvas.offsetWidth, canvas.parentElement?.offsetWidth || 0, 480);
+  const h = 170;
+  canvas.width = w; canvas.height = h;
+  ctx.clearRect(0, 0, w, h);
+
+  const topPad = 24, botPad = 28, leftPad = 48, rightPad = 20;
+  const chartW = w - leftPad - rightPad;
+  const chartH = h - topPad - botPad;
+  const limit30 = 30, limit35 = 35;
+  const n = 5;
+
+  if (pcts.length === 0) {
+    ctx.fillStyle = '#d1d5db'; ctx.font = '12px Poppins,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Enter A and C values above to see the line graph', w/2, h/2);
+    return;
+  }
+
+  const maxVal = Math.max(limit35 * 1.4, ...pcts) * 1.05;
+  const toX = i => leftPad + (i / (n - 1)) * chartW;
+  const toY = v => topPad + chartH - (v / maxVal) * chartH;
+
+  // ── Background zones ──
+  // Red zone > 35%
+  ctx.fillStyle = 'rgba(220,38,38,.06)';
+  ctx.fillRect(leftPad, topPad, chartW, toY(limit35) - topPad);
+  // Orange zone 30-35%
+  ctx.fillStyle = 'rgba(217,119,6,.06)';
+  ctx.fillRect(leftPad, toY(limit35), chartW, toY(limit30) - toY(limit35));
+  // Green zone < 30%
+  ctx.fillStyle = 'rgba(22,163,74,.04)';
+  ctx.fillRect(leftPad, toY(limit30), chartW, topPad + chartH - toY(limit30));
+
+  // ── Grid + Y-axis ──
+  ctx.font = '9px Poppins,sans-serif'; ctx.textAlign = 'right'; ctx.fillStyle = '#9ca3af';
+  [0, 10, 20, 30, 35, 40, 50].forEach(v => {
+    if (v > maxVal) return;
+    const y = toY(v);
+    ctx.fillText(v + '%', leftPad - 6, y + 3);
+    ctx.strokeStyle = (v === 30 || v === 35) ? 'rgba(220,38,38,.2)' : '#f0f2f7';
+    ctx.lineWidth = (v === 30 || v === 35) ? 1.5 : 1;
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(leftPad, y); ctx.lineTo(w - rightPad, y); ctx.stroke();
+  });
+
+  // ── Limit lines ──
+  [[limit30, '#d97706', '< 30% — Pass (IS 383)'], [limit35, '#dc2626', '< 35% — Borderline']].forEach(([lv, lc, lt], li) => {
+    const ly = toY(lv);
+    ctx.setLineDash([7, 4]); ctx.strokeStyle = lc; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(leftPad, ly); ctx.lineTo(w - rightPad, ly); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = lc; ctx.font = 'bold 9px Poppins,sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(lt, leftPad + 6, ly - 5);
+  });
+
+  // ── X-axis labels ──
+  ctx.fillStyle = '#6b7280'; ctx.font = '9px Poppins,sans-serif'; ctx.textAlign = 'center';
+  for (let i = 0; i < n; i++) ctx.fillText('S' + (i + 1), toX(i), h - 6);
+
+  // ── Shaded area under line ──
+  if (pcts.length >= 2) {
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(pcts[0]));
+    pcts.forEach((v, i) => { if (i > 0) ctx.lineTo(toX(i), toY(v)); });
+    ctx.lineTo(toX(pcts.length - 1), topPad + chartH);
+    ctx.lineTo(toX(0), topPad + chartH);
+    ctx.closePath();
+    const areaGrad = ctx.createLinearGradient(0, topPad, 0, topPad + chartH);
+    areaGrad.addColorStop(0, 'rgba(232,130,12,.2)');
+    areaGrad.addColorStop(1, 'rgba(232,130,12,.03)');
+    ctx.fillStyle = areaGrad; ctx.fill();
+  }
+
+  // ── Line ──
+  if (pcts.length >= 2) {
+    ctx.strokeStyle = '#e8820c'; ctx.lineWidth = 2.5;
+    ctx.setLineDash([]); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    pcts.forEach((v, i) => i === 0 ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v)));
+    ctx.stroke();
+  }
+
+  // ── Data points ──
+  pcts.forEach((v, i) => {
+    const x = toX(i), y = toY(v);
+    const color = v >= 35 ? '#dc2626' : v >= 30 ? '#d97706' : '#16a34a';
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2);
+    ctx.fillStyle = color + '22'; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#111827'; ctx.font = 'bold 10px Poppins,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(v.toFixed(1) + '%', x, y - 13);
+  });
 }
 
 function sbrwSaveTests() {
