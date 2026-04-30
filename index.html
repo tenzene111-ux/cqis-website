@@ -5922,11 +5922,42 @@ function printAllConst(){
       <div class="section-header" style="margin-bottom:16px;">
         <div>
           <div class="section-title">TEST REPORT</div>
-          <div class="section-badge">🧪 IS Code Lab Tests — Linked to Inspection Records</div>
+          <div class="section-badge">🧪 Saved QC Tests — SBRW QC Tool &amp; IS Code Tests</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <button class="btn-gold" style="padding:8px 16px;font-size:12px;" onclick="trPrintAll()">🖨 Print All</button>
+          <button class="btn-gold" style="padding:8px 16px;font-size:12px;" onclick="trPrintAll()">🖨 Print All (IS Code)</button>
+          <button class="btn-primary" style="padding:8px 16px;font-size:12px;" onclick="trPrintAllStandalone()">🖨 Print All Saved</button>
         </div>
+      </div>
+
+      <!-- ══ SAVED STANDALONE TESTS SECTION (SBRW + IS Code saves) ══ -->
+      <div style="background:#fff;border:2px solid #e8820c;border-radius:12px;margin-bottom:24px;overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#1a2236,#1a3a6e);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#fff;letter-spacing:1px;">💾 SAVED TEST RECORDS</div>
+            <div style="font-size:11px;color:#a8c4d8;margin-top:2px;">Tests saved from SBRW QC Tool &amp; IS Code Tests — viewable, printable, downloadable as PDF</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="trStandaloneSearch" type="text" placeholder="Search saved tests…" oninput="trRenderStandalone()"
+              style="padding:7px 12px;border:1px solid rgba(255,255,255,.2);border-radius:6px;font-size:12px;background:rgba(255,255,255,.1);color:#fff;outline:none;font-family:'Poppins',sans-serif;width:200px;" />
+            <select id="trStandaloneSource" onchange="trRenderStandalone()"
+              style="padding:7px 10px;border:1px solid rgba(255,255,255,.2);border-radius:6px;font-size:12px;background:rgba(255,255,255,.1);color:#fff;outline:none;font-family:'Poppins',sans-serif;">
+              <option value="">All Sources</option>
+              <option value="sbrw">SBRW QC Tool</option>
+              <option value="isCode">IS Code Tests</option>
+            </select>
+            <button onclick="trClearAllStandalone()" style="padding:7px 12px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:6px;font-size:11px;font-weight:700;color:#fca5a5;cursor:pointer;font-family:'Poppins',sans-serif;">🗑 Clear All</button>
+          </div>
+        </div>
+        <div id="trStandaloneBody" style="padding:16px 20px;min-height:80px;">
+          <div style="text-align:center;color:#9ca3af;padding:30px;font-size:13px;">⏳ Loading test records from server…</div>
+        </div>
+      </div>
+
+      <!-- ══ IS CODE TESTS LINKED TO INSPECTIONS (original section) ══ -->
+      <div style="margin-bottom:12px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#374151;letter-spacing:.5px;margin-bottom:4px;">📋 IS Code Tests — Linked to Inspection Records</div>
+        <div style="font-size:11px;color:#9ca3af;">These records appear when an IS Code Lab Test is attached via New Entry → Step 7.</div>
       </div>
 
       <!-- Filter bar -->
@@ -8578,14 +8609,76 @@ function cqdInjectSaveButton(testId) {
   document.querySelectorAll('.cqd-save-btn').forEach(b=>b.remove());
   const panel = document.getElementById('p-'+testId);
   if (!panel) return;
-  const btn = document.createElement('button');
-  btn.className = 'cqd-save-btn tbbtn primary';
-  btn.innerHTML = '💾 Save / Print This Test';
-  btn.style.cssText = 'margin:10px 0 16px;padding:9px 20px;font-size:12px;cursor:pointer;';
-  btn.onclick = () => isTestDownloadResult(testId);
+  const wrap = document.createElement('div');
+  wrap.className = 'cqd-save-btn';
+  wrap.style.cssText = 'display:flex;gap:8px;margin:10px 0 16px;flex-wrap:wrap;';
+  const btnSave = document.createElement('button');
+  btnSave.className = 'tbbtn primary';
+  btnSave.innerHTML = '&#x1F4BE; Save to Test Report';
+  btnSave.style.cssText = 'padding:9px 20px;font-size:12px;cursor:pointer;background:linear-gradient(135deg,#0d4a2c,#1a6b3c);color:#fff;border:none;border-radius:6px;font-weight:700;font-family:inherit;';
+  btnSave.onclick = () => isTestSaveToReport(testId);
+  const btnPrint = document.createElement('button');
+  btnPrint.className = 'tbbtn';
+  btnPrint.innerHTML = '&#x1F5A8; Print / PDF';
+  btnPrint.style.cssText = 'padding:9px 20px;font-size:12px;cursor:pointer;background:linear-gradient(135deg,#1a3a6e,#1e4d8c);color:#fff;border:none;border-radius:6px;font-weight:700;font-family:inherit;';
+  btnPrint.onclick = () => isTestDownloadResult(testId);
+  wrap.appendChild(btnSave);
+  wrap.appendChild(btnPrint);
   const ph = panel.querySelector('.ph');
-  if (ph && ph.nextSibling) ph.parentNode.insertBefore(btn, ph.nextSibling);
-  else panel.prepend(btn);
+  if (ph && ph.nextSibling) ph.parentNode.insertBefore(wrap, ph.nextSibling);
+  else panel.prepend(wrap);
+}
+
+// Save IS Code test to standalone test report store and reset form
+function isTestSaveToReport(testId) {
+  const label = (typeof IS_TEST_LABELS !== 'undefined' && IS_TEST_LABELS[testId]) || testId;
+  const panel = document.getElementById('is-p-'+testId) || document.getElementById('p-'+testId);
+  const pN = document.getElementById('is-pN')?.value || document.getElementById('pn')?.value || '';
+  if(!pN){ showToast('Warning: Enter a Project Name first.'); return; }
+  const pC = document.getElementById('is-pC')?.value || document.getElementById('pc')?.value || '';
+  const pD = document.getElementById('is-pD')?.value || document.getElementById('pd')?.value || '';
+  const pE = document.getElementById('is-pE')?.value || document.getElementById('pi')?.value || '';
+  const pL = document.getElementById('is-pL')?.value || document.getElementById('pl')?.value || '';
+  const tableHTML = panel ? (panel.querySelector('table') ? panel.querySelector('table').outerHTML : '') : '';
+  const verdEl = panel ? (panel.querySelector('[id$="-v"]') || panel.querySelector('#fd-v') || panel.querySelector('#cbr-v')) : null;
+  const verdHTML = verdEl ? verdEl.innerHTML : '';
+  const rgEl = panel ? (panel.querySelector('.rgrid') || panel.querySelector('[id$="-rg"]')) : null;
+  const rgHTML = rgEl ? rgEl.innerHTML : '';
+  const csEl = panel ? panel.querySelector('.sbrw-cs') : null;
+  const isCode = csEl ? csEl.textContent : '';
+  const fmlEl = panel ? (panel.querySelector('.fml') || panel.querySelector('.sbrw-cd')) : null;
+  const formula = fmlEl ? fmlEl.textContent : '';
+  const hasPass = panel ? !!panel.querySelector('.pp.p') : false;
+  const hasFail = panel ? !!panel.querySelector('.pp.f') : false;
+  const overall = hasPass && !hasFail ? 'Pass' : hasFail ? 'Fail' : 'Pending';
+  const record = {
+    id: 'IS-'+Date.now(),
+    source: 'isCode',
+    type: 'test',
+    typeLabel: 'IS Code: '+label,
+    savedAt: new Date().toISOString(),
+    project: pN, contract: pC,
+    date: pD, engineer: pE, location: pL,
+    testId: testId, testName: label, isCode: isCode, formula: formula,
+    tableHTML: tableHTML, verdHTML: verdHTML, rgHTML: rgHTML,
+    overall: overall,
+  };
+  const records = dlGetRecords();
+  records.unshift(record);
+  dlSetRecords(records);
+  trSaveStandaloneRecord(record);
+  isTestResetPanel(testId);
+  showToast('Saved: '+label+' saved to Test Report. Form cleared for new entry.');
+}
+
+function isTestResetPanel(testId) {
+  const panel = document.getElementById('is-p-'+testId) || document.getElementById('p-'+testId);
+  if (!panel) return;
+  panel.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(inp){ inp.value = ''; });
+  panel.querySelectorAll('select').forEach(function(sel){ sel.selectedIndex = 0; });
+  panel.querySelectorAll('textarea').forEach(function(ta){ ta.value = ''; });
+  try { recalcRoad(); } catch(e){}
+  try { recalcConst(); } catch(e){}
 }
 
 function cqdGoHome() {
@@ -10137,6 +10230,186 @@ function isTestDownloadResult(testId) {
 
 let _trOpenRow = null; // currently expanded row index
 
+// ═══ STANDALONE TEST REPORT — SBRW + IS Code saved tests ═══
+function trRenderStandalone() {
+  const body = document.getElementById('trStandaloneBody');
+  if (!body) return;
+  const records = _qcTestCache || [];
+  const q = (document.getElementById('trStandaloneSearch')?.value||'').toLowerCase();
+  const src = document.getElementById('trStandaloneSource')?.value||'';
+  let filtered = records.filter(r => {
+    if (src && r.source !== src) return false;
+    if (q) {
+      const hay = [r.project,r.contract,r.typeLabel,r.testName,r.location,r.engineer,r.isCode,r.overall,r.savedBy].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  if (filtered.length === 0) {
+    body.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:30px;font-size:13px;">No saved tests yet. Save tests from SBRW QC Tool or IS Code Tests using the 💾 Save button.</div>';
+    return;
+  }
+  const srcLabel = { sbrw: 'SBRW QC', isCode: 'IS Code' };
+  const srcColor = { sbrw: '#d97706', isCode: '#0d4a2c' };
+  const resultColor = { Pass:'#15803d', Fail:'#dc2626', Pending:'#9ca3af', Borderline:'#d97706' };
+  const resultBg = { Pass:'#dcfce7', Fail:'#fee2e2', Pending:'#f3f4f6', Borderline:'#fef3e2' };
+  const canDelete = currentUser && currentUser.isAdmin;
+  body.innerHTML = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+    '<thead><tr style="background:linear-gradient(135deg,#f0f2f7,#e8eaf0);">' +
+    '<th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;color:#374151;border-bottom:2px solid #e2e6ef;">#</th>' +
+    '<th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;color:#374151;border-bottom:2px solid #e2e6ef;">SOURCE</th>' +
+    '<th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;color:#374151;border-bottom:2px solid #e2e6ef;">TEST NAME</th>' +
+    '<th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;color:#374151;border-bottom:2px solid #e2e6ef;">PROJECT</th>' +
+    '<th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;color:#374151;border-bottom:2px solid #e2e6ef;">DATE</th>' +
+    '<th style="padding:10px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.08em;color:#374151;border-bottom:2px solid #e2e6ef;">RESULT</th>' +
+    '<th style="padding:10px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.08em;color:#374151;border-bottom:2px solid #e2e6ef;">SAVED BY / AT</th>' +
+    '<th style="padding:10px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.08em;color:#374151;border-bottom:2px solid #e2e6ef;">ACTIONS</th>' +
+    '</tr></thead><tbody>' +
+    filtered.map((r, i) => {
+      const rsrc = r.source || 'sbrw';
+      // Firestore serverTimestamp may be a Timestamp object or already a string
+      let dateStr = '—';
+      if (r.savedAt) {
+        try {
+          const d = r.savedAt.toDate ? r.savedAt.toDate() : new Date(r.savedAt);
+          dateStr = d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        } catch(e) { dateStr = String(r.savedAt); }
+      }
+      const overall = r.overall || '—';
+      const rc = resultColor[overall]||'#9ca3af';
+      const rb = resultBg[overall]||'#f3f4f6';
+      const sc = srcColor[rsrc]||'#374151';
+      const sl = srcLabel[rsrc]||rsrc;
+      const fid = r.firestoreId || r.id || '';
+      return '<tr style="border-bottom:1px solid #f0f2f7;transition:background .12s;" onmouseover="this.style.background=\'#fafbfc\'" onmouseout="this.style.background=\'\'">' +
+        '<td style="padding:10px 12px;color:#6b7280;">' + (i+1) + '</td>' +
+        '<td style="padding:10px 12px;"><span style="background:' + sc + '22;border:1px solid ' + sc + '55;color:' + sc + ';padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + sl + '</span></td>' +
+        '<td style="padding:10px 12px;font-weight:600;color:#1a2236;">' + (r.testName || r.typeLabel || '—') + (r.isCode ? '<div style="margin-top:2px;"><span style="background:#fef3e2;border:1px solid #fde68a;color:#92400e;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + r.isCode + '</span></div>' : '') + '</td>' +
+        '<td style="padding:10px 12px;color:#374151;">' + (r.project||'—') + '<div style="font-size:10px;color:#9ca3af;">' + (r.contract||'') + '</div></td>' +
+        '<td style="padding:10px 12px;color:#374151;">' + (r.date||'—') + '</td>' +
+        '<td style="padding:10px 12px;text-align:center;"><span style="background:' + rb + ';color:' + rc + ';border:1px solid ' + rc + '55;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">' + overall + '</span></td>' +
+        '<td style="padding:10px 12px;text-align:center;color:#6b7280;font-size:11px;">' + (r.savedBy||'—') + '<br><span style="font-size:10px;">' + dateStr + '</span></td>' +
+        '<td style="padding:10px 12px;text-align:center;">' +
+          '<div style="display:flex;gap:6px;justify-content:center;">' +
+          '<button onclick="trViewStandaloneRecord(\'' + fid + '\')" style="background:#1a3a6e;border:none;border-radius:5px;padding:5px 10px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:\'Poppins\',sans-serif;" title="View Report">👁 View</button>' +
+          '<button onclick="trPrintStandaloneRecord(\'' + fid + '\')" style="background:#e8820c;border:none;border-radius:5px;padding:5px 10px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:\'Poppins\',sans-serif;" title="Print/Save PDF">🖨 PDF</button>' +
+          (canDelete ? '<button onclick="trDeleteStandaloneRecord(\'' + fid + '\')" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:5px;padding:5px 8px;color:#dc2626;font-size:11px;cursor:pointer;" title="Delete">🗑</button>' : '') +
+          '</div></td>' +
+        '</tr>';
+    }).join('') +
+    '</tbody></table></div>';
+}
+
+function trViewStandaloneRecord(firestoreId) {
+  const r = (_qcTestCache||[]).find(x => (x.firestoreId||x.id) === firestoreId);
+  if (!r) return;
+  trOpenStandalonePDF(r, false);
+}
+
+function trPrintStandaloneRecord(firestoreId) {
+  const r = (_qcTestCache||[]).find(x => (x.firestoreId||x.id) === firestoreId);
+  if (!r) return;
+  trOpenStandalonePDF(r, true);
+}
+
+function trPrintAllStandalone() {
+  const records = _qcTestCache||[];
+  if (!records.length) { showToast('No saved test records to print.'); return; }
+  const w = window.open('','_blank','width=1000,height=800');
+  const dateStr = new Date().toLocaleString('en-BT');
+  const sections = records.map((r, i) => trBuildStandaloneHTML(r, i+1)).join('<div style="page-break-after:always;margin:0;padding:0;border-top:2px dashed #e2e6ef;margin:20px 0;"></div>');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>All Saved Test Records — CQIS</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Segoe UI\',Arial,sans-serif;font-size:12px;color:#111827;background:#fff;padding:20px;}@page{size:A4;margin:10mm 12mm;}@media print{.no-print{display:none;}}</style></head><body>' +
+    '<div style="text-align:center;margin-bottom:20px;padding-bottom:12px;border-bottom:3px solid #e8820c;">' +
+    '<div style="font-size:22px;font-weight:800;color:#1a2236;">ALL SAVED TEST RECORDS</div>' +
+    '<div style="font-size:12px;color:#6b7280;margin-top:4px;">Construction Quality Inspection System · OPMC/OCASC · Bhutan · Printed: ' + dateStr + '</div></div>' +
+    sections +
+    '<div class="no-print" style="text-align:center;margin-top:20px;"><button onclick="window.print()" style="padding:10px 28px;background:#e8820c;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer;">🖨 Print / Save PDF</button></div></body></html>');
+  w.document.close();
+}
+
+function trBuildStandaloneHTML(r, idx) {
+  const dateStr = r.date ? new Date(r.date).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const savedStr = r.savedAt ? new Date(r.savedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const srcLabel = r.source === 'isCode' ? 'IS Code Test' : 'SBRW QC Test';
+  const srcColor = r.source === 'isCode' ? '#0d4a2c' : '#c46a08';
+  const overall = r.overall || '—';
+  const rColor = overall==='Pass'?'#15803d':overall==='Fail'?'#dc2626':'#9ca3af';
+  const rBg = overall==='Pass'?'#dcfce7':overall==='Fail'?'#fee2e2':'#f3f4f6';
+
+  let content = '';
+  // IS Code test: use captured HTML
+  if (r.source === 'isCode') {
+    content = (r.tableHTML||'') + (r.verdHTML ? '<div style="margin-top:8px;">'+r.verdHTML+'</div>' : '') + (r.rgHTML ? '<div style="margin-top:8px;">'+r.rgHTML+'</div>' : '');
+    if (!content.trim()) content = '<p style="color:#9ca3af;text-align:center;padding:20px;">No table data captured — use the test panel to enter and compute values before saving.</p>';
+  }
+  // SBRW: build from snapshot
+  else if (r.snapshot && r.snapshot.sections) {
+    r.snapshot.sections.forEach(sec => {
+      sec.cards.forEach(card => {
+        content += '<div style="margin-bottom:14px;">';
+        content += '<div style="font-size:12px;font-weight:700;color:#1a2236;background:#f0f2f7;padding:8px 12px;border-radius:4px;margin-bottom:6px;">' + (card.name||'') + ' <span style="font-size:10px;color:#6b7280;">' + (card.std||'') + '</span></div>';
+        if (card.rows && card.rows.length) {
+          content += '<table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr><th style="background:#f8f9fc;padding:6px 8px;border:1px solid #e5e7eb;text-align:left;font-size:10px;">Parameter</th><th style="background:#f8f9fc;padding:6px 8px;border:1px solid #e5e7eb;text-align:center;">Requirement</th><th style="background:#f8f9fc;padding:6px 8px;border:1px solid #e5e7eb;text-align:center;">Value</th><th style="background:#f8f9fc;padding:6px 8px;border:1px solid #e5e7eb;text-align:center;">Result</th></tr></thead><tbody>';
+          card.rows.forEach(row => {
+            const rOk = row.result && row.result.toLowerCase().includes('pass');
+            const rFl = row.result && row.result.toLowerCase().includes('fail');
+            content += '<tr><td style="padding:6px 8px;border:1px solid #e5e7eb;">' + (row.p||'') + '</td><td style="padding:6px 8px;border:1px solid #e5e7eb;text-align:center;color:#6b7280;">' + (row.req||'') + '</td><td style="padding:6px 8px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">' + (row.val||'') + '</td><td style="padding:6px 8px;border:1px solid #e5e7eb;text-align:center;"><span style="background:' + (rOk?'#dcfce7':rFl?'#fee2e2':'#f3f4f6') + ';color:' + (rOk?'#15803d':rFl?'#dc2626':'#6b7280') + ';padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">' + (row.result||'—') + '</span></td></tr>';
+          });
+          content += '</tbody></table>';
+        }
+        content += '</div>';
+      });
+    });
+  }
+
+  return '<div style="margin-bottom:24px;">' +
+    '<div style="border-bottom:3px solid ' + srcColor + ';padding-bottom:12px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-start;">' +
+    '<div>' +
+    '<div style="font-size:18px;font-weight:700;color:#1a2236;">' + (idx ? idx+'. ' : '') + (r.testName || r.typeLabel || 'Test Record') + '</div>' +
+    '<div style="font-size:11px;color:#6b7280;margin-top:3px;">' + srcLabel + (r.isCode ? ' · ' + r.isCode : '') + '</div>' +
+    '</div>' +
+    '<div style="text-align:right;">' +
+    '<span style="background:' + rBg + ';color:' + rColor + ';border:1px solid ' + rColor + '55;padding:4px 14px;border-radius:10px;font-size:12px;font-weight:700;">' + overall + '</span>' +
+    '</div></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 16px;margin-bottom:14px;background:#f8f9fc;border-radius:6px;padding:10px 14px;font-size:11px;">' +
+    '<div><span style="color:#6b7280;">Project: </span><strong>' + (r.project||'—') + '</strong></div>' +
+    '<div><span style="color:#6b7280;">Contract No.: </span><strong>' + (r.contract||'—') + '</strong></div>' +
+    '<div><span style="color:#6b7280;">Date: </span><strong>' + dateStr + '</strong></div>' +
+    '<div><span style="color:#6b7280;">Engineer: </span><strong>' + (r.engineer||'—') + '</strong></div>' +
+    '<div><span style="color:#6b7280;">Location: </span><strong>' + (r.location||'—') + '</strong></div>' +
+    '<div><span style="color:#6b7280;">Saved: </span><strong>' + savedStr + '</strong></div>' +
+    '</div>' +
+    (r.formula ? '<div style="background:#f0ece4;border-left:3px solid ' + srcColor + ';padding:8px 12px;font-size:10.5px;color:#374151;margin-bottom:12px;font-family:monospace;border-radius:0 4px 4px 0;">' + r.formula + '</div>' : '') +
+    content +
+    '</div>';
+}
+
+function trOpenStandalonePDF(r, autoPrint) {
+  const w = window.open('','_blank','width=1000,height=800');
+  const body = trBuildStandaloneHTML(r, 0);
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + (r.testName||'Test Record') + ' — CQIS</title>' +
+    '<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Segoe UI\',Arial,sans-serif;font-size:12px;color:#111827;background:#fff;padding:20px;}table{width:100%;border-collapse:collapse;}@page{size:A4;margin:10mm 12mm;}@media print{.no-print{display:none;}}' +
+    'th,td{padding:6px 8px;border:1px solid #e5e7eb;}.avgrow td{background:#f0ece4!important;font-weight:700;}.pass-span{background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}.fail-span{background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}' +
+    '.pp.p{background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}.pp.f{background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}' +
+    '.vbox{padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;margin-bottom:10px;}.vbox.pass{background:#f0fdf4;border:1px solid #86efac;color:#15803d;}.vbox.fail{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;}' +
+    '.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px;}.rcard{background:#f8f9fc;border:1px solid #e5e7eb;border-radius:6px;padding:8px 12px;}.rcard .rl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;}.rcard .rv{font-size:16px;font-weight:700;font-family:monospace;color:#111827;}' +
+    '</style></head><body>' +
+    '<div style="border-bottom:2px solid #e8820c;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">' +
+    '<div><div style="font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1px;text-transform:uppercase;">Construction Quality Inspection System</div>' +
+    '<div style="font-size:10px;color:#9ca3af;">OPMC / OCASC · Construction Quality Division · BHUTAN</div></div>' +
+    '<div style="font-size:13px;font-weight:700;color:#e8820c;">CQIS</div></div>' +
+    body +
+    '<div style="margin-top:16px;padding-top:8px;border-top:1px solid #e5e7eb;font-size:9px;color:#9ca3af;display:flex;justify-content:space-between;">' +
+    '<span>CQIS — Construction Quality Inspection System · OPMC/OCASC · SBRW 2025</span>' +
+    '<span>Printed: ' + new Date().toLocaleString('en-BT') + '</span></div>' +
+    '<div class="no-print" style="text-align:center;margin-top:16px;">' +
+    '<button onclick="window.print()" style="padding:8px 24px;background:#e8820c;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">🖨 Print / Save PDF</button>' +
+    '<button onclick="window.close()" style="padding:8px 24px;background:#6b7280;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;margin-left:8px;">✕ Close</button></div>' +
+    '</body></html>');
+  w.document.close();
+  if (autoPrint) setTimeout(() => { try { w.print(); } catch(e){} }, 600);
+}
+
 function trClearFilters() {
   ['trSearch','trOtherFilter'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   ['trTestFilter','trResultFilter','trDzongFilter','trROFilter','trYearFilter'].forEach(id => {
@@ -10944,7 +11217,7 @@ function showTab(id,btn){
   if(id==='atr') renderATR();
   if(id==='entry') { setTimeout(entryPopulateScheduleDropdown, 100); }
   if(id==='analytics') renderCharts();
-  if(id==='test-report') trRender();
+  if(id==='test-report') { trRender(); trRenderStandalone(); trLoadAllFromFirestore(); }
   if(id==='report') renderReport();
   if(id==='followup') renderNCRReport();
   if(id==='dashboard') refreshDash();
@@ -14043,6 +14316,8 @@ function initApp(){
   if(!_dueDateIntervalId){ _dueDateIntervalId = setInterval(checkDueDates, 60000); }
   setTimeout(showAtrLoginPopup, 1200);
   setTimeout(entryPopulateScheduleDropdown, 800);
+  // Load QC test reports from Firestore (shared across all users)
+  trLoadAllFromFirestore();
 }
 
 // ===== SBRW SECTIONS (embedded from SBRW2025 tool) =====
@@ -18520,10 +18795,103 @@ window.addEventListener('scroll',function(){
 
 <script>
 // ===== DOWNLOADS & SAVE SYSTEM =====
-const DL_KEY = 'cqis_saved_records';
+// ═══════════════════════════════════════════════════════════════
+//  QC TEST REPORTS — FIRESTORE BACKED (shared across all users)
+//  Collection: 'qcTestReports'
+//  All admins, users, and observers see the same data in real-time.
+// ═══════════════════════════════════════════════════════════════
+const COL_QC_TESTS = 'qcTestReports';
 
+// In-memory cache so renders are instant
+let _qcTestCache = [];
+let _qcTestListener = null; // real-time listener handle
+
+// Load all QC test records from Firestore — sets up a real-time listener
+// so all users (admin, user, observer) see the same data instantly
+async function trLoadAllFromFirestore() {
+  // Show loading state
+  const body = document.getElementById('trStandaloneBody');
+  if (body) body.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:30px;font-size:13px;">⏳ Loading test records from Firestore…</div>';
+
+  // Detach any existing listener before creating a new one
+  if (_qcTestListener) { try { _qcTestListener(); } catch(e){} _qcTestListener = null; }
+
+  try {
+    // Real-time listener: fires immediately and on every change
+    _qcTestListener = db.collection(COL_QC_TESTS)
+      .orderBy('savedAt','desc')
+      .limit(200)
+      .onSnapshot(snap => {
+        _qcTestCache = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+        trRenderStandalone();
+      }, err => {
+        console.warn('qcTestReports listener error:', err);
+        _qcTestCache = [];
+        trRenderStandalone();
+      });
+  } catch(e) {
+    console.warn('qcTestReports load failed:', e);
+    _qcTestCache = [];
+    trRenderStandalone();
+  }
+}
+
+// Save a single QC test record to Firestore
+async function trSaveStandaloneRecord(rec) {
+  try {
+    // Strip HTML from snapshot to keep under Firestore 1MB doc limit —
+    // store tableHTML etc. in a sub-field, truncate if needed
+    const payload = Object.assign({}, rec);
+    // Firestore doc size limit: ~1MB. Truncate large HTML fields.
+    ['tableHTML','verdHTML','rgHTML'].forEach(k => {
+      if (payload[k] && payload[k].length > 60000) payload[k] = payload[k].substring(0, 60000) + '<!-- truncated -->';
+    });
+    payload.savedAt = firebase.firestore.FieldValue.serverTimestamp();
+    payload.savedBy = currentUser ? (currentUser.email || currentUser.username || 'unknown') : 'unknown';
+    const docRef = await db.collection(COL_QC_TESTS).add(payload);
+    // Update cache immediately
+    rec.firestoreId = docRef.id;
+    _qcTestCache.unshift(rec);
+    trRenderStandalone();
+  } catch(e) {
+    console.error('Failed to save QC test to Firestore:', e);
+    showToast('⚠️ Save failed: ' + (e.message||e));
+  }
+}
+
+// Delete a record from Firestore by its Firestore document ID
+async function trDeleteStandaloneRecord(firestoreId) {
+  if (!confirm('Delete this test record? This cannot be undone.')) return;
+  try {
+    await db.collection(COL_QC_TESTS).doc(firestoreId).delete();
+    _qcTestCache = _qcTestCache.filter(r => r.firestoreId !== firestoreId);
+    trRenderStandalone();
+    showToast('Record deleted.');
+  } catch(e) {
+    showToast('⚠️ Delete failed: ' + (e.message||e));
+  }
+}
+
+// Clear ALL records (admin only)
+async function trClearAllStandalone() {
+  if (!currentUser || !currentUser.isAdmin) { showToast('⚠️ Admin only.'); return; }
+  if (!confirm('Clear ALL saved QC test records from Firestore? This cannot be undone.')) return;
+  try {
+    const snap = await db.collection(COL_QC_TESTS).get();
+    const batch = db.batch();
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+    _qcTestCache = [];
+    trRenderStandalone();
+    showToast('All QC test records cleared.');
+  } catch(e) { showToast('⚠️ Clear failed: ' + (e.message||e)); }
+}
+
+// Legacy localStorage shims — kept so old code that calls dlGetRecords / dlSetRecords
+// still works without errors, but QC tests now go through Firestore above.
+const DL_KEY = 'cqis_saved_records_legacy';
 function dlGetRecords(){ try{ return JSON.parse(localStorage.getItem(DL_KEY)||'[]'); }catch(e){ return []; } }
-function dlSetRecords(arr){ localStorage.setItem(DL_KEY, JSON.stringify(arr)); }
+function dlSetRecords(arr){ try{ localStorage.setItem(DL_KEY, JSON.stringify(arr)); }catch(e){} }
 
 function dlSaveQCRecord(){
   const pN  = document.getElementById('sbrw-pN')?.value?.trim()  || '';
@@ -19332,8 +19700,9 @@ function sbrwSaveCard(secId, cardIdx){
   if(!snap){ showToast('⚠️ Could not read card data.'); return; }
   const record = {
     id: 'CARD-'+Date.now(),
+    source: 'sbrw',
     type: 'test',
-    typeLabel: snap.name,
+    typeLabel: 'SBRW QC: '+snap.name,
     savedAt: new Date().toISOString(),
     project: pN,
     contract: document.getElementById('sbrw-pC')?.value?.trim()||'',
@@ -19343,10 +19712,36 @@ function sbrwSaveCard(secId, cardIdx){
     location: document.getElementById('sbrw-pL')?.value?.trim()||'',
     snapshot: { sections:[{ id:secId, title:snap.secTitle, cards:[snap] }] },
   };
+  // Save to DL records (Downloads tab)
   const records = dlGetRecords();
   records.unshift(record);
   dlSetRecords(records);
-  showToast('✅ '+snap.name+' saved to Downloads.');
+  // Save to standalone test report store
+  trSaveStandaloneRecord(record);
+  // Reset this card's inputs back to blank
+  sbrwResetCard(secId, cardIdx);
+  showToast('✅ '+snap.name+' saved. Form cleared for new entry.');
+}
+
+function sbrwResetCard(secId, cardIdx){
+  const card = document.getElementById('sbrw-c-'+secId+'-'+cardIdx);
+  if(!card) return;
+  // Clear all text inputs in this card
+  card.querySelectorAll('.sbrw-ti[data-sbid]').forEach(inp => {
+    inp.value = '';
+    inp.classList.remove('pass','fail');
+    inp.dispatchEvent(new Event('input'));
+  });
+  // Also reset proctor / srt inputs if present
+  card.querySelectorAll('input[type="text"], input[type="number"]').forEach(inp => {
+    if(!inp.classList.contains('sbrw-ti')) inp.value = '';
+  });
+  // Reset result badges to pending
+  card.querySelectorAll('.sbrw-rb').forEach(rb => {
+    rb.className = 'sbrw-rb pending'; rb.textContent = '—';
+  });
+  sbrwUpdateCard(card);
+  sbrwUpdateSum();
 }
 
 function sbrwPrintCard(secId, cardIdx){
