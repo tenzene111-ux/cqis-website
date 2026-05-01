@@ -2454,7 +2454,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <span id="tableCount" style="font-size:12px;color:#6b7280;">0 records</span>
           </div>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th style="font-size:10px;min-width:52px;">Reg<br>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th style="font-size:10px;min-width:52px;">Reg<br>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th style="background:rgba(232,130,12,.15);">🔬 QC Tests</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
         <div class="no-data" id="noData" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">🛣️</div>No inspection records found. Add a new entry to get started.</div>
       </div>
     </div>
@@ -3632,12 +3632,12 @@ tr.avg td.av{color:#a8f0c0;}
 
 <!-- PROJECT -->
 <div class="proj-strip">
-  <div class="pf"><label>Project Name</label><input id="pn" value="Construction of Road at Taba, Thimphu"></div>
-  <div class="pf"><label>Contract No.</label><input id="pc" value="CQD/INS/THI/25/001"></div>
-  <div class="pf"><label>Contractor</label><input id="pco" value="Bhutan Construction Co."></div>
-  <div class="pf"><label>Test Date</label><input id="pd" type="date" value="2026-04-27"></div>
-  <div class="pf"><label>Chainage</label><input id="pl" value="Ch. 0+000 to 0+500"></div>
-  <div class="pf"><label>Inspector</label><input id="pi" value="Er. Sangay, CQD"></div>
+  <div class="pf"><label>Project Name</label><input id="pn" placeholder="Select from register or type project name"></div>
+  <div class="pf"><label>Contract No.</label><input id="pc" placeholder="e.g. CQD/INS/THI/25/001"></div>
+  <div class="pf"><label>Contractor</label><input id="pco" placeholder="Contractor name"></div>
+  <div class="pf"><label>Test Date</label><input id="pd" type="date" value=""></div>
+  <div class="pf"><label>Chainage</label><input id="pl" placeholder="Ch. 0+000 to 1+500"></div>
+  <div class="pf"><label>Inspector</label><input id="pi" placeholder="Inspector name"></div>
   <div class="pf"><label>Layer / Material</label><input id="pm" value="Subgrade / GSB"></div>
   <div class="pf"><label>Weather</label><input id="pw" value="Clear, 22°C"></div>
 </div>
@@ -4915,10 +4915,10 @@ function recalcRoad(){
 <div class="proj">
   <div class="pf"><label>Project Name</label><input id="pn" value="Construction of Administrative Building, Thimphu"></div>
   <div class="pf"><label>Contract No.</label><input id="pc" value="CQD/BLD/THI/25/002"></div>
-  <div class="pf"><label>Contractor</label><input id="pco" value="Bhutan Construction Co."></div>
-  <div class="pf"><label>Date</label><input id="pd" type="date" value="2026-04-27"></div>
+  <div class="pf"><label>Contractor</label><input id="pco" placeholder="Contractor name"></div>
+  <div class="pf"><label>Date</label><input id="pd" type="date" value=""></div>
   <div class="pf"><label>Location / Level</label><input id="pl" value="Ground Floor Column Grid A-3"></div>
-  <div class="pf"><label>Inspector</label><input id="pi" value="Er. Sangay, CQD"></div>
+  <div class="pf"><label>Inspector</label><input id="pi" placeholder="Inspector name"></div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════
@@ -5957,7 +5957,7 @@ function printAllConst(){
       <!-- ══ IS CODE TESTS LINKED TO INSPECTIONS (original section) ══ -->
       <div style="margin-bottom:12px;">
         <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#374151;letter-spacing:.5px;margin-bottom:4px;">📋 IS Code Tests — Linked to Inspection Records</div>
-        <div style="font-size:11px;color:#9ca3af;">These records appear when an IS Code Lab Test is attached via New Entry → Step 7.</div>
+        <div style="font-size:11px;color:#9ca3af;">Records from SBRW QC Tool, IS Code Tests (💾 Save), and tests attached via New Entry → Step 7.</div>
       </div>
 
       <!-- Filter bar -->
@@ -6098,7 +6098,7 @@ function printAllConst(){
       </div>
 
       <div style="margin-top:14px;font-size:11px;color:#9ca3af;">
-        ℹ️ Records appear here when an IS Code Lab Test is attached in <strong>New Entry → Step 7</strong>.
+        ℹ️ Records from SBRW QC Tool &amp; IS Code Tests (click 💾 Save All Samples) appear here automatically, along with tests attached via <strong>New Entry → Step 7</strong>.
         Click any row to expand full test details with all 5 samples.
       </div>
     </div>
@@ -6732,8 +6732,8 @@ function printAllConst(){
             <div id="noReportDefects" style="text-align:center;padding:20px;color:#6b7280;font-size:12px;">No defects recorded.</div>
           </div>
           <div class="report-sign">
-            <div class="sign-block"><div class="sign-line"></div><div class="sign-label">QA Inspector / Engineer</div></div>
-            <div class="sign-block"><div class="sign-line"></div><div class="sign-label">Director, Quality Assurance</div></div>
+            <div class="sign-block"><div class="sign-line"></div><div class="sign-label">CQD Team</div></div>
+            <div class="sign-block"><div class="sign-line"></div><div class="sign-label">CQD Chief</div></div>
           </div>
         </div>
       </div>
@@ -10427,18 +10427,67 @@ function trRender() {
   const otFilt = (document.getElementById('trOtherFilter')?.value || '').toLowerCase();
   const yrFilt = document.getElementById('trYearFilter')?.value   || '';
 
-  // Collect ALL inspections that have isTestData attached
+  // ── SOURCE 1: Inspections with isTestData (Step 7 attachments) ──
   const recs = (inspections || []).filter(r => {
     if (!r.isTestData || r.isTestData === 'null') return false;
     try { const d = JSON.parse(r.isTestData); return d && d.testName; } catch(e){ return false; }
   });
 
-  // Parse + filter
-  let rows = recs.map(r => {
+  // ── SOURCE 2: Standalone QC test reports from SBRW QC Tool & IS Code Tests ──
+  // Convert _qcTestCache records to the {r, td} shape trRender expects
+  const qcRows = (typeof _qcTestCache !== 'undefined' ? _qcTestCache : []).map(t => {
+    // Find matching inspection to get location/dzongkhag/contractor context
+    const pN = (t.project||'').trim().toLowerCase();
+    const pC = (t.contract||'').trim().toLowerCase();
+    const linked = (inspections||[]).find(insp => {
+      const iN = (insp.projectName||'').trim().toLowerCase();
+      const iC = (insp.contractNo||'').trim().toLowerCase();
+      return pC && iC ? (iN===pN && iC===pC) : iN===pN;
+    }) || {};
+
+    // Build a synthetic inspection-like 'r' object
+    const r = {
+      sn:           linked.sn || '—',
+      projectName:  t.project  || linked.projectName || '—',
+      contractNo:   t.contract || linked.contractNo  || '',
+      roadSection:  t.location || linked.roadSection || '',
+      contractor:   t.contractor || linked.contractor || '—',
+      dzongkhag:    linked.dzongkhag || '',
+      ro:           linked.ro        || '',
+      other:        linked.other     || '',
+      workType:     linked.workType  || (t.source==='sbrw'?'SBRW QC':'IS Code'),
+      dateInspected:t.date || linked.dateInspected || '',
+      inspector:    t.engineer || linked.inspector || '',
+      _isQcCache:   true,    // flag so we can handle print/view differently
+      _qcRecord:    t,       // keep reference to original
+    };
+
+    // Build a td (test data) object matching the shape trRender expects
+    const td = {
+      testId:       t.testId  || t.id || '',
+      testName:     t.testName || t.typeLabel || '—',
+      isCode:       t.isCode  || (t.source==='isCode'?'IS Code':'SBRW QC'),
+      overall:      t.overall || 'Pending',
+      totalSamples: t.sampleCount || 1,
+      passCount:    t.overall==='Pass' ? (t.sampleCount||1) : 0,
+      failCount:    t.overall==='Fail' ? (t.sampleCount||1) : 0,
+      source:       t.source || 'sbrw',
+      firestoreId:  t.firestoreId || t.id || '',
+    };
+    return { r, td };
+  });
+
+  // ── MERGE & DE-DUPLICATE: inspection-linked rows take priority ──
+  // Avoid showing the same test twice if it was both saved standalone AND attached via Step 7
+  const legacyRows = recs.map(r => {
     let td = null;
     try { td = JSON.parse(r.isTestData); } catch(e){}
     return { r, td };
-  }).filter(({r, td}) => {
+  });
+  const allRows = [...legacyRows, ...qcRows];
+
+  // ── FILTER ──
+  let rows = allRows.filter(({r, td}) => {
     if (!td) return false;
     if (tFilt && td.testId !== tFilt) return false;
     if (rFilt && td.overall !== rFilt) return false;
@@ -10503,7 +10552,7 @@ function trRender() {
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:#9ca3af;font-size:13px;">
       ${recs.length === 0
-        ? 'No test records yet — attach IS Code tests in <strong>New Entry → Step 7</strong>.'
+        ? 'No test records yet — save tests from SBRW QC Tool or IS Code Tests using the 💾 Save button, or attach tests via New Entry → Step 7.'
         : 'No records match the current filter.'}
     </td></tr>`;
     _trOpenRow = null;
@@ -10541,8 +10590,11 @@ function trRender() {
       <td style="padding:10px;font-size:11px;color:#374151;">${r.workType||'—'}</td>
       <td style="padding:10px;">
         <div style="font-weight:700;font-size:12px;color:#111827;">${td.testName||'—'}</div>
-        ${td.isCode?`<div style="margin-top:3px;"><span style="background:#fef3e2;border:1px solid #fde68a;color:#92400e;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;">${td.isCode}</span></div>`:''}
-        <div style="font-size:10px;color:#6b7280;margin-top:3px;">${pCount}/${sCount} samples pass</div>
+        <div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:3px;">
+          ${td.isCode?`<span style="background:#fef3e2;border:1px solid #fde68a;color:#92400e;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;">${td.isCode}</span>`:''}
+          ${r._isQcCache ? `<span style="background:${td.source==='isCode'?'#e8f5ee':'#fff8f0'};border:1px solid ${td.source==='isCode'?'#0d4a2c':'#e8820c'};color:${td.source==='isCode'?'#0d4a2c':'#c46a08'};padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;">` + (td.source==='isCode'?'IS Code':'SBRW QC') + `</span>` : ''}
+        </div>
+        <div style="font-size:10px;color:#6b7280;margin-top:3px;">${r._isQcCache ? `${sCount} sample${sCount!==1?'s':''} · ${td.overall||'Pending'}` : `${pCount}/${sCount} samples pass`}</div>
       </td>
       <td style="padding:10px;text-align:center;">
         <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;background:${pfBg};color:${pfCol};">
@@ -10582,6 +10634,12 @@ function trToggleDetail(i) {
     return;
   }
   _trOpenRow = i;
+  // For standalone QC records open the unified view modal instead of inline detail
+  if (rows[i].r._isQcCache && rows[i].r._qcRecord) {
+    trOpenStandalonePDF(rows[i].r._qcRecord, false);
+    trRender();
+    return;
+  }
   trShowDetail(rows[i].r, rows[i].td);
   trRender(); // re-render to highlight row
   // Scroll to detail panel
@@ -10710,6 +10768,11 @@ function trPrintOne(idx) {
     return;
   }
   const {r, td} = rows[idx];
+  // If this is a standalone QC test record, use the unified print function
+  if (r._isQcCache && r._qcRecord) {
+    trOpenStandalonePDF(r._qcRecord, false);
+    return;
+  }
   const loc = r.dzongkhag || r.ro || r.other || '—';
   const pf  = td.overall || '—';
   const pfBg  = pf==='Pass'?'#f0fdf4':pf==='Fail'?'#fef2f2':'#fffbeb';
@@ -12247,6 +12310,7 @@ function renderTable(){
       <td>${badgeHtml(status)}</td>
       <td>${r.test||'—'}</td><td>${r.reqVal||'—'}</td><td>${r.result||'—'}</td>
       <td>${badgeHtml(r.passFailResult)}</td>
+      <td style="min-width:110px;">${qcLinkedCell(r)}</td>
       <td>${r.month||'—'}</td><td>${r.year||'—'}</td>
       <td>${isAdmin
         ? `<div style="display:flex;gap:5px;flex-wrap:wrap;">
@@ -13684,9 +13748,14 @@ function renderProjectReport(){
 
 // ===== PRINT / SAVE CURRENT REPORT =====
 function printCurrentReport(){
-  const type = document.getElementById('reportTypeSelect')?.value;
-  if(type==='project') _printProjectReport();
-  else _printInspectionReport();
+  try {
+    const type = document.getElementById('reportTypeSelect')?.value || 'summary';
+    if(type==='project') _printProjectReport();
+    else _printInspectionReport();
+  } catch(e) {
+    console.error('printCurrentReport error:', e);
+    alert('Print error: ' + (e.message||e) + '\n\nPlease try again or allow pop-ups for this page.');
+  }
 }
 
 function saveCurrentReport(){
@@ -18824,15 +18893,18 @@ async function trLoadAllFromFirestore() {
       .onSnapshot(snap => {
         _qcTestCache = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
         trRenderStandalone();
+        if (typeof trRender === 'function') trRender(); // refresh KPI counts
       }, err => {
         console.warn('qcTestReports listener error:', err);
         _qcTestCache = [];
         trRenderStandalone();
+        if (typeof trRender === 'function') trRender();
       });
   } catch(e) {
     console.warn('qcTestReports load failed:', e);
     _qcTestCache = [];
     trRenderStandalone();
+    if (typeof trRender === 'function') trRender();
   }
 }
 
@@ -19081,6 +19153,39 @@ function dlClearAll(){
   toast('All records cleared.');
 }
 
+// ===== DOWNLOAD RECORD PRINT — dispatches to correct print handler =====
+function dlPrintRecord(id) {
+  const records = dlGetRecords();
+  const rec = records.find(r => r.id === id);
+  if (!rec) { toast('⚠️ Record not found.'); return; }
+
+  // Route based on record type
+  if (rec.type === 'inspection') {
+    // Inspection report saved from Reports tab — rebuild & print
+    _printInspectionReport();
+    return;
+  }
+
+  if (rec.type === 'test' && rec.source === 'sbrw' && rec.snapshot) {
+    // SBRW QC snapshot record — use existing dlBuildPrintHTML
+    const html = dlBuildPrintHTML(rec);
+    _doPrint(html);
+    return;
+  }
+
+  if (rec.type === 'test' && (rec.tableHTML || rec.isCombined)) {
+    // IS Code or combined session record — use unified QC print
+    trOpenStandalonePDF(rec, false);
+    return;
+  }
+
+  // Fallback: build a simple summary print
+  const dateStr = rec.date ? new Date(rec.date).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const savedStr = rec.savedAt ? new Date(rec.savedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const html = dlBuildPrintHTML(rec);
+  _doPrint(html);
+}
+
 // ===== PROFESSIONAL PRINT — EXECUTIVE FORMAT WITH LINE GRAPHS =====
 function dlBuildPrintHTML(rec){
   const dateStr  = rec.date    ? new Date(rec.date).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}) : '—';
@@ -19319,7 +19424,7 @@ body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:9.5pt;color:#1a1a
 /* ══ SIGNATURES ══ */
 .sig-section{margin-top:22px;page-break-inside:avoid;}
 .sig-title{font-size:8pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:1px;border-bottom:1.5px solid #1a3a6e;padding-bottom:4px;margin-bottom:14px;}
-.sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 .sig-box{text-align:center;}
 .sig-line{border-top:1px solid #888;margin:0 auto 5px;width:85%;}
 .sig-role{font-size:8.5pt;font-weight:700;color:#1a2236;}
@@ -19435,7 +19540,7 @@ ${sectionsHTML}
       <div style="height:32px;"></div>
       <div class="sig-line"></div>
       <div class="sig-role">Acknowledged By</div>
-      <div class="sig-name">Contractor Representative</div>
+      <div class="sig-name">Contractor / Client</div>
       <div class="sig-date">Date: _________________</div>
     </div>
   </div>
@@ -19996,7 +20101,7 @@ ${bodyHTML}
   <div class="sig-g">
     <div class="sb"><div style="height:26px;"></div><div class="sl"></div><div class="sr">Tested By</div><div class="sn">Site Engineer / Technician</div><div class="sd">Date: _______________</div></div>
     <div class="sb"><div style="height:26px;"></div><div class="sl"></div><div class="sr">Verified By</div><div class="sn">QA Engineer — CQD, OCASC</div><div class="sd">Date: _______________</div></div>
-    <div class="sb"><div style="height:26px;"></div><div class="sl"></div><div class="sr">Contractor Rep.</div><div class="sn">Contractor Representative</div><div class="sd">Date: _______________</div></div>
+
   </div>
 </div>
 
@@ -20012,13 +20117,41 @@ ${bodyHTML}
 }
 
 function _doPrint(html){
+  // Inject a manual print toolbar before </body> in case auto-print is blocked
+  const toolbar = `
+<div id="_printToolbar" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#1a3a6e,#1e4d8c);padding:10px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 -3px 12px rgba(0,0,0,.25);">
+  <button onclick="window.print();document.getElementById('_printToolbar').style.display='none';"
+    style="background:#e8820c;color:#fff;border:none;border-radius:7px;padding:9px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:.3px;">
+    🖨 Print / Save PDF
+  </button>
+  <button onclick="window.close()"
+    style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Segoe UI',sans-serif;">
+    ✕ Close
+  </button>
+  <span style="color:rgba(255,255,255,.65);font-size:11px;margin-left:4px;">If the print dialog didn't open automatically, click the button above.</span>
+  <style>@media print{#_printToolbar{display:none!important;}}</style>
+</div>`;
+  const htmlWithToolbar = html.replace('</body>', toolbar + '</body>');
+
   const win = window.open('', '_blank');
-  if(!win){ alert('Please allow pop-ups to print. Go to browser settings and allow pop-ups for this page.'); return; }
+  if(!win){
+    // Popup blocked — use a Blob URL fallback
+    try {
+      const blob = new Blob([htmlWithToolbar], {type:'text/html'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch(e) {
+      alert('Please allow pop-ups to print. Go to browser settings → allow pop-ups for this page.');
+    }
+    return;
+  }
   win.document.open();
-  win.document.write(html);
+  win.document.write(htmlWithToolbar);
   win.document.close();
-  // Use 1400ms to ensure Chart.js finishes rendering before printing
-  setTimeout(()=>{ win.focus(); win.print(); }, 1400);
+  // Try auto-print after page loads; toolbar button is backup
+  setTimeout(()=>{ try { win.focus(); win.print(); } catch(e){} }, 1200);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -20084,7 +20217,7 @@ function _printInspectionReport(){
       <td style="font-size:8pt;">${r.inspector||'—'}</td>
       <td>${defHtml}</td>
       <td style="font-size:8pt;max-width:110px;">${r.defectDesc||'—'}</td>
-      <td>${pfHtml}${isTestBadge}</td>
+      <td>${pfHtml}${(()=>{const qt=(r.qcTestResults||[]);return qt.length?`<span style="display:inline-block;margin-left:3px;padding:1px 5px;border-radius:3px;font-size:7pt;font-weight:700;background:#fff8f0;border:1px solid #e8820c;color:#c46a08;">🔬${qt.length}QC</span>`:'';})()}</td>
     </tr>`;
   });
 
@@ -20180,7 +20313,7 @@ tbody tr:hover td{background:#fef9f0;}
 /* ── Signatures ── */
 .sig-wrap{margin-top:22px;page-break-inside:avoid;}
 .sig-title{font-size:8pt;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.8px;border-bottom:1.5px solid #1a3a6e;padding-bottom:3px;margin-bottom:14px;}
-.sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
 .sig-box{text-align:center;}
 .sig-line{border-top:1px solid #888;margin:0 auto 5px;width:85%;}
 .sig-role{font-size:9pt;font-weight:700;color:#1a2236;}
@@ -20286,28 +20419,22 @@ ${testRows ? `
   <div class="sig-title">Authorisation & Certification</div>
   <div class="sig-grid">
     <div class="sig-box">
-      <div style="height:30px;"></div>
+      <div style="height:36px;"></div>
       <div class="sig-line"></div>
       <div class="sig-role">Prepared By</div>
-      <div class="sig-name">Construction Quality Division</div>
-      <div class="sig-name">OCASC, OPMC · Thimphu</div>
+      <div class="sig-name">CQD Team</div>
+      <div class="sig-name">Construction Quality Division, OCASC</div>
       <div class="sig-date">${sigDate}</div>
     </div>
     <div class="sig-box">
-      <div style="height:30px;"></div>
+      <div style="height:36px;"></div>
       <div class="sig-line"></div>
-      <div class="sig-role">Reviewed By</div>
-      <div class="sig-name">Chief Engineer / QA Engineer</div>
-      <div class="sig-name">CQD, OCASC</div>
+      <div class="sig-role">Verified By</div>
+      <div class="sig-name">CQD Chief</div>
+      <div class="sig-name">Chief, Construction Quality Division</div>
       <div class="sig-date">${sigDate}</div>
     </div>
-    <div class="sig-box">
-      <div style="height:30px;"></div>
-      <div class="sig-line"></div>
-      <div class="sig-role">Acknowledged By</div>
-      <div class="sig-name">Contractor / Client Representative</div>
-      <div class="sig-date">${sigDate}</div>
-    </div>
+
   </div>
 </div>
 
@@ -22580,6 +22707,885 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </script>
 
+<!-- ══════════════════════════════════════════════════════════════════
+     CQIS ENHANCEMENT PACK v4
+     1. Project Picker — searchable dropdown from Inspection Register
+     2. SBRW Category Sub-tabs
+     3. Auto Sample Numbering per project × per test (resets on project change)
+     4. Session Accumulator — all samples in ONE combined record/PDF
+     FIXES: empty print body for combined SBRW records, chart images
+            captured as dataURL, unified official letterhead on all prints
+═══════════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Project Picker ── */
+.qc-proj-picker{background:#fff8f0;border:1.5px solid #e8820c;border-radius:10px;padding:12px 16px 10px;margin-bottom:14px;position:relative;}
+.qc-proj-picker-label{font-size:10px;font-weight:700;color:#c46a08;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.qc-proj-search-wrap{position:relative;}
+.qc-proj-search{width:100%;padding:8px 36px 8px 12px;border:1.5px solid #e8820c;border-radius:7px;font-size:13px;font-family:'Poppins',sans-serif;background:#fff;color:#1a2236;outline:none;transition:border-color .15s;}
+.qc-proj-search:focus{border-color:#c46a08;box-shadow:0 0 0 3px rgba(232,130,12,.12);}
+.qc-proj-search-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#e8820c;font-size:15px;pointer-events:none;}
+.qc-proj-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #e8820c;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.14);z-index:9999;max-height:260px;overflow-y:auto;display:none;}
+.qc-proj-dropdown.open{display:block;}
+.qc-proj-item{padding:9px 14px;cursor:pointer;border-bottom:1px solid #f3f4f6;transition:background .1s;}
+.qc-proj-item:last-child{border-bottom:none;}
+.qc-proj-item:hover{background:#fff8f0;}
+.qc-proj-item-name{font-size:13px;font-weight:700;color:#1a2236;line-height:1.3;}
+.qc-proj-item-meta{font-size:10px;color:#6b7280;font-family:'JetBrains Mono',monospace;margin-top:1px;}
+.qc-proj-item-badge{font-size:9px;background:#fff8f0;border:1px solid #e8820c;color:#c46a08;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:700;}
+.qc-proj-none{padding:12px 14px;font-size:12px;color:#9ca3af;text-align:center;}
+.qc-proj-filled-strip{margin-top:8px;background:#e8f5ee;border:1px solid #b4d9c4;border-radius:6px;padding:6px 10px;font-size:11px;color:#0d4a2c;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.qc-proj-filled-strip.hidden{display:none!important;}
+.qc-proj-clear-btn{background:none;border:none;color:#6b7280;cursor:pointer;font-size:12px;padding:0 2px;}
+.qc-proj-clear-btn:hover{color:#e8820c;}
+
+/* ── SBRW Category Sub-tabs ── */
+.sbrw-cat-tabs{display:flex;gap:0;background:#1a2236;border-bottom:2px solid #e8820c;padding:0 16px;overflow-x:auto;flex-shrink:0;}
+.sbrw-cat-tabs::-webkit-scrollbar{height:3px;}
+.sbrw-cat-tabs::-webkit-scrollbar-thumb{background:#e8820c;border-radius:2px;}
+.sbrw-cat-tab{padding:10px 16px;font-family:'Poppins',sans-serif;font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(255,255,255,.5);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .18s;border-top:none;border-left:none;border-right:none;background:none;text-transform:uppercase;}
+.sbrw-cat-tab:hover{color:rgba(255,255,255,.85);}
+.sbrw-cat-tab.active{color:#e8820c;border-bottom:3px solid #e8820c;background:rgba(232,130,12,.07);}
+
+/* ── Sample Badge ── */
+.qc-sample-badge{display:inline-flex;align-items:center;gap:6px;background:#fff8f0;border:1.5px solid #e8820c;border-radius:20px;padding:3px 12px 3px 8px;font-size:11px;font-weight:700;color:#c46a08;font-family:'JetBrains Mono',monospace;margin-bottom:10px;}
+.qc-sample-badge .badge-dot{width:7px;height:7px;border-radius:50%;background:#e8820c;animation:pulse-dot 1.5s ease-in-out infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── Combined Session Panel ── */
+.qc-session-panel{background:#f0f8ff;border:1.5px solid #1e4d8c;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;display:none;}
+.qc-session-panel.has-samples{display:block;}
+.qc-session-panel-title{font-weight:700;color:#1a3a6e;margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;}
+.qc-session-samples{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.qc-session-sample-tag{background:#e8f0f8;border:1px solid #b4cce0;border-radius:12px;padding:2px 9px;font-size:10px;color:#0d2b4a;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.qc-session-sample-tag.pass{background:#e8f5ee;border-color:#b4d9c4;color:#0d4a2c;}
+.qc-session-sample-tag.fail{background:#fae8e8;border-color:#e0b4b4;color:#6b1515;}
+.qc-session-finalize-btn{background:linear-gradient(135deg,#1a3a6e,#1e4d8c);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;letter-spacing:.04em;margin-right:6px;}
+.qc-session-finalize-btn:hover{opacity:.88;}
+.qc-session-discard-btn{background:none;border:1px solid #e0b4b4;color:#9b2335;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+.qc-session-discard-btn:hover{background:#fae8e8;}
+</style>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED OFFICIAL LETTERHEAD HTML (used in ALL test print windows)
+═══════════════════════════════════════════════════════════════════ */
+const QC_LETTERHEAD_HTML = `
+<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:0;border-bottom:2.5px solid #1a3a6e;">
+  <div style="width:68px;flex-shrink:0;text-align:center;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Coat_of_arms_of_Bhutan.svg/120px-Coat_of_arms_of_Bhutan.svg.png"
+      alt="Bhutan Emblem" style="width:64px;height:64px;object-fit:contain;"
+      onerror="this.style.display='none';this.nextSibling.style.display='block'">
+    <span style="display:none;font-size:42px;line-height:1;">🇧🇹</span>
+  </div>
+  <div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 12px;">
+    <div style="font-size:8pt;color:#1a3a6e;letter-spacing:.3px;margin-bottom:2px;">དཔལ་ལྡན་འབྲུག་གཞུང་གི་ལས་ཁུངས།</div>
+    <div style="font-size:11.5pt;font-weight:700;color:#1a3a6e;letter-spacing:.5px;">ROYAL GOVERNMENT OF BHUTAN</div>
+    <div style="font-size:9pt;font-weight:700;color:#1a3a6e;">Office of the Prime Minister &amp; Cabinet</div>
+    <div style="font-size:8.5pt;color:#1a3a6e;">Construction Quality Division · SBRW 2025</div>
+  </div>
+  <div style="width:86px;flex-shrink:0;text-align:right;">
+    <div style="font-size:17pt;font-weight:900;color:#1a3a6e;letter-spacing:2px;line-height:1.1;">CQIS</div>
+    <div style="font-size:7.5pt;color:#6b7280;letter-spacing:.5px;">Quality Inspection</div>
+  </div>
+</div>
+<div style="background:linear-gradient(135deg,#1a3a6e,#1e4d8c);color:#fff;padding:7px 14px;margin-bottom:14px;border-radius:0 0 5px 5px;display:flex;justify-content:space-between;align-items:center;">
+  <div style="font-size:11pt;font-weight:700;letter-spacing:.5px;">QUALITY TEST RECORD</div>
+  <div style="font-size:9pt;opacity:.85;">OPMC / OCASC · CQD · Bhutan</div>
+</div>`;
+
+const QC_PRINT_STYLES = `
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#111827;background:#fff;padding:18px;}
+table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:11px;}
+th{background:#f0f2f8;padding:6px 8px;border:1px solid #d1d5db;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#374151;font-weight:700;}
+td{padding:6px 8px;border:1px solid #e5e7eb;color:#111827;}
+tr:nth-child(even) td{background:#fafafa;}
+.avgrow td{background:#f0ece4!important;font-weight:700;color:#111827;}
+.sno{font-weight:700;color:#1a3a6e;}
+.pass-span,.pp.p{background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
+.fail-span,.pp.f{background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
+.sbrw-rb.pass{background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
+.sbrw-rb.fail{background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
+.vbox{padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;margin-bottom:10px;}
+.vbox.pass{background:#f0fdf4;border:1px solid #86efac;color:#15803d;}
+.vbox.fail{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;}
+.vbox.ntrl{background:#fffbeb;border:1px solid #fde68a;color:#d97706;}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px;}
+.rcard{background:#f8f9fc;border:1px solid #e5e7eb;border-radius:6px;padding:8px 12px;}
+.rcard .rl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;}
+.rcard .rv{font-size:16px;font-weight:700;font-family:monospace;color:#111827;}
+.rcard .ru{font-size:10px;color:#6b7280;}
+.meta-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:11px;}
+.meta-table td{padding:5px 10px;border:1px solid #e5e7eb;}
+.meta-table .lbl{color:#6b7280;font-weight:600;background:#f8f9fc;width:130px;}
+.overall-bar{padding:8px 14px;border-radius:5px;font-size:12px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.sample-heading{font-weight:700;font-size:11pt;color:#1a3a6e;background:#e8f0f8;padding:7px 12px;border-radius:4px;margin:14px 0 8px;border-left:4px solid #1e4d8c;}
+.chart-img{max-width:100%;height:auto;border:1px solid #e5e7eb;border-radius:5px;margin-bottom:10px;}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:18px;}
+.sig-box{border-top:1.5px solid #374151;padding-top:6px;font-size:9px;color:#6b7280;text-align:center;}
+.sig-title{font-weight:700;color:#111827;font-size:10px;}
+.footer{margin-top:16px;padding-top:6px;border-top:1px solid #e5e7eb;font-size:8px;color:#9ca3af;display:flex;justify-content:space-between;}
+@page{size:A4;margin:10mm 12mm;}
+@media print{body{padding:0;}.no-print{display:none;}}`;
+
+function qcBuildPrintWindow(titleStr, bodyHTML, autoPrint) {
+  let w = window.open('', '_blank', 'width=1000,height=800');
+  if (!w) {
+    // Popup blocked — build blob URL from the same HTML template
+    try {
+      const _dn = new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      const _fb = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titleStr} — CQIS</title><style>${QC_PRINT_STYLES}</style></head><body><div style="max-width:780px;margin:0 auto;">${QC_LETTERHEAD_HTML}${bodyHTML}<div class="sig-grid"><div class="sig-box"><div style="height:36px;"></div><div class="sig-title">Tested By</div><div>CQD Team</div><div style="font-size:9px;color:#6b7280;">Construction Quality Division, OCASC</div><div style="margin-top:6px;">Date: _______________</div></div><div class="sig-box"><div style="height:36px;"></div><div class="sig-title">Verified By</div><div>CQD Chief</div><div style="font-size:9px;color:#6b7280;">Chief, Construction Quality Division</div><div style="margin-top:6px;">Date: _______________</div></div></div><div class="footer"><span>CQIS — Construction Quality Inspection System · OPMC/OCASC · SBRW 2025</span><span>Printed: ${_dn}</span></div></div><div style="position:fixed;bottom:0;left:0;right:0;background:#1a3a6e;padding:10px 20px;display:flex;gap:10px;z-index:9999;"><button onclick="window.print()" style="background:#e8820c;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">🖨 Print / Save PDF</button><button onclick="window.close()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;">✕ Close</button><style>@media print{div[style*="position:fixed"]{display:none!important;}}</style></div></body></html>`;
+      const blob = new Blob([_fb], {type:'text/html'});
+      const url  = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.target='_blank'; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 10000);
+    } catch(e) { alert('Please allow pop-ups to print. Enable pop-ups for this page in browser settings.'); }
+    return;
+  }
+  const dateNow = new Date().toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const _qcHtml = `<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>${titleStr} — CQIS</title>
+    <style>${QC_PRINT_STYLES}</style>
+  </head><body>
+    <div style="max-width:780px;margin:0 auto;">
+    ${QC_LETTERHEAD_HTML}
+    ${bodyHTML}
+    <div class="sig-grid">
+      <div class="sig-box"><div style="height:36px;"></div><div class="sig-title">Tested By</div><div>CQD Team</div><div style="font-size:9px;color:#6b7280;">Construction Quality Division, OCASC</div><div style="margin-top:6px;">Date: _______________</div></div>
+      <div class="sig-box"><div style="height:36px;"></div><div class="sig-title">Verified By</div><div>CQD Chief</div><div style="font-size:9px;color:#6b7280;">Chief, Construction Quality Division</div><div style="margin-top:6px;">Date: _______________</div></div>
+    </div>
+    <div class="footer">
+      <span>CQIS — Construction Quality Inspection System · OPMC/OCASC · SBRW 2025</span>
+      <span>Printed: ${dateNow}</span>
+    </div>
+    </div>
+    <div id="_qcPrintBar" style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#1a3a6e,#1e4d8c);padding:10px 20px;display:flex;align-items:center;gap:10px;z-index:99999;box-shadow:0 -3px 12px rgba(0,0,0,.25);">
+      <button onclick="window.print();document.getElementById('_qcPrintBar').style.display='none';"
+        style="background:#e8820c;color:#fff;border:none;border-radius:7px;padding:9px 22px;font-size:13px;font-weight:700;cursor:pointer;">🖨 Print / Save PDF</button>
+      <button onclick="window.close()"
+        style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;">✕ Close</button>
+      <span style="color:rgba(255,255,255,.65);font-size:11px;">Click the button if the print dialog didn't open automatically.</span>
+      <style>@media print{#_qcPrintBar{display:none!important;}}</style>
+    </div>
+  </body></html>`;
+  w.document.open();
+  w.document.write(_qcHtml);
+  w.document.close();
+  if (autoPrint) setTimeout(() => { try { w.focus(); w.print(); } catch(e){} }, 700);
+  else setTimeout(() => { try { w.focus(); } catch(e){} }, 200);
+}
+
+// Helper: capture chart canvas in a card as a dataURL image tag
+// Get a base64 PNG from a canvas, using Chart.js .toBase64Image() if available.
+// canvas.toDataURL() fails on hidden (display:none) canvases; Chart.js renders
+// to an offscreen buffer so toBase64Image() works regardless of visibility.
+function _canvasToImg(cv, labelText) {
+  if (!cv) return '';
+  let url = '';
+  try {
+    // 1. Try Chart.js instance stored on canvas element itself (_chartInst for SBRW inline charts)
+    if (cv._chartInst && typeof cv._chartInst.toBase64Image === 'function') {
+      url = cv._chartInst.toBase64Image('image/png', 1);
+    }
+    // 2. Try global CH registry (IS Code tests and SBRW standard charts: fd-c, cbr-c, etc.)
+    if ((!url || url === 'data:,') && typeof CH !== 'undefined' && cv.id && CH[cv.id]) {
+      url = CH[cv.id].toBase64Image('image/png', 1);
+    }
+    // 3. Fallback: direct toDataURL (works only when canvas is visible)
+    if (!url || url === 'data:,') {
+      url = cv.toDataURL('image/png');
+    }
+  } catch(e) {}
+
+  if (!url || url === 'data:,' || url === 'data:image/png;base64,') return '';
+  const title = labelText || cv.closest('.cwrap')?.querySelector('h4')?.textContent || '';
+  return `<div style="margin-bottom:10px;">
+    ${title ? `<div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">${title}</div>` : ''}
+    <img class="chart-img" src="${url}" alt="${title||'Chart'}"
+      style="max-width:100%;height:auto;border:1px solid #e5e7eb;border-radius:5px;display:block;">
+  </div>`;
+}
+
+function qcCaptureCharts(cardOrPanel) {
+  if (!cardOrPanel) return '';
+  let imgs = '';
+  cardOrPanel.querySelectorAll('canvas').forEach(cv => {
+    imgs += _canvasToImg(cv);
+  });
+  return imgs;
+}
+
+// Capture charts for a specific IS Code test panel by testId
+// (looks up known canvas IDs mapped to each test)
+const IS_TEST_CANVAS_MAP = {
+  fd:   ['fd-c'],
+  sr:   ['fd-c'],
+  cbr:  ['cbr-c'],
+  att:  ['att-c'],
+  fsi:  ['fsi-c'],
+  pr:   ['pr-c'],
+  pb:   ['pb-c'],
+  aiv:  ['aiv-c'],
+  laa:  ['laa-c'],
+  fi:   ['fi-c'],
+  wa:   ['wa-c'],
+  grad: ['grad-c'],
+  pen:  ['pen-c'],
+  sp:   ['sp-c'],
+  du:   ['du-c'],
+  str:  ['str-c'],
+  ms:   ['ms-c'],
+  ext:  ['ext-c'],
+  sl:   ['sl-c'],
+  cu:   ['cu-c'],
+  beam: ['beam-c'],
+  rh:   ['rh-c'],
+  tg:   [],
+};
+
+function qcCaptureIsCharts(testId) {
+  const ids = IS_TEST_CANVAS_MAP[testId] || [];
+  let imgs = '';
+  ids.forEach(canvasId => {
+    const cv = document.getElementById(canvasId);
+    if (cv) imgs += _canvasToImg(cv);
+  });
+  // Also scan the panel itself for any canvases not in the map
+  const panel = document.getElementById('is-p-'+testId) || document.getElementById('p-'+testId);
+  if (panel) {
+    panel.querySelectorAll('canvas').forEach(cv => {
+      if (!ids.includes(cv.id)) imgs += _canvasToImg(cv);
+    });
+  }
+  return imgs;
+}
+
+// Build project meta table HTML
+function qcMetaHTML(r) {
+  const dateStr = r.date ? new Date(r.date).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const srcLabel = r.source === 'isCode' ? 'IS Code Test' : 'SBRW QC Test';
+  const srcColor = r.source === 'isCode' ? '#0d4a2c' : '#c46a08';
+  const overall  = r.overall || '—';
+  const rColor   = overall==='Pass'?'#15803d':overall==='Fail'?'#dc2626':'#9ca3af';
+  const rBg      = overall==='Pass'?'#dcfce7':overall==='Fail'?'#fee2e2':'#f3f4f6';
+  return `
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <div style="font-size:15pt;font-weight:700;color:#1a2236;">${r.testName || r.typeLabel || '—'}</div>
+          <div style="font-size:10px;color:#6b7280;margin-top:2px;">
+            <span style="background:${srcColor}22;border:1px solid ${srcColor}55;color:${srcColor};padding:1px 8px;border-radius:3px;font-size:9px;font-weight:700;">${srcLabel}</span>
+            ${r.isCode ? `<span style="background:#fef3e2;border:1px solid #fde68a;color:#92400e;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-left:4px;">${r.isCode}</span>` : ''}
+            ${r.sampleCount ? ` · ${r.sampleCount} Samples` : ''}
+          </div>
+        </div>
+        <span style="background:${rBg};color:${rColor};border:1px solid ${rColor}55;padding:4px 16px;border-radius:10px;font-size:12px;font-weight:700;">${overall}</span>
+      </div>
+      <table class="meta-table">
+        <tr><td class="lbl">Project</td><td>${r.project||'—'}</td><td class="lbl">Contract No.</td><td>${r.contract||'—'}</td></tr>
+        <tr><td class="lbl">Contractor</td><td>${r.contractor||'—'}</td><td class="lbl">Test Date</td><td>${dateStr}</td></tr>
+        <tr><td class="lbl">Engineer / Inspector</td><td>${r.engineer||'—'}</td><td class="lbl">Location / Chainage</td><td>${r.location||'—'}</td></tr>
+      </table>
+    </div>`;
+}
+
+/* Override trOpenStandalonePDF to use official letterhead and handle combined records */
+window.trOpenStandalonePDF = function(r, autoPrint) {
+  let contentHTML = '';
+
+  if (r.isCombined) {
+    // Combined session record: tableHTML already contains per-sample divs
+    contentHTML = r.tableHTML || '<p style="color:#9ca3af;text-align:center;padding:20px;">No combined sample data found.</p>';
+  } else if (r.source === 'isCode') {
+    // IS Code single record: may have table + chart images (chartImgs saved separately)
+    const tbl  = r.tableHTML || '';
+    const verd = r.verdHTML  ? `<div style="margin-top:8px;">${r.verdHTML}</div>` : '';
+    const rg   = r.rgHTML    ? `<div style="margin-top:8px;">${r.rgHTML}</div>` : '';
+    const charts = r.chartImgs ? `<div style="margin-top:10px;">${r.chartImgs}</div>` : '';
+    contentHTML = tbl + verd + rg + charts;
+    if (!contentHTML.trim()) contentHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;">No data captured — enter values in the test panel before saving.</p>';
+  } else if (r.snapshot && r.snapshot.sections) {
+    // SBRW snapshot record
+    r.snapshot.sections.forEach(sec => {
+      sec.cards.forEach(card => {
+        contentHTML += `<div style="margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:700;color:#1a2236;background:#f0f2f7;padding:7px 12px;border-radius:4px;margin-bottom:6px;">
+            ${card.name||''} <span style="font-size:10px;color:#6b7280;">${card.std||''}</span>
+          </div>`;
+        if (card.rows && card.rows.length) {
+          contentHTML += '<table><thead><tr><th style="text-align:left;">Parameter</th><th>Requirement</th><th>Measured Value</th><th>Result</th></tr></thead><tbody>';
+          card.rows.forEach(row => {
+            const ok = row.result && row.result.toLowerCase().includes('pass');
+            const fl = row.result && row.result.toLowerCase().includes('fail');
+            contentHTML += `<tr>
+              <td>${row.p||''}</td>
+              <td style="text-align:center;color:#6b7280;">${row.req||''}</td>
+              <td style="text-align:center;font-weight:600;">${row.val||'—'}</td>
+              <td style="text-align:center;"><span style="background:${ok?'#dcfce7':fl?'#fee2e2':'#f3f4f6'};color:${ok?'#15803d':fl?'#dc2626':'#6b7280'};padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">${row.result||'—'}</span></td>
+            </tr>`;
+          });
+          contentHTML += '</tbody></table>';
+        }
+        if (r.chartImgs) contentHTML += `<div style="margin-top:8px;">${r.chartImgs}</div>`;
+        contentHTML += '</div>';
+      });
+    });
+    if (!contentHTML.trim()) contentHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;">No test data found in this record.</p>';
+  } else if (r.tableHTML) {
+    // Fallback: use tableHTML directly (covers SBRW combined and any other format)
+    contentHTML = r.tableHTML + (r.verdHTML ? `<div style="margin-top:8px;">${r.verdHTML}</div>` : '');
+  } else {
+    contentHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;">No test data found in this record.</p>';
+  }
+
+  const body = qcMetaHTML(r) + contentHTML;
+  qcBuildPrintWindow(r.testName || r.typeLabel || 'Test Record', body, autoPrint);
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENHANCEMENT 1 — PROJECT PICKER FROM INSPECTION REGISTER
+═══════════════════════════════════════════════════════════════════ */
+function qcGetProjects() {
+  const src = (typeof getUserVisibleInspections === 'function')
+    ? getUserVisibleInspections()
+    : (typeof inspections !== 'undefined' ? inspections : []);
+  const seen = new Set();
+  const list = [];
+  src.forEach(r => {
+    const key = (r.projectName||'') + '|||' + (r.contractNo||'');
+    if (r.projectName && !seen.has(key)) {
+      seen.add(key);
+      list.push({
+        projectName: r.projectName,
+        contractNo:  r.contractNo  || '',
+        contractor:  r.contractor  || '',
+        engineer:    r.engineer    || r.engineerInspected || '',
+        location:    r.location    || r.roadSection || '',
+        dzongkhag:   r.dzongkhag   || r.ro || '',
+      });
+    }
+  });
+  return list;
+}
+
+function qcInjectProjectPicker(holderId, fields) {
+  const container = document.getElementById(holderId);
+  if (!container || container.querySelector('.qc-proj-picker')) return;
+  const inputId = holderId + '-inp';
+  const dropId  = holderId + '-drop';
+  const stripId = holderId + '-strip';
+  const picker = document.createElement('div');
+  picker.className = 'qc-proj-picker';
+  picker.innerHTML = `
+    <div class="qc-proj-picker-label">📋 Load Project from Inspection Register
+      <span style="font-size:9px;color:#9ca3af;font-weight:400;text-transform:none;">(type name, contract no., or contractor)</span>
+    </div>
+    <div class="qc-proj-search-wrap">
+      <input class="qc-proj-search" id="${inputId}" placeholder="Type project name or contract no…" autocomplete="off">
+      <span class="qc-proj-search-icon">🔍</span>
+      <div class="qc-proj-dropdown" id="${dropId}"></div>
+    </div>
+    <div class="qc-proj-filled-strip hidden" id="${stripId}">
+      <span id="${stripId}-txt">—</span>
+      <button class="qc-proj-clear-btn"
+        onclick="qcClearPickerSelection('${holderId}',${JSON.stringify(fields).replace(/"/g,'&quot;')},'${stripId}','${inputId}')"
+        title="Clear and pick another">✕ Change project</button>
+    </div>`;
+  container.appendChild(picker);
+  const inp  = document.getElementById(inputId);
+  const drop = document.getElementById(dropId);
+  inp.addEventListener('input',  () => qcRenderDrop(holderId, inputId, dropId, fields, stripId));
+  inp.addEventListener('focus',  () => qcRenderDrop(holderId, inputId, dropId, fields, stripId));
+  document.addEventListener('click', e => { if (!picker.contains(e.target)) drop.classList.remove('open'); });
+}
+
+function qcRenderDrop(holderId, inputId, dropId, fields, stripId) {
+  const inp  = document.getElementById(inputId);
+  const drop = document.getElementById(dropId);
+  if (!inp || !drop) return;
+  const q = inp.value.toLowerCase().trim();
+  const projs = qcGetProjects();
+  const filtered = q
+    ? projs.filter(p => (p.projectName||'').toLowerCase().includes(q) || (p.contractNo||'').toLowerCase().includes(q) || (p.contractor||'').toLowerCase().includes(q))
+    : projs.slice(0, 25);
+  if (!filtered.length) {
+    drop.innerHTML = `<div class="qc-proj-none">No matching projects in register</div>`;
+  } else {
+    drop.innerHTML = filtered.map(p => {
+      const sp = encodeURIComponent(JSON.stringify(p));
+      const sf = encodeURIComponent(JSON.stringify(fields));
+      return `<div class="qc-proj-item" onclick="qcPickProj('${holderId}','${sp}','${sf}','${inputId}','${stripId}')">
+        <div class="qc-proj-item-name">${p.projectName}</div>
+        <div class="qc-proj-item-meta">
+          ${p.contractNo?`<span class="qc-proj-item-badge">📄 ${p.contractNo}</span>`:''}
+          ${p.contractor?`🏗 ${p.contractor}`:''}
+          ${p.dzongkhag?` · 📍 ${p.dzongkhag}`:''}
+        </div></div>`;
+    }).join('');
+  }
+  drop.classList.add('open');
+}
+
+function qcPickProj(holderId, sp, sf, inputId, stripId) {
+  let p, f;
+  try { p = JSON.parse(decodeURIComponent(sp)); f = JSON.parse(decodeURIComponent(sf)); }
+  catch(e) { return; }
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+  set(f.pN, p.projectName); set(f.pC, p.contractNo);
+  set(f.pCo, p.contractor); set(f.pE, p.engineer); set(f.pL, p.location);
+  const strip = document.getElementById(stripId);
+  const txt   = document.getElementById(stripId + '-txt');
+  if (strip && txt) {
+    txt.textContent = `✅ ${p.projectName}${p.contractNo ? '  ·  ' + p.contractNo : ''}`;
+    strip.classList.remove('hidden');
+  }
+  document.getElementById(holderId + '-drop')?.classList.remove('open');
+  const inp = document.getElementById(inputId);
+  if (inp) inp.value = '';
+  setTimeout(sbrwRefreshAllBadges, 50);
+}
+
+function qcClearPickerSelection(holderId, fields, stripId, inputId) {
+  if (typeof fields === 'string') { try { fields = JSON.parse(fields.replace(/&quot;/g,'"')); } catch(e){} }
+  if (fields && typeof fields === 'object') Object.values(fields).forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById(stripId)?.classList.add('hidden');
+  const inp = document.getElementById(inputId); if (inp) inp.value = '';
+  setTimeout(sbrwRefreshAllBadges, 50);
+}
+
+function qcInitSbrwPicker() {
+  const wrap = document.querySelector('#tab-qc .sbrw-main');
+  if (!wrap || document.getElementById('sbrw-picker-holder')) return;
+  const bar = wrap.querySelector('div[style*="flex-wrap"]');
+  if (!bar) return;
+  const holder = document.createElement('div'); holder.id = 'sbrw-picker-holder';
+  wrap.insertBefore(holder, bar);
+  qcInjectProjectPicker('sbrw-picker-holder', { pN:'sbrw-pN', pC:'sbrw-pC', pCo:'sbrw-pCo', pE:'sbrw-pE', pL:'sbrw-pL' });
+}
+
+function qcInitIsRoadPicker() {
+  const strip = document.querySelector('#app-road .proj-strip');
+  if (!strip || document.getElementById('is-road-picker-holder')) return;
+  const holder = document.createElement('div'); holder.id = 'is-road-picker-holder';
+  strip.parentNode.insertBefore(holder, strip);
+  qcInjectProjectPicker('is-road-picker-holder', { pN:'pn', pC:'pc', pCo:'pco', pE:'pi', pL:'pl' });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENHANCEMENT 2 — SBRW CATEGORY SUB-TABS
+═══════════════════════════════════════════════════════════════════ */
+const SBRW_CATEGORIES = [
+  { id:'all',    label:'⊞ All',         sectionIds:null },
+  { id:'earth',  label:'🏔 Earthwork',   sectionIds:['exc','fill'] },
+  { id:'mat',    label:'🪨 Materials',   sectionIds:['mat','geo'] },
+  { id:'layer',  label:'🛣 Layer Works', sectionIds:['layer','permwork'] },
+  { id:'bitu',   label:'⬛ Bituminous',  sectionIds:['bitu'] },
+  { id:'finish', label:'🏗 Finishing',   sectionIds:['signs','fence','bio','pave'] },
+];
+function sbrwInitCatTabs() {
+  const wrap = document.getElementById('tab-qc');
+  if (!wrap || wrap.querySelector('.sbrw-cat-tabs')) return;
+  const bar = document.createElement('div');
+  bar.className = 'sbrw-cat-tabs';
+  bar.innerHTML = SBRW_CATEGORIES.map(c =>
+    `<button class="sbrw-cat-tab${c.id==='all'?' active':''}" data-cat="${c.id}" onclick="sbrwSelectCat('${c.id}',this)">${c.label}</button>`
+  ).join('');
+  const sw = wrap.querySelector('.sbrw-wrap');
+  if (sw) wrap.insertBefore(bar, sw);
+}
+function sbrwSelectCat(catId, btn) {
+  document.querySelectorAll('.sbrw-cat-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const cat = SBRW_CATEGORIES.find(c => c.id === catId);
+  if (!cat) return;
+  document.querySelectorAll('.sbrw-sidebar .sbrw-si').forEach(si => {
+    const m = (si.getAttribute('onclick')||'').match(/sbrwShow\('([^']+)'/);
+    const sid = m ? m[1] : null;
+    si.style.display = (!cat.sectionIds || (sid && cat.sectionIds.includes(sid))) ? '' : 'none';
+  });
+  const act = document.querySelector('.sbrw-sidebar .sbrw-si.active');
+  if (act && act.style.display === 'none') {
+    const first = document.querySelector('.sbrw-sidebar .sbrw-si:not([style*="none"])');
+    if (first) first.click();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENHANCEMENT 3 — AUTO SAMPLE NUMBERING (per project × per test)
+═══════════════════════════════════════════════════════════════════ */
+function _snKey(src, pN, pC, testKey) {
+  return `qcSN::${src}::${(pN||'').trim()}::${(pC||'').trim()}::${testKey}`;
+}
+function qcGetSN(src, pN, pC, testKey) {
+  return parseInt(localStorage.getItem(_snKey(src,pN,pC,testKey))||'0', 10);
+}
+function qcIncrSN(src, pN, pC, testKey) {
+  const n = qcGetSN(src,pN,pC,testKey) + 1;
+  localStorage.setItem(_snKey(src,pN,pC,testKey), String(n));
+  return n;
+}
+
+function sbrwSetBadge(secId, cardIdx) {
+  const card = document.getElementById('sbrw-c-' + secId + '-' + cardIdx);
+  if (!card) return;
+  const pN = (document.getElementById('sbrw-pN')?.value||'').trim();
+  const pC = (document.getElementById('sbrw-pC')?.value||'').trim();
+  const next = qcGetSN('sbrw', pN, pC, secId+'-'+cardIdx) + 1;
+  let badge = card.querySelector('.qc-sample-badge');
+  if (!badge) {
+    badge = document.createElement('div'); badge.className = 'qc-sample-badge';
+    const cb = card.querySelector('.sbrw-cb');
+    if (cb) cb.insertBefore(badge, cb.firstChild);
+  }
+  badge.innerHTML = `<span class="badge-dot"></span>Next save → <strong>Sample&nbsp;${next}</strong>`;
+}
+
+function sbrwRefreshAllBadges() {
+  if (typeof SBRW_SECTIONS === 'undefined') return;
+  SBRW_SECTIONS.forEach(sec => sec.cards.forEach((c, ci) => sbrwSetBadge(sec.id, ci)));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENHANCEMENT 4 — SESSION ACCUMULATOR + COMBINED PDF
+═══════════════════════════════════════════════════════════════════ */
+function _sessKey(src, pN, pC, testKey) {
+  return `qcSess::${src}::${(pN||'').trim()}::${(pC||'').trim()}::${testKey}`;
+}
+function sessGet(src, pN, pC, testKey) {
+  try { return JSON.parse(localStorage.getItem(_sessKey(src,pN,pC,testKey))||'null'); } catch(e){ return null; }
+}
+function sessSet(src, pN, pC, testKey, data) {
+  localStorage.setItem(_sessKey(src,pN,pC,testKey), JSON.stringify(data));
+}
+function sessClear(src, pN, pC, testKey) {
+  localStorage.removeItem(_sessKey(src,pN,pC,testKey));
+}
+function sessAdd(src, pN, pC, testKey, sampleNo, tableHTML, verdHTML, rgHTML, chartImgs, overall, testName) {
+  let sess = sessGet(src,pN,pC,testKey) || { src, pN, pC, testKey, testName, samples:[], overallList:[] };
+  sess.samples.push({ sampleNo, tableHTML, verdHTML, rgHTML, chartImgs, overall });
+  sess.overallList.push(overall);
+  sessSet(src,pN,pC,testKey,sess);
+}
+
+function sbrwRenderSessionPanel(secId, cardIdx) {
+  const card = document.getElementById('sbrw-c-' + secId + '-' + cardIdx);
+  if (!card) return;
+  const pN = (document.getElementById('sbrw-pN')?.value||'').trim();
+  const pC = (document.getElementById('sbrw-pC')?.value||'').trim();
+  const testKey = secId + '-' + cardIdx;
+  let panel = card.querySelector('.qc-session-panel');
+  if (!panel) {
+    panel = document.createElement('div'); panel.className = 'qc-session-panel';
+    const cb = card.querySelector('.sbrw-cb');
+    if (cb) {
+      const badge = cb.querySelector('.qc-sample-badge');
+      cb.insertBefore(panel, badge ? badge.nextSibling : cb.firstChild);
+    }
+  }
+  const sess = sessGet('sbrw', pN, pC, testKey);
+  if (!sess?.samples?.length) { panel.classList.remove('has-samples'); return; }
+  const tags = sess.samples.map(s => {
+    const cls = s.overall==='Pass'?'pass':s.overall==='Fail'?'fail':'';
+    return `<span class="qc-session-sample-tag ${cls}">S-${s.sampleNo} ${s.overall==='Pass'?'✓':s.overall==='Fail'?'✗':'–'}</span>`;
+  }).join('');
+  const allPass = sess.overallList.every(o=>o==='Pass');
+  const hasFail = sess.overallList.includes('Fail');
+  const summary = allPass?'✅ All Pass':hasFail?'⚠️ Has Fails':'⏳ Pending';
+  panel.className = 'qc-session-panel has-samples';
+  panel.innerHTML = `
+    <div class="qc-session-panel-title">📁 Session — ${sess.samples.length} sample${sess.samples.length>1?'s':''} collected · ${summary}</div>
+    <div class="qc-session-samples">${tags}</div>
+    <button class="qc-session-finalize-btn" onclick="sbrwFinalizeSession('${secId}',${cardIdx})">🗂 Save All Samples as One Record</button>
+    <button class="qc-session-discard-btn" onclick="sbrwDiscardSession('${secId}',${cardIdx})">✕ Discard Session</button>`;
+}
+
+function sbrwFinalizeSession(secId, cardIdx) {
+  const pN  = (document.getElementById('sbrw-pN')?.value||'').trim();
+  const pC  = (document.getElementById('sbrw-pC')?.value||'').trim();
+  const pCo = (document.getElementById('sbrw-pCo')?.value||'').trim();
+  const pD  = document.getElementById('sbrw-pD')?.value||(typeof today==='function'?today():'');
+  const pE  = (document.getElementById('sbrw-pE')?.value||'').trim();
+  const pL  = (document.getElementById('sbrw-pL')?.value||'').trim();
+  const testKey = secId + '-' + cardIdx;
+  const sess = sessGet('sbrw', pN, pC, testKey);
+  if (!sess?.samples?.length) { (typeof showToast==='function'?showToast:alert)('No samples in session to save.'); return; }
+
+  const n = sess.samples.length;
+  const allPass = sess.overallList.every(o=>o==='Pass');
+  const hasFail = sess.overallList.includes('Fail');
+  const overall = allPass?'Pass':hasFail?'Fail':'Pending';
+  const rColor = overall==='Pass'?'#15803d':overall==='Fail'?'#dc2626':'#9ca3af';
+  const rBg    = overall==='Pass'?'#dcfce7':overall==='Fail'?'#fee2e2':'#f3f4f6';
+
+  let testName = testKey;
+  if (typeof SBRW_SECTIONS !== 'undefined') {
+    SBRW_SECTIONS.forEach(sec => { if (sec.id===secId && sec.cards[cardIdx]) testName = sec.cards[cardIdx].name; });
+  }
+
+  // Build combined table HTML — each sample gets a labelled block with table + chart
+  const combinedTableHTML = sess.samples.map(s =>
+    `<div class="sample-heading">Sample ${s.sampleNo} — <span style="background:${s.overall==='Pass'?'#dcfce7':s.overall==='Fail'?'#fee2e2':'#f3f4f6'};color:${s.overall==='Pass'?'#15803d':s.overall==='Fail'?'#dc2626':'#6b7280'};padding:2px 8px;border-radius:8px;font-size:10px;">${s.overall}</span></div>
+    ${s.tableHTML||''}
+    ${s.verdHTML?`<div style="margin-top:6px;">${s.verdHTML}</div>`:''}
+    ${s.chartImgs?`<div style="margin-top:8px;">${s.chartImgs}</div>`:''}`
+  ).join('');
+
+  const record = {
+    id: 'SBRW-SESS-' + Date.now(),
+    source: 'sbrw', type: 'test',
+    typeLabel: `SBRW QC: ${testName} (${n} Samples)`,
+    sampleCount: n, isCombined: true,
+    savedAt: new Date().toISOString(),
+    project: pN, contract: pC, contractor: pCo,
+    date: pD, engineer: pE, location: pL,
+    testId: testKey, testName,
+    tableHTML: combinedTableHTML,
+    verdHTML: `<div style="font-weight:700;padding:6px 12px;background:${rBg};border:1px solid ${rColor}55;border-radius:5px;color:${rColor};">Total Samples: ${n} &nbsp;|&nbsp; Overall: ${overall}</div>`,
+    rgHTML: '', overall, snapshot: null,
+  };
+
+  if (typeof dlGetRecords === 'function') { const recs = dlGetRecords(); recs.unshift(record); dlSetRecords(recs); }
+  if (typeof trSaveStandaloneRecord === 'function') trSaveStandaloneRecord(record);
+
+  sessClear('sbrw', pN, pC, testKey);
+  sbrwRenderSessionPanel(secId, cardIdx);
+  sbrwSetBadge(secId, cardIdx);
+  (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))(`✅ ${testName} — ${n} samples saved as one combined record (${overall}).`);
+}
+
+function sbrwDiscardSession(secId, cardIdx) {
+  if (!confirm('Discard all pending samples for this test? This cannot be undone.')) return;
+  const pN = (document.getElementById('sbrw-pN')?.value||'').trim();
+  const pC = (document.getElementById('sbrw-pC')?.value||'').trim();
+  const testKey = secId + '-' + cardIdx;
+  sessClear('sbrw', pN, pC, testKey);
+  localStorage.removeItem(_snKey('sbrw', pN, pC, testKey));
+  sbrwRenderSessionPanel(secId, cardIdx);
+  sbrwSetBadge(secId, cardIdx);
+  (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('Session discarded. Sample counter reset to 1.');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PATCHED SAVE — sbrwSaveCard: captures table + chart images
+═══════════════════════════════════════════════════════════════════ */
+window.sbrwSaveCard = function(secId, cardIdx) {
+  const pN = (document.getElementById('sbrw-pN')?.value||'').trim();
+  if (!pN) { (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('⚠️ Select or enter a Project Name first.'); return; }
+  const pC = (document.getElementById('sbrw-pC')?.value||'').trim();
+  const testKey = secId + '-' + cardIdx;
+
+  const snap = (typeof sbrwGetCardSnapshot==='function') ? sbrwGetCardSnapshot(secId, cardIdx) : null;
+  if (!snap) { (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('⚠️ No data to save — fill in at least one value.'); return; }
+
+  const sampleNo = qcIncrSN('sbrw', pN, pC, testKey);
+
+  // Capture table HTML + chart images from the card DOM
+  const card      = document.getElementById('sbrw-c-' + secId + '-' + cardIdx);
+  const tableHTML = card?.querySelector('table')?.outerHTML || '';
+  const chartImgs = qcCaptureCharts(card);
+  const verdEl    = card?.querySelector('.sbrw-results');
+  const verdHTML  = verdEl ? verdEl.outerHTML : '';
+  const hasFail   = !!card?.querySelector('.sbrw-rb.fail');
+  const hasPass   = !!card?.querySelector('.sbrw-rb.pass');
+  const overall   = hasFail ? 'Fail' : hasPass ? 'Pass' : 'Pending';
+
+  sessAdd('sbrw', pN, pC, testKey, sampleNo, tableHTML, verdHTML, '', chartImgs, overall, snap.name);
+
+  if (typeof sbrwResetCard === 'function') sbrwResetCard(secId, cardIdx);
+  sbrwSetBadge(secId, cardIdx);
+  sbrwRenderSessionPanel(secId, cardIdx);
+
+  const sess = sessGet('sbrw', pN, pC, testKey);
+  const n = sess?.samples?.length || 1;
+  (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))(
+    `✅ Sample ${sampleNo} buffered for "${snap.name}". (${n} in session — click "Save All Samples" when done.)`
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   PATCHED SAVE — isTestSaveToReport: captures table + chart images
+═══════════════════════════════════════════════════════════════════ */
+window.isTestSaveToReport = function(testId) {
+  const pN = ((document.getElementById('pn')?.value||document.getElementById('is-pN')?.value)||'').trim();
+  const pC = ((document.getElementById('pc')?.value||document.getElementById('is-pC')?.value)||'').trim();
+  if (!pN) { (typeof showToast==='function'?showToast:alert)('⚠️ Enter a Project Name first.'); return; }
+
+  const sampleNo = qcIncrSN('isCode', pN, pC, testId);
+  const IS_LABELS = (typeof IS_TEST_LABELS!=='undefined') ? IS_TEST_LABELS : {};
+  const label   = IS_LABELS[testId] || testId;
+  const panel   = document.getElementById('is-p-'+testId) || document.getElementById('p-'+testId);
+
+  const tableHTML = panel?.querySelector('table')?.outerHTML || '';
+  const chartImgs = qcCaptureIsCharts(testId);
+  const verdEl    = panel?.querySelector('[id$="-v"]');
+  const verdHTML  = verdEl ? verdEl.innerHTML : '';
+  const rgEl      = panel?.querySelector('.rgrid');
+  const rgHTML    = rgEl ? rgEl.innerHTML : '';
+  const hasPass   = panel ? !!panel.querySelector('.pp.p')  : false;
+  const hasFail   = panel ? !!panel.querySelector('.pp.f') : false;
+  const overall   = hasFail ? 'Fail' : hasPass ? 'Pass' : 'Pending';
+
+  sessAdd('isCode', pN, pC, testId, sampleNo, tableHTML, verdHTML, rgHTML, chartImgs, overall, label);
+
+  if (typeof isTestResetPanel === 'function') isTestResetPanel(testId);
+  isRenderSessionPanel(testId, pN, pC);
+
+  const sess = sessGet('isCode', pN, pC, testId);
+  const n = sess?.samples?.length || 1;
+  (typeof showToast==='function'?showToast:alert)(
+    `Saved: ${label} — Sample ${sampleNo} buffered. (${n} in session — click "Save All Samples" when done.)`
+  );
+};
+
+function isRenderSessionPanel(testId, pN, pC) {
+  const panel = document.getElementById('is-p-'+testId) || document.getElementById('p-'+testId);
+  if (!panel) return;
+  let sp = panel.querySelector('.qc-session-panel');
+  if (!sp) {
+    sp = document.createElement('div'); sp.className = 'qc-session-panel';
+    const ph = panel.querySelector('.ph');
+    if (ph && ph.nextSibling) ph.parentNode.insertBefore(sp, ph.nextSibling);
+    else panel.insertBefore(sp, panel.firstChild);
+  }
+  const sess = sessGet('isCode', pN, pC, testId);
+  if (!sess?.samples?.length) { sp.classList.remove('has-samples'); return; }
+  const tags = sess.samples.map(s => {
+    const cls = s.overall==='Pass'?'pass':s.overall==='Fail'?'fail':'';
+    return `<span class="qc-session-sample-tag ${cls}">S-${s.sampleNo} ${s.overall==='Pass'?'✓':s.overall==='Fail'?'✗':'–'}</span>`;
+  }).join('');
+  const allPass = sess.overallList.every(o=>o==='Pass');
+  const hasFail = sess.overallList.includes('Fail');
+  const summary = allPass?'✅ All Pass':hasFail?'⚠️ Has Fails':'⏳ Pending';
+  sp.className = 'qc-session-panel has-samples';
+  sp.innerHTML = `
+    <div class="qc-session-panel-title">📁 Session — ${sess.samples.length} sample${sess.samples.length>1?'s':''} · ${summary}</div>
+    <div class="qc-session-samples">${tags}</div>
+    <button class="qc-session-finalize-btn" onclick="isFinalizeSession('${testId}')">🗂 Save All Samples as One Record</button>
+    <button class="qc-session-discard-btn" onclick="isDiscardSession('${testId}')">✕ Discard</button>`;
+}
+
+function isFinalizeSession(testId) {
+  const pN  = ((document.getElementById('pn')?.value||document.getElementById('is-pN')?.value)||'').trim();
+  const pC  = ((document.getElementById('pc')?.value||document.getElementById('is-pC')?.value)||'').trim();
+  const pD  = document.getElementById('pd')?.value||document.getElementById('is-pD')?.value||'';
+  const pE  = ((document.getElementById('pi')?.value||document.getElementById('is-pE')?.value)||'').trim();
+  const pL  = ((document.getElementById('pl')?.value||document.getElementById('is-pL')?.value)||'').trim();
+  const sess = sessGet('isCode', pN, pC, testId);
+  if (!sess?.samples?.length) { (typeof showToast==='function'?showToast:alert)('No samples to save.'); return; }
+  const n = sess.samples.length;
+  const allPass = sess.overallList.every(o=>o==='Pass');
+  const hasFail = sess.overallList.includes('Fail');
+  const overall = allPass?'Pass':hasFail?'Fail':'Pending';
+  const rColor = overall==='Pass'?'#15803d':overall==='Fail'?'#dc2626':'#9ca3af';
+  const rBg    = overall==='Pass'?'#dcfce7':overall==='Fail'?'#fee2e2':'#f3f4f6';
+  const IS_LABELS = (typeof IS_TEST_LABELS!=='undefined') ? IS_TEST_LABELS : {};
+  const label = IS_LABELS[testId] || testId;
+
+  const combinedTableHTML = sess.samples.map(s =>
+    `<div class="sample-heading">Sample ${s.sampleNo} — <span style="background:${s.overall==='Pass'?'#dcfce7':s.overall==='Fail'?'#fee2e2':'#f3f4f6'};color:${s.overall==='Pass'?'#15803d':s.overall==='Fail'?'#dc2626':'#6b7280'};padding:2px 8px;border-radius:8px;font-size:10px;">${s.overall}</span></div>
+    ${s.tableHTML||''}
+    ${s.verdHTML?`<div style="margin-top:6px;">${s.verdHTML}</div>`:''}
+    ${s.rgHTML?`<div style="margin-top:6px;">${s.rgHTML}</div>`:''}
+    ${s.chartImgs?`<div style="margin-top:8px;">${s.chartImgs}</div>`:''}`
+  ).join('');
+
+  const record = {
+    id: 'IS-SESS-' + Date.now(),
+    source: 'isCode', type: 'test',
+    typeLabel: `IS Code: ${label} (${n} Samples)`,
+    sampleCount: n, isCombined: true,
+    savedAt: new Date().toISOString(),
+    project: pN, contract: pC,
+    date: pD, engineer: pE, location: pL,
+    testId, testName: label,
+    tableHTML: combinedTableHTML,
+    verdHTML: `<div style="font-weight:700;padding:6px 12px;background:${rBg};border:1px solid ${rColor}55;border-radius:5px;color:${rColor};">Total Samples: ${n} &nbsp;|&nbsp; Overall: ${overall}</div>`,
+    rgHTML: '', overall, isCombined: true,
+  };
+  if (typeof dlGetRecords === 'function') { const recs = dlGetRecords(); recs.unshift(record); dlSetRecords(recs); }
+  if (typeof trSaveStandaloneRecord === 'function') trSaveStandaloneRecord(record);
+  sessClear('isCode', pN, pC, testId);
+  isRenderSessionPanel(testId, pN, pC);
+  (typeof showToast==='function'?showToast:alert)(`✅ ${label} — ${n} samples saved as one combined record.`);
+}
+
+function isDiscardSession(testId) {
+  if (!confirm('Discard all pending samples for this test?')) return;
+  const pN = ((document.getElementById('pn')?.value||document.getElementById('is-pN')?.value)||'').trim();
+  const pC = ((document.getElementById('pc')?.value||document.getElementById('is-pC')?.value)||'').trim();
+  sessClear('isCode', pN, pC, testId);
+  localStorage.removeItem(_snKey('isCode', pN, pC, testId));
+  isRenderSessionPanel(testId, pN, pC);
+  (typeof showToast==='function'?showToast:alert)('Session discarded.');
+}
+
+// Don't reset project fields on IS Code panel reset
+window.isTestResetPanel = function(testId) {
+  const panel = document.getElementById('is-p-'+testId) || document.getElementById('p-'+testId);
+  if (!panel) return;
+  const projIds = new Set(['pn','pc','pco','pd','pl','pi','pm','pw','is-pN','is-pC','is-pCo','is-pD','is-pE','is-pL']);
+  panel.querySelectorAll('input[type="text"],input[type="number"]').forEach(inp => { if (!projIds.has(inp.id)) inp.value = ''; });
+  panel.querySelectorAll('select').forEach(s => { s.selectedIndex = 0; });
+  panel.querySelectorAll('textarea').forEach(ta => { ta.value = ''; });
+  try { if (typeof recalcRoad==='function') recalcRoad(); } catch(e){}
+  try { if (typeof recalcConst==='function') recalcConst(); } catch(e){}
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   INIT & HOOKS
+═══════════════════════════════════════════════════════════════════ */
+function qcEnhancementsInit() {
+  sbrwInitCatTabs();
+  qcInitSbrwPicker();
+  qcInitIsRoadPicker();
+  setTimeout(sbrwRefreshAllBadges, 200);
+  setTimeout(() => {
+    if (typeof SBRW_SECTIONS === 'undefined') return;
+    SBRW_SECTIONS.forEach(sec => sec.cards.forEach((c, ci) => sbrwRenderSessionPanel(sec.id, ci)));
+  }, 300);
+}
+
+// Hook buildSBRWSections to init badges + session panels after render
+const _origBuild = window.buildSBRWSections;
+if (typeof _origBuild === 'function') {
+  window.buildSBRWSections = function() {
+    _origBuild.apply(this, arguments);
+    setTimeout(sbrwRefreshAllBadges, 100);
+    setTimeout(() => {
+      if (typeof SBRW_SECTIONS === 'undefined') return;
+      SBRW_SECTIONS.forEach(sec => sec.cards.forEach((c, ci) => sbrwRenderSessionPanel(sec.id, ci)));
+    }, 150);
+  };
+}
+
+// Refresh badges when project name/contract typed manually
+document.addEventListener('input', e => {
+  if (e.target?.id === 'sbrw-pN' || e.target?.id === 'sbrw-pC') setTimeout(sbrwRefreshAllBadges, 80);
+});
+
+// Run on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => setTimeout(qcEnhancementsInit, 900));
+} else {
+  setTimeout(qcEnhancementsInit, 900);
+}
+
+// Re-run when QC/IS tabs become visible
+(function(){
+  const obs = new MutationObserver(() => {
+    const qc = document.getElementById('tab-qc');
+    const is = document.getElementById('tab-is-test');
+    if ((qc && qc.style.display !== 'none') || (is && is.style.display !== 'none')) qcEnhancementsInit();
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    ['tab-qc','tab-is-test'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) obs.observe(el, { attributes:true, attributeFilter:['style'] });
+    });
+  });
+})();
+</script>
 
 
 </div><!-- /#cqisPanel -->
@@ -22797,3 +23803,224 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="field-group" style="margin-bottom:18px;">
         <label class="field-label">Password</labe
+<!-- ══ QC TEST ↔ INSPECTION REGISTER LINK ══ -->
+<style>
+.qc-link-badge{display:inline-flex;align-items:center;gap:3px;background:#fff8f0;border:1px solid #e8820c;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;color:#c46a08;font-family:'JetBrains Mono',monospace;white-space:nowrap;cursor:pointer;transition:background .12s;}
+.qc-link-badge:hover{background:#fde8c8;}
+.qc-link-badge.pass{background:#e8f5ee;border-color:#0d4a2c;color:#0d4a2c;}
+.qc-link-badge.fail{background:#fee2e2;border-color:#dc2626;color:#dc2626;}
+.qc-link-btn{background:linear-gradient(135deg,#e8820c,#c46a08);color:#fff;border:none;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+#qcLinkModal{display:none;position:fixed;inset:0;z-index:10100;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+#qcLinkModal.open{display:flex;}
+#qcLinkModalBox{background:#fff;border-radius:12px;width:94%;max-width:780px;max-height:88vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative;}
+#qcLinkModalBox .ml-title{font-size:15px;font-weight:700;color:#1a2236;margin-bottom:4px;}
+#qcLinkModalBox .ml-sub{font-size:11px;color:#6b7280;margin-bottom:16px;}
+.qc-lr-card{border:1.5px solid #e2e6ef;border-radius:8px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;}
+.qc-lr-card:hover{border-color:#e8820c;background:#fff8f0;}
+.qc-lr-card.pass{border-left:4px solid #0d4a2c;}
+.qc-lr-card.fail{border-left:4px solid #dc2626;}
+.qc-lr-card.pending{border-left:4px solid #d97706;}
+.qc-lr-card-title{font-weight:700;font-size:12px;color:#1a2236;}
+.qc-lr-card-meta{font-size:10px;color:#6b7280;margin-top:2px;font-family:'JetBrains Mono',monospace;}
+</style>
+
+<div id="qcLinkModal">
+  <div id="qcLinkModalBox">
+    <button onclick="document.getElementById('qcLinkModal').classList.remove('open')"
+      style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;color:#6b7280;cursor:pointer;">✕</button>
+    <div class="ml-title" id="qcLinkModalTitle">QC Test Records</div>
+    <div class="ml-sub" id="qcLinkModalSub">Linked to this inspection</div>
+    <div id="qcLinkModalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ══ QC ↔ REGISTER LINKING ══
+   Strategy: match qcTestReports to inspections by projectName + contractNo.
+   On finalize, we also patch the inspection record's qcTestResults[] field in
+   Firestore so the link is persisted server-side.
+*/
+
+// Render the QC Tests cell for an inspection row
+function qcLinkedCell(r) {
+  const tests = qcGetLinkedTests(r);
+  if (!tests.length) {
+    return `<button class="qc-link-btn" onclick="qcOpenLinkModal(event,'${_escId(r)}')" title="No QC tests linked yet">+ Link Test</button>`;
+  }
+  const passCount = tests.filter(t => t.overall === 'Pass').length;
+  const failCount = tests.filter(t => t.overall === 'Fail').length;
+  const cls = failCount > 0 ? 'fail' : passCount > 0 ? 'pass' : '';
+  const label = `🔬 ${tests.length} test${tests.length>1?'s':''}${failCount?' · ⚠️'+failCount+' Fail':''}${passCount===tests.length?' · ✅':''}`; 
+  return `<span class="qc-link-badge ${cls}" onclick="qcOpenLinkModal(event,'${_escId(r)}')" title="View QC test records">${label}</span>`;
+}
+
+// Get all _qcTestCache records matching an inspection's project+contract
+function qcGetLinkedTests(r) {
+  if (!r) return [];
+  const pN = (r.projectName||'').trim().toLowerCase();
+  const pC = (r.contractNo||'').trim().toLowerCase();
+  const cache = (typeof _qcTestCache !== 'undefined') ? _qcTestCache : [];
+  return cache.filter(t => {
+    const tp = (t.project||'').trim().toLowerCase();
+    const tc = (t.contract||'').trim().toLowerCase();
+    if (pC && tc) return tp === pN && tc === pC;
+    return tp === pN;
+  });
+}
+
+function _escId(r) {
+  return encodeURIComponent((r.id || r.sn || (r.projectName+r.contractNo)).toString());
+}
+
+function qcOpenLinkModal(e, escapedId) {
+  if (e) e.stopPropagation();
+  const rawId = decodeURIComponent(escapedId);
+  // Find inspection by id or sn
+  const r = inspections.find(x => (x.id||String(x.sn)||((x.projectName||'')+(x.contractNo||''))) === rawId);
+  if (!r) return;
+
+  const tests = qcGetLinkedTests(r);
+  const modal = document.getElementById('qcLinkModal');
+  document.getElementById('qcLinkModalTitle').textContent = `🔬 QC Tests — ${r.projectName||'—'}`;
+  document.getElementById('qcLinkModalSub').textContent =
+    `Contract: ${r.contractNo||'—'} · ${tests.length} test record${tests.length!==1?'s':''} found`;
+
+  const body = document.getElementById('qcLinkModalBody');
+  if (!tests.length) {
+    body.innerHTML = `<div style="text-align:center;padding:30px;color:#9ca3af;font-size:13px;">
+      No QC test records linked to this inspection yet.<br>
+      <span style="font-size:11px;">Save a test in SBRW QC Tool or IS Code Tests using the same project name &amp; contract number.</span>
+    </div>`;
+  } else {
+    body.innerHTML = tests.map(t => {
+      const cls = t.overall==='Pass'?'pass':t.overall==='Fail'?'fail':'pending';
+      const rColor = t.overall==='Pass'?'#15803d':t.overall==='Fail'?'#dc2626':'#9ca3af';
+      const rBg    = t.overall==='Pass'?'#e8f5ee':t.overall==='Fail'?'#fee2e2':'#f3f4f6';
+      const fid = t.firestoreId || t.id || '';
+      let dateStr = '—';
+      try { dateStr = t.savedAt ? new Date(t.savedAt.toDate?t.savedAt.toDate():t.savedAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'; } catch(e){}
+      const srcLabel = t.source==='isCode' ? 'IS Code' : 'SBRW QC';
+      const srcColor = t.source==='isCode' ? '#0d4a2c' : '#c46a08';
+      return `<div class="qc-lr-card ${cls}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div class="qc-lr-card-title">${t.testName||t.typeLabel||'—'}</div>
+            <div class="qc-lr-card-meta">
+              <span style="background:${srcColor}22;border:1px solid ${srcColor}55;color:${srcColor};padding:1px 6px;border-radius:3px;font-size:8px;font-weight:700;">${srcLabel}</span>
+              ${t.sampleCount ? ` · ${t.sampleCount} Samples` : ''}
+              ${t.location ? ` · 📍 ${t.location}` : ''}
+              ${t.engineer ? ` · 👷 ${t.engineer}` : ''}
+              · 📅 ${dateStr}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:10px;">
+            <span style="background:${rBg};color:${rColor};border:1px solid ${rColor}55;padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;">${t.overall||'—'}</span>
+            <button onclick="trViewStandaloneRecord('${fid}')" style="background:#1a3a6e;color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;">👁 View</button>
+            <button onclick="trPrintStandaloneRecord('${fid}')" style="background:#e8820c;color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;">🖨 PDF</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  modal.classList.add('open');
+}
+
+/* ── AUTO-LINK: patch inspection record in Firestore when a session is finalized ── */
+async function qcPatchInspectionWithTest(record) {
+  const pN = (record.project||'').trim();
+  const pC = (record.contract||'').trim();
+  if (!pN) return;
+
+  // Find matching inspections (by projectName + contractNo)
+  const matches = inspections.filter(r => {
+    const rN = (r.projectName||'').trim();
+    const rC = (r.contractNo||'').trim();
+    if (pC && rC) return rN === pN && rC === pC;
+    return rN === pN;
+  });
+  if (!matches.length) return;
+
+  const testSummary = {
+    qcTestId:    record.id,
+    firestoreId: record.firestoreId || '',
+    testName:    record.testName || record.typeLabel || '',
+    source:      record.source || 'sbrw',
+    overall:     record.overall || 'Pending',
+    sampleCount: record.sampleCount || 1,
+    date:        record.date || '',
+    savedAt:     record.savedAt || new Date().toISOString(),
+  };
+
+  for (const insp of matches) {
+    // Update in-memory
+    if (!insp.qcTestResults) insp.qcTestResults = [];
+    // Avoid duplicates
+    const already = insp.qcTestResults.find(t => t.qcTestId === testSummary.qcTestId);
+    if (!already) insp.qcTestResults.push(testSummary);
+
+    // Persist to Firestore
+    if (typeof db !== 'undefined' && insp.id) {
+      try {
+        await db.collection('inspections').doc(insp.id).update({
+          qcTestResults: insp.qcTestResults
+        });
+      } catch(e) { console.warn('qcPatchInspection Firestore error:', e); }
+    }
+  }
+
+  // Refresh the register table to show updated badge
+  if (typeof renderTable === 'function') renderTable();
+}
+
+/* ── HOOK: patch after sbrwFinalizeSession commits the record ── */
+const _origSbrwFinalize = window.sbrwFinalizeSession;
+window.sbrwFinalizeSession = function(secId, cardIdx) {
+  _origSbrwFinalize.apply(this, arguments);
+  // After finalize, the record was just added to _qcTestCache[0]
+  setTimeout(() => {
+    const latest = (typeof _qcTestCache !== 'undefined') ? _qcTestCache[0] : null;
+    if (latest) qcPatchInspectionWithTest(latest);
+  }, 1200);
+};
+
+const _origIsFinalize = window.isFinalizeSession;
+window.isFinalizeSession = function(testId) {
+  _origIsFinalize.apply(this, arguments);
+  setTimeout(() => {
+    const latest = (typeof _qcTestCache !== 'undefined') ? _qcTestCache[0] : null;
+    if (latest) qcPatchInspectionWithTest(latest);
+  }, 1200);
+};
+
+// Also load qcTestResults from Firestore into inspections on startup
+// (so existing linked tests show even after page reload)
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    // Merge qcTestResults from _qcTestCache into in-memory inspections for display
+    if (typeof _qcTestCache === 'undefined') return;
+    _qcTestCache.forEach(t => {
+      const pN = (t.project||'').trim();
+      const pC = (t.contract||'').trim();
+      if (!pN) return;
+      inspections.forEach(r => {
+        const rN = (r.projectName||'').trim();
+        const rC = (r.contractNo||'').trim();
+        const match = pC && rC ? (rN===pN && rC===pC) : (rN===pN);
+        if (!match) return;
+        if (!r.qcTestResults) r.qcTestResults = [];
+        const already = r.qcTestResults.find(x => x.qcTestId === (t.id||t.firestoreId));
+        if (!already) r.qcTestResults.push({
+          qcTestId: t.id||t.firestoreId||'',
+          firestoreId: t.firestoreId||'',
+          testName: t.testName||t.typeLabel||'',
+          source: t.source||'sbrw',
+          overall: t.overall||'Pending',
+          sampleCount: t.sampleCount||1,
+          date: t.date||'',
+          savedAt: t.savedAt||'',
+        });
+      });
+    });
+  }, 2000); // wait for _qcTestCache to load from Firestore
+});
+</script>
