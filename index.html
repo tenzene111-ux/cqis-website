@@ -2051,7 +2051,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
     <div id="tab-data" style="display:none">
       <div class="section-header">
         <div><div class="section-title">INSPECTION DATA REGISTER</div><div class="section-badge">Master Data — MOIT Standard</div></div>
-        <button id="dataNewEntryBtn" class="btn-primary" onclick="showTab('entry',document.getElementById('entryTabBtn'))">+ New Entry</button>
+        <div style="display:flex;gap:10px;">
+          <button id="dataBackupBtn" class="btn-secondary" onclick="exportAllDataBackup()" style="display:none;">⬇️ Backup All Data</button>
+          <button id="dataNewEntryBtn" class="btn-primary" onclick="showTab('entry',document.getElementById('entryTabBtn'))">+ New Entry</button>
+        </div>
       </div>
       <div class="table-card">
         <div class="table-toolbar">
@@ -11202,6 +11205,9 @@ function applyRoleRestrictions() {
   const dataNewBtn = document.getElementById('dataNewEntryBtn');
   if (dataNewBtn) dataNewBtn.style.display = isAdmin ? '' : 'none';
 
+  const dataBackupBtn = document.getElementById('dataBackupBtn');
+  if (dataBackupBtn) dataBackupBtn.style.display = isAdmin ? '' : 'none';
+
   // ── SBRW print button: admin + user ──
   document.querySelectorAll('.sbrw-wrap button[onclick*="print"]').forEach(b => {
     b.style.display = (isAdmin || isUser) ? '' : 'none';
@@ -18330,6 +18336,34 @@ function puRenderWorkComponents(){
       : `<div style="text-align:center;padding:14px;color:#9ca3af;font-size:12px;">No active projects for this component</div>`}
     </div>`;
   }).join('');
+}
+
+/* ── Full Firestore backup (admin) — downloads every collection as one JSON file ── */
+async function exportAllDataBackup(){
+  if (!currentUser || !currentUser.isAdmin) return;
+  const collections = [
+    'inspections', 'approved_users', 'pending_users', 'counters',
+    'adminNotifications', 'inspection_notifications', 'observer_comments'
+  ];
+  toast('⏳ Preparing backup… this may take a moment.');
+  try {
+    const backup = { exportedAt: new Date().toISOString(), collections: {} };
+    for (const name of collections) {
+      const snap = await db.collection(name).get();
+      backup.collections[name] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'CQIS_Backup_' + new Date().toISOString().substring(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('✅ Backup downloaded successfully.');
+  } catch(e) {
+    console.error('[Backup] failed:', e);
+    toast('❌ Backup failed: ' + e.message);
+  }
 }
 
 /* ── CSV export ── */
