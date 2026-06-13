@@ -1135,12 +1135,6 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
   padding:22px !important;
 }
 
-/* ── CQIS PANEL BAR ── */
-#cqisPanelBar{
-  background:linear-gradient(90deg,#0f1e3a,#1a3a6e,#e8820c) !important;
-  box-shadow:0 3px 16px rgba(0,0,0,.2) !important;
-}
-
 /* ── LOGIN CARD: COMPACT SIZING ── */
 .login-card .login-logo{margin-bottom:10px !important;}
 .login-card .login-emblem{width:48px !important;height:48px !important;margin-bottom:6px !important;}
@@ -1504,11 +1498,6 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
 <!-- Full-screen CQIS panel (hidden until opened) -->
 <div id="cqisPanel" style="display:block;position:fixed;inset:0;z-index:500;background:#f0f2f7;overflow-y:auto;overflow-x:hidden;">
-
-  <!-- Panel top bar -->
-  <div id="cqisPanelBar" style="display:none;position:sticky;top:0;z-index:510;background:linear-gradient(90deg,#e8820c,#c46a08);padding:0 16px;height:44px;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.12);">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;color:#fff;">🔬 CQIS — OPMC/OCASC</div>
-  </div>
 
 <!-- LOGIN PAGE -->
 <div id="loginPage">
@@ -7468,7 +7457,6 @@ let _dueDateIntervalId = null;
     // Pre-load app UI (hidden inside panel) so it's ready when panel opens
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('cqisPanelBar').style.display = 'flex';
     // Populate user badge
     const av = document.getElementById('userAvatar');
     if(av){
@@ -11070,7 +11058,6 @@ function finishLogin() {
   // Hide login, show app INSIDE the panel
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('cqisPanelBar').style.display = 'flex';
 
   // ── PERSIST SESSION ──
   try {
@@ -11263,7 +11250,6 @@ function doLogout() {
   try { localStorage.removeItem('cqis_session'); } catch(e){}
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginPage').style.display = 'flex';
-  document.getElementById('cqisPanelBar').style.display = 'none';
   try { if (typeof firebase !== 'undefined' && firebase.auth) firebase.auth().signOut(); } catch(e){}
   ['adminEmail','adminPass','userName2','userPass'].forEach(id => {
     const el = document.getElementById(id); if(el) el.value = '';
@@ -21034,8 +21020,6 @@ ${CQIS_WATERMARK_CSS}
 
 #cqisPanel{animation:panelSlideIn .3s cubic-bezier(.4,0,.2,1);}
 @keyframes panelSlideIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-#cqisPanelBar{background:#e8820c !important;border-bottom:none !important;}
-#cqisPanelBar button:hover{background:rgba(232,130,12,.15)!important;border-color:rgba(232,130,12,.3)!important;transform:translateX(-2px);}
 /* ── SERVICES ── */
 .bz-services{background:#07101f;padding:80px 0;}
 .bz-service-item{background:rgba(8,16,32,.7);border:1px solid rgba(255,255,255,.06);padding:32px 24px;margin-bottom:24px;transition:all .3s;cursor:pointer;position:relative;overflow:hidden;}
@@ -21130,7 +21114,6 @@ ${CQIS_WATERMARK_CSS}
 /* ── CQIS PANEL ── */
 #cqisPanel{animation:panelSlideIn .25s ease-out;}
 @keyframes panelSlideIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-#cqisPanelBar button:hover{background:rgba(0,0,0,.12)!important;transform:translateX(-3px);}
 </style>
 
 <!-- BASE64 SITE IMAGES — embedded for offline use -->
@@ -21185,8 +21168,7 @@ function openCqisPanel(){
     // Show panel but with login page, hide app
     document.getElementById('loginPage').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
-    document.getElementById('cqisPanelBar').style.display = 'none';
-  }
+    }
   const panel = document.getElementById('cqisPanel');
   if(panel){ panel.style.display='block'; panel.scrollTop=0; }
   document.body.style.overflow='hidden';
