@@ -1568,8 +1568,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <span>👤</span> User — can add project updates and print saved test reports.
       </div>
       <div class="field-group">
-        <label class="field-label">Username</label>
-        <input class="field-input" id="userName2" type="text" placeholder="e.g. MONGDZK or ROLMG"
+        <label class="field-label">Username or Email</label>
+        <input class="field-input" id="userName2" type="text" placeholder="e.g. MONGDZK, ROLMG or you@gmail.com"
           onkeydown="if(event.key==='Enter')doUserLogin()">
       </div>
       <div class="field-group">
@@ -1588,34 +1588,47 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
       <!-- USER SELF-REGISTRATION FORM -->
       <div id="userRegisterForm" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid #e2e6ef;">
-        <div style="background:rgba(29,78,216,.05);border:1px solid rgba(29,78,216,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:#1d4ed8;margin-bottom:14px;">
-          📝 Choose a username &amp; password. An admin will review and approve your request before you can sign in.
+
+        <!-- STEP 1: VERIFY GMAIL -->
+        <div id="regStep1">
+          <div style="background:rgba(29,78,216,.05);border:1px solid rgba(29,78,216,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:#1d4ed8;margin-bottom:14px;">
+            📧 Enter your Gmail address. We'll email you a verification link — click it to continue. After verification, you'll only need your <strong>password</strong> to sign in (your email is remembered automatically).
+          </div>
+          <div class="field-group">
+            <label class="field-label">Gmail Address</label>
+            <input class="field-input" id="regEmail" type="email" placeholder="e.g. yourname@gmail.com"
+              onkeydown="if(event.key==='Enter')sendRegVerificationEmail()">
+          </div>
+          <button class="btn-login" style="background:linear-gradient(135deg,#1d4ed8,#1e3a8a);" onclick="sendRegVerificationEmail()">📧 Send Verification Link</button>
         </div>
-        <div class="field-group">
-          <label class="field-label">Your Name / Office</label>
-          <input class="field-input" id="regName" type="text" placeholder="e.g. Bumthang Dzongkhag">
+
+        <!-- STEP 2: COMPLETE DETAILS (shown after email link is verified) -->
+        <div id="regStep2" style="display:none;">
+          <div style="background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#15803d;margin-bottom:14px;">
+            ✅ Email verified: <strong id="regVerifiedEmail"></strong>. Complete your details and choose a password. An admin will review and approve your request before you can sign in.
+          </div>
+          <div class="field-group">
+            <label class="field-label">Your Name / Office</label>
+            <input class="field-input" id="regName" type="text" placeholder="e.g. Bumthang Dzongkhag">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Dzongkhag / RO / Thromde / Other Agency</label>
+            <select class="field-input" id="regLocation" onchange="toggleRegLocationOther()"></select>
+          </div>
+          <div class="field-group" id="regLocationOtherGroup" style="display:none;">
+            <label class="field-label">Specify Agency / Office Name</label>
+            <input class="field-input" id="regLocationOther" type="text" placeholder="e.g. Department of Roads">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Choose Password</label>
+            <input class="field-input" id="regPassword" type="password" placeholder="Choose a password">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Confirm Password</label>
+            <input class="field-input" id="regPassword2" type="password" placeholder="Re-enter password">
+          </div>
+          <button class="btn-login" style="background:linear-gradient(135deg,#1d4ed8,#1e3a8a);" onclick="submitUserRegistration()">📨 Submit Request</button>
         </div>
-        <div class="field-group">
-          <label class="field-label">Dzongkhag / RO / Thromde / Other Agency</label>
-          <select class="field-input" id="regLocation" onchange="toggleRegLocationOther()"></select>
-        </div>
-        <div class="field-group" id="regLocationOtherGroup" style="display:none;">
-          <label class="field-label">Specify Agency / Office Name</label>
-          <input class="field-input" id="regLocationOther" type="text" placeholder="e.g. Department of Roads">
-        </div>
-        <div class="field-group">
-          <label class="field-label">Choose Username</label>
-          <input class="field-input" id="regUsername" type="text" placeholder="e.g. bumtdzk2">
-        </div>
-        <div class="field-group">
-          <label class="field-label">Choose Password</label>
-          <input class="field-input" id="regPassword" type="password" placeholder="Choose a password">
-        </div>
-        <div class="field-group">
-          <label class="field-label">Confirm Password</label>
-          <input class="field-input" id="regPassword2" type="password" placeholder="Re-enter password">
-        </div>
-        <button class="btn-login" style="background:linear-gradient(135deg,#1d4ed8,#1e3a8a);" onclick="submitUserRegistration()">📨 Submit Request</button>
       </div>
     </div>
 
@@ -7446,6 +7459,19 @@ let _dueDateIntervalId = null;
   } catch(e){ localStorage.removeItem('cqis_session'); }
 })();
 
+// ── Pre-fill remembered email/username on the User login tab ──
+(function prefillUserLogin(){
+  try {
+    const last = localStorage.getItem('cqis_last_user_login');
+    const inp = document.getElementById('userName2');
+    if (last && inp) inp.value = last;
+  } catch(e){}
+})();
+
+// ── If this page load is a Firebase email verification link, complete registration ──
+document.addEventListener('DOMContentLoaded', completeEmailLinkRegistration);
+if (document.readyState !== 'loading') completeEmailLinkRegistration();
+
 // ===== LOGIN TAB SWITCHER =====
 function switchLoginTab(tab) {
   ['admin','user','observer'].forEach(t => {
@@ -7543,7 +7569,7 @@ async function doUserLogin() {
   }
 }
 
-// ===== USER SELF-REGISTRATION (request account, pending admin approval) =====
+// ===== USER SELF-REGISTRATION (verify Gmail, then request account pending admin approval) =====
 function toggleUserRegisterForm() {
   const form = document.getElementById('userRegisterForm');
   if (!form) return;
@@ -7566,21 +7592,71 @@ function toggleRegLocationOther() {
   grp.style.display = sel.value === 'other|other' ? '' : 'none';
 }
 
+// STEP 1 — send a Firebase sign-in link to the entered Gmail address
+function sendRegVerificationEmail() {
+  const email = (document.getElementById('regEmail')?.value || '').trim().toLowerCase();
+  if (!email) { showLoginError('Please enter your Gmail address.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showLoginError('Please enter a valid email address.'); return; }
+  if (typeof firebase === 'undefined' || !firebase.auth) {
+    showLoginError('Authentication service unavailable. Please try again later.'); return;
+  }
+  const actionCodeSettings = {
+    url: window.location.origin + window.location.pathname,
+    handleCodeInApp: true,
+  };
+  firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings).then(() => {
+    localStorage.setItem('cqis_email_for_signin', email);
+    showLoginError(`✅ Verification link sent to ${email}. Open your inbox and click the link to continue — it will bring you back here to finish your request.`, 'success');
+  }).catch(err => {
+    showLoginError('Could not send verification link: ' + (err && err.message ? err.message : err));
+  });
+}
+
+// Called on page load if the URL is a Firebase email sign-in link
+function completeEmailLinkRegistration() {
+  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.auth().isSignInWithEmailLink(window.location.href)) return;
+  let email = localStorage.getItem('cqis_email_for_signin');
+  if (!email) { email = window.prompt('Please confirm your Gmail address to complete verification:'); }
+  if (!email) return;
+  firebase.auth().signInWithEmailLink(email, window.location.href).then(result => {
+    localStorage.removeItem('cqis_email_for_signin');
+    // Clean the verification params out of the URL
+    history.replaceState(null, document.title, window.location.pathname);
+    // Open the User tab + registration form, Step 2
+    switchLoginTab('user');
+    const form = document.getElementById('userRegisterForm');
+    if (form) form.style.display = '';
+    toggleUserRegisterForm.__opened = true;
+    const sel = document.getElementById('regLocation');
+    if (sel && !sel.options.length) {
+      sel.innerHTML = '<option value="">Select location…</option>' +
+        USER_LOCATION_OPTIONS.map(o => `<option value="${o.location}|${o.locType}">${o.location}</option>`).join('') +
+        '<option value="other|other">Other (specify agency)</option>';
+    }
+    document.getElementById('regStep1').style.display = 'none';
+    document.getElementById('regStep2').style.display = '';
+    document.getElementById('regVerifiedEmail').textContent = email;
+    document.getElementById('regStep2').dataset.email = email.toLowerCase();
+    showLoginError('✅ Gmail verified! Complete your details below to submit your access request.', 'success');
+    // Sign out of Firebase Auth — CQIS uses its own session model, approval is still required
+    firebase.auth().signOut();
+  }).catch(err => {
+    showLoginError('Email verification failed: ' + (err && err.message ? err.message : err));
+  });
+}
+
 async function submitUserRegistration() {
+  const email    = document.getElementById('regStep2')?.dataset.email || '';
   const name     = (document.getElementById('regName')?.value || '').trim();
   const locVal   = document.getElementById('regLocation')?.value || '';
-  const username = (document.getElementById('regUsername')?.value || '').trim().toLowerCase();
   const pass     = document.getElementById('regPassword')?.value || '';
   const pass2    = document.getElementById('regPassword2')?.value || '';
 
+  if (!email)    { showLoginError('Please verify your Gmail address first.'); return; }
   if (!name)     { showLoginError('Please enter your name / office.'); return; }
   if (!locVal)   { showLoginError('Please select your Dzongkhag / RO / Thromde / Other Agency.'); return; }
-  if (!username) { showLoginError('Please choose a username.'); return; }
   if (pass.length < 4) { showLoginError('Password must be at least 4 characters.'); return; }
   if (pass !== pass2) { showLoginError('Passwords do not match.'); return; }
-  if (USER_ACCOUNTS.find(u => u.username.toLowerCase() === username)) {
-    showLoginError('This username is already taken. Please choose another.'); return;
-  }
 
   let [location, locType] = locVal.split('|');
   if (locVal === 'other|other') {
@@ -7590,24 +7666,24 @@ async function submitUserRegistration() {
     locType = 'other';
   }
   try {
-    const existing = await db.collection('pending_users').doc(username).get();
+    const existing = await db.collection('pending_users').doc(email).get();
     if (existing.exists && existing.data().status === 'pending') {
-      showLoginError('A request with this username is already pending admin approval.', 'info');
+      showLoginError('A request with this email is already pending admin approval.', 'info');
       return;
     }
-    const approved = await db.collection('approved_users').doc(username).get();
-    if (approved.exists) { showLoginError('This username is already taken. Please choose another.'); return; }
+    const approved = await db.collection('approved_users').doc(email).get();
+    if (approved.exists) { showLoginError('An account for this email already exists. Please sign in instead.'); return; }
 
-    await db.collection('pending_users').doc(username).set({
-      type: 'password', username, name, password: pass, location, locType,
+    await db.collection('pending_users').doc(email).set({
+      type: 'email_verified', username: email, email, name, password: pass, location, locType,
       requestedAt: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending',
     });
     await db.collection('adminNotifications').add({
       type: 'system', title: '🆕 New User Access Request',
-      desc: `${name} (username: ${username}, ${location}) requested User access. Go to "User Requests" to approve.`,
+      desc: `${name} (${email}, ${location}) requested User access. Go to "User Requests" to approve.`,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false,
     });
-    showLoginError('✅ Request submitted! An admin will review and approve your account. You can sign in once approved.', 'success');
+    showLoginError('✅ Request submitted! An admin will review and approve your account. Once approved, sign in with your email and password.', 'success');
   } catch (e) {
     showLoginError('Could not submit request: ' + (e && e.message ? e.message : e));
   }
@@ -10832,12 +10908,12 @@ async function renderUserRequests() {
       const d = doc.data();
       const id = doc.id;
       const requestedAt = d.requestedAt ? d.requestedAt.toDate().toLocaleString() : '—';
-      const isPassword = d.type === 'password';
-      const subtitle = isPassword
-        ? `Username: <strong>${d.username || id}</strong> &nbsp;·&nbsp; Password: <strong>${d.password || ''}</strong> &nbsp;·&nbsp; ${d.location || ''}`
+      const hasLocation = d.type === 'password' || d.type === 'email_verified';
+      const subtitle = hasLocation
+        ? `${d.type === 'email_verified' ? 'Email' : 'Username'}: <strong>${d.username || d.email || id}</strong> &nbsp;·&nbsp; Password: <strong>${d.password || ''}</strong> &nbsp;·&nbsp; ${d.location || ''}`
         : (d.email || id);
       const safeId = cqisSafeId(id);
-      const locField = isPassword
+      const locField = hasLocation
         ? `<input type="hidden" id="userReqLoc_${safeId}" value="${d.location || ''}|${d.locType || 'dzongkhag'}">`
         : `<span>
              <select id="userReqLoc_${safeId}" class="filter-select" style="min-width:180px;" onchange="toggleUserReqLocOther('${id}')">
@@ -10848,7 +10924,7 @@ async function renderUserRequests() {
            </span>`;
       return `<div class="notif-card unread" style="align-items:center;gap:14px;">
         ${d.photo ? `<img src="${d.photo}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;">`
-                  : `<div class="notif-icon type-system">${isPassword?'🔑':'👤'}</div>`}
+                  : `<div class="notif-icon type-system">${hasLocation?'🔑':'👤'}</div>`}
         <div class="notif-body" style="flex:1;">
           <div class="notif-title">${d.name || id}</div>
           <div class="notif-desc">${subtitle}</div>
@@ -10898,6 +10974,10 @@ async function approveUserRequest(id) {
     };
     if (d.type === 'password') {
       approvedData.username = d.username || id;
+      approvedData.password = d.password;
+    } else if (d.type === 'email_verified') {
+      approvedData.username = d.email || id;
+      approvedData.email = d.email || id;
       approvedData.password = d.password;
     } else {
       approvedData.email = d.email || id;
@@ -10966,6 +11046,10 @@ function finishLogin() {
       picture:  currentUser.picture  || '',
       savedAt:  Date.now()
     }));
+    // Remember the User-tab login identifier so it's pre-filled next time
+    if (currentUser.isUser && currentUser.username) {
+      localStorage.setItem('cqis_last_user_login', currentUser.username);
+    }
   } catch(e){}
 
   // Ensure panel is open and stays open
