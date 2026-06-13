@@ -1151,9 +1151,9 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .login-title{color:#0f1e3a !important;font-size:20px !important;font-weight:800 !important;}
 .login-org{color:#64748b !important;}
 
-/* ── LOGIN PAGE: FULL-WIDTH SPLIT LAYOUT ── */
-#loginPage{display:flex;align-items:stretch !important;justify-content:flex-start !important;padding:0 !important;min-height:calc(100vh - 44px) !important;}
-.login-side{flex:0 0 44%;max-width:560px;position:relative;background:linear-gradient(135deg,#0f1e3a 0%,#1a3a6e 55%,#0d2b4a 100%);display:flex;align-items:flex-end;justify-content:flex-start;overflow:hidden;padding:60px;color:#fff;}
+/* ── LOGIN PAGE: FULL-BLEED PHOTO WITH FLOATING CARD ── */
+#loginPage{display:flex;align-items:center !important;justify-content:flex-end !important;padding:60px !important;min-height:calc(100vh - 44px) !important;position:relative;overflow:hidden;}
+.login-side{position:absolute;inset:0;background:linear-gradient(135deg,#0f1e3a 0%,#1a3a6e 55%,#0d2b4a 100%);display:flex;align-items:flex-end;justify-content:flex-start;overflow:hidden;padding:60px;color:#fff;}
 .login-side-photo{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;}
 .login-side-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(160deg,rgba(8,18,36,.25) 0%,rgba(8,18,36,.1) 35%,rgba(8,18,36,.8) 100%);}
 .login-side-content{position:relative;z-index:2;max-width:420px;}
@@ -1165,11 +1165,11 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .login-side-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px;padding-left:22px;}
 .login-side-list li{font-size:13px;color:#dbe6f5;display:flex;align-items:center;gap:10px;}
 .login-side-list li::before{content:'✓';display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(232,130,12,.2);color:#f59e0b;font-size:12px;font-weight:700;flex-shrink:0;}
-.login-form-side{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:calc(100vh - 44px);padding:40px;}
+.login-form-side{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;}
 .login-card{width:100% !important;max-width:480px !important;}
 @media(max-width:900px){
-  .login-side{display:none !important;}
-  .login-form-side{flex:1 1 100% !important;}
+  #loginPage{justify-content:center !important;padding:24px !important;}
+  .login-side-content{display:none !important;}
 }
 
 /* ── TOAST ── */
