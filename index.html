@@ -161,7 +161,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 @keyframes drift{0%{opacity:0;transform:translateY(100vh) scale(0);}10%{opacity:.6;}90%{opacity:.2;}100%{opacity:0;transform:translateY(-10px) scale(1);}}
 
 /* LOGIN PAGE */
-#loginPage{position:relative;min-height:calc(100vh - 44px);display:flex;align-items:center;justify-content:center;background:#f0f2f7;z-index:1;}
+#loginPage{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f2f7;z-index:1;}
 .login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(232,130,12,0.06) 0%,transparent 70%);}
 .login-grid{position:absolute;inset:0;background-image:linear-gradient(#e2e6ef 1px,transparent 1px),linear-gradient(90deg,#e2e6ef 1px,transparent 1px);background-size:60px 60px;opacity:.3;}
 .login-card{position:relative;z-index:1;width:480px;background:#fff;border:1px solid #cbd2e0;border-radius:16px;padding:48px;box-shadow:0 8px 40px rgba(0,0,0,.1),0 0 0 1px rgba(255,255,255,.04) inset;}
@@ -205,7 +205,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .btn-logout:active{box-shadow:0 0 16px rgba(220,38,38,.3);}
 
 /* ══ TEMPLATE-STYLE TOP BAR ══ */
-.top-bar-wrap{background:#ffffff;border-bottom:1px solid #e2e6ef;position:sticky;top:44px;z-index:490;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+.top-bar-wrap{background:#ffffff;border-bottom:1px solid #e2e6ef;position:sticky;top:0;z-index:490;box-shadow:0 2px 12px rgba(0,0,0,.08);}
 .top-bar-inner{padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
 .top-bar-brand{display:flex;align-items:center;gap:12px;text-decoration:none;}
 .top-bar-emblem{width:36px;height:36px;filter:drop-shadow(0 0 8px rgba(232,130,12,.4));}
@@ -227,14 +227,14 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .nav-bar-wrap{display:none;} /* hide old horizontal nav */
 
 /* App layout: sidebar + content */
-#appLayout{display:flex;min-height:calc(100vh - 44px - 56px);}
+#appLayout{display:flex;min-height:calc(100vh - 56px);}
 
 /* SIDEBAR */
 .cqis-sidebar{
   width:220px;flex-shrink:0;
   background:linear-gradient(180deg,#1a2236 0%,#111827 60%,#0f1729 100%);
   border-right:1px solid rgba(255,255,255,.06);
-  position:sticky;top:136px;height:calc(100vh - 136px);
+  position:sticky;top:92px;height:calc(100vh - 92px);
   overflow-y:auto;overflow-x:hidden;
   display:flex;flex-direction:column;
   box-shadow:4px 0 20px rgba(0,0,0,.15);
@@ -328,7 +328,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
   background:#ffffff;border-bottom:1px solid #e2e6ef;
   padding:0 20px;height:36px;display:flex;align-items:center;gap:14px;
   font-size:11px;font-family:'Poppins',sans-serif;
-  position:sticky;top:100px;z-index:488;
+  position:sticky;top:56px;z-index:488;
   box-shadow:0 1px 4px rgba(0,0,0,.06);
 }
 .online-bar-label{
@@ -462,7 +462,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .form-actions{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
 
 /* login page light bg */
-#loginPage{position:relative;min-height:calc(100vh - 44px);display:flex;align-items:center;justify-content:center;background:#f0f2f7;z-index:1;}
+#loginPage{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f2f7;z-index:1;}
 .login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(232,130,12,0.07) 0%,transparent 70%);}
 .login-grid{position:absolute;inset:0;background-image:linear-gradient(#e2e6ef 1px,transparent 1px),linear-gradient(90deg,#e2e6ef 1px,transparent 1px);background-size:60px 60px;opacity:.5;}
 .login-card{position:relative;z-index:1;width:480px;background:#fff;border:1px solid #e2e6ef;border-radius:16px;padding:48px;box-shadow:0 8px 40px rgba(0,0,0,.1);}
@@ -11100,10 +11100,10 @@ function finishLogin() {
   if(onlineBar){
     onlineBar.style.display = (currentUser.isAdmin || currentUser.isUser || currentUser.isObserver) ? 'flex' : 'none';
   }
-  // Adjust sidebar sticky top if online bar is hidden (viewer: 44+56=100px, others: 44+56+36=136px)
+  // Adjust sidebar sticky top if online bar is hidden (viewer: 56px, others: 56+36=92px)
   const sidebar = document.getElementById('cqisSidebar');
   if(sidebar){
-    const topPx = (currentUser.isAdmin || currentUser.isUser) ? '136px' : '100px';
+    const topPx = (currentUser.isAdmin || currentUser.isUser) ? '92px' : '56px';
     sidebar.style.top    = topPx;
     sidebar.style.height = 'calc(100vh - ' + topPx + ')';
   }
@@ -20999,13 +20999,13 @@ ${CQIS_WATERMARK_CSS}
 .bz-back-to-top.show{display:flex;}
 
 /* ── APP LAYOUT HEIGHTS ── */
-/* top-bar=56px, orange panel bar=44px, online bar=36px → total=136px */
+/* top-bar=56px, online bar=36px → total=92px */
 .cqis-sidebar{
-  top:136px !important;
-  height:calc(100vh - 136px) !important;
+  top:92px !important;
+  height:calc(100vh - 92px) !important;
 }
 .online-bar{
-  top:100px !important;
+  top:56px !important;
 }
 
 #cqisPanel{animation:panelSlideIn .3s cubic-bezier(.4,0,.2,1);}
