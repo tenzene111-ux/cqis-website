@@ -1605,9 +1605,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
   box-shadow:0 0 0 3px rgba(232,130,12,.08) !important;
 }
 
-/* ── Remove "Online Now" bar and reclaim its space ── */
+/* ── Remove "Online Now" bar; keep news banner fixed under the top bar ── */
 .online-bar{ display:none !important; }
-.cqis-sidebar{ top:56px !important; height:calc(100vh - 56px) !important; }
+#newsBannerWrap{ position:sticky !important; top:56px !important; z-index:489 !important; }
+.cqis-sidebar{ top:92px !important; height:calc(100vh - 92px) !important; }
 
 </style>
 </head>
