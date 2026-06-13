@@ -6089,13 +6089,14 @@ function printAllConst(){
               <div style="margin-bottom:12px;">
                 <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">
                   Quick Groups
-                  <span style="font-weight:400;color:#9ca3af;font-size:10px;letter-spacing:0;text-transform:none;"> — add emails first in Address Book tab</span>
+                  <span style="font-weight:400;color:#9ca3af;font-size:10px;letter-spacing:0;text-transform:none;"> — Dzongkhag/RO/Thromde groups need emails added in Address Book; Registered Users are pulled automatically</span>
                 </div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                   <button id="emGroupBtn_admins"    class="em-group-btn" onclick="emAddGroup('admins')">👔 All Admins (0)</button>
                   <button id="emGroupBtn_dzongkhag" class="em-group-btn" onclick="emAddGroup('dzongkhag')">🏔 All Dzongkhags (0)</button>
                   <button id="emGroupBtn_ro"        class="em-group-btn" onclick="emAddGroup('ro')">🏢 All ROs (0)</button>
                   <button id="emGroupBtn_thromde"   class="em-group-btn" onclick="emAddGroup('thromde')">🏙 All Thromdes (0)</button>
+                  <button id="emGroupBtn_registered" class="em-group-btn" onclick="emAddGroup('registered')" style="border-color:#3b82f6;color:#3b82f6;">👤 Registered Users (0)</button>
                   <button id="emGroupBtn_all"       class="em-group-btn" onclick="emAddGroup('all')" style="border-color:#e8820c;color:#e8820c;">📢 All Users (0)</button>
                   <button class="em-group-btn" onclick="emClearRecipients()" style="border-color:#dc2626;color:#dc2626;">✕ Clear All</button>
                 </div>
@@ -6181,6 +6182,16 @@ function printAllConst(){
           </div>
           <div id="emAddressBook">
             <div style="text-align:center;padding:24px;color:#9ca3af;font-size:13px;">⏳ Loading address book…</div>
+          </div>
+        </div>
+
+        <div class="em-card">
+          <div class="em-card-title" style="justify-content:space-between;">
+            👤 Registered Users
+            <span style="font-size:11px;font-weight:400;color:#6b7280;">Auto-pulled from approved sign-ups — appear in Compose without manual entry</span>
+          </div>
+          <div id="emRegisteredUsersList">
+            <div style="text-align:center;padding:24px;color:#9ca3af;font-size:13px;">⏳ Loading…</div>
           </div>
         </div>
       </div>
@@ -22575,6 +22586,7 @@ const EM_USER_SLOTS = [
 
 let emEmailMap   = {};
 let emRecipients = [];
+let emRegisteredUsers = []; // { name, email, location, locType } — auto-pulled from approved_users (Google sign-ups etc.)
 
 // ── Load address book from Firestore ──
 async function emLoadAddressBook(silent) {
@@ -22589,7 +22601,59 @@ async function emLoadAddressBook(silent) {
     console.warn('Address book load error:', e);
   }
   if (!silent) emRenderAddressBook();
+  await emLoadRegisteredUsers();
+  if (!silent) emRenderRegisteredUsers();
   emRefreshDropdownAndButtons();
+}
+
+// ── Render read-only list of registered users in Address Book panel ──
+function emRenderRegisteredUsers() {
+  const container = document.getElementById('emRegisteredUsersList');
+  if (!container) return;
+  if (!emRegisteredUsers.length) {
+    container.innerHTML = '<div style="text-align:center;padding:16px;color:#9ca3af;font-size:12px;">No registered users yet.</div>';
+    return;
+  }
+  const byLoc = {};
+  emRegisteredUsers.forEach(function(u) {
+    (byLoc[u.location] = byLoc[u.location] || []).push(u);
+  });
+  let html = '';
+  Object.keys(byLoc).sort().forEach(function(loc) {
+    html += '<div style="margin-bottom:14px;">';
+    html += '<div style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:#3b82f6;border-bottom:2px solid #3b82f620;padding-bottom:5px;margin-bottom:8px;">' + loc + '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:5px;">';
+    byLoc[loc].forEach(function(u) {
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;border:1px solid #e2e6ef;background:#f8f9fc;">';
+      html += '<div style="flex:1;min-width:0;"><span style="font-size:12px;font-weight:600;color:#1a2236;">' + u.name + '</span> <span style="font-size:11px;color:#6b7280;">&lt;' + u.email + '&gt;</span></div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+// ── Load registered users (approved sign-ups) so admins can email them
+//     directly without re-entering their address in the Address Book ──
+async function emLoadRegisteredUsers() {
+  try {
+    const snap = await db.collection('approved_users').get();
+    const list = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      const email = d.email || '';
+      if (!email || !email.includes('@')) return; // skip username/password-only accounts with no email
+      list.push({
+        name: d.name || email.split('@')[0],
+        email: email,
+        location: d.location || 'Other',
+        locType: d.locType || 'other',
+      });
+    });
+    emRegisteredUsers = list;
+  } catch(e) {
+    console.warn('Registered users load error:', e);
+  }
 }
 
 // ── Save one email to Firestore ──
@@ -22684,6 +22748,20 @@ function emRefreshDropdownAndButtons() {
     if (missingCount) {
       html += '<optgroup label="── No email set (' + missingCount + ') — add in Address Book ──"></optgroup>';
     }
+    // ── Registered users (auto from Google sign-up etc.), grouped by their assigned location ──
+    if (emRegisteredUsers.length) {
+      const byLoc = {};
+      emRegisteredUsers.forEach(function(u) {
+        (byLoc[u.location] = byLoc[u.location] || []).push(u);
+      });
+      Object.keys(byLoc).sort().forEach(function(loc) {
+        html += '<optgroup label="👤 ' + loc + '">';
+        byLoc[loc].forEach(function(u) {
+          html += '<option value="reg:' + u.email + '">' + u.name + '  &lt;' + u.email + '&gt;</option>';
+        });
+        html += '</optgroup>';
+      });
+    }
     sel.innerHTML = html;
   }
   const gKeys   = ['admins','dzongkhag','ro','thromde'];
@@ -22693,17 +22771,33 @@ function emRefreshDropdownAndButtons() {
     const btn   = document.getElementById('emGroupBtn_' + g);
     if (btn) { btn.textContent = gLabels[g] + ' (' + count + ')'; btn.style.opacity = count ? '1' : '0.55'; }
   });
-  const allCount = EM_USER_SLOTS.filter(s => emEmailMap[s.id]).length;
-  const allBtn   = document.getElementById('emGroupBtn_all');
-  if (allBtn) allBtn.textContent = '📢 All Users (' + allCount + ')';
+  const regBtn = document.getElementById('emGroupBtn_registered');
+  if (regBtn) { regBtn.textContent = '👤 Registered Users (' + emRegisteredUsers.length + ')'; regBtn.style.opacity = emRegisteredUsers.length ? '1' : '0.55'; }
+  const allEmails = new Set(EM_USER_SLOTS.filter(s => emEmailMap[s.id]).map(s => emEmailMap[s.id]));
+  emRegisteredUsers.forEach(u => allEmails.add(u.email));
+  const allBtn = document.getElementById('emGroupBtn_all');
+  if (allBtn) allBtn.textContent = '📢 All Users (' + allEmails.size + ')';
 }
 
 // ── Add group to recipients ──
 function emAddGroup(group) {
+  if (group === 'registered') {
+    if (!emRegisteredUsers.length) { toast('⚠️ No registered users found yet.'); return; }
+    let added = 0;
+    emRegisteredUsers.forEach(function(u) {
+      if (!emRecipients.find(r => r.email === u.email)) {
+        emRecipients.push({ name: u.name, email: u.email });
+        added++;
+      }
+    });
+    emRenderRecipients();
+    toast('✅ Added ' + added + ' recipient(s)');
+    return;
+  }
   const slots = (group === 'all')
     ? EM_USER_SLOTS.filter(s => emEmailMap[s.id])
     : EM_USER_SLOTS.filter(s => s.group === group && emEmailMap[s.id]);
-  if (!slots.length) {
+  if (!slots.length && group !== 'all') {
     toast('⚠️ No emails set for this group. Go to 📒 Address Book to add them.');
     emShowSubTab('addressbook');
     return;
@@ -22715,6 +22809,14 @@ function emAddGroup(group) {
       added++;
     }
   });
+  if (group === 'all') {
+    emRegisteredUsers.forEach(function(u) {
+      if (!emRecipients.find(r => r.email === u.email)) {
+        emRecipients.push({ name: u.name, email: u.email });
+        added++;
+      }
+    });
+  }
   emRenderRecipients();
   toast('✅ Added ' + added + ' recipient(s)');
 }
@@ -22723,6 +22825,16 @@ function emAddGroup(group) {
 function emAddIndividual() {
   const sel = document.getElementById('emIndividualSel');
   if (!sel || !sel.value) { toast('Please select a person first.'); return; }
+  if (sel.value.startsWith('reg:')) {
+    const email = sel.value.slice(4);
+    const u = emRegisteredUsers.find(r => r.email === email);
+    if (!u) return;
+    if (emRecipients.find(r => r.email === email)) { toast('Already added.'); return; }
+    emRecipients.push({ name: u.name, email: u.email });
+    sel.selectedIndex = 0;
+    emRenderRecipients();
+    return;
+  }
   const slot  = EM_USER_SLOTS.find(s => s.id === sel.value);
   if (!slot) return;
   const email = emEmailMap[slot.id];
