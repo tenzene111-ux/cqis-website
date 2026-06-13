@@ -1520,7 +1520,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       </div>
       <div class="login-org">Government of Bhutan · OPMC / OCASC</div>
       <div class="login-title">CONSTRUCTION QUALITY INSPECTION</div>
-      <div class="login-sub">Construction Quality Division — MOIT Standard</div>
+      <div class="login-sub">Construction Quality Division</div>
     </div>
     <div class="login-error" id="loginError"></div>
 
@@ -1582,6 +1582,41 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         </div>
       </div>
       <button class="btn-login" style="background:linear-gradient(135deg,#e8820c,#1d4ed8);" onclick="doUserLogin()">👤 SIGN IN AS USER</button>
+      <div style="text-align:center;margin-top:12px;">
+        <a href="javascript:void(0)" onclick="toggleUserRegisterForm()" style="font-size:12px;color:#1d4ed8;text-decoration:underline;">New here? Request an account</a>
+      </div>
+
+      <!-- USER SELF-REGISTRATION FORM -->
+      <div id="userRegisterForm" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid #e2e6ef;">
+        <div style="background:rgba(29,78,216,.05);border:1px solid rgba(29,78,216,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:#1d4ed8;margin-bottom:14px;">
+          📝 Choose a username &amp; password. An admin will review and approve your request before you can sign in.
+        </div>
+        <div class="field-group">
+          <label class="field-label">Your Name / Office</label>
+          <input class="field-input" id="regName" type="text" placeholder="e.g. Bumthang Dzongkhag">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Dzongkhag / RO / Thromde / Other Agency</label>
+          <select class="field-input" id="regLocation" onchange="toggleRegLocationOther()"></select>
+        </div>
+        <div class="field-group" id="regLocationOtherGroup" style="display:none;">
+          <label class="field-label">Specify Agency / Office Name</label>
+          <input class="field-input" id="regLocationOther" type="text" placeholder="e.g. Department of Roads">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Choose Username</label>
+          <input class="field-input" id="regUsername" type="text" placeholder="e.g. bumtdzk2">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Choose Password</label>
+          <input class="field-input" id="regPassword" type="password" placeholder="Choose a password">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Confirm Password</label>
+          <input class="field-input" id="regPassword2" type="password" placeholder="Re-enter password">
+        </div>
+        <button class="btn-login" style="background:linear-gradient(135deg,#1d4ed8,#1e3a8a);" onclick="submitUserRegistration()">📨 Submit Request</button>
+      </div>
     </div>
 
     <!-- OBSERVER LOGIN PANEL -->
@@ -1618,15 +1653,6 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
     </button>
     <div style="font-size:11px;color:#9ca3af;margin-top:6px;">Only registered Google accounts can sign in.</div>
 
-    <!-- Access levels legend -->
-    <div style="margin-top:22px;background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px 16px;">
-      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:10px;">Access Levels</div>
-      <div style="font-size:12px;color:#374151;display:flex;flex-direction:column;gap:6px;">
-        <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d97706;margin-right:8px;"></span><strong style="color:#1a2236;">Admin</strong> — Full access: add, edit, delete inspections &amp; all data</div>
-        <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e8820c;margin-right:8px;"></span><strong style="color:#1a2236;">User</strong> — Add project updates &amp; print saved test reports</div>
-        <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6b7280;margin-right:8px;"></span><strong style="color:#1a2236;">Viewer</strong> — Read-only: view all data, print reports</div>
-      </div>
-    </div>
   </div>
   </div>
 </div>
@@ -1802,6 +1828,11 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-icon"><i class="fa fa-envelope"></i></span>
       <span class="sb-label">Email Notifications</span>
       <span class="sb-badge" style="background:rgba(232,130,12,.2);border-color:rgba(232,130,12,.4);color:#fbbf24;">ADMIN</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('user-requests',this)" id="userReqNavBtn">
+      <span class="sb-icon"><i class="fa fa-user-check"></i></span>
+      <span class="sb-label">User Requests</span>
+      <span class="sb-badge new" id="userReqBadgeCount" style="display:none;">0</span>
     </button>
 
     <div class="sb-group">Data</div>
@@ -5992,6 +6023,19 @@ function printAllConst(){
 
     </div>
 
+    <div id="tab-user-requests" style="display:none">
+      <div class="section-header">
+        <div>
+          <div class="section-title">🆕 USER ACCESS REQUESTS</div>
+          <div class="section-badge">Approve or reject Google sign-in requests from Dzongkhag / RO / Thromde users</div>
+        </div>
+      </div>
+      <div id="userReqList"></div>
+      <div class="no-data" id="userReqEmpty" style="display:none;">
+        <div style="font-size:13px;color:#9ca3af;text-align:center;padding:24px;">No pending user access requests.</div>
+      </div>
+    </div>
+
     <div id="tab-atr" style="display:none">
       <div class="section-header"><div><div class="section-title">ATR TRACKER</div><div class="section-badge">Action Taken Report — Live Deadline Monitor</div></div></div>
       <div class="atr-summary">
@@ -7340,6 +7384,9 @@ const USER_ACCOUNTS = [
   { username:'SJKTRD',  password:'SJKT@2026', name:'Samdrup Jongkhar Thromde',     locType:'thromde', location:'Samdrup Jongkhar Thromde' },
 ];
 
+// Location options for User-access-request approval dropdown
+const USER_LOCATION_OPTIONS = USER_ACCOUNTS.map(u => ({ location: u.location, locType: u.locType }));
+
 // Roles:  'admin' = full access
 //         'user'  = add project updates + print reports only
 //         'viewer'= read only
@@ -7415,9 +7462,10 @@ function switchLoginTab(tab) {
   if (err) { err.style.display = 'none'; err.textContent = ''; }
 }
 
-function showLoginError(msg) {
+function showLoginError(msg, type) {
   const e = document.getElementById('loginError');
   e.textContent = msg; e.style.display = 'block';
+  e.style.color = type === 'success' ? '#15803d' : type === 'info' ? '#1d4ed8' : '#dc2626';
 }
 
 function togglePw(id, btn) {
@@ -7454,6 +7502,115 @@ function doAdminLogin() {
     canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
   };
   finishLogin();
+}
+
+// ===== USER LOGIN (Dzongkhag / RO / Thromde) =====
+async function doUserLogin() {
+  const username = (document.getElementById('userName2')?.value || '').trim();
+  const pass     = document.getElementById('userPass')?.value || '';
+  if (!username) { showLoginError('Please enter your Username.'); return; }
+  if (!pass)     { showLoginError('Please enter your Password.'); return; }
+
+  // Check hardcoded USER_ACCOUNTS first
+  const acc = USER_ACCOUNTS.find(u => u.username.toLowerCase() === username.toLowerCase());
+  if (acc) {
+    if (pass !== acc.password) { showLoginError('Incorrect password.'); return; }
+    currentUser = {
+      username: acc.username, name: acc.name, picture: null,
+      isSuperAdmin: false, isAdmin: false, isUser: true, isObserver: false,
+      role: 'User', location: acc.location, locType: acc.locType,
+      canEdit: false, canDelete: false, canAddPU: true, canPrint: true,
+    };
+    finishLogin();
+    return;
+  }
+
+  // Check self-registered (admin-approved) accounts
+  try {
+    const doc = await db.collection('approved_users').doc(username.toLowerCase()).get();
+    if (!doc.exists) { showLoginError('Username / Password not found.'); return; }
+    const u = doc.data();
+    if (u.password !== pass) { showLoginError('Incorrect password.'); return; }
+    currentUser = {
+      username: username.toLowerCase(), name: u.name || username, picture: null,
+      isSuperAdmin: false, isAdmin: false, isUser: true, isObserver: false,
+      role: 'User', location: u.location || '', locType: u.locType || 'dzongkhag',
+      canEdit: false, canDelete: false, canAddPU: true, canPrint: true,
+    };
+    finishLogin();
+  } catch (e) {
+    showLoginError('Login failed: ' + (e && e.message ? e.message : e));
+  }
+}
+
+// ===== USER SELF-REGISTRATION (request account, pending admin approval) =====
+function toggleUserRegisterForm() {
+  const form = document.getElementById('userRegisterForm');
+  if (!form) return;
+  const show = form.style.display === 'none';
+  form.style.display = show ? '' : 'none';
+  if (show) {
+    const sel = document.getElementById('regLocation');
+    if (sel && !sel.options.length) {
+      sel.innerHTML = '<option value="">Select location…</option>' +
+        USER_LOCATION_OPTIONS.map(o => `<option value="${o.location}|${o.locType}">${o.location}</option>`).join('') +
+        '<option value="other|other">Other (specify agency)</option>';
+    }
+  }
+}
+
+function toggleRegLocationOther() {
+  const sel = document.getElementById('regLocation');
+  const grp = document.getElementById('regLocationOtherGroup');
+  if (!sel || !grp) return;
+  grp.style.display = sel.value === 'other|other' ? '' : 'none';
+}
+
+async function submitUserRegistration() {
+  const name     = (document.getElementById('regName')?.value || '').trim();
+  const locVal   = document.getElementById('regLocation')?.value || '';
+  const username = (document.getElementById('regUsername')?.value || '').trim().toLowerCase();
+  const pass     = document.getElementById('regPassword')?.value || '';
+  const pass2    = document.getElementById('regPassword2')?.value || '';
+
+  if (!name)     { showLoginError('Please enter your name / office.'); return; }
+  if (!locVal)   { showLoginError('Please select your Dzongkhag / RO / Thromde / Other Agency.'); return; }
+  if (!username) { showLoginError('Please choose a username.'); return; }
+  if (pass.length < 4) { showLoginError('Password must be at least 4 characters.'); return; }
+  if (pass !== pass2) { showLoginError('Passwords do not match.'); return; }
+  if (USER_ACCOUNTS.find(u => u.username.toLowerCase() === username)) {
+    showLoginError('This username is already taken. Please choose another.'); return;
+  }
+
+  let [location, locType] = locVal.split('|');
+  if (locVal === 'other|other') {
+    const otherName = (document.getElementById('regLocationOther')?.value || '').trim();
+    if (!otherName) { showLoginError('Please specify your agency / office name.'); return; }
+    location = otherName;
+    locType = 'other';
+  }
+  try {
+    const existing = await db.collection('pending_users').doc(username).get();
+    if (existing.exists && existing.data().status === 'pending') {
+      showLoginError('A request with this username is already pending admin approval.', 'info');
+      return;
+    }
+    const approved = await db.collection('approved_users').doc(username).get();
+    if (approved.exists) { showLoginError('This username is already taken. Please choose another.'); return; }
+
+    await db.collection('pending_users').doc(username).set({
+      type: 'password', username, name, password: pass, location, locType,
+      requestedAt: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending',
+    });
+    await db.collection('adminNotifications').add({
+      type: 'system', title: '🆕 New User Access Request',
+      desc: `${name} (username: ${username}, ${location}) requested User access. Go to "User Requests" to approve.`,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false,
+    });
+    showLoginError('✅ Request submitted! An admin will review and approve your account. You can sign in once approved.', 'success');
+  } catch (e) {
+    showLoginError('Could not submit request: ' + (e && e.message ? e.message : e));
+  }
 }
 
 // ===== OBSERVER LOGIN =====
@@ -10604,16 +10761,176 @@ function googleSignIn() {
   });
 }
 
-function handleGoogleAuthResult(result) {
-  const email = result.user.email;
+async function handleGoogleAuthResult(result) {
+  const email = result.user.email.toLowerCase();
   const acc = loginAllowlistLookup(email);
-  if (!acc) {
-    firebase.auth().signOut();
-    showLoginError(`This Google account (${email}) is not authorized for CQIS. Contact the administrator to be added.`);
+  if (acc) {
+    currentUser = Object.assign({ username: acc.email, picture: result.user.photoURL || null }, acc);
+    finishLogin();
     return;
   }
-  currentUser = Object.assign({ username: acc.email, picture: result.user.photoURL || null }, acc);
-  finishLogin();
+
+  // Not in the Admin/Observer allowlist — check if this Gmail has been approved as a User
+  try {
+    const approvedDoc = await db.collection('approved_users').doc(email).get();
+    if (approvedDoc.exists) {
+      const u = approvedDoc.data();
+      currentUser = {
+        username: email, name: u.name || email, email,
+        picture: result.user.photoURL || null,
+        isSuperAdmin: false, isAdmin: false, isUser: true, isObserver: false,
+        role: 'User', location: u.location || '', locType: u.locType || 'dzongkhag',
+        canEdit: false, canDelete: false, canAddPU: true, canPrint: true,
+      };
+      finishLogin();
+      return;
+    }
+
+    const pendingDoc = await db.collection('pending_users').doc(email).get();
+    if (pendingDoc.exists) {
+      firebase.auth().signOut();
+      showLoginError('Your access request is pending admin approval. Please check back later, or contact the administrator.', 'info');
+      return;
+    }
+
+    // First time signing in with this Gmail — create an access request for admin approval
+    await db.collection('pending_users').doc(email).set({
+      type: 'google', email, name: result.user.displayName || email, photo: result.user.photoURL || '',
+      requestedAt: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending',
+    });
+    await db.collection('adminNotifications').add({
+      type: 'system', title: '🆕 New User Access Request',
+      desc: `${result.user.displayName || email} (${email}) requested User access. Go to "User Requests" to approve.`,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false,
+    });
+    firebase.auth().signOut();
+    showLoginError('✅ Access request submitted! An admin will review and approve your account. You can sign in with Google again once approved.', 'success');
+  } catch (e) {
+    firebase.auth().signOut();
+    showLoginError('Could not process sign-in request: ' + (e && e.message ? e.message : e));
+  }
+}
+
+// ===== USER ACCESS REQUEST APPROVAL (Admin) =====
+async function renderUserRequests() {
+  const list  = document.getElementById('userReqList');
+  const empty = document.getElementById('userReqEmpty');
+  if (!list) return;
+  list.innerHTML = '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:16px;">Loading…</div>';
+  try {
+    const snap = await db.collection('pending_users').where('status', '==', 'pending').get();
+    if (snap.empty) {
+      list.innerHTML = '';
+      if (empty) empty.style.display = '';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    const locOptions = USER_LOCATION_OPTIONS.map(o =>
+      `<option value="${o.location}|${o.locType}">${o.location}</option>`).join('') +
+      '<option value="other|other">Other (specify)</option>';
+    list.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const id = doc.id;
+      const requestedAt = d.requestedAt ? d.requestedAt.toDate().toLocaleString() : '—';
+      const isPassword = d.type === 'password';
+      const subtitle = isPassword
+        ? `Username: <strong>${d.username || id}</strong> &nbsp;·&nbsp; Password: <strong>${d.password || ''}</strong> &nbsp;·&nbsp; ${d.location || ''}`
+        : (d.email || id);
+      const safeId = cqisSafeId(id);
+      const locField = isPassword
+        ? `<input type="hidden" id="userReqLoc_${safeId}" value="${d.location || ''}|${d.locType || 'dzongkhag'}">`
+        : `<span>
+             <select id="userReqLoc_${safeId}" class="filter-select" style="min-width:180px;" onchange="toggleUserReqLocOther('${id}')">
+               <option value="">Assign location…</option>
+               ${locOptions}
+             </select>
+             <input id="userReqLocOther_${safeId}" class="filter-select" style="min-width:160px;display:none;margin-top:6px;" placeholder="Agency name">
+           </span>`;
+      return `<div class="notif-card unread" style="align-items:center;gap:14px;">
+        ${d.photo ? `<img src="${d.photo}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;">`
+                  : `<div class="notif-icon type-system">${isPassword?'🔑':'👤'}</div>`}
+        <div class="notif-body" style="flex:1;">
+          <div class="notif-title">${d.name || id}</div>
+          <div class="notif-desc">${subtitle}</div>
+          <div class="notif-meta"><span class="notif-time">🕐 Requested ${requestedAt}</span></div>
+        </div>
+        ${locField}
+        <button class="btn-login" style="width:auto;padding:8px 16px;background:linear-gradient(135deg,#16a34a,#15803d);" onclick="approveUserRequest('${id}')">✅ Approve</button>
+        <button class="btn-login" style="width:auto;padding:8px 16px;background:linear-gradient(135deg,#dc2626,#991b1b);" onclick="rejectUserRequest('${id}')">✕ Reject</button>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    list.innerHTML = `<div style="font-size:12px;color:#dc2626;text-align:center;padding:16px;">Could not load requests: ${e && e.message ? e.message : e}</div>`;
+  }
+}
+
+function cqisSafeId(str) {
+  return str.replace(/[^a-zA-Z0-9]/g, '_');
+}
+
+function toggleUserReqLocOther(id) {
+  const safeId = cqisSafeId(id);
+  const sel = document.getElementById('userReqLoc_' + safeId);
+  const other = document.getElementById('userReqLocOther_' + safeId);
+  if (!sel || !other) return;
+  other.style.display = sel.value === 'other|other' ? '' : 'none';
+}
+
+async function approveUserRequest(id) {
+  const safeId = cqisSafeId(id);
+  const sel = document.getElementById('userReqLoc_' + safeId);
+  const val = sel ? sel.value : '';
+  if (!val) { alert('Please assign a Dzongkhag / RO / Thromde location before approving.'); return; }
+  let [location, locType] = val.split('|');
+  if (val === 'other|other') {
+    const other = (document.getElementById('userReqLocOther_' + safeId)?.value || '').trim();
+    if (!other) { alert('Please specify the agency name.'); return; }
+    location = other; locType = 'other';
+  }
+  try {
+    const pendingDoc = await db.collection('pending_users').doc(id).get();
+    const d = pendingDoc.exists ? pendingDoc.data() : {};
+    const approvedData = {
+      type: d.type || 'google', name: d.name || id,
+      location, locType,
+      approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      approvedBy: currentUser ? currentUser.name : 'Admin',
+    };
+    if (d.type === 'password') {
+      approvedData.username = d.username || id;
+      approvedData.password = d.password;
+    } else {
+      approvedData.email = d.email || id;
+      approvedData.photo = d.photo || '';
+    }
+    await db.collection('approved_users').doc(id).set(approvedData);
+    await db.collection('pending_users').doc(id).update({ status: 'approved' });
+    renderUserRequests();
+    updateUserReqBadge();
+  } catch (e) {
+    alert('Could not approve request: ' + (e && e.message ? e.message : e));
+  }
+}
+
+async function rejectUserRequest(id) {
+  if (!confirm(`Reject access request for ${id}?`)) return;
+  try {
+    await db.collection('pending_users').doc(id).update({ status: 'rejected' });
+    renderUserRequests();
+    updateUserReqBadge();
+  } catch (e) {
+    alert('Could not reject request: ' + (e && e.message ? e.message : e));
+  }
+}
+
+async function updateUserReqBadge() {
+  const badge = document.getElementById('userReqBadgeCount');
+  if (!badge || !currentUser || !currentUser.isAdmin) return;
+  try {
+    const snap = await db.collection('pending_users').where('status', '==', 'pending').get();
+    if (snap.size > 0) { badge.textContent = snap.size > 99 ? '99+' : snap.size; badge.style.display = ''; }
+    else { badge.style.display = 'none'; }
+  } catch (e) {}
 }
 
 // Handle return from signInWithRedirect (fallback when popup is blocked)
@@ -10714,6 +11031,8 @@ function finishLogin() {
   applyRoleRestrictions();
   // Start observer comment listener for admins
   if (currentUser.isAdmin) setTimeout(startObserverCommentListener, 2000);
+  // Show pending user-access-request count for admins
+  if (currentUser.isAdmin) setTimeout(updateUserReqBadge, 1500);
   // Start inspection notify listener for observers
   if (currentUser.isObserver) setTimeout(startInspectionNotifyListener, 2000);
   // Start news banner listener for everyone
@@ -10754,6 +11073,7 @@ function applyRoleRestrictions() {
     'followupNavBtn',    // Follow Up ATR Report
     'qcToolBtn',         // SBRW QC Tool — admin only
     'isTestTabBtn',      // IS Code Tests — admin only
+    'userReqNavBtn',     // User access requests — admin only
   ];
   // Also hide QC Tools group label for non-admins
   const qcGroup = document.getElementById('qcToolsGroup');
@@ -10850,6 +11170,7 @@ function showTab(id,btn){
   document.getElementById('tab-'+id).style.display='';
   if(btn) btn.classList.add('active');
   if(id==='data') renderTable();
+  if(id==='user-requests') renderUserRequests();
   if(id==='atr') renderATR();
   if(id==='entry') { setTimeout(entryPopulateScheduleDropdown, 100); }
   if(id==='analytics') renderCharts();
