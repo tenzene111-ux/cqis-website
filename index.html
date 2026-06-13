@@ -10931,8 +10931,8 @@ async function renderUserRequests() {
           <div class="notif-meta"><span class="notif-time">🕐 Requested ${requestedAt}</span></div>
         </div>
         ${locField}
-        <button class="btn-login" style="width:auto;padding:8px 16px;background:linear-gradient(135deg,#16a34a,#15803d);" onclick="approveUserRequest('${id}')">✅ Approve</button>
-        <button class="btn-login" style="width:auto;padding:8px 16px;background:linear-gradient(135deg,#dc2626,#991b1b);" onclick="rejectUserRequest('${id}')">✕ Reject</button>
+        <button class="action-btn" style="color:#15803d;border-color:#86efac;background:rgba(220,252,231,.5);font-weight:700;" onclick="approveUserRequest('${id}')">✅ Approve</button>
+        <button class="action-btn del" style="font-weight:700;" onclick="rejectUserRequest('${id}')">✕ Reject</button>
       </div>`;
     }).join('');
   } catch (e) {
