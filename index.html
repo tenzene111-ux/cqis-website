@@ -1142,20 +1142,23 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 }
 
 /* ── LOGIN CARD: COMPACT SIZING ── */
-.login-card .login-logo{margin-bottom:14px !important;}
-.login-card .login-emblem{width:56px !important;height:56px !important;margin-bottom:8px !important;}
-.login-card .field-group{margin-bottom:12px !important;}
-.login-card .field-input{padding:9px 14px !important;font-size:13px !important;}
+.login-card .login-logo{margin-bottom:10px !important;}
+.login-card .login-emblem{width:48px !important;height:48px !important;margin-bottom:6px !important;}
+.login-card .login-org{margin-bottom:2px !important;}
+.login-card .login-sub{margin-top:2px !important;}
+.login-card .field-group{margin-bottom:9px !important;}
+.login-card .field-label{margin-bottom:4px !important;}
+.login-card .field-input{padding:8px 14px !important;font-size:13px !important;}
 .login-card .field-icon-wrap .field-input{padding-left:38px !important;}
-.login-card .btn-login{padding:10px !important;font-size:13px !important;margin-top:4px !important;}
-.login-card .login-error{margin-bottom:10px !important;}
+.login-card .btn-login{padding:9px !important;font-size:13px !important;margin-top:2px !important;}
+.login-card .login-error{margin-bottom:8px !important;}
 
 /* ── LOGIN CARD ── */
 .login-card{
   border:1px solid #e2e8f0 !important;
   border-radius:16px !important;
   box-shadow:0 12px 48px rgba(15,30,58,.12) !important;
-  padding:28px 30px !important;
+  padding:20px 26px !important;
 }
 .login-title{color:#0f1e3a !important;font-size:16px !important;font-weight:800 !important;}
 .login-org{color:#64748b !important;}
@@ -1173,7 +1176,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .login-side-list li{font-size:12px;color:#dbe6f5;display:flex;align-items:center;gap:8px;}
 .login-side-list li::before{content:'✓';display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(232,130,12,.2);color:#f59e0b;font-size:9px;font-weight:700;flex-shrink:0;}
 .login-form-side{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;}
-.login-card{width:100% !important;max-width:380px !important;max-height:calc(100vh - 88px) !important;overflow-y:auto !important;}
+.login-card{width:100% !important;max-width:380px !important;max-height:calc(100vh - 64px) !important;overflow-y:auto !important;}
 @media(max-width:900px){
   #loginPage{justify-content:center !important;padding:24px !important;}
   .login-side-content{display:none !important;}
@@ -1535,7 +1538,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
     <div class="login-error" id="loginError"></div>
 
     <!-- Login type tabs -->
-    <div style="display:flex;gap:0;background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:3px;margin-bottom:22px;">
+    <div style="display:flex;gap:0;background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:3px;margin-bottom:12px;">
       <button id="ltab-admin" onclick="switchLoginTab('admin')"
         style="flex:1;padding:8px;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;background:linear-gradient(135deg,#e8820c,#1d4ed8);color:#fff;">
         ⚙️ ADMIN
@@ -1552,7 +1555,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
     <!-- ADMIN LOGIN PANEL -->
     <div id="lpanel-admin">
-      <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#d97706;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+      <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:7px 12px;font-size:11px;color:#d97706;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
         <span>⚙️</span> Administrator — full access to all features, data, and settings.
       </div>
       <div class="field-group">
@@ -1578,7 +1581,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
     <!-- USER LOGIN PANEL -->
     <div id="lpanel-user" style="display:none;">
-      <div style="background:rgba(232,130,12,.05);border:1px solid rgba(37,99,235,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#f97316;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+      <div style="background:rgba(232,130,12,.05);border:1px solid rgba(37,99,235,.25);border-radius:8px;padding:7px 12px;font-size:11px;color:#f97316;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
         <span>👤</span> User — can add project updates and print saved test reports.
       </div>
       <div class="field-group">
@@ -1661,7 +1664,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
     <!-- OBSERVER LOGIN PANEL -->
     <div id="lpanel-observer" style="display:none;">
-      <div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#7c3aed;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+      <div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:7px 12px;font-size:11px;color:#7c3aed;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
         <span>👁</span> Observer — view dashboard, register, ATR, reports, compliance &amp; email. Can comment on activity.
       </div>
       <div class="field-group">
@@ -1686,7 +1689,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
     </div>
 
     <!-- Google / Email-link sign-in (for registered admin & observer emails) -->
-    <div style="display:flex;align-items:center;gap:10px;margin:22px 0 16px;">
+    <div style="display:flex;align-items:center;gap:10px;margin:12px 0 10px;">
       <div style="flex:1;height:1px;background:#e2e6ef;"></div>
       <div style="font-size:11px;color:#9ca3af;letter-spacing:1px;">OR SIGN IN WITH</div>
       <div style="flex:1;height:1px;background:#e2e6ef;"></div>
