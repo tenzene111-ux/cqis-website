@@ -7472,6 +7472,13 @@ let _dueDateIntervalId = null;
       if(!_appInitialized){ _appInitialized = true; initApp(); }
       // Panel stays CLOSED — user opens it by clicking
     });
+    // Online bar + scrolling news banner (mirrors finishLogin setup)
+    const onlineBar2 = document.getElementById('onlineBar');
+    if(onlineBar2){
+      onlineBar2.style.display = (s.isAdmin || s.isUser || s.isObserver) ? 'flex' : 'none';
+    }
+    setTimeout(initNewsBanner, 1000);
+    if (s.isAdmin) setNewsBannerText(localStorage.getItem('cqis_news_banner') || '');
   } catch(e){ localStorage.removeItem('cqis_session'); }
 })();
 
