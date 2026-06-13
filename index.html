@@ -6092,6 +6092,7 @@ function printAllConst(){
                   <button id="emGroupBtn_ro"        class="em-group-btn" onclick="emAddGroup('ro')">🏢 All ROs (0)</button>
                   <button id="emGroupBtn_thromde"   class="em-group-btn" onclick="emAddGroup('thromde')">🏙 All Thromdes (0)</button>
                   <button id="emGroupBtn_registered" class="em-group-btn" onclick="emAddGroup('registered')" style="border-color:#3b82f6;color:#3b82f6;">👤 Registered Users (0)</button>
+                  <button id="emGroupBtn_other"      class="em-group-btn" onclick="emAddGroup('other')" style="border-color:#3b82f6;color:#3b82f6;">🗂 Other (0)</button>
                   <button id="emGroupBtn_all"       class="em-group-btn" onclick="emAddGroup('all')" style="border-color:#e8820c;color:#e8820c;">📢 All Users (0)</button>
                   <button class="em-group-btn" onclick="emClearRecipients()" style="border-color:#dc2626;color:#dc2626;">✕ Clear All</button>
                 </div>
@@ -6108,6 +6109,7 @@ function printAllConst(){
                   <input type="email" id="emCustomEmail" class="field-input" placeholder="Or type any email address…" style="font-size:12px;flex:1;" onkeydown="if(event.key==='Enter')emAddCustom()">
                   <input type="text" id="emCustomName" class="field-input" placeholder="Name" style="font-size:12px;width:120px;">
                   <button class="btn-secondary" onclick="emAddCustom()" style="padding:8px 12px;font-size:12px;white-space:nowrap;">+ Add</button>
+                  <button class="btn-secondary" onclick="emSaveOtherContact()" title="Save this email under the 'Other' category for future use" style="padding:8px 12px;font-size:12px;white-space:nowrap;border-color:#3b82f6;color:#3b82f6;">💾 Save to Other</button>
                 </div>
               </div>
               <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Recipients <span id="emRecipientCount" style="color:#e8820c;">(0)</span></div>
@@ -6186,6 +6188,16 @@ function printAllConst(){
             <span style="font-size:11px;font-weight:400;color:#6b7280;">Auto-pulled from approved sign-ups — appear in Compose without manual entry</span>
           </div>
           <div id="emRegisteredUsersList">
+            <div style="text-align:center;padding:24px;color:#9ca3af;font-size:13px;">⏳ Loading…</div>
+          </div>
+        </div>
+
+        <div class="em-card">
+          <div class="em-card-title" style="justify-content:space-between;">
+            🗂 Other Contacts
+            <span style="font-size:11px;font-weight:400;color:#6b7280;">Saved using "💾 Save to Other" on the Compose tab</span>
+          </div>
+          <div id="emOtherContactsList">
             <div style="text-align:center;padding:24px;color:#9ca3af;font-size:13px;">⏳ Loading…</div>
           </div>
         </div>
@@ -22538,6 +22550,7 @@ function ispExportCSV(){
 
 const EM_HISTORY_KEY = 'cqis_email_history';
 const COL_EMAIL_BOOK = 'emailAddressBook';
+const COL_OTHER_CONTACTS = 'emOtherContacts';
 
 const EM_USER_SLOTS = [
   { id:'adm_tenzin',   name:'Tenzin',                       group:'admins'    },
@@ -22582,6 +22595,7 @@ const EM_USER_SLOTS = [
 let emEmailMap   = {};
 let emRecipients = [];
 let emRegisteredUsers = []; // { name, email, location, locType } — auto-pulled from approved_users (Google sign-ups etc.)
+let emOtherContacts   = []; // { id, name, email } — manually-saved "Other" contacts, persisted in Firestore
 
 // ── Load address book from Firestore ──
 async function emLoadAddressBook(silent) {
@@ -22598,7 +22612,76 @@ async function emLoadAddressBook(silent) {
   if (!silent) emRenderAddressBook();
   await emLoadRegisteredUsers();
   if (!silent) emRenderRegisteredUsers();
+  await emLoadOtherContacts();
+  if (!silent) emRenderOtherContacts();
   emRefreshDropdownAndButtons();
+}
+
+// ── Load "Other" contacts (manually saved, persisted in Firestore) ──
+async function emLoadOtherContacts() {
+  try {
+    const snap = await db.collection(COL_OTHER_CONTACTS).get();
+    const list = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      if (d.email) list.push({ id: doc.id, name: d.name || d.email.split('@')[0], email: d.email });
+    });
+    emOtherContacts = list;
+  } catch(e) {
+    console.warn('Other contacts load error:', e);
+  }
+}
+
+// ── Save a new "Other" contact to Firestore ──
+async function emSaveOtherContact() {
+  const emailEl = document.getElementById('emCustomEmail');
+  const nameEl  = document.getElementById('emCustomName');
+  const email   = emailEl ? emailEl.value.trim() : '';
+  const name    = (nameEl ? nameEl.value.trim() : '') || (email ? email.split('@')[0] : '');
+  if (!email || !email.includes('@')) { toast('⚠️ Enter a valid email address.'); return; }
+  if (emOtherContacts.find(c => c.email === email)) { toast('Already saved in Other contacts.'); return; }
+  try {
+    const ref = await db.collection(COL_OTHER_CONTACTS).add({ name: name, email: email });
+    emOtherContacts.push({ id: ref.id, name: name, email: email });
+    emRenderOtherContacts();
+    emRefreshDropdownAndButtons();
+    toast('✅ Saved "' + name + '" to Other contacts.');
+  } catch(e) {
+    toast('⚠️ Save failed: ' + (e.message || e));
+  }
+}
+
+// ── Delete an "Other" contact ──
+async function emDeleteOtherContact(id) {
+  if (!currentUser || !currentUser.isAdmin) { toast('⚠️ Admin access required.'); return; }
+  try {
+    await db.collection(COL_OTHER_CONTACTS).doc(id).delete();
+    emOtherContacts = emOtherContacts.filter(c => c.id !== id);
+    emRenderOtherContacts();
+    emRefreshDropdownAndButtons();
+    toast('🗑 Contact removed.');
+  } catch(e) {
+    toast('⚠️ Delete failed: ' + (e.message || e));
+  }
+}
+
+// ── Render "Other" contacts list in Address Book panel ──
+function emRenderOtherContacts() {
+  const container = document.getElementById('emOtherContactsList');
+  if (!container) return;
+  if (!emOtherContacts.length) {
+    container.innerHTML = '<div style="text-align:center;padding:16px;color:#9ca3af;font-size:12px;">No other contacts saved yet. Add one using the form in the Compose tab.</div>';
+    return;
+  }
+  let html = '<div style="display:flex;flex-direction:column;gap:5px;">';
+  emOtherContacts.forEach(function(c) {
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;border:1px solid #e2e6ef;background:#f8f9fc;">';
+    html += '<div style="flex:1;min-width:0;"><span style="font-size:12px;font-weight:600;color:#1a2236;">' + c.name + '</span> <span style="font-size:11px;color:#6b7280;">&lt;' + c.email + '&gt;</span></div>';
+    html += '<button onclick="emDeleteOtherContact(\'' + c.id + '\')" style="background:none;border:1px solid #fca5a5;color:#dc2626;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">🗑 Remove</button>';
+    html += '</div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 // ── Render read-only list of registered users in Address Book panel ──
@@ -22743,7 +22826,7 @@ function emRefreshDropdownAndButtons() {
     if (missingCount) {
       html += '<optgroup label="── No email set (' + missingCount + ') — add in Address Book ──"></optgroup>';
     }
-    // ── Registered users (auto from Google sign-up etc.), grouped by their assigned location ──
+    // ── Registered users (auto from Google sign-up etc.), grouped by their assigned region/agency ──
     if (emRegisteredUsers.length) {
       const byLoc = {};
       emRegisteredUsers.forEach(function(u) {
@@ -22757,6 +22840,14 @@ function emRefreshDropdownAndButtons() {
         html += '</optgroup>';
       });
     }
+    // ── Other contacts (manually saved) ──
+    if (emOtherContacts.length) {
+      html += '<optgroup label="🗂 Other">';
+      emOtherContacts.forEach(function(c) {
+        html += '<option value="other:' + c.email + '">' + c.name + '  &lt;' + c.email + '&gt;</option>';
+      });
+      html += '</optgroup>';
+    }
     sel.innerHTML = html;
   }
   const gKeys   = ['admins','dzongkhag','ro','thromde'];
@@ -22768,8 +22859,11 @@ function emRefreshDropdownAndButtons() {
   });
   const regBtn = document.getElementById('emGroupBtn_registered');
   if (regBtn) { regBtn.textContent = '👤 Registered Users (' + emRegisteredUsers.length + ')'; regBtn.style.opacity = emRegisteredUsers.length ? '1' : '0.55'; }
+  const otherBtn = document.getElementById('emGroupBtn_other');
+  if (otherBtn) { otherBtn.textContent = '🗂 Other (' + emOtherContacts.length + ')'; otherBtn.style.opacity = emOtherContacts.length ? '1' : '0.55'; }
   const allEmails = new Set(EM_USER_SLOTS.filter(s => emEmailMap[s.id]).map(s => emEmailMap[s.id]));
   emRegisteredUsers.forEach(u => allEmails.add(u.email));
+  emOtherContacts.forEach(c => allEmails.add(c.email));
   const allBtn = document.getElementById('emGroupBtn_all');
   if (allBtn) allBtn.textContent = '📢 All Users (' + allEmails.size + ')';
 }
@@ -22782,6 +22876,19 @@ function emAddGroup(group) {
     emRegisteredUsers.forEach(function(u) {
       if (!emRecipients.find(r => r.email === u.email)) {
         emRecipients.push({ name: u.name, email: u.email });
+        added++;
+      }
+    });
+    emRenderRecipients();
+    toast('✅ Added ' + added + ' recipient(s)');
+    return;
+  }
+  if (group === 'other') {
+    if (!emOtherContacts.length) { toast('⚠️ No "Other" contacts saved yet.'); return; }
+    let added = 0;
+    emOtherContacts.forEach(function(c) {
+      if (!emRecipients.find(r => r.email === c.email)) {
+        emRecipients.push({ name: c.name, email: c.email });
         added++;
       }
     });
@@ -22811,6 +22918,12 @@ function emAddGroup(group) {
         added++;
       }
     });
+    emOtherContacts.forEach(function(c) {
+      if (!emRecipients.find(r => r.email === c.email)) {
+        emRecipients.push({ name: c.name, email: c.email });
+        added++;
+      }
+    });
   }
   emRenderRecipients();
   toast('✅ Added ' + added + ' recipient(s)');
@@ -22826,6 +22939,16 @@ function emAddIndividual() {
     if (!u) return;
     if (emRecipients.find(r => r.email === email)) { toast('Already added.'); return; }
     emRecipients.push({ name: u.name, email: u.email });
+    sel.selectedIndex = 0;
+    emRenderRecipients();
+    return;
+  }
+  if (sel.value.startsWith('other:')) {
+    const email = sel.value.slice(6);
+    const c = emOtherContacts.find(r => r.email === email);
+    if (!c) return;
+    if (emRecipients.find(r => r.email === email)) { toast('Already added.'); return; }
+    emRecipients.push({ name: c.name, email: c.email });
     sel.selectedIndex = 0;
     emRenderRecipients();
     return;
