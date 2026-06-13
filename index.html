@@ -1550,6 +1550,17 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 }
 .nav-tab.active .sb-icon{ color:#e8820c !important; opacity:1 !important; }
 .cqis-sidebar::-webkit-scrollbar-thumb{ background:#e2e6ef !important; }
+/* fix: a global .sb-label rule (for an unrelated component) was leaking
+   near-invisible white text/8px size into the sidebar nav labels */
+.nav-tab .sb-label{
+  color:inherit !important;
+  font-family:'Poppins',sans-serif !important;
+  font-size:12px !important;
+  font-weight:inherit !important;
+  letter-spacing:.2px !important;
+  text-transform:none !important;
+  padding:0 !important;
+}
 
 /* ── Section headers: calmer typography ── */
 .section-title{
