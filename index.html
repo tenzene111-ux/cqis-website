@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="nLTBCQXXbA6sEhT6FHnz9LQtP_jkHHQuF1qlAbjPY8Y" />
 <title>Construction Quality Inspection System — OPMC/OCASC · CQD</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.svg">
+<meta name="theme-color" content="#0f1e3a">
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;600&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <!-- Bootstrap 4 -->
@@ -7331,6 +7335,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
+
+// Enable offline persistence so the app keeps working (reads from cache,
+// queues writes) when the connection drops — common for field inspectors.
+try {
+  db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+    console.warn('Firestore offline persistence not enabled:', err.code);
+  });
+} catch(e){}
 
 // Firestore collection references
 const COL_INSPECTIONS  = 'inspections';
@@ -24924,4 +24936,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, 2000); // wait for _qcTestCache to load from Firestore
 });
+
+// Register service worker for PWA installability + offline app shell
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(err => {
+      console.warn('Service worker registration failed:', err);
+    });
+  });
+}
 </script>

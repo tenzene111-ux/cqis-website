@@ -1,0 +1,18 @@
+{
+  "name": "Construction Quality Inspection System",
+  "short_name": "CQIS",
+  "description": "OPMC/OCASC Construction Quality Inspection System",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f1e3a",
+  "theme_color": "#0f1e3a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
