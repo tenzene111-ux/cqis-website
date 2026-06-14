@@ -1996,6 +1996,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-label">Notifications</span>
       <span class="sb-badge new" id="notifBadgeCount" style="display:none;">0</span>
     </button>
+    <button class="nav-tab" onclick="showTab('recent-activity',this)" id="recentActivityNavBtn">
+      <span class="sb-icon"><i class="fa fa-history"></i></span>
+      <span class="sb-label">Recent Activity</span>
+    </button>
     <button class="nav-tab" onclick="showTab('email-notify',this)" id="emailNotifNavBtn">
       <span class="sb-icon"><i class="fa fa-envelope"></i></span>
       <span class="sb-label">Email Notifications</span>
@@ -6064,6 +6068,42 @@ function printAllConst(){
       </div>
     </div>
 
+    <div id="tab-recent-activity" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-title">RECENT ACTIVITY</div>
+          <div class="section-badge">Who created, edited or deleted records — across all projects</div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+        <select class="filter-select" id="activityFilterAction" onchange="activityRender()">
+          <option value="">All Actions</option>
+          <option value="create">➕ Created</option>
+          <option value="update">✏️ Updated</option>
+          <option value="delete">🗑 Deleted</option>
+        </select>
+        <select class="filter-select" id="activityFilterArea" onchange="activityRender()">
+          <option value="">All Areas</option>
+          <option value="Inspection">Inspection</option>
+          <option value="Project Update">Project Update</option>
+          <option value="Project Registry">Project Registry</option>
+          <option value="QC Test Report">QC Test Report</option>
+          <option value="User Account">User Account</option>
+        </select>
+        <input class="table-search" id="activitySearch" placeholder="🔍 Search by name or user…" oninput="_debounceCall('activityRender')" style="width:220px;">
+        <span id="activityCount" style="font-size:12px;color:#6b7280;margin-left:auto;">0 entries</span>
+      </div>
+
+      <!-- Activity feed -->
+      <div id="activityFeed"></div>
+      <div class="no-data" id="activityEmpty" style="display:none;">
+        <div style="font-size:36px;margin-bottom:12px;">🕘</div>
+        No activity recorded yet. Actions will appear here as records are created, edited or deleted.
+      </div>
+    </div>
+
     <div id="tab-email-notify" style="display:none;">
       <div class="section-header">
         <div>
@@ -7397,6 +7437,20 @@ async function loadAllDataFromFirebase() {
 }
 
 // ================================================================
+//  RECENT ACTIVITY LOG
+// ================================================================
+async function logActivity(action, area, label) {
+  try {
+    await db.collection('activityLog').add({
+      action, area, label: label || '(untitled)',
+      user: (currentUser && (currentUser.name || currentUser.username || currentUser.email)) || 'Unknown',
+      role: (currentUser && currentUser.role) || '',
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) { console.error('Activity log error:', e); }
+}
+
+// ================================================================
 //  FIREBASE — SAVE INSPECTION
 // ================================================================
 async function fbSaveInspection(entry) {
@@ -7408,9 +7462,11 @@ async function fbSaveInspection(entry) {
     const docId = entry.id || ('insp-' + (entry.sn || Date.now()));
     const now = new Date().toISOString();
     const who = (currentUser && (currentUser.name || currentUser.email)) || 'Unknown';
+    const isNew = !entry.createdAt;
     const entryWithId = { ...entry, id: docId, updatedAt: now, updatedBy: who };
     if (!entry.createdAt) { entryWithId.createdAt = now; entryWithId.createdBy = who; }
     await db.collection(COL_INSPECTIONS).doc(docId).set(entryWithId, { merge: true });
+    logActivity(isNew ? 'create' : 'update', 'Inspection', entry.projectName || entry.contractNo || ('S/N #'+entry.sn));
     // Store doc ID back into local array so future edits reuse the same doc
     const idx = inspections.findIndex(r => r.sn === entry.sn);
     if (idx > -1) Object.assign(inspections[idx], { id: docId, createdAt: entryWithId.createdAt, createdBy: entryWithId.createdBy, updatedAt: now, updatedBy: who });
@@ -7429,6 +7485,7 @@ async function fbDeleteInspection(entry) {
   try {
     if (entry.id) {
       await db.collection(COL_INSPECTIONS).doc(entry.id).delete();
+      logActivity('delete', 'Inspection', entry.projectName || entry.contractNo || ('S/N #'+entry.sn));
     }
   } catch(e) {
     console.error('Firebase delete inspection error:', e);
@@ -7456,6 +7513,7 @@ async function fbMarkATRSubmitted(entry) {
 async function fbSavePU(entry) {
   try {
     let docId;
+    const isNew = !entry.id;
     if (entry.id) {
       // Existing record — update in place, never create a duplicate
       await db.collection(COL_PROJ_UPDATES).doc(entry.id).set(entry, { merge: true });
@@ -7468,6 +7526,7 @@ async function fbSavePU(entry) {
       if (idx > -1) projectUpdates[idx].id = docId;
       localStorage.setItem('projectUpdates_cqis', JSON.stringify(projectUpdates));
     }
+    logActivity(isNew ? 'create' : 'update', 'Project Update', entry.projectName || ('S/N #'+entry.sn));
     return docId;
   } catch(e) {
     console.error('Firebase save PU error:', e);
@@ -7482,6 +7541,7 @@ async function fbDeletePU(entry) {
   try {
     if (entry.id) {
       await db.collection(COL_PROJ_UPDATES).doc(entry.id).delete();
+      logActivity('delete', 'Project Update', entry.projectName || ('S/N #'+entry.sn));
     }
   } catch(e) {
     console.error('Firebase delete PU error:', e);
@@ -7496,12 +7556,14 @@ async function fbSavePR(entry) {
   try {
     if (entry.id) {
       await db.collection(COL_PROJ_REG).doc(entry.id).set(entry);
+      logActivity('update', 'Project Registry', entry.projectName || entry.regId);
       return entry.id;
     } else {
       const docRef = await db.collection(COL_PROJ_REG).add(entry);
       const idx = projectRegistry.findIndex(r => r.sn === entry.sn);
       if (idx > -1) projectRegistry[idx].id = docRef.id;
       localStorage.setItem('projectRegistry_cqis', JSON.stringify(projectRegistry));
+      logActivity('create', 'Project Registry', entry.projectName || entry.regId);
       return docRef.id;
     }
   } catch(e) {
@@ -7517,6 +7579,7 @@ async function fbDeletePR(entry) {
   try {
     if (entry.id) {
       await db.collection(COL_PROJ_REG).doc(entry.id).delete();
+      logActivity('delete', 'Project Registry', entry.projectName || entry.regId);
     }
   } catch(e) {
     console.error('Firebase delete PR error:', e);
@@ -11192,6 +11255,7 @@ async function approveUserRequest(id) {
     }
     await db.collection('approved_users').doc(id).set(approvedData);
     await db.collection('pending_users').doc(id).update({ status: 'approved' });
+    logActivity('create', 'User Account', approvedData.name || id);
     renderUserRequests();
     updateUserReqBadge();
   } catch (e) {
@@ -11203,6 +11267,7 @@ async function rejectUserRequest(id) {
   if (!confirm(`Reject access request for ${id}?`)) return;
   try {
     await db.collection('pending_users').doc(id).update({ status: 'rejected' });
+    logActivity('delete', 'User Account', id);
     renderUserRequests();
     updateUserReqBadge();
   } catch (e) {
@@ -11503,6 +11568,7 @@ function showTab(id,btn){
   if(id==='compliance-area'){ renderAreaCompliance(); }
   if(id==='downloads') dlRender();
   if(id==='notifications'){ notifRender(); notifClearBadge(); }
+  if(id==='recent-activity'){ activityRender(); }
   if(id==='email-notify'){ emLoadAddressBook(true).then(()=>{ emRefreshDropdownAndButtons(); }); emRenderHistory(); emShowSubTab('compose'); }
   if(id==='insp-schedule'){
     ispRender();
@@ -14727,6 +14793,8 @@ function initApp(){
   setTimeout(entryPopulateScheduleDropdown, 800);
   // Load QC test reports from Firestore (shared across all users)
   trLoadAllFromFirestore();
+  // Real-time Recent Activity feed
+  startActivityListener();
 }
 
 // ===== SBRW SECTIONS (embedded from SBRW2025 tool) =====
@@ -19314,6 +19382,7 @@ async function trSaveStandaloneRecord(rec) {
     // Update cache immediately
     rec.firestoreId = docRef.id;
     _qcTestCache.unshift(rec);
+    logActivity('create', 'QC Test Report', rec.projectName || rec.workType || 'QC Test');
     trRenderStandalone();
   } catch(e) {
     console.error('Failed to save QC test to Firestore:', e);
@@ -19325,8 +19394,10 @@ async function trSaveStandaloneRecord(rec) {
 async function trDeleteStandaloneRecord(firestoreId) {
   if (!confirm('Delete this test record? This cannot be undone.')) return;
   try {
+    const rec = _qcTestCache.find(r => r.firestoreId === firestoreId);
     await db.collection(COL_QC_TESTS).doc(firestoreId).delete();
     _qcTestCache = _qcTestCache.filter(r => r.firestoreId !== firestoreId);
+    logActivity('delete', 'QC Test Report', (rec && (rec.projectName || rec.workType)) || 'QC Test');
     trRenderStandalone();
     showToast('Record deleted.');
   } catch(e) {
@@ -22350,6 +22421,77 @@ function notifFmtTime(iso){
   if(hrs   < 24) return hrs  + 'h ago';
   if(days  < 7)  return days + 'd ago';
   return new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+/* ══════════════════════════════════════════════════════
+   RECENT ACTIVITY FEED
+   Reads from the 'activityLog' Firestore collection
+   (written by logActivity() in fbSave / fbDelete functions).
+══════════════════════════════════════════════════════ */
+
+let recentActivity = [];
+
+function startActivityListener(){
+  db.collection('activityLog')
+    .orderBy('timestamp','desc').limit(200)
+    .onSnapshot(snap => {
+      recentActivity = snap.docs.map(doc => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          action: d.action || 'update',
+          area: d.area || '',
+          label: d.label || '',
+          user: d.user || 'Unknown',
+          role: d.role || '',
+          timestamp: d.timestamp && d.timestamp.toDate ? d.timestamp.toDate().toISOString() : null,
+        };
+      });
+      const tab = document.getElementById('tab-recent-activity');
+      if(tab && tab.style.display !== 'none') activityRender();
+    }, err => console.error('Activity log listener error:', err));
+}
+
+function activityRender(){
+  const actionF = document.getElementById('activityFilterAction')?.value || '';
+  const areaF   = document.getElementById('activityFilterArea')?.value   || '';
+  const search  = (document.getElementById('activitySearch')?.value || '').toLowerCase();
+
+  let rows = recentActivity.filter(a => {
+    if(actionF && a.action !== actionF) return false;
+    if(areaF && a.area !== areaF) return false;
+    if(search && !((a.label||'').toLowerCase().includes(search) || (a.user||'').toLowerCase().includes(search))) return false;
+    return true;
+  });
+
+  const countEl = document.getElementById('activityCount');
+  if(countEl) countEl.textContent = rows.length + ' entr' + (rows.length!==1?'ies':'y');
+
+  const feed  = document.getElementById('activityFeed');
+  const empty = document.getElementById('activityEmpty');
+  if(!feed) return;
+  if(!rows.length){ feed.innerHTML=''; if(empty) empty.style.display=''; return; }
+  if(empty) empty.style.display = 'none';
+
+  const actionIcon  = { create:'➕', update:'✏️', delete:'🗑' };
+  const actionLabel = { create:'Created', update:'Updated', delete:'Deleted' };
+  const actionColor = { create:'#16a34a', update:'#3b82f6', delete:'#dc2626' };
+
+  feed.innerHTML = rows.map(a => {
+    const ts = notifFmtTime(a.timestamp);
+    const color = actionColor[a.action] || '#6b7280';
+    return `<div class="notif-card read" style="border-left:3px solid ${color};">
+      <div class="notif-icon" style="background:${color}1a;color:${color};">${actionIcon[a.action]||'•'}</div>
+      <div class="notif-body">
+        <div class="notif-title">${actionLabel[a.action]||a.action} ${a.area}</div>
+        <div class="notif-desc">${a.label}</div>
+        <div class="notif-meta">
+          <span class="notif-user">👤 ${a.user}${a.role?' · '+a.role:''}</span>
+          <span class="notif-time">🕐 ${ts}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ── mark single read ── */
