@@ -11236,6 +11236,15 @@ if (typeof firebase !== 'undefined' && firebase.auth) {
 
 // ===== FINISH LOGIN =====
 function finishLogin() {
+  // Ensure a Firebase Auth session exists even for password-based logins
+  // (Google sign-in already provides one) — required by Firestore security
+  // rules that check `request.auth != null`.
+  try {
+    if (typeof firebase !== 'undefined' && firebase.auth && !firebase.auth().currentUser) {
+      firebase.auth().signInAnonymously().catch(()=>{});
+    }
+  } catch(e){}
+
   // Hide login, show app INSIDE the panel
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').style.display = 'block';

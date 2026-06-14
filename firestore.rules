@@ -1,0 +1,44 @@
+rules_version = '2';
+
+// ════════════════════════════════════════════════════════════════════════
+// CQIS — BASELINE FIRESTORE SECURITY RULES (DRAFT)
+//
+// WHAT THIS DOES:
+//   Blocks fully anonymous, "drive-by" access to your Firestore database
+//   (e.g. a script that hits your project's REST API directly using only
+//   the public web API key, without ever loading the CQIS website).
+//   Every request must come from a session that has signed in via
+//   Firebase Auth — either Google sign-in, or the anonymous session the
+//   app now creates automatically for password-based Admin/User logins
+//   (see finishLogin() in index.html).
+//
+// WHAT THIS DOES NOT DO:
+//   It does NOT enforce the app's Admin / User / Viewer role permissions
+//   server-side — those still live only in the client JS. Any signed-in
+//   session (including an anonymous one) can read/write any collection.
+//   True role enforcement would require issuing custom auth claims
+//   (e.g. via a Cloud Function on login) and checking
+//   request.auth.token.role in these rules — a larger change.
+//
+// BEFORE DEPLOYING:
+//   1. Open Firebase Console → Firestore Database → Rules.
+//   2. Paste these rules into the "Rules Playground" and simulate reads/
+//      writes for each collection below as both a signed-in and a
+//      signed-out user to confirm the expected allow/deny results.
+//   3. Only then click "Publish".
+// ════════════════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Require a Firebase Auth session (Google sign-in or anonymous) for
+    // every read and write across all collections used by CQIS:
+    //   inspections, projectUpdates, projectRegistry, qcTestReports,
+    //   adminNotifications, inspection_notifications, observer_comments,
+    //   approved_users, pending_users, counters, presence,
+    //   emailAddressBook, emOtherContacts, system_config/news_banner
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
