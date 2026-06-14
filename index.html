@@ -7220,9 +7220,9 @@ function printAllConst(){
               <th>Contract Amount<br>(Nu. Million)</th>
               <th>Funding</th>
               <th>Start Date</th><th>End Date</th>
-              <th>Ongoing Activities</th>
+              <th>Scope of Works</th>
               <th style="min-width:130px;white-space:normal;">Project Location</th>
-              <th style="min-width:200px;white-space:normal;word-break:normal;">Site Engineer<br>(Name &amp; Contact No.)</th>
+              <th style="min-width:120px;white-space:normal;">Site Engineer</th>
               <th style="min-width:150px;white-space:normal;">Remarks, if any</th>
               <th style="position:sticky;right:0;z-index:3;background:#1a3a6e;min-width:120px;text-align:center;">Actions</th>
             </tr></thead>
@@ -18340,7 +18340,7 @@ function buildPRRow(r, i) {
   // Count linked monthly updates
   const linkedUpdates = projectUpdates.filter(u => u.regId === r.regId || u.projectName === r.projectName);
   const updateCount = linkedUpdates.length;
-  // Latest monthly update — for "Ongoing Activities" tally
+  // Latest monthly update — for "Scope of Works" tally
   const latestUpdate = linkedUpdates.slice().sort((a,b) => new Date(b.submittedAt||b.updatedDate||0) - new Date(a.submittedAt||a.updatedDate||0))[0];
   const ongoingActivities = (latestUpdate && latestUpdate.progress) ? latestUpdate.progress : (r.description || '—');
   return `<tr>
@@ -18375,7 +18375,7 @@ function buildPRRow(r, i) {
 /* ── CSV / Excel export for registry ── */
 function prExportCSV(format) {
   if (!projectRegistry.length) { toast('⚠️ No registry data to export.'); return; }
-  const hdr = ['Sl.No.','Name of the Project','Contract Amount (Nu. Million)','Funding','Start date','End date','Ongoing Activities','Project Location','Name and Contact No. of Site Engineer','Remarks, if any','Contract No.','Agency','Type','Road Section','Contractor','Contractor Contact','Budget (Nu.)','Description','Registered By','Registered On'];
+  const hdr = ['Sl.No.','Name of the Project','Contract Amount (Nu. Million)','Funding','Start date','End date','Scope of Works','Project Location','Site Engineer','Remarks, if any','Contract No.','Agency','Type','Road Section','Contractor','Contractor Contact','Budget (Nu.)','Description','Registered By','Registered On'];
   const rows = projectRegistry.map(r => {
     const linkedUpdates = projectUpdates.filter(u => u.regId === r.regId || u.projectName === r.projectName);
     const latestUpdate = linkedUpdates.slice().sort((a,b) => new Date(b.submittedAt||b.updatedDate||0) - new Date(a.submittedAt||a.updatedDate||0))[0];
@@ -18422,7 +18422,7 @@ function prDownloadTemplate() {
     '"Type" must be one of: dzongkhag, ro, thromde, other.',
     'Regular Users: Agency/Type columns are ignored — projects are auto-assigned to your own agency.',
     '"Contract Amt (Nu.)" should be the full amount in Ngultrum (it will be shown as Nu. Million in the table).',
-    '"Ongoing Activities" in the table is pulled automatically from each project\'s latest Monthly Update.',
+    '"Scope of Works" in the table is pulled automatically from each project\'s latest Monthly Update.',
     'Dates should be in YYYY-MM-DD format. Delete this example row before importing.'
   ];
 
