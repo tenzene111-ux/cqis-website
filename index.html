@@ -18033,6 +18033,20 @@ function prToggleAdminLocOther(val) {
   otherInput.style.display = (val === 'Other|other') ? '' : 'none';
 }
 
+/* ── show/hide custom funding source field when "Other" is selected ── */
+function prToggleFundingOther(val) {
+  const otherInput = document.getElementById('prFundingOther');
+  if (!otherInput) return;
+  otherInput.style.display = (val === 'Other') ? '' : 'none';
+}
+
+/* ── get the selected funding value, resolving custom "Other" text ── */
+function getPRFunding() {
+  const val = document.getElementById('prFunding').value;
+  if (val === 'Other') return document.getElementById('prFundingOther').value.trim();
+  return val;
+}
+
 /* ── open project registry form ── */
 let prEditId = null;
 function openPRForm(editId) {
@@ -18069,7 +18083,18 @@ function openPRForm(editId) {
     document.getElementById('prContractAmount').value = reg.contractAmount || '';
     document.getElementById('prStartDate').value      = reg.startDate || '';
     document.getElementById('prEndDate').value        = reg.endDate || '';
-    document.getElementById('prFunding').value        = reg.funding || '';
+    const fundingSelect = document.getElementById('prFunding');
+    const fundingOther  = document.getElementById('prFundingOther');
+    const knownFunding  = ['RGoB','GoI/SDP','PTA','ADB','WB','GCF','GEF'];
+    if (reg.funding && !knownFunding.includes(reg.funding)) {
+      fundingSelect.value = 'Other';
+      fundingOther.value = reg.funding;
+      fundingOther.style.display = '';
+    } else {
+      fundingSelect.value = reg.funding || '';
+      fundingOther.value = '';
+      fundingOther.style.display = 'none';
+    }
     document.getElementById('prDescription').value    = reg.description || '';
     document.getElementById('prRemarks').value        = reg.remarks || '';
     if (currentUser.isAdmin && document.getElementById('prAdminLoc')) {
@@ -18095,6 +18120,8 @@ function openPRForm(editId) {
     if (adminLoc) adminLoc.selectedIndex = 0;
     const otherInput = document.getElementById('prAdminLocOther');
     if (otherInput) { otherInput.value = ''; otherInput.style.display = 'none'; }
+    const fundingOther = document.getElementById('prFundingOther');
+    if (fundingOther) { fundingOther.value = ''; fundingOther.style.display = 'none'; }
   }
   document.getElementById('prFormOverlay').style.display = 'flex';
 }
@@ -18156,7 +18183,7 @@ function savePREntry() {
       contractAmount:   document.getElementById('prContractAmount').value.trim(),
       startDate:        document.getElementById('prStartDate').value,
       endDate:          document.getElementById('prEndDate').value,
-      funding:          document.getElementById('prFunding').value.trim(),
+      funding:          getPRFunding(),
       description:      document.getElementById('prDescription').value.trim(),
       remarks:          document.getElementById('prRemarks').value.trim(),
       updatedAt:        new Date().toISOString(),
@@ -18185,7 +18212,7 @@ function savePREntry() {
       contractAmount:   document.getElementById('prContractAmount').value.trim(),
       startDate:        document.getElementById('prStartDate').value,
       endDate:          document.getElementById('prEndDate').value,
-      funding:          document.getElementById('prFunding').value.trim(),
+      funding:          getPRFunding(),
       description:      document.getElementById('prDescription').value.trim(),
       remarks:          document.getElementById('prRemarks').value.trim(),
       registeredBy:     currentUser.username || currentUser.name,
@@ -21760,7 +21787,18 @@ ${CQIS_WATERMARK_CSS}
 
       <div>
         <label class="cqis-modal-label">FUNDING</label>
-        <input id="prFunding" class="cqis-modal-input" placeholder="e.g. GoI, GoB, ADB, World Bank">
+        <select id="prFunding" class="cqis-modal-input" onchange="prToggleFundingOther(this.value)">
+          <option value="">— Select Funding Source —</option>
+          <option value="RGoB">RGoB</option>
+          <option value="GoI/SDP">GoI/SDP</option>
+          <option value="PTA">PTA</option>
+          <option value="ADB">ADB</option>
+          <option value="WB">WB</option>
+          <option value="GCF">GCF</option>
+          <option value="GEF">GEF</option>
+          <option value="Other">Other</option>
+        </select>
+        <input id="prFundingOther" class="cqis-modal-input" style="margin-top:8px;display:none;" placeholder="Enter funding source…">
       </div>
 
       <div style="grid-column:1/-1;">
