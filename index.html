@@ -7302,11 +7302,9 @@ function printAllConst(){
           <div class="table-card" style="overflow-x:auto;">
             <table class="data-table" id="puTable">
               <thead><tr>
-                <th>#</th><th>Project</th><th>Location</th>
+                <th>#</th><th>Project</th>
                 <th id="puSubmittedByCol" style="display:none;">Submitted By</th>
-                <th>Work Components</th><th>Status</th><th>Progress</th>
-                <th>Budget (Nu.)</th><th>Contract (Nu.)</th>
-                <th>Engineer</th><th>Contractor</th>
+                <th>Status</th><th>Progress</th>
                 <th>Activity This Month</th><th>Next Planned Work</th>
                 <th>Updated</th><th>Month</th><th>Remarks</th><th>Actions</th>
               </tr></thead>
@@ -19020,15 +19018,10 @@ function renderPUTable(){
   if(!rows.length){ body.innerHTML=''; empty.style.display=''; return; }
   empty.style.display = 'none';
 
-  const fmt      = v=>v?'Nu. '+Number(v).toLocaleString():'—';
   const buildRow = (r)=>{
     const realIdx  = projectUpdates.indexOf(r);
     const pct      = Number(r.percent||0);
     const fillCls  = r.overallStatus==='Completed'?'complete':r.overallStatus==='Delayed'?'delayed':'';
-    const wcs      = r.workComponents||[];
-    const wcBadges = wcs.length
-      ? wcs.map(w=>`<span class="pu-st ${puStatusClass(w.status)}" style="margin:1px;font-size:9px;" title="${w.note||''}">${w.name.split('—')[0].trim()}</span>`).join(' ')
-      : '<span style="font-size:11px;color:#6b7280;">—</span>';
     const canAct = isAdmin || r.submittedByUsername===myKey || r.submittedBy===currentUser?.name;
     const agencyBadge = isAdmin && r.agencyType
       ? `<br><span style="font-size:9px;background:${r.agencyType==='dzongkhag'?'rgba(37,99,235,.1)':r.agencyType==='ro'?'rgba(232,130,12,.1)':'rgba(16,163,74,.1)'};color:${r.agencyType==='dzongkhag'?'#1d4ed8':r.agencyType==='ro'?'#c46a08':'#15803d'};border-radius:3px;padding:1px 5px;font-weight:700;">${(r.agencyType||'').toUpperCase()}</span>` : '';
@@ -19036,12 +19029,9 @@ function renderPUTable(){
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b7280;">${r.sn}</td>
       <td>
         <strong style="color:#111827;font-size:13px;">${r.projectName||'—'}</strong>
-        ${r.contractNo?`<br><span style="font-size:10px;color:#6b7280;">${r.contractNo}</span>`:''}
-        ${r.roadSection?`<br><span style="font-size:10px;color:#6b7280;">${r.roadSection}</span>`:''}
+        ${r.location?`<br><span style="font-size:10px;color:#6b7280;">${r.location}</span>${agencyBadge}`:agencyBadge}
       </td>
-      <td style="font-size:12px;color:#111827;">${r.location||'—'}${agencyBadge}</td>
       ${isAdmin?`<td style="font-size:11px;color:#111827;">${r.submittedBy||r.submittedByUsername||'—'}</td>`:''}
-      <td style="max-width:200px;">${wcBadges}</td>
       <td>${puStatusBadge(r.overallStatus)}</td>
       <td>
         <div style="display:flex;align-items:center;gap:6px;">
@@ -19049,10 +19039,6 @@ function renderPUTable(){
           <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#111827;">${pct}%</span>
         </div>
       </td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#111827;">${fmt(r.approvedBudget)}</td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#111827;">${fmt(r.contractAmount)}</td>
-      <td style="font-size:12px;color:#111827;">${r.engineerName||'—'}<br><span style="color:#f97316;font-size:11px;">${r.engineerContact||''}</span></td>
-      <td style="font-size:12px;color:#111827;">${r.contractorName||'—'}</td>
       <td style="max-width:160px;font-size:12px;color:#111827;">${r.progress||'—'}</td>
       <td style="max-width:140px;font-size:12px;color:#374151;">${r.nextWork||'—'}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#111827;">${r.updatedDate||'—'}</td>
@@ -19075,7 +19061,7 @@ function renderPUTable(){
       (agencyGroups[t]||agencyGroups.other).push(r);
     });
     const labels = { dzongkhag:'🏛 DZONGKHAG', ro:'🏢 REGIONAL OFFICE', thromde:'🏙 THROMDE', other:'📌 OTHER' };
-    const colCount = 17; // including submittedBy column for admin
+    const colCount = 11; // including submittedBy column for admin
     let html = '';
     ['dzongkhag','ro','thromde','other'].forEach(type=>{
       const grp = agencyGroups[type];
