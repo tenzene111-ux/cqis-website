@@ -2479,6 +2479,15 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div class="field-wrap"><label>Work Item Inspected</label><input type="text" id="fWorkItem" placeholder="e.g. Compaction of subgrade layer"></div>
           <div class="field-wrap"><label>Date Inspected</label><input type="date" id="fDateInspected"></div>
           <div class="field-wrap"><label>Inspector Name</label><input type="text" id="fInspector" placeholder="e.g. Dorji Wangchuk, Engineer"></div>
+          <div class="field-wrap">
+            <label>GPS Location</label>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input type="text" id="fGPSDisplay" placeholder="Not captured" readonly style="flex:1;background:#f8fafc;color:#6b7280;">
+              <button type="button" class="btn-secondary" style="padding:9px 12px;font-size:12px;white-space:nowrap;" onclick="captureGPSLocation()">📍 Capture</button>
+            </div>
+            <input type="hidden" id="fLat">
+            <input type="hidden" id="fLng">
+          </div>
           <div class="field-wrap" style="grid-column:1/-1"><label>Remarks</label><textarea id="fRemarks" placeholder="Additional observations, site conditions, notes…"></textarea></div>
         </div>
       </div>
@@ -11791,6 +11800,7 @@ let _roZoneLayers    = [];
 let _thromdeZoneLayers = [];
 let _highwayLines    = [];
 let _dzLabelMarkers  = [];
+let _gpsMarkers      = [];
 let _currentTile     = null;
 let _showRO          = true;
 let _showRoutes      = true;
@@ -12049,6 +12059,8 @@ function renderBhutanMap(){
   _leafletMarkers = {};
   _dzLabelMarkers.forEach(m=>_leafletMap.removeLayer(m));
   _dzLabelMarkers = [];
+  _gpsMarkers.forEach(m=>_leafletMap.removeLayer(m));
+  _gpsMarkers = [];
 
   let totalInspected=0, totalDefects=0;
 
@@ -12107,6 +12119,30 @@ function renderBhutanMap(){
     });
     if(_showLabels) lbl.addTo(_leafletMap);
     _dzLabelMarkers.push(lbl);
+  });
+
+  // Per-inspection GPS pins (exact captured coordinates)
+  data.filter(r=>r.lat && r.lng).forEach(r=>{
+    if(filterDz && r.dzongkhag!==filterDz) return;
+    const color = r.defect==='Yes'?'#dc2626':'#16a34a';
+    const gpsMarker = L.circleMarker([r.lat,r.lng],{
+      radius:6, color:'#fff', weight:2, fillColor:color, fillOpacity:0.9, zIndexOffset:600
+    });
+    gpsMarker.bindPopup(`
+      <div style="font-family:'Poppins',sans-serif;min-width:180px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
+          color:#e8820c;border-bottom:1px solid #e2e6ef;padding-bottom:5px;margin-bottom:6px;">
+          📍 ${r.projectName||'Inspection'}</div>
+        <div style="font-size:11px;color:#374151;line-height:1.5;">
+          <div><b>Dzongkhag:</b> ${r.dzongkhag||r.ro||r.other||'—'}</div>
+          <div><b>Date:</b> ${r.dateInspected||'—'}</div>
+          <div><b>Defect:</b> ${r.defect==='Yes'?'⚠️ Yes':'✅ No'}</div>
+          <div><b>Coords:</b> ${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</div>
+        </div>
+      </div>`,
+      {maxWidth:240,className:'cqis-map-popup'});
+    gpsMarker.addTo(_leafletMap);
+    _gpsMarkers.push(gpsMarker);
   });
 
   if(filterDz && DZ_COORDS[filterDz]){
@@ -12972,6 +13008,8 @@ function saveEntry(){
         isTestData: JSON.stringify(collectIsTestData() || null),
         month:dt?getMonth(dt):'',year:dt?getYear(dt):'',
         remarks:document.getElementById('fRemarks').value.trim(),
+        lat: parseFloat(document.getElementById('fLat')?.value) || null,
+        lng: parseFloat(document.getElementById('fLng')?.value) || null,
       };
       inspections.push(entry);
       save();
@@ -13023,7 +13061,8 @@ function saveEntry(){
 
 function clearForm(){
   ['fProjectName','fContractNo','fRoadSection','fContractor','fWorkItem','fDateInspected','fInspector',
-   'fDefectDesc','fAction','fRemarks','fATRDeadline'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+   'fDefectDesc','fAction','fRemarks','fATRDeadline','fLat','fLng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  { const g=document.getElementById('fGPSDisplay'); if(g) g.value=''; }
   ['fDzongkhag','fROForm','fDefect'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   // Uncheck all work type checkboxes + clear notes + collapse
   document.querySelectorAll('.wt-cb').forEach(cb=>{
@@ -13049,6 +13088,43 @@ function clearForm(){
   const dzRadio=document.querySelector('input[name="locType"][value="dzongkhag"]');
   if(dzRadio){dzRadio.checked=true;toggleLocType('dzongkhag');}
   document.getElementById('qcResultPanel').classList.remove('show');
+}
+
+// ===== GPS Auto-Capture =====
+function captureGPSLocation(){
+  const display=document.getElementById('fGPSDisplay');
+  const latEl=document.getElementById('fLat');
+  const lngEl=document.getElementById('fLng');
+  const toastFn=(typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert));
+
+  if(!navigator.geolocation){
+    toastFn('⚠️ GPS not supported on this device/browser.');
+    return;
+  }
+
+  if(display) display.value='Locating...';
+  toastFn('📍 Getting current location...');
+
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat=pos.coords.latitude;
+      const lng=pos.coords.longitude;
+      const acc=pos.coords.accuracy;
+      if(latEl) latEl.value=lat;
+      if(lngEl) lngEl.value=lng;
+      if(display) display.value=lat.toFixed(6)+', '+lng.toFixed(6)+' (±'+Math.round(acc)+'m)';
+      toastFn('✅ GPS location captured.');
+    },
+    err=>{
+      if(display) display.value='';
+      let msg='⚠️ Could not get GPS location.';
+      if(err.code===1) msg='⚠️ Location permission denied.';
+      else if(err.code===2) msg='⚠️ Location unavailable.';
+      else if(err.code===3) msg='⚠️ Location request timed out.';
+      toastFn(msg);
+    },
+    { enableHighAccuracy:true, timeout:15000, maximumAge:0 }
+  );
 }
 
 // ===== ATR =====
