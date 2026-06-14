@@ -14270,12 +14270,12 @@ function renderProjectReport(){
         <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:1px;color:#1a2236;margin-bottom:4px;">PROJECT QUALITY INSPECTION REPORT</div>
         <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:600;color:#d97706;margin-bottom:12px;">${proj}</div>
         <div style="display:grid;grid-template-columns:repeat(3,auto);gap:6px 28px;font-size:12px;">
-          <div><span style="color:#6b7280;">Contract No:</span> <strong>${first.contractNo||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Contractor:</span> <strong>${first.contractor||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Location:</span> <strong>${first.dzongkhag||first.ro||first.other||first.other||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Road Section:</span> <strong>${first.roadSection||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Generated:</span> <strong>${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</strong></div>
-          <div><span style="color:#6b7280;">Prepared by:</span> <strong>CQD</strong></div>
+          <div><span style="color:#6b7280;">Contract No:</span> <strong style="color:#111827;">${first.contractNo||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Contractor:</span> <strong style="color:#111827;">${first.contractor||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Location:</span> <strong style="color:#111827;">${first.dzongkhag||first.ro||first.other||first.other||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Road Section:</span> <strong style="color:#111827;">${first.roadSection||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Generated:</span> <strong style="color:#111827;">${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</strong></div>
+          <div><span style="color:#6b7280;">Prepared by:</span> <strong style="color:#111827;">CQD</strong></div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:200px;">
@@ -14670,15 +14670,15 @@ function renderRegistryReport(){
         <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:1px;color:#1a2236;margin-bottom:4px;">PROJECT PROGRESS REPORT</div>
         <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:600;color:#d97706;margin-bottom:12px;">${reg.projectName||'—'}</div>
         <div style="display:grid;grid-template-columns:repeat(3,auto);gap:6px 28px;font-size:12px;">
-          <div><span style="color:#6b7280;">Contract No:</span> <strong>${reg.contractNo||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Contractor:</span> <strong>${reg.contractorName||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Location:</span> <strong>${reg.agencyLocation||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Road Section:</span> <strong>${reg.roadSection||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Contract Amount:</span> <strong>Nu. ${fmtM(reg.contractAmount)} Million</strong></div>
-          <div><span style="color:#6b7280;">Funding:</span> <strong>${reg.funding||'—'}</strong></div>
-          <div><span style="color:#6b7280;">Start Date:</span> <strong>${fmtDate(reg.startDate)}</strong></div>
-          <div><span style="color:#6b7280;">End Date:</span> <strong>${fmtDate(reg.endDate)}</strong></div>
-          <div><span style="color:#6b7280;">Generated:</span> <strong>${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</strong></div>
+          <div><span style="color:#6b7280;">Contract No:</span> <strong style="color:#111827;">${reg.contractNo||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Contractor:</span> <strong style="color:#111827;">${reg.contractorName||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Location:</span> <strong style="color:#111827;">${reg.agencyLocation||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Road Section:</span> <strong style="color:#111827;">${reg.roadSection||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Contract Amount:</span> <strong style="color:#111827;">Nu. ${fmtM(reg.contractAmount)} Million</strong></div>
+          <div><span style="color:#6b7280;">Funding:</span> <strong style="color:#111827;">${reg.funding||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Start Date:</span> <strong style="color:#111827;">${fmtDate(reg.startDate)}</strong></div>
+          <div><span style="color:#6b7280;">End Date:</span> <strong style="color:#111827;">${fmtDate(reg.endDate)}</strong></div>
+          <div><span style="color:#6b7280;">Generated:</span> <strong style="color:#111827;">${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</strong></div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:200px;">
