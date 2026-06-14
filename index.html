@@ -7302,7 +7302,7 @@ function printAllConst(){
           <div class="table-card" style="overflow-x:auto;">
             <table class="data-table" id="puTable">
               <thead><tr>
-                <th>#</th><th>Project</th>
+                <th>#</th><th>Name of the Project</th><th>Project Location</th>
                 <th id="puSubmittedByCol" style="display:none;">Submitted By</th>
                 <th>Status</th><th>Progress</th>
                 <th>Activity This Month</th><th>Next Planned Work</th>
@@ -18163,9 +18163,9 @@ function savePREntry() {
     const idx = projectRegistry.findIndex(r => r.regId === prEditId);
     if (idx === -1) { alert('Project not found.'); return; }
     const existing = projectRegistry[idx];
-    // Only owner or admin can edit
-    if (!currentUser.isAdmin && existing.registeredBy !== currentUser.username) {
-      alert('You can only edit your own projects.'); return;
+    // Only same-agency users or admin can edit
+    if (!currentUser.isAdmin && existing.agencyLocation !== currentUser.location) {
+      alert('You can only edit projects belonging to your agency.'); return;
     }
     projectRegistry[idx] = {
       ...existing,
@@ -18281,9 +18281,8 @@ function renderPRTable() {
     });
   } else {
     const search = (document.getElementById('prSearchUser')?.value || '').toLowerCase();
-    const myKey  = currentUser?.username || currentUser?.name;
     rows = projectRegistry.filter(r => {
-      if (r.registeredBy !== myKey) return false;
+      if (r.agencyLocation !== currentUser?.location) return false;
       if (search && !JSON.stringify(r).toLowerCase().includes(search)) return false;
       return true;
     });
@@ -18336,7 +18335,7 @@ function buildPRRow(r, i) {
   const fmtM = v => (v !== undefined && v !== null && v !== '') ? (Number(v)/1000000).toLocaleString(undefined,{maximumFractionDigits:2}) : '—';
   const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : '—';
   const isAdmin = currentUser && currentUser.isAdmin;
-  const canEdit = isAdmin || (r.registeredBy === (currentUser?.username || currentUser?.name));
+  const canEdit = isAdmin || (r.agencyLocation === currentUser?.location);
   // Count linked monthly updates
   const linkedUpdates = projectUpdates.filter(u => u.regId === r.regId || u.projectName === r.projectName);
   const updateCount = linkedUpdates.length;
@@ -18719,11 +18718,10 @@ function puPopulateProjectSelector() {
   const sel = document.getElementById('puProjectSelect');
   if (!sel) return;
   const isAdmin = currentUser && currentUser.isAdmin;
-  const myKey   = currentUser?.username || currentUser?.name;
-  // Only show projects this user registered (or all for admin)
+  // Only show projects belonging to this user's agency (or all for admin)
   const myProjects = isAdmin
     ? projectRegistry
-    : projectRegistry.filter(r => r.registeredBy === myKey);
+    : projectRegistry.filter(r => r.agencyLocation === currentUser?.location);
 
   sel.innerHTML = '<option value="">— Select a registered project —</option>';
   if (!myProjects.length) {
@@ -18906,10 +18904,12 @@ function deletePU(i){
 function editPU(i){
   const entry = projectUpdates[i];
   if(!currentUser) return;
-  // Allow: admin always. User: only their own.
-  const myKey = currentUser.username || currentUser.name;
-  if(!currentUser.isAdmin && entry.submittedByUsername !== myKey && entry.submittedBy !== currentUser.name){
-    alert('You can only edit updates that you submitted.'); return;
+  // Allow: admin always. User: only updates for their own agency's projects.
+  if(!currentUser.isAdmin){
+    const reg = entry.regId ? projectRegistry.find(p=>p.regId===entry.regId) : null;
+    if(!reg || reg.agencyLocation !== currentUser.location){
+      alert('You can only edit updates for projects belonging to your agency.'); return;
+    }
   }
   const r=projectUpdates[i];
   if(!r) return;
@@ -18981,19 +18981,17 @@ function puStatusBadge(s){
 /* ── render table ── */
 function renderPUTable(){
   const isAdmin = currentUser && currentUser.isAdmin;
-  const myKey   = currentUser?.username || currentUser?.name;
   const search  = (document.getElementById('puSearch')?.value||'').toLowerCase();
   const locF    = document.getElementById('puLocFilter')?.value||'';
   const stF     = document.getElementById('puStatusFilter')?.value||'';
   const wcF     = (document.getElementById('puWorkFilter')?.value||'').replace(/&amp;/g,'&');
 
-  // ── Access scope: users see only their own submitted updates ──
+  // ── Access scope: users see only updates for projects belonging to their own agency ──
   const scopedUpdates = isAdmin
     ? projectUpdates
     : projectUpdates.filter(r=>{
-        return r.submittedByUsername === myKey
-            || r.submittedBy === currentUser?.name
-            || (r.regId && projectRegistry.some(p=>p.regId===r.regId && p.registeredBy===myKey));
+        const reg = r.regId ? projectRegistry.find(p=>p.regId===r.regId) : null;
+        return reg && reg.agencyLocation === currentUser?.location;
       });
 
   // Stats always based on scoped set
@@ -19022,15 +19020,19 @@ function renderPUTable(){
     const realIdx  = projectUpdates.indexOf(r);
     const pct      = Number(r.percent||0);
     const fillCls  = r.overallStatus==='Completed'?'complete':r.overallStatus==='Delayed'?'delayed':'';
-    const canAct = isAdmin || r.submittedByUsername===myKey || r.submittedBy===currentUser?.name;
-    const agencyBadge = isAdmin && r.agencyType
-      ? `<br><span style="font-size:9px;background:${r.agencyType==='dzongkhag'?'rgba(37,99,235,.1)':r.agencyType==='ro'?'rgba(232,130,12,.1)':'rgba(16,163,74,.1)'};color:${r.agencyType==='dzongkhag'?'#1d4ed8':r.agencyType==='ro'?'#c46a08':'#15803d'};border-radius:3px;padding:1px 5px;font-weight:700;">${(r.agencyType||'').toUpperCase()}</span>` : '';
+    const reg      = r.regId ? projectRegistry.find(p=>p.regId===r.regId) : null;
+    const canAct   = isAdmin || (reg && reg.agencyLocation === currentUser?.location);
+    const agencyType = (reg && reg.agencyType) || r.agencyType || '';
+    const agencyBadge = isAdmin && agencyType
+      ? `<br><span style="font-size:9px;background:${agencyType==='dzongkhag'?'rgba(37,99,235,.1)':agencyType==='ro'?'rgba(232,130,12,.1)':'rgba(16,163,74,.1)'};color:${agencyType==='dzongkhag'?'#1d4ed8':agencyType==='ro'?'#c46a08':'#15803d'};border-radius:3px;padding:1px 5px;font-weight:700;">${agencyType.toUpperCase()}</span>` : '';
+    const projLocation = (reg && reg.agencyLocation) || r.location || '—';
     return `<tr>
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b7280;">${r.sn}</td>
       <td>
         <strong style="color:#111827;font-size:13px;">${r.projectName||'—'}</strong>
-        ${r.location?`<br><span style="font-size:10px;color:#6b7280;">${r.location}</span>${agencyBadge}`:agencyBadge}
+        ${r.roadSection?`<br><span style="font-size:10px;color:#6b7280;">${r.roadSection}</span>`:''}
       </td>
+      <td style="font-size:12px;color:#111827;">${projLocation}${agencyBadge}</td>
       ${isAdmin?`<td style="font-size:11px;color:#111827;">${r.submittedBy||r.submittedByUsername||'—'}</td>`:''}
       <td>${puStatusBadge(r.overallStatus)}</td>
       <td>
@@ -19061,7 +19063,7 @@ function renderPUTable(){
       (agencyGroups[t]||agencyGroups.other).push(r);
     });
     const labels = { dzongkhag:'🏛 DZONGKHAG', ro:'🏢 REGIONAL OFFICE', thromde:'🏙 THROMDE', other:'📌 OTHER' };
-    const colCount = 11; // including submittedBy column for admin
+    const colCount = 12; // including Project Location and submittedBy columns for admin
     let html = '';
     ['dzongkhag','ro','thromde','other'].forEach(type=>{
       const grp = agencyGroups[type];
