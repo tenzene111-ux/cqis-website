@@ -761,6 +761,12 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .pu-wc-name{font-size:12px;font-weight:600;color:#111827;flex:1;}
 .pu-wc-row.active .pu-wc-name{color:#e8820c;}
 .pu-wc-detail{padding:0 10px 10px;}
+/* ══ Project Registry / Monthly Update modal forms ══ */
+.cqis-modal-label{font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;display:block;margin-bottom:4px;}
+.cqis-modal-input{width:100%;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;box-sizing:border-box;}
+.cqis-modal-input:focus{outline:none;border-color:#2563eb;}
+.pu-wc-status{width:100%;padding:6px 8px;border:1px solid #e2e6ef;border-radius:6px;font-size:11px;font-family:'Poppins',sans-serif;margin-bottom:6px;}
+.pu-wc-note{width:100%;padding:6px 8px;border:1px solid #e2e6ef;border-radius:6px;font-size:11px;font-family:'Poppins',sans-serif;resize:vertical;min-height:48px;box-sizing:border-box;}
 /* Timeline */
 .pu-tl-month{margin-bottom:22px;}
 .pu-tl-month-hdr{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;color:#111827;padding:8px 14px;background:#f8f9fc;border:1px solid #e2e6ef;border-radius:6px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
@@ -18805,6 +18811,16 @@ function editPU(i){
   if(!r) return;
   puEditIdx=i;
   document.getElementById('puFormTitle').textContent='✏️ EDIT PROJECT UPDATE';
+  puPopulateProjectSelector();
+  // Always show the form fields when editing, even if the selector found no projects
+  const formFields=document.getElementById('puFormFields');
+  if(formFields) formFields.style.display='';
+  const noProj=document.getElementById('puNoProjectMsg');
+  if(noProj) noProj.style.display='none';
+  const regIdEl=document.getElementById('puRegId');
+  if(regIdEl) regIdEl.value=r.regId||'';
+  const projSel=document.getElementById('puProjectSelect');
+  if(projSel && r.regId) projSel.value=r.regId;
   // populate fields
   document.getElementById('puProjectName').value   = r.projectName||'';
   document.getElementById('puContractNo').value    = r.contractNo||'';
@@ -21568,6 +21584,436 @@ ${CQIS_WATERMARK_CSS}
     <div style="padding:16px 24px 24px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #f1f5f9;">
       <button onclick="closeEditModal()" style="padding:10px 22px;border:1px solid #e2e6ef;border-radius:8px;background:#f8fafc;color:#374151;font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
       <button onclick="saveEditEntry()" style="padding:10px 26px;border:none;border-radius:8px;background:linear-gradient(135deg,#1e40af,#1d4ed8);color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">💾 SAVE CHANGES</button>
+    </div>
+  </div>
+</div>
+
+<!-- Project Registry — Register / Edit Project Modal -->
+<div id="prFormOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:760px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#1a3a6e,#2563eb);padding:20px 24px;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div id="prFormTitle" style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;">🏗 REGISTER NEW PROJECT</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;">Register your project once — then submit monthly progress updates against it</div>
+      </div>
+      <button onclick="closePRForm()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <!-- Project Name -->
+      <div style="grid-column:1/-1;">
+        <label class="cqis-modal-label">PROJECT NAME *</label>
+        <input id="prProjectName" class="cqis-modal-input" placeholder="e.g. Thimphu–Paro Highway Upgrade">
+      </div>
+
+      <!-- Admin agency/location selector -->
+      <div id="prAdminLocWrap" style="display:none;grid-column:1/-1;">
+        <label class="cqis-modal-label">AGENCY / LOCATION (Admin)</label>
+        <select id="prAdminLoc" class="cqis-modal-input">
+          <option value="">— Select Agency/Location —</option>
+          <optgroup label="— Dzongkhags —">
+            <option value="Bumthang|dzongkhag">Bumthang</option><option value="Chhukha|dzongkhag">Chhukha</option><option value="Dagana|dzongkhag">Dagana</option><option value="Gasa|dzongkhag">Gasa</option><option value="Haa|dzongkhag">Haa</option><option value="Lhuentse|dzongkhag">Lhuentse</option><option value="Mongar|dzongkhag">Mongar</option><option value="Paro|dzongkhag">Paro</option><option value="Pemagatshel|dzongkhag">Pemagatshel</option><option value="Punakha|dzongkhag">Punakha</option><option value="S/Jongkhar|dzongkhag">S/Jongkhar</option><option value="Samtse|dzongkhag">Samtse</option><option value="Sarpang|dzongkhag">Sarpang</option><option value="Thimphu|dzongkhag">Thimphu</option><option value="Trashigang|dzongkhag">Trashigang</option><option value="Trashi Yangtse|dzongkhag">Trashi Yangtse</option><option value="Trongsa|dzongkhag">Trongsa</option><option value="Tsirang|dzongkhag">Tsirang</option><option value="Wangdue Phodrang|dzongkhag">Wangdue Phodrang</option><option value="Zhemgang|dzongkhag">Zhemgang</option>
+          </optgroup>
+          <optgroup label="— Regional Offices —">
+            <option value="RO Thimphu|ro">RO Thimphu</option><option value="RO Phuentsholing|ro">RO Phuentsholing</option><option value="RO Sarpang|ro">RO Sarpang</option><option value="RO Samdrup Jongkhar|ro">RO Samdrup Jongkhar</option><option value="RO Trongsa|ro">RO Trongsa</option><option value="RO Tingtibi|ro">RO Tingtibi</option><option value="RO Lingmethang|ro">RO Lingmethang</option><option value="RO Lobeysa|ro">RO Lobeysa</option><option value="RO Trashigang|ro">RO Trashigang</option>
+          </optgroup>
+          <optgroup label="— Thromdes —">
+            <option value="Thimphu Thromde|thromde">Thimphu Thromde</option><option value="Phuentshogling Thromde|thromde">Phuentshogling Thromde</option><option value="Gelephu Thromde|thromde">Gelephu Thromde</option><option value="Samdrup Jongkhar Thromde|thromde">Samdrup Jongkhar Thromde</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <!-- Non-admin agency display -->
+      <div class="field-wrap" style="grid-column:1/-1;">
+        <label class="cqis-modal-label">AGENCY</label>
+        <div id="prAgencyDisplay" style="padding:9px 12px;background:#f8fafc;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;color:#374151;"></div>
+      </div>
+
+      <div>
+        <label class="cqis-modal-label">CONTRACT NO.</label>
+        <input id="prContractNo" class="cqis-modal-input" placeholder="e.g. OPMC/2024/001">
+      </div>
+      <div>
+        <label class="cqis-modal-label">ROAD SECTION</label>
+        <input id="prRoadSection" class="cqis-modal-input" placeholder="e.g. Ch: 12+000 to 18+500">
+      </div>
+
+      <div>
+        <label class="cqis-modal-label">CONTRACTOR NAME</label>
+        <input id="prContractorName" class="cqis-modal-input" placeholder="Contractor / firm name">
+      </div>
+      <div>
+        <label class="cqis-modal-label">CONTRACTOR CONTACT</label>
+        <input id="prContractorContact" class="cqis-modal-input" placeholder="Phone / email">
+      </div>
+
+      <div>
+        <label class="cqis-modal-label">SITE ENGINEER NAME</label>
+        <input id="prEngineerName" class="cqis-modal-input" placeholder="Engineer name">
+      </div>
+      <div>
+        <label class="cqis-modal-label">ENGINEER CONTACT</label>
+        <input id="prEngineerContact" class="cqis-modal-input" placeholder="Phone / email">
+      </div>
+
+      <div>
+        <label class="cqis-modal-label">APPROVED BUDGET (Nu.)</label>
+        <input id="prApprovedBudget" type="number" min="0" class="cqis-modal-input" placeholder="0">
+      </div>
+      <div>
+        <label class="cqis-modal-label">CONTRACT AMOUNT (Nu.)</label>
+        <input id="prContractAmount" type="number" min="0" class="cqis-modal-input" placeholder="0">
+      </div>
+
+      <div>
+        <label class="cqis-modal-label">START DATE</label>
+        <input id="prStartDate" type="date" class="cqis-modal-input">
+      </div>
+      <div>
+        <label class="cqis-modal-label">END DATE</label>
+        <input id="prEndDate" type="date" class="cqis-modal-input">
+      </div>
+
+      <div style="grid-column:1/-1;">
+        <label class="cqis-modal-label">DESCRIPTION</label>
+        <textarea id="prDescription" rows="3" class="cqis-modal-input" style="resize:vertical;" placeholder="Brief project description / scope of works…"></textarea>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div style="padding:16px 24px 24px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #f1f5f9;">
+      <button onclick="closePRForm()" style="padding:10px 22px;border:1px solid #e2e6ef;border-radius:8px;background:#f8fafc;color:#374151;font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
+      <button onclick="savePREntry()" style="padding:10px 26px;border:none;border-radius:8px;background:linear-gradient(135deg,#1a3a6e,#2563eb);color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">💾 SAVE PROJECT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Monthly Project Update Modal -->
+<div id="puFormOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:880px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#e8820c,#c46a08);padding:20px 24px;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div id="puFormTitle" style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;">➕ MONTHLY PROJECT UPDATE</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.8);margin-top:2px;">Select your registered project, then record this month's progress</div>
+      </div>
+      <button onclick="closePUForm()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:24px;">
+      <div id="puNoProjectMsg" style="display:none;text-align:center;padding:30px 16px;color:#6b7280;background:#f8f9fc;border:1px dashed #e2e6ef;border-radius:8px;margin-bottom:16px;">
+        <div style="font-size:28px;margin-bottom:8px;">⚠️</div>
+        No registered projects yet — register a project in <strong>Project Registry</strong> first, then come back to submit a monthly update.
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label class="cqis-modal-label">SELECT REGISTERED PROJECT</label>
+        <select id="puProjectSelect" class="cqis-modal-input" onchange="puOnProjectSelect(this.value)">
+          <option value="">— Select a registered project —</option>
+        </select>
+        <input type="hidden" id="puRegId">
+      </div>
+
+      <div id="puFormFields" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div style="grid-column:1/-1;">
+          <label class="cqis-modal-label">PROJECT NAME *</label>
+          <input id="puProjectName" class="cqis-modal-input" placeholder="Project name">
+        </div>
+        <div>
+          <label class="cqis-modal-label">CONTRACT NO.</label>
+          <input id="puContractNo" class="cqis-modal-input" placeholder="Contract number">
+        </div>
+        <div>
+          <label class="cqis-modal-label">ROAD SECTION</label>
+          <input id="puRoadSection" class="cqis-modal-input" placeholder="Road section / chainage">
+        </div>
+
+        <!-- Location type -->
+        <div style="grid-column:1/-1;">
+          <label class="cqis-modal-label">LOCATION TYPE</label>
+          <div style="display:flex;gap:18px;margin-top:6px;font-size:13px;color:#374151;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="radio" name="puLocType" value="dzongkhag" onchange="togglePULocType('dzongkhag')" checked> Dzongkhag</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="radio" name="puLocType" value="rothromde" onchange="togglePULocType('rothromde')"> RO / Thromde</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="radio" name="puLocType" value="other" onchange="togglePULocType('other')"> Other</label>
+          </div>
+        </div>
+        <div id="puDzongField">
+          <label class="cqis-modal-label">DZONGKHAG</label>
+          <select id="puDzongkhag" class="cqis-modal-input">
+            <option value="">— None —</option>
+            <option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option>
+          </select>
+        </div>
+        <div id="puROField" style="display:none;">
+          <label class="cqis-modal-label">RO / THROMDE</label>
+          <select id="puRO" class="cqis-modal-input">
+            <option value="">— None —</option>
+            <option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="cqis-modal-label">CONTRACTOR NAME</label>
+          <input id="puContractorName" class="cqis-modal-input" placeholder="Contractor / firm name">
+        </div>
+        <div>
+          <label class="cqis-modal-label">CONTRACTOR CONTACT</label>
+          <input id="puContractorContact" class="cqis-modal-input" placeholder="Phone / email">
+        </div>
+        <div>
+          <label class="cqis-modal-label">ENGINEER NAME</label>
+          <input id="puEngineerName" class="cqis-modal-input" placeholder="Site engineer name">
+        </div>
+        <div>
+          <label class="cqis-modal-label">ENGINEER CONTACT</label>
+          <input id="puEngineerContact" class="cqis-modal-input" placeholder="Phone / email">
+        </div>
+        <div>
+          <label class="cqis-modal-label">APPROVED BUDGET (Nu.)</label>
+          <input id="puApprovedBudget" type="number" min="0" class="cqis-modal-input" placeholder="0">
+        </div>
+        <div>
+          <label class="cqis-modal-label">CONTRACT AMOUNT (Nu.)</label>
+          <input id="puContractAmount" type="number" min="0" class="cqis-modal-input" placeholder="0">
+        </div>
+
+        <div>
+          <label class="cqis-modal-label">MONTH</label>
+          <select id="puMonth" class="cqis-modal-input">
+            <option value="">— Select —</option>
+            <option>January</option><option>February</option><option>March</option><option>April</option>
+            <option>May</option><option>June</option><option>July</option><option>August</option>
+            <option>September</option><option>October</option><option>November</option><option>December</option>
+          </select>
+        </div>
+        <div>
+          <label class="cqis-modal-label">UPDATED DATE</label>
+          <input id="puUpdatedDate" type="date" class="cqis-modal-input">
+        </div>
+
+        <div>
+          <label class="cqis-modal-label">OVERALL STATUS</label>
+          <select id="puOverallStatus" class="cqis-modal-input">
+            <option value="Not Started">Not Started</option>
+            <option value="Ongoing" selected>Ongoing</option>
+            <option value="Completed">Completed</option>
+            <option value="Delayed">Delayed</option>
+          </select>
+        </div>
+        <div>
+          <label class="cqis-modal-label">PROGRESS (%)</label>
+          <input id="puPercent" type="number" min="0" max="100" class="cqis-modal-input" placeholder="0" oninput="puUpdateProgressBar()">
+          <div style="margin-top:6px;background:#f1f5f9;border-radius:6px;height:8px;overflow:hidden;">
+            <div id="puProgressBarPreview" style="height:100%;width:0%;background:linear-gradient(135deg,#e8820c,#c46a08);transition:width .2s;"></div>
+          </div>
+          <div id="puProgressBarLabel" style="font-size:11px;color:#6b7280;margin-top:2px;">0% complete</div>
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label class="cqis-modal-label">ACTIVITY THIS MONTH</label>
+          <textarea id="puProgress" rows="2" class="cqis-modal-input" style="resize:vertical;" placeholder="Describe the work carried out this month…"></textarea>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label class="cqis-modal-label">NEXT PLANNED WORK</label>
+          <textarea id="puNextWork" rows="2" class="cqis-modal-input" style="resize:vertical;" placeholder="Planned activities for next month…"></textarea>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label class="cqis-modal-label">REMARKS</label>
+          <textarea id="puRemarks" rows="2" class="cqis-modal-input" style="resize:vertical;" placeholder="Additional remarks…"></textarea>
+        </div>
+
+        <!-- Work Components -->
+        <div style="grid-column:1/-1;">
+          <label class="cqis-modal-label">WORK COMPONENTS ACTIVE THIS MONTH</label>
+          <div id="puWorkPanel" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-top:8px;">
+            <div class="pu-wc-row" data-wc="Earthwork / Subgrade">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🏔</span><span class="pu-wc-name">Earthwork / Subgrade</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Sub-base Course">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🪨</span><span class="pu-wc-name">Sub-base Course</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Wet Mix Macadam (WMM)">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🛣</span><span class="pu-wc-name">Wet Mix Macadam (WMM)</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Prime Coat">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🛢</span><span class="pu-wc-name">Prime Coat</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Dense Bituminous Macadam (DBM)">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🛣</span><span class="pu-wc-name">Dense Bituminous Macadam (DBM)</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Bituminous Concrete (BC)">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🛣</span><span class="pu-wc-name">Bituminous Concrete (BC)</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Culvert Construction">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🚇</span><span class="pu-wc-name">Culvert Construction</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Retaining Wall">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🧱</span><span class="pu-wc-name">Retaining Wall</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Road Signs / Markings">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🚧</span><span class="pu-wc-name">Road Signs / Markings</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Bridge Construction">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🌉</span><span class="pu-wc-name">Bridge Construction</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Drainage Works">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🌊</span><span class="pu-wc-name">Drainage Works</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Slope Protection">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">⛰</span><span class="pu-wc-name">Slope Protection</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Filling &amp; Embankments">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">⛏</span><span class="pu-wc-name">Filling &amp; Embankments</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Paver Blocks &amp; Kerb">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🧱</span><span class="pu-wc-name">Paver Blocks &amp; Kerb</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Bioengineering">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🌱</span><span class="pu-wc-name">Bioengineering</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Gabion / Masonry Wall">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🧱</span><span class="pu-wc-name">Gabion / Masonry Wall</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Concrete Works">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">🏗</span><span class="pu-wc-name">Concrete Works</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+            <div class="pu-wc-row" data-wc="Other">
+              <div class="pu-wc-header" onclick="puToggleWC(this)">
+                <input type="checkbox" class="pu-wc-cb" onclick="event.stopPropagation();puCheckWC(this)">
+                <span class="pu-wc-icon">📌</span><span class="pu-wc-name">Other</span>
+              </div>
+              <div class="pu-wc-detail" style="display:none;">
+                <select class="pu-wc-status"><option>Not Started</option><option selected>Ongoing</option><option>Completed</option><option>Delayed</option></select>
+                <textarea class="pu-wc-note" placeholder="Notes…"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div style="padding:16px 24px 24px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #f1f5f9;">
+      <button onclick="closePUForm()" style="padding:10px 22px;border:1px solid #e2e6ef;border-radius:8px;background:#f8fafc;color:#374151;font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
+      <button onclick="savePUEntry()" style="padding:10px 26px;border:none;border-radius:8px;background:linear-gradient(135deg,#e8820c,#c46a08);color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">💾 SAVE UPDATE</button>
     </div>
   </div>
 </div>
