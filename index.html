@@ -6236,6 +6236,10 @@ function printAllConst(){
                 <div style="font-weight:700;color:#f97316;font-size:12px;">🔔 ATR Submission Reminder</div>
                 <div style="font-size:11px;color:#6b7280;margin-top:2px;">Reminder for overdue/due-soon ATRs</div>
               </button>
+              <button class="em-template-btn" onclick="emLoadTemplate('overdue_update')">
+                <div style="font-weight:700;color:#d97706;font-size:12px;">📅 Overdue Monthly Update Reminder</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Lists projects with no update for the current month</div>
+              </button>
               <button class="em-template-btn" onclick="emLoadTemplate('inspection_notice')">
                 <div style="font-weight:700;color:#1d4ed8;font-size:12px;">📋 Inspection Schedule Notice</div>
                 <div style="font-size:11px;color:#6b7280;margin-top:2px;">Upcoming inspection notification</div>
@@ -7204,7 +7208,10 @@ function printAllConst(){
                 <div id="overdueUpdateList" style="font-size:12px;color:#92400e;margin-top:4px;line-height:1.6;"></div>
               </div>
             </div>
-            <button onclick="document.getElementById('overdueUpdateBanner').style.display='none';" style="background:none;border:1px solid #f59e0b;border-radius:6px;color:#92400e;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Dismiss</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button onclick="goToOverdueReminderEmail()" style="background:#f59e0b;border:1px solid #f59e0b;border-radius:6px;color:#fff;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;white-space:nowrap;">📧 Send Reminder Email</button>
+              <button onclick="document.getElementById('overdueUpdateBanner').style.display='none';" style="background:none;border:1px solid #f59e0b;border-radius:6px;color:#92400e;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Dismiss</button>
+            </div>
           </div>
         </div>
 
@@ -19646,12 +19653,9 @@ function checkDueDates() {
   popup.classList.add('show');
 }
 
-// Flag projects that haven't had a Monthly Update submitted for the current month
-function checkOverdueProjectUpdates(){
-  const banner = document.getElementById('overdueUpdateBanner');
-  const list = document.getElementById('overdueUpdateList');
-  if(!banner || !list) return;
-
+// Compute projects with no Monthly Update for the current month (used by the
+// overdue banner and the "Overdue Monthly Update Reminder" email template)
+function getOverdueProjects(scopeAll){
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const now = new Date();
   const curMonth = monthNames[now.getMonth()];
@@ -19659,11 +19663,11 @@ function checkOverdueProjectUpdates(){
 
   const isAdmin = currentUser && currentUser.isAdmin;
   let regs = projectRegistry;
-  if(!isAdmin){
+  if(!scopeAll && !isAdmin){
     regs = regs.filter(r => r.agencyLocation === currentUser?.location);
   }
 
-  const overdue = regs.filter(reg=>{
+  return { curMonth, curYear, projects: regs.filter(reg=>{
     const updates = projectUpdates.filter(u => u.regId === reg.regId || u.projectName === reg.projectName);
     const latest = updates.slice().sort((a,b)=>new Date(b.submittedAt||b.updatedDate||0)-new Date(a.submittedAt||a.updatedDate||0))[0];
     if(latest && latest.overallStatus === 'Completed') return false;
@@ -19673,7 +19677,16 @@ function checkOverdueProjectUpdates(){
       return ud ? ud.getFullYear()===curYear : true;
     });
     return !hasCurrentMonthUpdate;
-  });
+  }) };
+}
+
+// Flag projects that haven't had a Monthly Update submitted for the current month
+function checkOverdueProjectUpdates(){
+  const banner = document.getElementById('overdueUpdateBanner');
+  const list = document.getElementById('overdueUpdateList');
+  if(!banner || !list) return;
+
+  const { curMonth, curYear, projects: overdue } = getOverdueProjects(false);
 
   if(!overdue.length){ banner.style.display='none'; return; }
 
@@ -19681,13 +19694,21 @@ function checkOverdueProjectUpdates(){
   banner.style.display='block';
 
   // Fire an in-app notification once per day per user
-  const dedupKey = 'cqis_overdue_notif_' + (currentUser?.username||currentUser?.name||'user') + '_' + curYear + '-' + (now.getMonth()+1) + '-' + now.getDate();
+  const today = new Date();
+  const dedupKey = 'cqis_overdue_notif_' + (currentUser?.username||currentUser?.name||'user') + '_' + curYear + '-' + (today.getMonth()+1) + '-' + today.getDate();
   if(!localStorage.getItem(dedupKey)){
     notifAdd('system', `⚠️ ${overdue.length} Project${overdue.length!==1?'s':''} Missing ${curMonth} Update`,
       overdue.map(r=>r.projectName||'Untitled Project').join(', '),
       { overdueProjects: overdue.map(r=>r.regId) });
     localStorage.setItem(dedupKey, '1');
   }
+}
+
+// Jump to the Email Notify tab and pre-load the overdue update reminder template
+function goToOverdueReminderEmail(){
+  const emBtn = document.querySelector(".nav-tab[onclick*=\"'email-notify'\"]");
+  showTab('email-notify', emBtn);
+  setTimeout(() => emLoadTemplate('overdue_update'), 150);
 }
 
 function dueDatePopupItemClick(project) {
@@ -24617,6 +24638,34 @@ function emSend() {
   emSaveHistory({ subject: subject, body: body, recipients: emRecipients.slice(), sentAt: new Date().toISOString() });
 }
 
+// ── Overdue Monthly Update reminder template ──
+function _buildOverdueUpdateTemplate(){
+  const isAdmin = currentUser && currentUser.isAdmin;
+  const { curMonth, curYear, projects } = getOverdueProjects(isAdmin);
+  const subject = `📅 Overdue Monthly Update Reminder — ${curMonth} ${curYear} — OPMC/OCASC · CQD`;
+
+  if(!projects.length){
+    return { subject, body: `Dear Team,\n\nAll registered projects have submitted their Monthly Update for ${curMonth} ${curYear}. No action required.\n\nRegards,\nOPMC/OCASC · CQD` };
+  }
+
+  let body;
+  if(isAdmin){
+    const byAgency = {};
+    projects.forEach(r=>{
+      const key = r.agencyLocation || 'Unassigned';
+      (byAgency[key] = byAgency[key]||[]).push(r);
+    });
+    const sections = Object.entries(byAgency).map(([agency, regs])=>
+      `${agency}:\n` + regs.map(r=>`  • ${r.projectName||'Untitled Project'}${r.contractNo?' ('+r.contractNo+')':''}`).join('\n')
+    ).join('\n\n');
+    body = `Dear Team,\n\nThe following projects have NOT submitted their Monthly Update for ${curMonth} ${curYear}:\n\n${sections}\n\nKindly submit the pending updates through CQIS at the earliest.\n\nRegards,\nOPMC/OCASC · CQD`;
+  } else {
+    const list = projects.map(r=>`  • ${r.projectName||'Untitled Project'}${r.contractNo?' ('+r.contractNo+')':''}`).join('\n');
+    body = `Dear Focal Person,\n\nThe following project(s) registered under ${currentUser?.location||'your agency'} have NOT submitted their Monthly Update for ${curMonth} ${curYear}:\n\n${list}\n\nKindly submit the pending update(s) through CQIS at the earliest.\n\nRegards,\nOPMC/OCASC · CQD`;
+  }
+  return { subject, body };
+}
+
 // ── Quick templates ──
 function emLoadTemplate(type) {
   const subEl  = document.getElementById('emSubject');
@@ -24639,6 +24688,7 @@ function emLoadTemplate(type) {
                         body: 'Dear Team,\n\nConstruction quality inspections are scheduled for your area.\n\nKindly ensure:\n  • Site access and safety arrangements\n  • Contract documents and drawings\n  • Material test certificates\n  • Contractor and engineer on site\n\nRegards,\nOPMC/OCASC · CQD\nDate: ' + today },
     general:          { subject: 'Official Circular — OPMC/OCASC · CQD — ' + today,
                         body: 'Dear Team,\n\n[Write your message here]\n\nRegards,\nOPMC/OCASC · CQD\nDate: ' + today },
+    overdue_update:   _buildOverdueUpdateTemplate(),
   };
   const tpl = tpls[type];
   if (tpl) {
