@@ -7215,12 +7215,15 @@ function printAllConst(){
         <div class="table-card" style="overflow-x:auto;">
           <table class="data-table" id="prTable" style="table-layout:auto;">
             <thead><tr>
-              <th style="position:sticky;left:0;z-index:3;background:#1a3a6e;min-width:32px;">#</th>
-              <th style="position:sticky;left:32px;z-index:3;background:#1a3a6e;min-width:180px;">Project Name</th>
-              <th>Contract No.</th><th>Location</th><th>Agency</th>
-              <th>Road Section</th><th>Contractor</th><th>Site Engineer</th>
-              <th>Budget (Nu.)</th><th>Contract Amt (Nu.)</th><th>Start Date</th><th>End Date</th>
-              <th>Registered By</th><th>Registered On</th>
+              <th style="position:sticky;left:0;z-index:3;background:#1a3a6e;min-width:40px;">Sl.No.</th>
+              <th style="position:sticky;left:40px;z-index:3;background:#1a3a6e;min-width:180px;">Name of the Project</th>
+              <th>Contract Amount<br>(Nu. Million)</th>
+              <th>Funding</th>
+              <th>Start Date</th><th>End Date</th>
+              <th>Ongoing Activities</th>
+              <th>Project Location</th>
+              <th>Name and Contact No.<br>of Site Engineer</th>
+              <th>Remarks, if any</th>
               <th style="position:sticky;right:0;z-index:3;background:#1a3a6e;min-width:120px;text-align:center;">Actions</th>
             </tr></thead>
             <tbody id="prBody"></tbody>
@@ -18066,7 +18069,9 @@ function openPRForm(editId) {
     document.getElementById('prContractAmount').value = reg.contractAmount || '';
     document.getElementById('prStartDate').value      = reg.startDate || '';
     document.getElementById('prEndDate').value        = reg.endDate || '';
+    document.getElementById('prFunding').value        = reg.funding || '';
     document.getElementById('prDescription').value    = reg.description || '';
+    document.getElementById('prRemarks').value        = reg.remarks || '';
     if (currentUser.isAdmin && document.getElementById('prAdminLoc')) {
       const adminLoc = document.getElementById('prAdminLoc');
       if (reg.agencyType === 'other') {
@@ -18083,7 +18088,7 @@ function openPRForm(editId) {
     document.getElementById('prFormTitle').textContent = '🏗 REGISTER NEW PROJECT';
     ['prProjectName','prContractNo','prRoadSection','prContractorName','prContractorContact',
      'prEngineerName','prEngineerContact','prApprovedBudget','prContractAmount',
-     'prStartDate','prEndDate','prDescription'].forEach(id => {
+     'prStartDate','prEndDate','prFunding','prDescription','prRemarks'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = '';
     });
     const adminLoc = document.getElementById('prAdminLoc');
@@ -18151,7 +18156,9 @@ function savePREntry() {
       contractAmount:   document.getElementById('prContractAmount').value.trim(),
       startDate:        document.getElementById('prStartDate').value,
       endDate:          document.getElementById('prEndDate').value,
+      funding:          document.getElementById('prFunding').value.trim(),
       description:      document.getElementById('prDescription').value.trim(),
+      remarks:          document.getElementById('prRemarks').value.trim(),
       updatedAt:        new Date().toISOString(),
     };
     savePRLocal();
@@ -18178,7 +18185,9 @@ function savePREntry() {
       contractAmount:   document.getElementById('prContractAmount').value.trim(),
       startDate:        document.getElementById('prStartDate').value,
       endDate:          document.getElementById('prEndDate').value,
+      funding:          document.getElementById('prFunding').value.trim(),
       description:      document.getElementById('prDescription').value.trim(),
+      remarks:          document.getElementById('prRemarks').value.trim(),
       registeredBy:     currentUser.username || currentUser.name,
       registeredByName: currentUser.name,
       registeredAt:     new Date().toISOString(),
@@ -18288,7 +18297,7 @@ function renderPRTable() {
     ['dzongkhag','ro','thromde','other'].forEach(type => {
       const grp = groups[type];
       if (!grp.length) return;
-      html += `<tr><td colspan="15" style="background:linear-gradient(90deg,#1a3a6e,#2563eb);color:#fff;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;padding:6px 12px;">${typeLabel[type]} — ${grp.length} project${grp.length!==1?'s':''}</td></tr>`;
+      html += `<tr><td colspan="11" style="background:linear-gradient(90deg,#1a3a6e,#2563eb);color:#fff;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;padding:6px 12px;">${typeLabel[type]} — ${grp.length} project${grp.length!==1?'s':''}</td></tr>`;
       grp.forEach((r, i) => { html += buildPRRow(r, i); });
     });
     body.innerHTML = html;
@@ -18299,30 +18308,34 @@ function renderPRTable() {
 
 function buildPRRow(r, i) {
   const fmt = v => v ? 'Nu. ' + Number(v).toLocaleString() : '—';
+  const fmtM = v => (v !== undefined && v !== null && v !== '') ? (Number(v)/1000000).toLocaleString(undefined,{maximumFractionDigits:2}) : '—';
   const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : '—';
   const isAdmin = currentUser && currentUser.isAdmin;
   const canEdit = isAdmin || (r.registeredBy === (currentUser?.username || currentUser?.name));
   // Count linked monthly updates
-  const updateCount = projectUpdates.filter(u => u.regId === r.regId || u.projectName === r.projectName).length;
+  const linkedUpdates = projectUpdates.filter(u => u.regId === r.regId || u.projectName === r.projectName);
+  const updateCount = linkedUpdates.length;
+  // Latest monthly update — for "Ongoing Activities" tally
+  const latestUpdate = linkedUpdates.slice().sort((a,b) => new Date(b.submittedAt||b.updatedDate||0) - new Date(a.submittedAt||a.updatedDate||0))[0];
+  const ongoingActivities = (latestUpdate && latestUpdate.progress) ? latestUpdate.progress : (r.description || '—');
   return `<tr>
     <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b7280;position:sticky;left:0;background:#fff;z-index:2;">${r.sn}</td>
-    <td style="position:sticky;left:32px;background:#fff;z-index:2;min-width:180px;">
+    <td style="position:sticky;left:40px;background:#fff;z-index:2;min-width:180px;">
       <strong style="color:#111827;">${r.projectName}</strong>
       ${r.contractNo ? '<br><span style="font-size:10px;color:#6b7280;">'+r.contractNo+'</span>' : ''}
       ${r.roadSection ? '<br><span style="font-size:10px;color:#6b7280;">'+r.roadSection+'</span>' : ''}
     </td>
-    <td style="font-size:11px;font-family:'JetBrains Mono',monospace;color:#1a3a6e;">${r.contractNo||'—'}</td>
-    <td>${r.agencyLocation||'—'}</td>
-    <td><span style="background:${r.agencyType==='dzongkhag'?'rgba(37,99,235,.1)':r.agencyType==='ro'?'rgba(232,130,12,.1)':r.agencyType==='thromde'?'rgba(16,163,74,.1)':'rgba(139,92,246,.1)'};color:${r.agencyType==='dzongkhag'?'#1d4ed8':r.agencyType==='ro'?'#c46a08':r.agencyType==='thromde'?'#15803d':'#7c3aed'};border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">${(r.agencyType||'').toUpperCase()}</span></td>
-    <td style="font-size:12px;">${r.roadSection||'—'}</td>
-    <td style="font-size:12px;">${r.contractorName||'—'}</td>
-    <td style="font-size:12px;">${r.engineerName||'—'}</td>
-    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${fmt(r.approvedBudget)}</td>
-    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${fmt(r.contractAmount)}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${fmtM(r.contractAmount)}</td>
+    <td style="font-size:12px;">${r.funding||'—'}</td>
     <td style="font-size:11px;">${fmtDate(r.startDate)}</td>
     <td style="font-size:11px;">${fmtDate(r.endDate)}</td>
-    <td style="font-size:11px;">${r.registeredByName||r.registeredBy||'—'}</td>
-    <td style="font-size:11px;color:#6b7280;font-family:'JetBrains Mono',monospace;">${r.registeredAt?new Date(r.registeredAt).toLocaleDateString('en-GB'):'—'}</td>
+    <td style="font-size:12px;max-width:220px;">${ongoingActivities}</td>
+    <td>
+      ${r.agencyLocation||'—'}
+      <br><span style="background:${r.agencyType==='dzongkhag'?'rgba(37,99,235,.1)':r.agencyType==='ro'?'rgba(232,130,12,.1)':r.agencyType==='thromde'?'rgba(16,163,74,.1)':'rgba(139,92,246,.1)'};color:${r.agencyType==='dzongkhag'?'#1d4ed8':r.agencyType==='ro'?'#c46a08':r.agencyType==='thromde'?'#15803d':'#7c3aed'};border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">${(r.agencyType||'').toUpperCase()}</span>
+    </td>
+    <td style="font-size:12px;">${r.engineerName||'—'}${r.engineerContact ? '<br><span style="font-size:10px;color:#6b7280;">'+r.engineerContact+'</span>' : ''}</td>
+    <td style="font-size:12px;max-width:180px;">${r.remarks||'—'}</td>
     <td style="white-space:nowrap;position:sticky;right:0;background:#fff;z-index:2;border-left:2px solid #e2e8f0;padding:8px 10px;text-align:center;">
       <div style="font-size:10px;color:#8b5cf6;font-weight:700;background:rgba(139,92,246,.1);border-radius:3px;padding:2px 7px;margin-bottom:6px;display:inline-block;">${updateCount} update${updateCount!==1?'s':''}</div>
       <div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;">
@@ -18337,14 +18350,20 @@ function buildPRRow(r, i) {
 /* ── CSV / Excel export for registry ── */
 function prExportCSV(format) {
   if (!projectRegistry.length) { toast('⚠️ No registry data to export.'); return; }
-  const hdr = ['S/N','Project Name','Contract No.','Agency','Type','Road Section','Contractor','Contractor Contact','Engineer','Engineer Contact','Budget (Nu.)','Contract Amt (Nu.)','Start Date','End Date','Description','Registered By','Registered On'];
-  const rows = projectRegistry.map(r => [
-    r.sn, r.projectName||'', r.contractNo||'', r.agencyLocation||'', r.agencyType||'',
-    r.roadSection||'', r.contractorName||'', r.contractorContact||'',
-    r.engineerName||'', r.engineerContact||'', r.approvedBudget||'', r.contractAmount||'',
-    r.startDate||'', r.endDate||'', r.description||'',
-    r.registeredByName||'', r.registeredAt?new Date(r.registeredAt).toLocaleDateString('en-GB'):''
-  ]);
+  const hdr = ['Sl.No.','Name of the Project','Contract Amount (Nu. Million)','Funding','Start date','End date','Ongoing Activities','Project Location','Name and Contact No. of Site Engineer','Remarks, if any','Contract No.','Agency','Type','Road Section','Contractor','Contractor Contact','Budget (Nu.)','Description','Registered By','Registered On'];
+  const rows = projectRegistry.map(r => {
+    const linkedUpdates = projectUpdates.filter(u => u.regId === r.regId || u.projectName === r.projectName);
+    const latestUpdate = linkedUpdates.slice().sort((a,b) => new Date(b.submittedAt||b.updatedDate||0) - new Date(a.submittedAt||a.updatedDate||0))[0];
+    const ongoingActivities = (latestUpdate && latestUpdate.progress) ? latestUpdate.progress : (r.description || '');
+    return [
+      r.sn, r.projectName||'', r.contractAmount ? (Number(r.contractAmount)/1000000) : '', r.funding||'',
+      r.startDate||'', r.endDate||'', ongoingActivities,
+      r.agencyLocation||'', (r.engineerName||'') + (r.engineerContact ? ' / '+r.engineerContact : ''), r.remarks||'',
+      r.contractNo||'', r.agencyLocation||'', r.agencyType||'',
+      r.roadSection||'', r.contractorName||'', r.contractorContact||'', r.approvedBudget||'', r.description||'',
+      r.registeredByName||'', r.registeredAt?new Date(r.registeredAt).toLocaleDateString('en-GB'):''
+    ];
+  });
 
   if(format==='xlsx'){
     downloadXLSX('CQIS_ProjectRegistry_'+new Date().toISOString().slice(0,10), 'Project Registry', hdr, rows);
@@ -18367,16 +18386,18 @@ function prExportCSV(format) {
 
 /* ── download a blank CSV template matching the bulk-import column format ── */
 function prDownloadTemplate() {
-  const hdr = ['Project Name','Agency','Type','Contract No.','Road Section','Contractor','Contractor Contact','Engineer','Engineer Contact','Budget (Nu.)','Contract Amt (Nu.)','Start Date','End Date','Description'];
+  const hdr = ['Project Name','Agency','Type','Contract No.','Road Section','Contractor','Contractor Contact','Engineer','Engineer Contact','Budget (Nu.)','Contract Amt (Nu.)','Start Date','End Date','Funding','Description','Remarks'];
   const example = [
     'Thimphu–Paro Highway Upgrade','Thimphu','dzongkhag','OPMC/2024/001','Ch: 12+000 to 18+500',
     'ABC Construction Pvt. Ltd.','17123456','Sonam Wangchuk','17234567','5000000','4800000',
-    '2024-01-15','2025-06-30','Widening and resurfacing of NH-1 section'
+    '2024-01-15','2025-06-30','GoI','Widening and resurfacing of NH-1 section','Pending NOC from environment division'
   ];
   const note = [
     'Notes: "Agency" must match a Dzongkhag/RO/Thromde name (or any text if Type = other).',
     '"Type" must be one of: dzongkhag, ro, thromde, other.',
     'Regular Users: Agency/Type columns are ignored — projects are auto-assigned to your own agency.',
+    '"Contract Amt (Nu.)" should be the full amount in Ngultrum (it will be shown as Nu. Million in the table).',
+    '"Ongoing Activities" in the table is pulled automatically from each project\'s latest Monthly Update.',
     'Dates should be in YYYY-MM-DD format. Delete this example row before importing.'
   ];
 
@@ -18480,7 +18501,9 @@ function prImportCSV(file) {
         contractAmount:    get(r, 'Contract Amt (Nu.)'),
         startDate:         get(r, 'Start Date'),
         endDate:           get(r, 'End Date'),
+        funding:           get(r, 'Funding'),
         description:       get(r, 'Description'),
+        remarks:           get(r, 'Remarks'),
         registeredBy:      currentUser.username || currentUser.name,
         registeredByName:  currentUser.name,
         registeredAt:      new Date().toISOString(),
@@ -21735,9 +21758,19 @@ ${CQIS_WATERMARK_CSS}
         <input id="prEndDate" type="date" class="cqis-modal-input">
       </div>
 
+      <div>
+        <label class="cqis-modal-label">FUNDING</label>
+        <input id="prFunding" class="cqis-modal-input" placeholder="e.g. GoI, GoB, ADB, World Bank">
+      </div>
+
       <div style="grid-column:1/-1;">
         <label class="cqis-modal-label">DESCRIPTION</label>
         <textarea id="prDescription" rows="3" class="cqis-modal-input" style="resize:vertical;" placeholder="Brief project description / scope of works…"></textarea>
+      </div>
+
+      <div style="grid-column:1/-1;">
+        <label class="cqis-modal-label">REMARKS, IF ANY</label>
+        <textarea id="prRemarks" rows="2" class="cqis-modal-input" style="resize:vertical;" placeholder="Any additional remarks…"></textarea>
       </div>
     </div>
     <!-- Footer -->
