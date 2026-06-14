@@ -6551,6 +6551,7 @@ function printAllConst(){
             style="background:#f8f9fc;border:1.5px solid #e8820c;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:280px;">
             <option value="summary">📋 Overall Inspection Summary Report</option>
             <option value="project">🏗️ Full Project Report (by Project)</option>
+            <option value="registry">📊 Project Progress Report (Registry &amp; Updates)</option>
           </select>
         </div>
         <!-- Monthly filter — shown only for summary report -->
@@ -6569,6 +6570,14 @@ function printAllConst(){
         <div id="projectReportSelector" style="display:none;flex:1;min-width:260px;display:flex;flex-direction:column;gap:4px;">
           <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Select Project</span>
           <select id="reportProjectSelect" onchange="renderProjectReport()"
+            style="background:#f8f9fc;border:1.5px solid #d97706;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;width:100%;">
+            <option value="">— Select a project —</option>
+          </select>
+        </div>
+        <!-- Registry project selector — shown only for registry progress report -->
+        <div id="registryReportSelector" style="display:none;flex:1;min-width:260px;display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Select Project</span>
+          <select id="reportRegistrySelect" onchange="renderRegistryReport()"
             style="background:#f8f9fc;border:1.5px solid #d97706;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;width:100%;">
             <option value="">— Select a project —</option>
           </select>
@@ -6622,6 +6631,17 @@ function printAllConst(){
           <div style="font-size:14px;">Select a project from the dropdown above to generate a full report.</div>
         </div>
         <div id="proj-report-content" style="display:none;">
+          <!-- Dynamically generated -->
+        </div>
+      </div>
+
+      <!-- Registry Progress Report Panel -->
+      <div id="report-registry-panel" style="display:none;">
+        <div id="registry-report-empty" style="text-align:center;padding:60px 20px;color:#6b7280;">
+          <div style="font-size:40px;margin-bottom:12px;">📊</div>
+          <div style="font-size:14px;">Select a project from the dropdown above to generate its progress report.</div>
+        </div>
+        <div id="registry-report-content" style="display:none;">
           <!-- Dynamically generated -->
         </div>
       </div>
@@ -7174,6 +7194,20 @@ function printAllConst(){
 
       <!-- ══ SUB-TAB 1: PROJECT REGISTRY ══ -->
       <div id="puPanelRegistry">
+        <!-- Overdue monthly update banner -->
+        <div id="overdueUpdateBanner" style="display:none;background:#fff7ed;border:1.5px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-bottom:16px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <span style="font-size:20px;">⚠️</span>
+              <div>
+                <div style="font-weight:700;color:#92400e;font-size:13px;">Overdue Monthly Updates</div>
+                <div id="overdueUpdateList" style="font-size:12px;color:#92400e;margin-top:4px;line-height:1.6;"></div>
+              </div>
+            </div>
+            <button onclick="document.getElementById('overdueUpdateBanner').style.display='none';" style="background:none;border:1px solid #f59e0b;border-radius:6px;color:#92400e;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Dismiss</button>
+          </div>
+        </div>
+
         <div class="section-header">
           <div>
             <div class="section-title">PROJECT REGISTRY</div>
@@ -11623,6 +11657,7 @@ function showTab(id,btn){
   if(id==='qc') sbrwUpdateSum();
   if(id==='projupdates'){
     renderPRTable();
+    checkOverdueProjectUpdates();
     puShowSubTab('registry'); // always start on registry sub-tab
     // show "Submitted By" header col for admin
     const sbCol = document.getElementById('puSubmittedByCol');
@@ -13839,19 +13874,34 @@ function onReportTypeChange(){
   const type = document.getElementById('reportTypeSelect')?.value;
   const sumPanel = document.getElementById('report-summary-panel');
   const projPanel = document.getElementById('report-project-panel');
+  const regPanel = document.getElementById('report-registry-panel');
   const projSel = document.getElementById('projectReportSelector');
+  const regSel = document.getElementById('registryReportSelector');
   const monthSel = document.getElementById('summaryMonthSelector');
   if(type==='project'){
     if(sumPanel) sumPanel.style.display='none';
     if(projPanel) projPanel.style.display='block';
+    if(regPanel) regPanel.style.display='none';
     if(projSel) projSel.style.display='flex';
+    if(regSel) regSel.style.display='none';
     if(monthSel) monthSel.style.display='none';
     _populateProjectDropdown();
     renderProjectReport();
+  } else if(type==='registry'){
+    if(sumPanel) sumPanel.style.display='none';
+    if(projPanel) projPanel.style.display='none';
+    if(regPanel) regPanel.style.display='block';
+    if(projSel) projSel.style.display='none';
+    if(regSel) regSel.style.display='flex';
+    if(monthSel) monthSel.style.display='none';
+    _populateRegistryDropdown();
+    renderRegistryReport();
   } else {
     if(sumPanel) sumPanel.style.display='block';
     if(projPanel) projPanel.style.display='none';
+    if(regPanel) regPanel.style.display='none';
     if(projSel) projSel.style.display='none';
+    if(regSel) regSel.style.display='none';
     if(monthSel) monthSel.style.display='flex';
     renderReport();
   }
@@ -13863,6 +13913,17 @@ function _populateProjectDropdown(){
   const cur = sel.value;
   sel.innerHTML = '<option value="">— Select a project —</option>' +
     projects.map(p=>`<option value="${p}" ${p===cur?'selected':''}>${p}</option>`).join('');
+}
+
+function _populateRegistryDropdown(){
+  const sel = document.getElementById('reportRegistrySelect'); if(!sel) return;
+  const isAdmin = currentUser && currentUser.isAdmin;
+  const regs = isAdmin
+    ? projectRegistry
+    : projectRegistry.filter(r=>r.agencyLocation === currentUser?.location);
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Select a project —</option>' +
+    regs.map(r=>`<option value="${r.regId}" ${r.regId===cur?'selected':''}>${r.projectName||'Untitled Project'}</option>`).join('');
 }
 
 // ===== NCR (FOLLOW-UP) REPORT =====
@@ -14310,6 +14371,7 @@ function printCurrentReport(){
   try {
     const type = document.getElementById('reportTypeSelect')?.value || 'summary';
     if(type==='project') _printProjectReport();
+    else if(type==='registry') _printRegistryReport();
     else _printInspectionReport();
   } catch(e) {
     console.error('printCurrentReport error:', e);
@@ -14319,6 +14381,29 @@ function printCurrentReport(){
 
 function saveCurrentReport(){
   const type = document.getElementById('reportTypeSelect')?.value;
+  if(type==='registry'){
+    const regId = document.getElementById('reportRegistrySelect')?.value;
+    if(!regId){ toast('Please select a project first.'); return; }
+    const reg = projectRegistry.find(r=>r.regId===regId);
+    const record = {
+      id: 'RPT-' + Date.now(),
+      type: 'registry',
+      typeLabel: 'Project Progress Report',
+      savedAt: new Date().toISOString(),
+      project: reg?.projectName || '(Unknown Project)',
+      contract: reg?.contractNo||'',
+      contractor: reg?.contractorName||'',
+      date: new Date().toISOString().slice(0,10),
+      engineer: 'CQD',
+      location: reg?.agencyLocation||'',
+      snapshot: { regId, isRegistryReport: true },
+    };
+    const records = dlGetRecords();
+    records.unshift(record);
+    dlSetRecords(records);
+    toast(`✅ ${record.typeLabel} saved to Downloads.`);
+    return;
+  }
   const proj = type==='project' ? document.getElementById('reportProjectSelect')?.value : null;
   if(type==='project' && !proj){ toast('Please select a project first.'); return; }
 
@@ -14450,6 +14535,180 @@ function _printProjectReport(){
       <table style="width:100%;border-collapse:collapse;">
         ${recs.filter(r=>r.remarks).map((r,i)=>`<tr style="${i%2===1?'background:#f5f8ff;':''}"><td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8pt;width:14%;color:#555;">${r.dateInspected||'—'}</td><td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${r.remarks}</td></tr>`).join('') || '<tr><td colspan="2" style="padding:10px 8px;color:#888;font-size:8.5pt;font-style:italic;">No additional remarks recorded for this project.</td></tr>'}
       </table>`,
+  });
+  _doPrint(html);
+}
+
+// ===== PROJECT PROGRESS REPORT (Registry + Monthly Updates) =====
+function _registryReportData(){
+  const regId = document.getElementById('reportRegistrySelect')?.value;
+  if(!regId) return null;
+  const reg = projectRegistry.find(r=>r.regId===regId);
+  if(!reg) return null;
+  const linkedUpdates = projectUpdates.filter(u => u.regId === reg.regId || u.projectName === reg.projectName)
+    .slice().sort((a,b) => new Date(b.submittedAt||b.updatedDate||0) - new Date(a.submittedAt||a.updatedDate||0));
+  const latest = linkedUpdates[0] || null;
+  const fmtM = v => (v !== undefined && v !== null && v !== '') ? (Number(v)/1000000).toLocaleString(undefined,{maximumFractionDigits:2}) : '—';
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : '—';
+  return { reg, linkedUpdates, latest, fmtM, fmtDate };
+}
+
+function renderRegistryReport(){
+  const empty = document.getElementById('registry-report-empty');
+  const content = document.getElementById('registry-report-content');
+  const data = _registryReportData();
+  if(!data){ if(empty)empty.style.display='block'; if(content)content.style.display='none'; return; }
+  if(empty) empty.style.display='none';
+  if(content) content.style.display='block';
+
+  const { reg, linkedUpdates, latest, fmtM, fmtDate } = data;
+  const secTitle = (letter,title) => `<div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:#f97316;border-bottom:2px solid #e2e6ef;padding-bottom:6px;margin:20px 0 12px;">${letter}. ${title.toUpperCase()}</div>`;
+  const card = (c) => `<div style="background:#fff;border:1px solid #e2e6ef;border-radius:10px;color:#111827;overflow:hidden;margin-bottom:14px;">${c}</div>`;
+  const statusColor = (st) => st==='Completed' ? '#16a34a' : st==='Overdue' ? '#dc2626' : st==='On Hold' ? '#d97706' : '#2563eb';
+
+  const html = `
+    <!-- Cover / Header -->
+    <div style="background:linear-gradient(135deg,#f0f2f7 0%,#fff 100%);border:1px solid #cbd2e0;border-radius:12px;padding:24px 28px;margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Office of Prime Minister and Cabinet · OCASC</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:1px;color:#1a2236;margin-bottom:4px;">PROJECT PROGRESS REPORT</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:600;color:#d97706;margin-bottom:12px;">${reg.projectName||'—'}</div>
+        <div style="display:grid;grid-template-columns:repeat(3,auto);gap:6px 28px;font-size:12px;">
+          <div><span style="color:#6b7280;">Contract No:</span> <strong>${reg.contractNo||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Contractor:</span> <strong>${reg.contractorName||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Location:</span> <strong>${reg.agencyLocation||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Road Section:</span> <strong>${reg.roadSection||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Contract Amount:</span> <strong>Nu. ${fmtM(reg.contractAmount)} Million</strong></div>
+          <div><span style="color:#6b7280;">Funding:</span> <strong>${reg.funding||'—'}</strong></div>
+          <div><span style="color:#6b7280;">Start Date:</span> <strong>${fmtDate(reg.startDate)}</strong></div>
+          <div><span style="color:#6b7280;">End Date:</span> <strong>${fmtDate(reg.endDate)}</strong></div>
+          <div><span style="color:#6b7280;">Generated:</span> <strong>${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</strong></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:200px;">
+        <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:${statusColor(latest?.overallStatus)};">${latest?.overallStatus||'—'}</div>
+          <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;">Current Status</div>
+        </div>
+        <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#f97316;">${latest?.percent||0}%</div>
+          <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;">Physical Progress</div>
+        </div>
+        <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#2563eb;">${linkedUpdates.length}</div>
+          <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;">Updates Submitted</div>
+        </div>
+        <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#1a2236;">${latest?.month||'—'}</div>
+          <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;">Latest Update Month</div>
+        </div>
+      </div>
+    </div>
+
+    ${secTitle('A','Project Details')}
+    ${card(`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <tbody>
+        <tr><td style="padding:8px 10px;color:#6b7280;width:200px;border-bottom:1px solid #e2e6ef;">Scope of Works</td><td style="padding:8px 10px;border-bottom:1px solid #e2e6ef;">${reg.description||'—'}</td></tr>
+        <tr style="background:rgba(37,99,235,.03);"><td style="padding:8px 10px;color:#6b7280;border-bottom:1px solid #e2e6ef;">Site Engineer</td><td style="padding:8px 10px;border-bottom:1px solid #e2e6ef;">${reg.engineerName||'—'}${reg.engineerContact?' · '+reg.engineerContact:''}</td></tr>
+        <tr><td style="padding:8px 10px;color:#6b7280;border-bottom:1px solid #e2e6ef;">Contractor Contact</td><td style="padding:8px 10px;border-bottom:1px solid #e2e6ef;">${reg.contractorContact||'—'}</td></tr>
+        <tr style="background:rgba(37,99,235,.03);"><td style="padding:8px 10px;color:#6b7280;border-bottom:1px solid #e2e6ef;">Approved Budget</td><td style="padding:8px 10px;border-bottom:1px solid #e2e6ef;">Nu. ${reg.approvedBudget?Number(reg.approvedBudget).toLocaleString():'—'}</td></tr>
+        <tr><td style="padding:8px 10px;color:#6b7280;">Remarks</td><td style="padding:8px 10px;">${reg.remarks||'—'}</td></tr>
+      </tbody>
+    </table>`)}
+
+    ${secTitle('B','Latest Monthly Update')}
+    ${latest ? card(`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <tbody>
+        <tr><td style="padding:8px 10px;color:#6b7280;width:200px;border-bottom:1px solid #e2e6ef;">Activity This Month</td><td style="padding:8px 10px;border-bottom:1px solid #e2e6ef;">${latest.progress||'—'}</td></tr>
+        <tr style="background:rgba(37,99,235,.03);"><td style="padding:8px 10px;color:#6b7280;border-bottom:1px solid #e2e6ef;">Next Planned Work</td><td style="padding:8px 10px;border-bottom:1px solid #e2e6ef;">${latest.nextWork||'—'}</td></tr>
+        <tr><td style="padding:8px 10px;color:#6b7280;border-bottom:1px solid #e2e6ef;">Remarks</td><td style="padding:8px 10px;border-bottom:1px solid #e2e6ef;">${latest.remarks||'—'}</td></tr>
+        <tr style="background:rgba(37,99,235,.03);"><td style="padding:8px 10px;color:#6b7280;">Submitted By</td><td style="padding:8px 10px;">${latest.submittedBy||'—'} on ${fmtDate(latest.updatedDate)}</td></tr>
+      </tbody>
+    </table>`) : `<div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.25);border-radius:8px;padding:20px;text-align:center;color:#d97706;font-weight:600;">⚠️ No monthly update has been submitted for this project yet.</div>`}
+
+    ${secTitle('C','Monthly Update History')}
+    ${linkedUpdates.length ? card(`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr style="background:#f8f9fc;">
+        ${['Month','Status','Progress','Activity','Next Planned Work','Updated'].map(h=>`<th style="padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>${linkedUpdates.map((u,i)=>`<tr style="border-bottom:1px solid rgba(0,0,0,.06);${i%2===1?'background:rgba(37,99,235,.03)':''}">
+        <td style="padding:7px 10px;">${u.month||'—'}</td>
+        <td style="padding:7px 10px;font-weight:700;color:${statusColor(u.overallStatus)};">${u.overallStatus||'—'}</td>
+        <td style="padding:7px 10px;">${u.percent||0}%</td>
+        <td style="padding:7px 10px;max-width:220px;">${u.progress||'—'}</td>
+        <td style="padding:7px 10px;max-width:220px;">${u.nextWork||'—'}</td>
+        <td style="padding:7px 10px;">${fmtDate(u.updatedDate)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`) : `<div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.25);border-radius:8px;padding:20px;text-align:center;color:#d97706;font-weight:600;">No update history available.</div>`}
+  `;
+  content.innerHTML = html;
+}
+
+function _printRegistryReport(){
+  const data = _registryReportData();
+  if(!data){ toast('Please select a project first.'); return; }
+  const { reg, linkedUpdates, latest, fmtM, fmtDate } = data;
+
+  const tRow = (cells, hdr=false) => `<tr>${cells.map(c=>`<t${hdr?'h':'d'} style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;${hdr?'background:#1a3a6e;color:#fff;font-size:7.5pt;text-transform:uppercase;letter-spacing:.4px;':''}">${c}</t${hdr?'h':'d'}>`).join('')}</tr>`;
+
+  const histTable = linkedUpdates.length
+    ? `<table style="width:100%;border-collapse:collapse;">
+        ${tRow(['Month','Status','Progress','Activity This Month','Next Planned Work','Updated'],true)}
+        ${linkedUpdates.map((u,i)=>{
+          const bg=i%2===1?'background:#f5f8ff;':'';
+          return `<tr style="${bg}">${[u.month||'—',u.overallStatus||'—',(u.percent||0)+'%',u.progress||'—',u.nextWork||'—',fmtDate(u.updatedDate)].map(c=>`<td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8pt;">${c}</td>`).join('')}</tr>`;
+        }).join('')}
+      </table>`
+    : '<p style="color:#d97706;font-weight:700;text-align:center;padding:12px;">⚠️ No monthly update has been submitted for this project yet.</p>';
+
+  const html = _buildPrintPage({
+    title: 'PROJECT PROGRESS REPORT',
+    stamp: 'PROGRESS REPORT',
+    meta: [
+      {label:'Project Name', value: reg.projectName||'—'},
+      {label:'Contract No.', value: reg.contractNo||'—'},
+      {label:'Contractor', value: reg.contractorName||'—'},
+      {label:'Location', value: reg.agencyLocation||'—'},
+      {label:'Road Section', value: reg.roadSection||'—'},
+      {label:'Contract Amount', value: 'Nu. '+fmtM(reg.contractAmount)+' Million'},
+      {label:'Funding', value: reg.funding||'—'},
+      {label:'Start Date', value: fmtDate(reg.startDate)},
+      {label:'End Date', value: fmtDate(reg.endDate)},
+      {label:'Current Status', value: latest?.overallStatus||'—'},
+      {label:'Physical Progress', value: (latest?.percent||0)+'%'},
+      {label:'Prepared By', value: 'CQD, OCASC'},
+    ],
+    body: `
+      <div class="ps-kpi-row">
+        <div class="ps-kpi"><div class="ps-kpi-val">${latest?.overallStatus||'—'}</div><div class="ps-kpi-lbl">Current Status</div></div>
+        <div class="ps-kpi"><div class="ps-kpi-val">${latest?.percent||0}%</div><div class="ps-kpi-lbl">Physical Progress</div></div>
+        <div class="ps-kpi"><div class="ps-kpi-val">${linkedUpdates.length}</div><div class="ps-kpi-lbl">Updates Submitted</div></div>
+        <div class="ps-kpi"><div class="ps-kpi-val" style="font-size:12pt;">${latest?.month||'—'}</div><div class="ps-kpi-lbl">Latest Update Month</div></div>
+      </div>
+
+      <div class="ps-section-title">Project Details</div>
+      <table style="width:100%;border-collapse:collapse;">
+        <tbody>
+          <tr><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;color:#555;width:160px;">Scope of Works</td><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${reg.description||'—'}</td></tr>
+          <tr style="background:#f5f8ff;"><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;color:#555;">Site Engineer</td><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${reg.engineerName||'—'}${reg.engineerContact?' · '+reg.engineerContact:''}</td></tr>
+          <tr><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;color:#555;">Contractor Contact</td><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${reg.contractorContact||'—'}</td></tr>
+          <tr style="background:#f5f8ff;"><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;color:#555;">Approved Budget</td><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">Nu. ${reg.approvedBudget?Number(reg.approvedBudget).toLocaleString():'—'}</td></tr>
+        </tbody>
+      </table>
+
+      <div class="ps-section-title">Latest Monthly Update</div>
+      ${latest ? `<table style="width:100%;border-collapse:collapse;">
+        <tbody>
+          <tr><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;color:#555;width:160px;">Activity This Month</td><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${latest.progress||'—'}</td></tr>
+          <tr style="background:#f5f8ff;"><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;color:#555;">Next Planned Work</td><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${latest.nextWork||'—'}</td></tr>
+          <tr><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;color:#555;">Remarks</td><td style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${latest.remarks||'—'}</td></tr>
+          <tr style="background:#f5f8ff;"><td style="padding:5px 8px;font-size:8.5pt;color:#555;">Submitted By</td><td style="padding:5px 8px;font-size:8.5pt;">${latest.submittedBy||'—'} on ${fmtDate(latest.updatedDate)}</td></tr>
+        </tbody>
+      </table>` : '<p style="color:#d97706;font-weight:700;text-align:center;padding:12px;">⚠️ No monthly update has been submitted for this project yet.</p>'}
+
+      <div class="ps-section-title">Monthly Update History</div>
+      ${histTable}
+    `,
   });
   _doPrint(html);
 }
@@ -15049,6 +15308,7 @@ function initApp(){
   sbrwLoadTests();
   initTestRows(); // initialize multi-test rows
   setTimeout(checkDueDates, 1000);
+  setTimeout(checkOverdueProjectUpdates, 1200);
   // Guard: only register the interval once — prevent duplicate timers on re-init
   if(!_dueDateIntervalId){ _dueDateIntervalId = setInterval(checkDueDates, 60000); }
   setTimeout(showAtrLoginPopup, 1200);
@@ -19384,6 +19644,50 @@ function checkDueDates() {
   const snoozeUntil = Number(localStorage.getItem(DUE_POPUP_SNOOZE_KEY) || 0);
   if (Date.now() < snoozeUntil) { popup.classList.remove('show'); return; }
   popup.classList.add('show');
+}
+
+// Flag projects that haven't had a Monthly Update submitted for the current month
+function checkOverdueProjectUpdates(){
+  const banner = document.getElementById('overdueUpdateBanner');
+  const list = document.getElementById('overdueUpdateList');
+  if(!banner || !list) return;
+
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const now = new Date();
+  const curMonth = monthNames[now.getMonth()];
+  const curYear = now.getFullYear();
+
+  const isAdmin = currentUser && currentUser.isAdmin;
+  let regs = projectRegistry;
+  if(!isAdmin){
+    regs = regs.filter(r => r.agencyLocation === currentUser?.location);
+  }
+
+  const overdue = regs.filter(reg=>{
+    const updates = projectUpdates.filter(u => u.regId === reg.regId || u.projectName === reg.projectName);
+    const latest = updates.slice().sort((a,b)=>new Date(b.submittedAt||b.updatedDate||0)-new Date(a.submittedAt||a.updatedDate||0))[0];
+    if(latest && latest.overallStatus === 'Completed') return false;
+    const hasCurrentMonthUpdate = updates.some(u=>{
+      if(u.month !== curMonth) return false;
+      const ud = u.updatedDate ? new Date(u.updatedDate) : (u.submittedAt ? new Date(u.submittedAt) : null);
+      return ud ? ud.getFullYear()===curYear : true;
+    });
+    return !hasCurrentMonthUpdate;
+  });
+
+  if(!overdue.length){ banner.style.display='none'; return; }
+
+  list.innerHTML = overdue.map(r=>`<div>• <strong>${r.projectName||'Untitled Project'}</strong>${r.agencyLocation?' — '+r.agencyLocation:''}</div>`).join('');
+  banner.style.display='block';
+
+  // Fire an in-app notification once per day per user
+  const dedupKey = 'cqis_overdue_notif_' + (currentUser?.username||currentUser?.name||'user') + '_' + curYear + '-' + (now.getMonth()+1) + '-' + now.getDate();
+  if(!localStorage.getItem(dedupKey)){
+    notifAdd('system', `⚠️ ${overdue.length} Project${overdue.length!==1?'s':''} Missing ${curMonth} Update`,
+      overdue.map(r=>r.projectName||'Untitled Project').join(', '),
+      { overdueProjects: overdue.map(r=>r.regId) });
+    localStorage.setItem(dedupKey, '1');
+  }
 }
 
 function dueDatePopupItemClick(project) {
