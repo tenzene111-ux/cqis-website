@@ -7183,6 +7183,7 @@ function printAllConst(){
             <button class="btn-secondary" onclick="prExportCSV('csv')" style="padding:9px 16px;font-size:12px;">⬇ Export CSV</button>
             <button class="btn-secondary" onclick="prExportCSV('xlsx')" style="padding:9px 16px;font-size:12px;">📗 Export Excel</button>
             <button class="btn-secondary" onclick="document.getElementById('prImportFile').click()" style="padding:9px 16px;font-size:12px;">📥 Import CSV</button>
+            <button class="btn-secondary" onclick="prDownloadTemplate()" style="padding:9px 16px;font-size:12px;">📄 Download Template</button>
             <input type="file" id="prImportFile" accept=".csv" style="display:none;" onchange="prImportCSV(this.files[0])">
           </div>
         </div>
@@ -18364,6 +18365,37 @@ function prExportCSV(format) {
   URL.revokeObjectURL(url);
 }
 
+/* ── download a blank CSV template matching the bulk-import column format ── */
+function prDownloadTemplate() {
+  const hdr = ['Project Name','Agency','Type','Contract No.','Road Section','Contractor','Contractor Contact','Engineer','Engineer Contact','Budget (Nu.)','Contract Amt (Nu.)','Start Date','End Date','Description'];
+  const example = [
+    'Thimphu–Paro Highway Upgrade','Thimphu','dzongkhag','OPMC/2024/001','Ch: 12+000 to 18+500',
+    'ABC Construction Pvt. Ltd.','17123456','Sonam Wangchuk','17234567','5000000','4800000',
+    '2024-01-15','2025-06-30','Widening and resurfacing of NH-1 section'
+  ];
+  const note = [
+    'Notes: "Agency" must match a Dzongkhag/RO/Thromde name (or any text if Type = other).',
+    '"Type" must be one of: dzongkhag, ro, thromde, other.',
+    'Regular Users: Agency/Type columns are ignored — projects are auto-assigned to your own agency.',
+    'Dates should be in YYYY-MM-DD format. Delete this example row before importing.'
+  ];
+
+  const esc=v=>{
+    const s=(v===undefined||v===null)?'':String(v);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const lines = [hdr, example].map(r => r.map(esc).join(','));
+  note.forEach(n => lines.push('# ' + n));
+  const csv = lines.join('\r\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'CQIS_ProjectRegistry_Import_Template.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 /* ── parse a CSV string into rows of cells (handles quoted fields with commas/newlines) ── */
 function _parseCSVText(text) {
   text = text.replace(/^﻿/, ''); // strip BOM
@@ -18412,7 +18444,7 @@ function prImportCSV(file) {
       return;
     }
 
-    const dataRows = rows.slice(1);
+    const dataRows = rows.slice(1).filter(r => !(r[0] || '').trim().startsWith('#'));
     const newEntries = [];
     let skipped = 0;
 
