@@ -7172,6 +7172,8 @@ function printAllConst(){
             <button class="btn-primary" onclick="openPRForm()">➕ Register New Project</button>
             <button class="btn-secondary" onclick="prExportCSV('csv')" style="padding:9px 16px;font-size:12px;">⬇ Export CSV</button>
             <button class="btn-secondary" onclick="prExportCSV('xlsx')" style="padding:9px 16px;font-size:12px;">📗 Export Excel</button>
+            <button class="btn-secondary" onclick="document.getElementById('prImportFile').click()" style="padding:9px 16px;font-size:12px;">📥 Import CSV</button>
+            <input type="file" id="prImportFile" accept=".csv" style="display:none;" onchange="prImportCSV(this.files[0])">
           </div>
         </div>
 
@@ -18322,6 +18324,132 @@ function prExportCSV(format) {
   a.download = 'CQIS_ProjectRegistry_' + new Date().toISOString().slice(0,10) + '.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+/* ── parse a CSV string into rows of cells (handles quoted fields with commas/newlines) ── */
+function _parseCSVText(text) {
+  text = text.replace(/^﻿/, ''); // strip BOM
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\r') { /* ignore */ }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ''));
+}
+
+/* ── bulk import projects from CSV ── */
+function prImportCSV(file) {
+  if (!file) return;
+  if (!currentUser || (!currentUser.isAdmin && !currentUser.isUser)) {
+    showToast('⚠️ Only registered users and admins can import projects.'); return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const rows = _parseCSVText(String(e.target.result || ''));
+    document.getElementById('prImportFile').value = '';
+    if (rows.length < 2) { showToast('⚠️ CSV file is empty or has no data rows.'); return; }
+
+    // Map header names (case-insensitive, trimmed) to column index
+    const hdr = rows[0].map(h => h.trim().toLowerCase());
+    const colIdx = name => hdr.indexOf(name.toLowerCase());
+    const get = (r, name) => { const i = colIdx(name); return i > -1 ? (r[i] || '').trim() : ''; };
+
+    const iName = colIdx('project name');
+    if (iName === -1) {
+      showToast('⚠️ CSV must include a "Project Name" column. Use "Export CSV" to get the expected format.');
+      return;
+    }
+
+    const dataRows = rows.slice(1);
+    const newEntries = [];
+    let skipped = 0;
+
+    dataRows.forEach(r => {
+      const projName = get(r, 'Project Name');
+      if (!projName) { skipped++; return; }
+
+      let agencyLocation, agencyType, agencyName;
+      if (currentUser.isAdmin) {
+        agencyLocation = get(r, 'Agency') || get(r, 'Location');
+        agencyType     = (get(r, 'Type') || 'dzongkhag').toLowerCase();
+        if (!agencyLocation) { skipped++; return; }
+        agencyName = agencyLocation + ' (' + agencyType.charAt(0).toUpperCase() + agencyType.slice(1) + ')';
+      } else {
+        agencyLocation = currentUser.location || '';
+        agencyType     = currentUser.locType  || 'dzongkhag';
+        agencyName     = currentUser.name;
+      }
+
+      const regId = 'PR_' + Date.now() + '_' + Math.random().toString(36).slice(2,6).toUpperCase();
+      newEntries.push({
+        sn: projectRegistry.length + newEntries.length + 1,
+        regId,
+        projectName: projName,
+        contractNo:        get(r, 'Contract No.'),
+        roadSection:       get(r, 'Road Section'),
+        agencyLocation, agencyType, agencyName,
+        contractorName:    get(r, 'Contractor'),
+        contractorContact: get(r, 'Contractor Contact'),
+        engineerName:      get(r, 'Engineer'),
+        engineerContact:   get(r, 'Engineer Contact'),
+        approvedBudget:    get(r, 'Budget (Nu.)'),
+        contractAmount:    get(r, 'Contract Amt (Nu.)'),
+        startDate:         get(r, 'Start Date'),
+        endDate:           get(r, 'End Date'),
+        description:       get(r, 'Description'),
+        registeredBy:      currentUser.username || currentUser.name,
+        registeredByName:  currentUser.name,
+        registeredAt:      new Date().toISOString(),
+        updatedAt:         new Date().toISOString(),
+      });
+    });
+
+    if (!newEntries.length) {
+      showToast('⚠️ No valid rows found to import.' + (skipped ? ' (' + skipped + ' skipped)' : ''));
+      return;
+    }
+
+    if (!confirm(`Import ${newEntries.length} project(s)${skipped ? ' (' + skipped + ' row(s) skipped — missing Project Name or Agency)' : ''}?`)) return;
+
+    dbLoading(true, `Importing 0/${newEntries.length} projects…`);
+    projectRegistry.push(...newEntries);
+    savePRLocal();
+    renderPRTable();
+
+    let saved = 0, failed = 0;
+    for (const entry of newEntries) {
+      try {
+        await fbSavePR(entry);
+        saved++;
+      } catch (err) {
+        failed++;
+      }
+      dbLoading(true, `Importing ${saved + failed}/${newEntries.length} projects…`);
+    }
+    dbLoading(false);
+
+    let msg = `✅ Imported ${saved} project(s).`;
+    if (failed) msg += ` ⚠️ ${failed} failed to sync to Firebase.`;
+    if (skipped) msg += ` (${skipped} row(s) skipped)`;
+    (typeof showToast==='function'?showToast:toast)(msg);
+    logActivity('imported', 'Project Registry', `${saved} project(s) via CSV`);
+  };
+  reader.onerror = () => showToast('⚠️ Could not read the file.');
+  reader.readAsText(file);
 }
 
 /* ── open monthly update form pre-filled from a registered project ── */
