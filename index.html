@@ -16,6 +16,7 @@
 <!-- Chart.js & Firebase -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- Leaflet.js loaded lazily on first visit to the Map tab — see _ensureLeafletLoaded() -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -2207,7 +2208,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <div><div class="section-title">INSPECTION DATA REGISTER</div><div class="section-badge">Master Data — MOIT Standard</div></div>
         <div style="display:flex;gap:10px;">
           <button id="dataBackupBtn" class="btn-secondary" onclick="exportAllDataBackup()" style="display:none;">⬇️ Backup All Data</button>
-          <button id="dataExportCsvBtn" class="btn-secondary" onclick="exportInspectionsCSV()">📊 Export CSV</button>
+          <button id="dataExportCsvBtn" class="btn-secondary" onclick="exportInspectionsCSV('csv')">📊 Export CSV</button>
+          <button id="dataExportXlsxBtn" class="btn-secondary" onclick="exportInspectionsCSV('xlsx')">📗 Export Excel</button>
           <button id="dataNewEntryBtn" class="btn-primary" onclick="showTab('entry',document.getElementById('entryTabBtn'))">+ New Entry</button>
         </div>
       </div>
@@ -5889,7 +5891,8 @@ function printAllConst(){
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <button class="btn-primary" onclick="ispOpenAddModal()" id="ispAddBtn">+ Add Schedule</button>
           <button class="btn-secondary" style="padding:9px 16px;font-size:12px;" onclick="ispOpenFromProject()">📋 From Project Registry</button>
-          <button class="btn-secondary" style="padding:9px 16px;font-size:12px;" onclick="ispExportCSV()">⬇ Export CSV</button>
+          <button class="btn-secondary" style="padding:9px 16px;font-size:12px;" onclick="ispExportCSV('csv')">⬇ Export CSV</button>
+          <button class="btn-secondary" style="padding:9px 16px;font-size:12px;" onclick="ispExportCSV('xlsx')">📗 Export Excel</button>
         </div>
       </div>
 
@@ -6298,7 +6301,8 @@ function printAllConst(){
         <div class="table-toolbar">
           <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:#374151;">All Defect Entries — ATR Status</div>
           <select class="filter-select" id="atrFilter" onchange="renderATR()"><option value="">All Statuses</option><option value="OVERDUE">Overdue Only</option><option value="DUE SOON">Due Soon Only</option><option value="Pending">Pending Only</option><option value="Submitted">Submitted Only</option></select>
-          <button class="btn-secondary" onclick="exportATRCSV()">📊 Export CSV</button>
+          <button class="btn-secondary" onclick="exportATRCSV('csv')">📊 Export CSV</button>
+          <button class="btn-secondary" onclick="exportATRCSV('xlsx')">📗 Export Excel</button>
         </div>
         <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Other</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Review Status<br><span style="font-size:9px;font-weight:400;color:#fbbf24;">Admin only after submission</span></th><th>Remarks</th><th class="atr-rmk-actions-col" style="width:90px;">Rmk Actions</th></tr></thead><tbody id="atrBody"></tbody></table></div>
         <div class="no-data" id="noATR" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">✅</div>No ATR records found.</div>
@@ -7153,7 +7157,8 @@ function printAllConst(){
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="btn-primary" onclick="openPRForm()">➕ Register New Project</button>
-            <button class="btn-secondary" onclick="prExportCSV()" style="padding:9px 16px;font-size:12px;">⬇ Export CSV</button>
+            <button class="btn-secondary" onclick="prExportCSV('csv')" style="padding:9px 16px;font-size:12px;">⬇ Export CSV</button>
+            <button class="btn-secondary" onclick="prExportCSV('xlsx')" style="padding:9px 16px;font-size:12px;">📗 Export Excel</button>
           </div>
         </div>
 
@@ -7209,7 +7214,8 @@ function printAllConst(){
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="btn-primary" onclick="openPUForm()">➕ Add Monthly Update</button>
-            <button class="btn-secondary" onclick="puExportCSV()" style="padding:9px 16px;font-size:12px;">⬇ Export CSV</button>
+            <button class="btn-secondary" onclick="puExportCSV('csv')" style="padding:9px 16px;font-size:12px;">⬇ Export CSV</button>
+            <button class="btn-secondary" onclick="puExportCSV('xlsx')" style="padding:9px 16px;font-size:12px;">📗 Export Excel</button>
           </div>
         </div>
 
@@ -12642,7 +12648,16 @@ function renderTable(){
   }).join('');
 }
 
-function exportInspectionsCSV(){
+// Generic helper: download an array-of-arrays (header + data rows) as a native .xlsx file
+function downloadXLSX(filenameBase, sheetName, header, dataRows){
+  if(typeof XLSX === 'undefined'){ showToast('⚠️ Excel export library failed to load.'); return; }
+  const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0,31));
+  XLSX.writeFile(wb, filenameBase + '.xlsx');
+}
+
+function exportInspectionsCSV(format){
   const search=document.getElementById('tableSearch').value.toLowerCase();
   const dzF=document.getElementById('tblDzong').value;
   const roF=(document.getElementById('tblRO')||{}).value||'';
@@ -12675,13 +12690,22 @@ function exportInspectionsCSV(){
     ['Test','test'],['Req Value','reqVal'],['Result','result'],['Pass/Fail','passFailResult'],
     ['Month','month'],['Year','year']
   ];
+  const header = cols.map(c=>c[0]);
+  const dataRows = rows.map((r,i)=> cols.map(c=> c[1]==='sn'?(r.sn||(i+1)):(r[c[1]]??'')));
+
+  if(format==='xlsx'){
+    downloadXLSX('CQIS_Inspection_Register_'+new Date().toISOString().slice(0,10), 'Inspections', header, dataRows);
+    (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('✅ Excel exported ('+rows.length+' records).');
+    return;
+  }
+
   const esc=v=>{
     const s=(v===undefined||v===null)?'':String(v);
     return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
   };
-  const lines=[cols.map(c=>esc(c[0])).join(',')];
-  rows.forEach((r,i)=>{
-    lines.push(cols.map(c=>esc(c[1]==='sn'?(r.sn||(i+1)):r[c[1]])).join(','));
+  const lines=[header.map(esc).join(',')];
+  dataRows.forEach(row=>{
+    lines.push(row.map(esc).join(','));
   });
   const csv=lines.join('\r\n');
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
@@ -13001,7 +13025,7 @@ function clearForm(){
 }
 
 // ===== ATR =====
-function exportATRCSV(){
+function exportATRCSV(format){
   const flt=document.getElementById('atrFilter').value;
   const locFilter = getUserLocationFilter();
   const defects=[...inspections].filter(locFilter).sort((a,b)=>(a.sn||0)-(b.sn||0)).filter(r=>r.defect==='Yes');
@@ -13014,13 +13038,22 @@ function exportATRCSV(){
     ['Defect Description','defectDesc'],['Action Required','action'],['Inspector','inspector'],
     ['ATR Deadline','atrDeadline'],['ATR Submitted','atrSubmitted']
   ];
+  const header = [...cols.map(c=>c[0]), 'ATR Status'];
+  const dataRows = rows.map(r => [...cols.map(c=>r[c[1]]??''), calcATRStatus(r)]);
+
+  if(format==='xlsx'){
+    downloadXLSX('CQIS_ATR_Tracker_'+new Date().toISOString().slice(0,10), 'ATR Tracker', header, dataRows);
+    (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('✅ Excel exported ('+rows.length+' records).');
+    return;
+  }
+
   const esc=v=>{
     const s=(v===undefined||v===null)?'':String(v);
     return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
   };
-  const lines=[[...cols.map(c=>esc(c[0])), 'ATR Status'].join(',')];
-  rows.forEach(r=>{
-    lines.push([...cols.map(c=>esc(r[c[1]])), esc(calcATRStatus(r))].join(','));
+  const lines=[header.map(esc).join(',')];
+  dataRows.forEach(row=>{
+    lines.push(row.map(esc).join(','));
   });
   const csv=lines.join('\r\n');
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
@@ -18157,22 +18190,35 @@ function buildPRRow(r, i) {
   </tr>`;
 }
 
-/* ── CSV export for registry ── */
-function prExportCSV() {
+/* ── CSV / Excel export for registry ── */
+function prExportCSV(format) {
   if (!projectRegistry.length) { toast('⚠️ No registry data to export.'); return; }
   const hdr = ['S/N','Project Name','Contract No.','Agency','Type','Road Section','Contractor','Contractor Contact','Engineer','Engineer Contact','Budget (Nu.)','Contract Amt (Nu.)','Start Date','End Date','Description','Registered By','Registered On'];
   const rows = projectRegistry.map(r => [
     r.sn, r.projectName||'', r.contractNo||'', r.agencyLocation||'', r.agencyType||'',
     r.roadSection||'', r.contractorName||'', r.contractorContact||'',
     r.engineerName||'', r.engineerContact||'', r.approvedBudget||'', r.contractAmount||'',
-    r.startDate||'', r.endDate||'', (r.description||'').replace(/,/g,';'),
+    r.startDate||'', r.endDate||'', r.description||'',
     r.registeredByName||'', r.registeredAt?new Date(r.registeredAt).toLocaleDateString('en-GB'):''
   ]);
-  const csv = [hdr, ...rows].map(r => r.join(',')).join('\n');
+
+  if(format==='xlsx'){
+    downloadXLSX('CQIS_ProjectRegistry_'+new Date().toISOString().slice(0,10), 'Project Registry', hdr, rows);
+    return;
+  }
+
+  const esc=v=>{
+    const s=(v===undefined||v===null)?'':String(v);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const csv = [hdr, ...rows].map(r => r.map(esc).join(',')).join('\r\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.href = url;
   a.download = 'CQIS_ProjectRegistry_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ── open monthly update form pre-filled from a registered project ── */
@@ -18809,8 +18855,8 @@ async function exportAllDataBackup(){
   }
 }
 
-/* ── CSV export ── */
-function puExportCSV(){
+/* ── CSV / Excel export ── */
+function puExportCSV(format){
   if(!projectUpdates.length){ toast('⚠️ No data to export.'); return; }
   const hdr=['S/N','Project','Contract No.','Location','Road Section','Overall Status','% Complete','Budget (Nu.)','Contract (Nu.)','Engineer','Eng. Contact','Contractor','Cont. Contact','Work Components','Current Activity','Next Work','Month','Updated Date','Remarks'];
   const rows=projectUpdates.map(r=>[
@@ -18818,14 +18864,27 @@ function puExportCSV(){
     r.overallStatus||'', r.percent||'0', r.approvedBudget||'', r.contractAmount||'',
     r.engineerName||'', r.engineerContact||'', r.contractorName||'', r.contractorContact||'',
     (r.workComponents||[]).map(w=>w.name+':'+w.status).join(' | '),
-    (r.progress||'').replace(/,/g,';'), (r.nextWork||'').replace(/,/g,';'),
-    r.month||'', r.updatedDate||'', (r.remarks||'').replace(/,/g,';')
+    r.progress||'', r.nextWork||'',
+    r.month||'', r.updatedDate||'', r.remarks||''
   ]);
-  const csv=[hdr,...rows].map(r=>r.join(',')).join('\n');
+
+  if(format==='xlsx'){
+    downloadXLSX('CQIS_ProjectUpdates_'+new Date().toISOString().substring(0,10), 'Project Updates', hdr, rows);
+    return;
+  }
+
+  const esc=v=>{
+    const s=(v===undefined||v===null)?'':String(v);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const csv=[hdr,...rows].map(r=>r.map(esc).join(',')).join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.href=url;
   a.download='CQIS_ProjectUpdates_'+new Date().toISOString().substring(0,10)+'.csv';
-  a.click();
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ===== FOCAL PERSON NOTIFY =====
@@ -22877,19 +22936,32 @@ function ispDelete(idx){
 }
 
 /* ── CSV export ── */
-function ispExportCSV(){
+function ispExportCSV(format){
   if(!ispSchedules.length){ showToast('⚠️ No schedules to export.'); return; }
   const hdr = ['S/N','Project Name','Contract No.','Dzongkhag','Road/Chainage','Contractor','Work Type','Inspector','Scheduled Date','Completed Date','Status','Priority','Remarks'];
   const rows = ispSchedules.map((s,i)=>[
     i+1, s.projectName||'', s.contractNo||'', s.dzongkhag||'', s.roadSection||'',
     s.contractor||'', s.workType||'', s.inspector||'', s.scheduledDate||'',
-    s.completedDate||'', s.status||'', s.priority||'', (s.remarks||'').replace(/,/g,';')
+    s.completedDate||'', s.status||'', s.priority||'', s.remarks||''
   ]);
-  const csv = [hdr, ...rows].map(r=>r.join(',')).join('\n');
+
+  if(format==='xlsx'){
+    downloadXLSX('CQIS_Inspection_Schedule_'+new Date().toISOString().substring(0,10), 'Insp. Schedule', hdr, rows);
+    return;
+  }
+
+  const esc=v=>{
+    const s=(v===undefined||v===null)?'':String(v);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const csv = [hdr, ...rows].map(r=>r.map(esc).join(',')).join('\r\n');
+  const blob = new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.href = url;
   a.download = 'CQIS_Inspection_Schedule_' + new Date().toISOString().substring(0,10) + '.csv';
-  a.click();
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ================================================================
