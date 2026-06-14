@@ -16,9 +16,7 @@
 <!-- Chart.js & Firebase -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<!-- Leaflet.js — real interactive map -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet.js loaded lazily on first visit to the Map tab — see _ensureLeafletLoaded() -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -2198,12 +2196,13 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <div><div class="section-title">INSPECTION DATA REGISTER</div><div class="section-badge">Master Data — MOIT Standard</div></div>
         <div style="display:flex;gap:10px;">
           <button id="dataBackupBtn" class="btn-secondary" onclick="exportAllDataBackup()" style="display:none;">⬇️ Backup All Data</button>
+          <button id="dataExportCsvBtn" class="btn-secondary" onclick="exportInspectionsCSV()">📊 Export CSV</button>
           <button id="dataNewEntryBtn" class="btn-primary" onclick="showTab('entry',document.getElementById('entryTabBtn'))">+ New Entry</button>
         </div>
       </div>
       <div class="table-card">
         <div class="table-toolbar">
-          <input class="table-search" id="tableSearch" placeholder="🔍 Search by project, contractor, location…" oninput="renderTable()">
+          <input class="table-search" id="tableSearch" placeholder="🔍 Search by project, contractor, location…" oninput="_debounceCall('renderTable')">
           <div style="display:flex;gap:8px;align-items:center;">
             <select class="filter-select" id="tblDzong" onchange="renderTable()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
             <select class="filter-select" id="tblRO" onchange="renderTable()"><option value="">All RO / Thromde</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
@@ -5700,7 +5699,7 @@ function printAllConst(){
             <div style="font-size:11px;color:#a8c4d8;margin-top:2px;">Tests saved from SBRW QC Tool &amp; IS Code Tests — viewable, printable, downloadable as PDF</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <input id="trStandaloneSearch" type="text" placeholder="Search saved tests…" oninput="trRenderStandalone()"
+            <input id="trStandaloneSearch" type="text" placeholder="Search saved tests…" oninput="_debounceCall('trRenderStandalone')"
               style="padding:7px 12px;border:1px solid rgba(255,255,255,.2);border-radius:6px;font-size:12px;background:rgba(255,255,255,.1);color:#fff;outline:none;font-family:'Poppins',sans-serif;width:200px;" />
             <select id="trStandaloneSource" onchange="trRenderStandalone()"
               style="padding:7px 10px;border:1px solid rgba(255,255,255,.2);border-radius:6px;font-size:12px;background:rgba(255,255,255,.1);color:#fff;outline:none;font-family:'Poppins',sans-serif;">
@@ -5729,7 +5728,7 @@ function printAllConst(){
           <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:200px;">
             <label style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;">🔍 Search</label>
             <input type="text" id="trSearch" placeholder="Project / contractor / test / chainage…"
-              oninput="trRender()"
+              oninput="_debounceCall('trRender')"
               style="padding:7px 12px;border:1px solid #e2e6ef;border-radius:6px;font-size:12px;outline:none;font-family:'Poppins',sans-serif;">
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;min-width:160px;">
@@ -5922,7 +5921,7 @@ function printAllConst(){
       <!-- Filters -->
       <div class="table-card">
         <div class="table-toolbar" style="flex-wrap:wrap;gap:8px;">
-          <input class="table-search" id="ispSearch" placeholder="🔍 Search project, contractor, inspector…" oninput="ispRender()" style="width:260px;">
+          <input class="table-search" id="ispSearch" placeholder="🔍 Search project, contractor, inspector…" oninput="_debounceCall('ispRender')" style="width:260px;">
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <select class="filter-select" id="ispFilterDz" onchange="ispRender()">
               <option value="">All Areas</option>
@@ -6043,7 +6042,7 @@ function printAllConst(){
           <option value="unread">Unread Only</option>
           <option value="read">Read Only</option>
         </select>
-        <input class="table-search" id="notifSearch" placeholder="🔍 Search notifications…" oninput="notifRender()" style="width:220px;">
+        <input class="table-search" id="notifSearch" placeholder="🔍 Search notifications…" oninput="_debounceCall('notifRender')" style="width:220px;">
         <span id="notifCount" style="font-size:12px;color:#6b7280;margin-left:auto;">0 notifications</span>
       </div>
 
@@ -7031,7 +7030,7 @@ function printAllConst(){
 
       <!-- Search & Filter Bar -->
       <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-        <input type="text" id="dl-search" placeholder="🔍  Search by name, project, contract no., location..." oninput="dlRender()"
+        <input type="text" id="dl-search" placeholder="🔍  Search by name, project, contract no., location..." oninput="_debounceCall('dlRender')"
           style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:6px;padding:9px 14px;color:#1a2236;font-size:13px;flex:1;min-width:220px;outline:none;">
         <select id="dl-filter-type" onchange="dlRender()"
           style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:6px;padding:9px 12px;color:#1a2236;font-size:13px;outline:none;cursor:pointer;">
@@ -7119,13 +7118,13 @@ function printAllConst(){
             <select class="filter-select" id="prAgencyFilter" onchange="renderPRTable()">
               <option value="">All Agencies</option>
             </select>
-            <input class="table-search" id="prSearch" placeholder="🔍 Search projects…" oninput="renderPRTable()" style="width:200px;">
+            <input class="table-search" id="prSearch" placeholder="🔍 Search projects…" oninput="_debounceCall('renderPRTable')" style="width:200px;">
             <span id="prCount" style="font-size:12px;color:#374151;font-weight:600;"></span>
           </div>
         </div>
         <!-- User search -->
         <div id="prUserFilter" style="margin-bottom:14px;">
-          <input class="table-search" id="prSearchUser" placeholder="🔍 Search your projects…" oninput="renderPRTable()" style="width:220px;">
+          <input class="table-search" id="prSearchUser" placeholder="🔍 Search your projects…" oninput="_debounceCall('renderPRTable')" style="width:220px;">
           <span id="prCountUser" style="font-size:12px;color:#374151;font-weight:600;margin-left:12px;"></span>
         </div>
 
@@ -7179,7 +7178,7 @@ function printAllConst(){
             <button id="puViewWork"     onclick="puSetView('work')"     style="padding:5px 14px;border:none;border-radius:4px;font-size:11px;font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.5px;cursor:pointer;background:none;color:#374151;transition:all .2s;">🏗 WORK COMPONENTS</button>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <input class="table-search" id="puSearch" placeholder="🔍 Search updates…" oninput="renderPUTable()" style="width:190px;">
+            <input class="table-search" id="puSearch" placeholder="🔍 Search updates…" oninput="_debounceCall('renderPUTable')" style="width:190px;">
             <!-- Admin sees agency filter -->
             <select class="filter-select" id="puAgencyAdminFilter" onchange="renderPUTable()" style="display:none;">
               <option value="">All Agencies</option>
@@ -7396,11 +7395,14 @@ async function fbSaveInspection(entry) {
     // This prevents edits from creating a second parallel document in Firestore
     // while leaving the original (with the old contractNo) intact.
     const docId = entry.id || ('insp-' + (entry.sn || Date.now()));
-    const entryWithId = { ...entry, id: docId };
+    const now = new Date().toISOString();
+    const who = (currentUser && (currentUser.name || currentUser.email)) || 'Unknown';
+    const entryWithId = { ...entry, id: docId, updatedAt: now, updatedBy: who };
+    if (!entry.createdAt) { entryWithId.createdAt = now; entryWithId.createdBy = who; }
     await db.collection(COL_INSPECTIONS).doc(docId).set(entryWithId, { merge: true });
     // Store doc ID back into local array so future edits reuse the same doc
     const idx = inspections.findIndex(r => r.sn === entry.sn);
-    if (idx > -1) inspections[idx].id = docId;
+    if (idx > -1) Object.assign(inspections[idx], { id: docId, createdAt: entryWithId.createdAt, createdBy: entryWithId.createdBy, updatedAt: now, updatedBy: who });
     localStorage.setItem('inspections_cqis', JSON.stringify(inspections));
     return docId;
   } catch(e) {
@@ -11441,6 +11443,16 @@ function doLogout() {
 })();
 
 // ===== NAVIGATION =====
+// ── Debounce helper for search inputs: delays the named render function
+// so it only runs after the user pauses typing, instead of every keystroke ──
+const _debounceTimers = {};
+function _debounceCall(fnName, delay=300){
+  clearTimeout(_debounceTimers[fnName]);
+  _debounceTimers[fnName] = setTimeout(()=>{
+    if(typeof window[fnName]==='function') window[fnName]();
+  }, delay);
+}
+
 function showTab(id,btn){
   // Update observer panel current tab label if panel is open
   if (typeof _obsPanelOpen !== 'undefined' && _obsPanelOpen) {
@@ -11479,10 +11491,12 @@ function showTab(id,btn){
     if(addBtn) addBtn.style.display=(currentUser&&currentUser.isAdmin)?'':'none';
   }
   if(id==='map'){
-    setTimeout(() => {
-      if(_leafletMap){ _leafletMap.invalidateSize(); }
-      renderBhutanMap();
-    }, 50);
+    _ensureLeafletLoaded().then(() => {
+      setTimeout(() => {
+        if(_leafletMap){ _leafletMap.invalidateSize(); }
+        renderBhutanMap();
+      }, 50);
+    });
   }
   if(id==='entry'){
     const isAdmin  = currentUser && currentUser.isAdmin;
@@ -11629,6 +11643,23 @@ const THROMDE_ZONES = {
   'Samdrup Jongkhar Thromde': {lat:26.8039, lng:91.5059, color:'#c026d3',
     poly:[[26.84,91.47],[26.84,91.55],[26.76,91.55],[26.76,91.47]]},
 };
+
+// ── Lazy-load Leaflet (JS + CSS) on first visit to the Map tab ──
+let _leafletLoadPromise = null;
+function _ensureLeafletLoaded(){
+  if(typeof L!=='undefined') return Promise.resolve();
+  if(_leafletLoadPromise) return _leafletLoadPromise;
+  _leafletLoadPromise = new Promise((resolve)=>{
+    const css=document.createElement('link');
+    css.rel='stylesheet'; css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(css);
+    const script=document.createElement('script');
+    script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload=()=>resolve();
+    document.head.appendChild(script);
+  });
+  return _leafletLoadPromise;
+}
 
 let _mapSelectedDz   = null;
 let _leafletMap      = null;
@@ -12495,6 +12526,53 @@ function renderTable(){
         : '<span style="color:#6b7280;font-size:10px;">—</span>'}</td>
     </tr>`;
   }).join('');
+}
+
+function exportInspectionsCSV(){
+  const search=document.getElementById('tableSearch').value.toLowerCase();
+  const dzF=document.getElementById('tblDzong').value;
+  const roF=(document.getElementById('tblRO')||{}).value||'';
+  const othF=(document.getElementById('tblOther')||{}).value||'';
+  const defF=document.getElementById('tblDefect').value;
+
+  const visiblePool = getUserVisibleInspections();
+  const sorted=[...visiblePool].sort((a,b)=>(a.sn||0)-(b.sn||0));
+  const rows=sorted.filter(r=>{
+    if(dzF&&r.dzongkhag!==dzF)return false;
+    if(roF&&r.ro!==roF)return false;
+    if(othF&&r.other!==othF)return false;
+    if(defF&&r.defect!==defF)return false;
+    if(search&&!JSON.stringify(r).toLowerCase().includes(search))return false;
+    return true;
+  });
+
+  if(!rows.length){ (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('⚠️ No records to export.'); return; }
+
+  const cols=[
+    ['S/N','sn'],['Project','projectName'],['Contract No.','contractNo'],['Road/Chainage','roadSection'],
+    ['Contractor','contractor'],['Dzongkhag','dzongkhag'],['RO/Thromde','ro'],['Other','other'],
+    ['Work Type','workType'],['Work Item','workItem'],['Date','dateInspected'],['Defect?','defect'],
+    ['Description','defectDesc'],['MOIT Ref','moitRef'],['Action','action'],['Inspector','inspector'],
+    ['ATR Deadline','atrDeadline'],['ATR Submitted','atrSubmitted'],
+    ['Test','test'],['Req Value','reqVal'],['Result','result'],['Pass/Fail','passFailResult'],
+    ['Month','month'],['Year','year']
+  ];
+  const esc=v=>{
+    const s=(v===undefined||v===null)?'':String(v);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const lines=[cols.map(c=>esc(c[0])).join(',')];
+  rows.forEach((r,i)=>{
+    lines.push(cols.map(c=>esc(c[1]==='sn'?(r.sn||(i+1)):r[c[1]])).join(','));
+  });
+  const csv=lines.join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='CQIS_Inspection_Register_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('✅ CSV exported ('+rows.length+' records).');
 }
 
 function deleteEntry(i){
@@ -21681,12 +21759,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!mapEl) return;
   const obs = new IntersectionObserver(entries=>{
     if(entries[0].isIntersecting){
-      // Small delay to let Leaflet load
-      setTimeout(()=>{
+      _ensureLeafletLoaded().then(()=>{
         initPubMap();
         // Re-render when inspections are loaded
         if(inspections && inspections.length) renderPubMap();
-      }, 300);
+      });
       obs.disconnect();
     }
   },{threshold:0.1});
