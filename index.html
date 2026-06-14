@@ -2573,7 +2573,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           📸 Photo Evidence &amp; Observations
         </div>
         <div style="margin-bottom:14px;font-size:12px;color:#6b7280;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;">
-          Photos are stored locally in <strong>Downloads → Photo Library</strong> organised by Dzongkhag/RO → Project. They also auto-appear in the hero slideshow on the home page.
+          Photos are stored in <strong>Downloads → Photo Library</strong> organised by Dzongkhag/RO → Project. They also auto-appear in the hero slideshow on the home page.
+          <br>📍 <strong>Tip:</strong> Use <strong>Capture</strong> under GPS Location (Step 3) before uploading — your photos will be stamped with the GPS coordinates and date/time for evidence and audit trail.
         </div>
         <div id="photoUploadArea" style="border:2px dashed #cbd5e1;border-radius:10px;padding:24px;text-align:center;background:#f8fafc;cursor:pointer;transition:all .2s;margin-bottom:14px;"
           onclick="document.getElementById('fPhotoInput').click()"
@@ -14488,6 +14489,15 @@ async function entryHandlePhotoUpload(files){
   const notes = document.getElementById('fPhotoNotes')?.value?.trim()||'';
   const MAX_PHOTO_BYTES = 5*1024*1024; // 5MB per photo
   const who = (currentUser && (currentUser.name || currentUser.username)) || 'Unknown';
+
+  // Geotag info from the captured GPS field (Step 3)
+  const lat = parseFloat(document.getElementById('fLat')?.value);
+  const lng = parseFloat(document.getElementById('fLng')?.value);
+  const hasGPS = !isNaN(lat) && !isNaN(lng);
+  const now = new Date();
+  const timestampStr = now.toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+  const tagLabel = [loc!=='Unknown'?loc:'', proj!=='Unknown Project'?proj:''].filter(Boolean).join(' - ');
+
   for(const file of Array.from(files)){
     if(file.size > MAX_PHOTO_BYTES){
       showToast(`⚠️ "${file.name}" is too large (max 5MB). Skipped.`);
@@ -14496,14 +14506,19 @@ async function entryHandlePhotoUpload(files){
     const id = 'PH-'+Date.now()+'-'+Math.random().toString(36).slice(2,6);
     const storagePath = `photoLibrary/${id}_${file.name}`;
     try{
-      showToast('📤 Uploading "'+file.name+'"…');
+      showToast(hasGPS ? 'Geotagging & uploading "'+file.name+'"...' : 'Uploading "'+file.name+'"...');
+      const stamped = file.type.startsWith('image/')
+        ? await stampPhotoWithGeoTag(file, hasGPS?lat:null, hasGPS?lng:null, timestampStr, tagLabel)
+        : file;
       const ref = storage.ref(storagePath);
-      await ref.put(file);
+      await ref.put(stamped, { contentType: file.type });
       const url = await ref.getDownloadURL();
       await db.collection('photoLibrary').doc(id).set({
         url, storagePath, area: loc, project: proj,
         date: new Date().toISOString(), notes, filename: file.name,
-        uploadedBy: who
+        uploadedBy: who,
+        lat: hasGPS ? lat : null, lng: hasGPS ? lng : null,
+        capturedAt: now.toISOString()
       });
     } catch(e){
       console.error('Photo upload error:', e);
@@ -14512,6 +14527,53 @@ async function entryHandlePhotoUpload(files){
   }
   // entryRenderPhotoPreviews / dlRenderPhotos / slideshow refresh via the
   // photoLibrary onSnapshot listener once the new doc lands.
+}
+
+// Burn GPS coordinates + timestamp onto the photo (canvas overlay) for evidence/audit trail
+function stampPhotoWithGeoTag(file, lat, lng, timestampStr, label){
+  return new Promise(resolve=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try{
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        const lines = [];
+        if(lat!=null && lng!=null) lines.push('GPS: ' + lat.toFixed(6) + ', ' + lng.toFixed(6));
+        lines.push(timestampStr);
+        if(label) lines.push(label);
+
+        const fontSize   = Math.max(16, Math.round(canvas.width*0.02));
+        const lineHeight = Math.round(fontSize*1.4);
+        const padding    = Math.round(fontSize*0.6);
+        const boxHeight  = lines.length*lineHeight + padding*2;
+
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(0, canvas.height-boxHeight, canvas.width, boxHeight);
+
+        ctx.font = fontSize + 'px Arial, sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.textBaseline = 'top';
+        lines.forEach((line,i)=>{
+          ctx.fillText(line, padding, canvas.height-boxHeight+padding+i*lineHeight);
+        });
+
+        canvas.toBlob(blob=>{
+          URL.revokeObjectURL(url);
+          resolve(blob || file);
+        }, file.type==='image/png'?'image/png':'image/jpeg', 0.9);
+      } catch(e){
+        URL.revokeObjectURL(url);
+        resolve(file);
+      }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
 }
 
 function entryHandlePhotoDrop(e){
@@ -14548,6 +14610,7 @@ function entryRenderPhotoPreviews(){
   grid.innerHTML = recent.map(p=>`
     <div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;background:#f8fafc;">
       <img src="${p.url||p.dataUrl}" alt="${p.filename||'photo'}" style="width:100%;height:100px;object-fit:cover;display:block;">
+      ${p.lat!=null ? '<span style="position:absolute;bottom:24px;left:4px;background:rgba(37,99,235,.85);color:#fff;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700;">📍 GPS</span>' : ''}
       <div style="padding:5px 7px;font-size:10px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.filename||'photo'}</div>
       <button onclick="photoDelete('${p.id}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);border:none;color:#fff;border-radius:4px;padding:2px 6px;font-size:10px;cursor:pointer;">✕</button>
     </div>`).join('');
@@ -14641,11 +14704,13 @@ function dlRenderPhotos(){
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
             ${photos.map(p=>`
-              <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#f8fafc;">
+              <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#f8fafc;position:relative;">
                 <img src="${p.url||p.dataUrl}" alt="${p.filename||'photo'}" style="width:100%;height:120px;object-fit:cover;display:block;cursor:pointer;" onclick="photoLightbox('${p.id}')">
+                ${p.lat!=null ? '<span style="position:absolute;top:6px;left:6px;background:rgba(37,99,235,.85);color:#fff;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;">📍 GPS</span>' : ''}
                 <div style="padding:7px 9px;">
                   <div style="font-size:10px;color:#374151;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.filename||'photo'}</div>
                   <div style="font-size:9px;color:#94a3b8;margin-top:1px;">${p.date?new Date(p.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):''}</div>
+                  ${p.lat!=null?`<div style="font-size:9px;color:#2563eb;margin-top:1px;font-family:'JetBrains Mono',monospace;">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div>`:''}
                   ${p.notes?`<div style="font-size:10px;color:#6b7280;margin-top:3px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.notes}</div>`:''}
                   <button onclick="photoDelete('${p.id}')" style="margin-top:5px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:4px;padding:2px 8px;font-size:10px;color:#dc2626;cursor:pointer;width:100%;">🗑 Remove</button>
                 </div>
@@ -14665,6 +14730,7 @@ function photoLightbox(id){
   ov.innerHTML=`<div style="max-width:90vw;max-height:90vh;text-align:center;">
     <img src="${p.url||p.dataUrl}" style="max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6);">
     <div style="color:#fff;font-size:12px;margin-top:10px;opacity:.7;">${p.filename||''} · ${p.area||''} → ${p.project||''}</div>
+    ${p.lat!=null?`<div style="color:#93c5fd;font-size:12px;margin-top:4px;font-family:'JetBrains Mono',monospace;">📍 ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}${p.capturedAt?' · '+new Date(p.capturedAt).toLocaleString('en-GB'):''}</div>`:''}
     ${p.notes?`<div style="color:#fbbf24;font-size:12px;margin-top:4px;">"${p.notes}"</div>`:''}
   </div>`;
   document.body.appendChild(ov);
