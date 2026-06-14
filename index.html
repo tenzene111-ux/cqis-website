@@ -342,6 +342,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .online-pulse{width:7px;height:7px;border-radius:50%;background:#16a34a;
   box-shadow:0 0 5px #16a34a;animation:onlinePulse 2s ease-in-out infinite;}
 @keyframes onlinePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(.85);}}
+@keyframes pulse-overdue{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
 .online-users-list{display:flex;align-items:center;gap:6px;flex:1;overflow:hidden;}
 .online-user-chip{
   display:flex;align-items:center;gap:5px;
@@ -7002,6 +7003,7 @@ function printAllConst(){
           <button onclick="toggleMapLayer('ro')"     id="btnRO"     style="background:#dbeafe;border:1.5px solid #3b82f6;border-radius:6px;padding:6px 11px;font-size:11px;color:#1d4ed8;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">◆ RO / Thromde</button>
           <button onclick="toggleMapLayer('routes')" id="btnRoutes" style="background:#fef3c7;border:1.5px solid #e8820c;border-radius:6px;padding:6px 11px;font-size:11px;color:#c46a08;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">🛣 Routes</button>
           <button onclick="toggleMapLayer('labels')" id="btnLabels" style="background:#f0fdf4;border:1.5px solid #16a34a;border-radius:6px;padding:6px 11px;font-size:11px;color:#15803d;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">🏷 Labels</button>
+          <button onclick="toggleMapLayer('overdue')" id="btnOverdue" style="background:#fff7ed;border:1.5px solid #f59e0b;border-radius:6px;padding:6px 11px;font-size:11px;color:#92400e;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">⚠️ Overdue Projects</button>
           <div style="font-size:11px;color:#6b7280;font-family:'JetBrains Mono',monospace;padding:0 4px;" id="mapTotalLabel"></div>
         </div>
       </div>
@@ -11863,10 +11865,12 @@ let _thromdeZoneLayers = [];
 let _highwayLines    = [];
 let _dzLabelMarkers  = [];
 let _gpsMarkers      = [];
+let _overdueMarkers  = [];
 let _currentTile     = null;
 let _showRO          = true;
 let _showRoutes      = true;
 let _showLabels      = true;
+let _showOverdue     = true;
 
 const MAP_TILES = {
   satellite:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr:'Tiles &copy; Esri &mdash; Esri, Maxar',maxZoom:18},
@@ -12085,6 +12089,24 @@ function toggleMapLayer(type){
     if(btn) btn.style.opacity=_showLabels?'1':'0.45';
     _dzLabelMarkers.forEach(m=>_showLabels?m.addTo(_leafletMap):_leafletMap.removeLayer(m));
   }
+  if(type==='overdue'){
+    _showOverdue=!_showOverdue;
+    const btn=document.getElementById('btnOverdue');
+    if(btn) btn.style.opacity=_showOverdue?'1':'0.45';
+    _overdueMarkers.forEach(m=>_showOverdue?m.addTo(_leafletMap):_leafletMap.removeLayer(m));
+  }
+}
+
+function _makeOverduePin(){
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:30px;height:30px;border-radius:50%;background:#f59e0b;
+      border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35),0 0 0 2px #f59e0b55;
+      display:flex;align-items:center;justify-content:center;
+      font-size:15px;cursor:pointer;animation:pulse-overdue 1.6s infinite;"
+    >⚠️</div>`,
+    iconSize:[30,30], iconAnchor:[15,15], popupAnchor:[0,-15]
+  });
 }
 
 function renderBhutanMap(){
@@ -12205,6 +12227,41 @@ function renderBhutanMap(){
       {maxWidth:240,className:'cqis-map-popup'});
     gpsMarker.addTo(_leafletMap);
     _gpsMarkers.push(gpsMarker);
+  });
+
+  // Overdue / at-risk project pins — projects with no Monthly Update for the current month
+  _overdueMarkers.forEach(m=>_leafletMap.removeLayer(m));
+  _overdueMarkers = [];
+  const { curMonth, curYear, projects: overdueProjects } = getOverdueProjects(true);
+  const overdueByDz = {};
+  overdueProjects.forEach(r=>{
+    const key = Object.keys(DZ_COORDS).find(k=>k===r.agencyLocation||(r.agencyLocation||'').includes(k)||k.includes(r.agencyLocation||''));
+    if(key) (overdueByDz[key]=overdueByDz[key]||[]).push(r);
+  });
+  Object.entries(overdueByDz).forEach(([dz,regs])=>{
+    if(filterDz && filterDz!==dz) return;
+    const c = DZ_COORDS[dz];
+    regs.forEach((r,i)=>{
+      // jitter so multiple overdue pins in the same dzongkhag don't fully overlap
+      const angle = (i / Math.max(regs.length,1)) * 2 * Math.PI;
+      const lat = c.lat + Math.sin(angle) * 0.06 * (i>0?1:0);
+      const lng = c.lng + Math.cos(angle) * 0.06 * (i>0?1:0);
+      const marker = L.marker([lat,lng], {icon:_makeOverduePin(), zIndexOffset:700});
+      marker.bindPopup(`
+        <div style="font-family:'Poppins',sans-serif;min-width:200px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
+            color:#f59e0b;border-bottom:1px solid #e2e6ef;padding-bottom:5px;margin-bottom:6px;">
+            ⚠️ ${r.projectName||'Untitled Project'}</div>
+          <div style="font-size:11px;color:#374151;line-height:1.6;">
+            <div><b>Agency:</b> ${r.agencyLocation||'—'}</div>
+            <div><b>Contract No.:</b> ${r.contractNo||'—'}</div>
+            <div style="color:#d97706;font-weight:700;margin-top:4px;">No update submitted for ${curMonth} ${curYear}</div>
+          </div>
+        </div>`,
+        {maxWidth:240,className:'cqis-map-popup'});
+      if(_showOverdue) marker.addTo(_leafletMap);
+      _overdueMarkers.push(marker);
+    });
   });
 
   if(filterDz && DZ_COORDS[filterDz]){
@@ -13929,7 +13986,9 @@ function _populateRegistryDropdown(){
     ? projectRegistry
     : projectRegistry.filter(r=>r.agencyLocation === currentUser?.location);
   const cur = sel.value;
+  const allLabel = isAdmin ? '📊 All Projects (Nationwide Summary)' : `📊 All Projects (${currentUser?.location||'My Agency'} Summary)`;
   sel.innerHTML = '<option value="">— Select a project —</option>' +
+    `<option value="ALL" ${cur==='ALL'?'selected':''}>${allLabel}</option>` +
     regs.map(r=>`<option value="${r.regId}" ${r.regId===cur?'selected':''}>${r.projectName||'Untitled Project'}</option>`).join('');
 }
 
@@ -14560,9 +14619,39 @@ function _registryReportData(){
   return { reg, linkedUpdates, latest, fmtM, fmtDate };
 }
 
+// Build the row data needed for the agency-wide (multi-project) summary report
+function _registryAllReportData(){
+  const isAdmin = currentUser && currentUser.isAdmin;
+  const regs = isAdmin
+    ? projectRegistry
+    : projectRegistry.filter(r=>r.agencyLocation === currentUser?.location);
+  const fmtM = v => (v !== undefined && v !== null && v !== '') ? (Number(v)/1000000).toLocaleString(undefined,{maximumFractionDigits:2}) : '—';
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : '—';
+  const rows = regs.map(reg=>{
+    const linkedUpdates = projectUpdates.filter(u => u.regId === reg.regId || u.projectName === reg.projectName)
+      .slice().sort((a,b) => new Date(b.submittedAt||b.updatedDate||0) - new Date(a.submittedAt||a.updatedDate||0));
+    return { reg, latest: linkedUpdates[0] || null, updateCount: linkedUpdates.length };
+  });
+  const { projects: overdue } = getOverdueProjects(!isAdmin ? false : true);
+  const overdueIds = new Set(overdue.map(r=>r.regId));
+  const totalPercent = rows.reduce((s,r)=>s+(Number(r.latest?.percent)||0),0);
+  const avgPercent = rows.length ? Math.round(totalPercent/rows.length) : 0;
+  const statusCounts = {};
+  rows.forEach(r=>{ const st = r.latest?.overallStatus || 'Not Started'; statusCounts[st]=(statusCounts[st]||0)+1; });
+  return { rows, overdueIds, avgPercent, statusCounts, fmtM, fmtDate,
+    scopeLabel: isAdmin ? 'Nationwide' : (currentUser?.location||'My Agency') };
+}
+
 function renderRegistryReport(){
   const empty = document.getElementById('registry-report-empty');
   const content = document.getElementById('registry-report-content');
+  const regId = document.getElementById('reportRegistrySelect')?.value;
+  if(regId === 'ALL'){
+    if(empty) empty.style.display='none';
+    if(content) content.style.display='block';
+    _renderRegistryAllReport(content);
+    return;
+  }
   const data = _registryReportData();
   if(!data){ if(empty)empty.style.display='block'; if(content)content.style.display='none'; return; }
   if(empty) empty.style.display='none';
@@ -14651,7 +14740,115 @@ function renderRegistryReport(){
   content.innerHTML = html;
 }
 
+// Agency-wide / nationwide multi-project summary — preview panel
+function _renderRegistryAllReport(content){
+  const { rows, overdueIds, avgPercent, statusCounts, fmtM, fmtDate, scopeLabel } = _registryAllReportData();
+  const secTitle = (letter,title) => `<div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:#f97316;border-bottom:2px solid #e2e6ef;padding-bottom:6px;margin:20px 0 12px;">${letter}. ${title.toUpperCase()}</div>`;
+  const card = (c) => `<div style="background:#fff;border:1px solid #e2e6ef;border-radius:10px;color:#111827;overflow:hidden;margin-bottom:14px;">${c}</div>`;
+  const statusColor = (st) => st==='Completed' ? '#16a34a' : st==='Overdue' ? '#dc2626' : st==='On Hold' ? '#d97706' : '#2563eb';
+
+  if(!rows.length){
+    content.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7280;">No projects found in the registry.</div>';
+    return;
+  }
+
+  content.innerHTML = `
+    <div style="background:linear-gradient(135deg,#f0f2f7 0%,#fff 100%);border:1px solid #cbd2e0;border-radius:12px;padding:24px 28px;margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Office of Prime Minister and Cabinet · OCASC</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:1px;color:#1a2236;margin-bottom:4px;">PROJECT PROGRESS REPORT</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:600;color:#d97706;">${scopeLabel} — All Projects</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;min-width:260px;">
+        <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#2563eb;">${rows.length}</div>
+          <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;">Projects</div>
+        </div>
+        <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#f97316;">${avgPercent}%</div>
+          <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;">Avg. Progress</div>
+        </div>
+        <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:${overdueIds.size>0?'#dc2626':'#16a34a'};">${overdueIds.size}</div>
+          <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;">Overdue Updates</div>
+        </div>
+      </div>
+    </div>
+
+    ${secTitle('A','Status Breakdown')}
+    ${card(`<div style="display:flex;gap:10px;padding:14px;flex-wrap:wrap;">
+      ${Object.entries(statusCounts).map(([st,n])=>`<div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:10px 16px;text-align:center;min-width:100px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:${statusColor(st)};">${n}</div>
+        <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;">${st}</div>
+      </div>`).join('')}
+    </div>`)}
+
+    ${secTitle('B','Project Summary')}
+    ${card(`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr style="background:#f8f9fc;">
+        ${['#','Project','Location','Status','Progress','Latest Update Month','Flag'].map(h=>`<th style="padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>${rows.map((r,i)=>`<tr style="border-bottom:1px solid rgba(0,0,0,.06);${i%2===1?'background:rgba(37,99,235,.03)':''}">
+        <td style="padding:7px 10px;">${i+1}</td>
+        <td style="padding:7px 10px;"><strong>${r.reg.projectName||'Untitled Project'}</strong>${r.reg.contractNo?'<br><span style="font-size:10px;color:#6b7280;">'+r.reg.contractNo+'</span>':''}</td>
+        <td style="padding:7px 10px;">${r.reg.agencyLocation||'—'}</td>
+        <td style="padding:7px 10px;font-weight:700;color:${statusColor(r.latest?.overallStatus)};">${r.latest?.overallStatus||'Not Started'}</td>
+        <td style="padding:7px 10px;">${r.latest?.percent||0}%</td>
+        <td style="padding:7px 10px;">${r.latest?.month||'—'}</td>
+        <td style="padding:7px 10px;">${overdueIds.has(r.reg.regId)?'<span style="color:#dc2626;font-weight:700;">⚠️ Overdue</span>':'<span style="color:#16a34a;">✓ Up to date</span>'}</td>
+      </tr>`).join('')}</tbody>
+    </table>`)}
+  `;
+}
+
+// Agency-wide / nationwide multi-project summary — print version
+function _printRegistryAllReport(){
+  const { rows, overdueIds, avgPercent, statusCounts, fmtM, fmtDate, scopeLabel } = _registryAllReportData();
+  if(!rows.length){ toast('No projects found in the registry.'); return; }
+
+  const tRow = (cells, hdr=false) => `<tr>${cells.map(c=>`<t${hdr?'h':'d'} style="padding:5px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;${hdr?'background:#1a3a6e;color:#fff;font-size:7.5pt;text-transform:uppercase;letter-spacing:.4px;':''}">${c}</t${hdr?'h':'d'}>`).join('')}</tr>`;
+
+  const summaryTable = `<table style="width:100%;border-collapse:collapse;">
+    ${tRow(['#','Project','Location','Status','Progress','Latest Update Month','Flag'],true)}
+    ${rows.map((r,i)=>{
+      const bg=i%2===1?'background:#f5f8ff;':'';
+      const flag = overdueIds.has(r.reg.regId) ? '⚠️ Overdue' : '✓ Up to date';
+      return `<tr style="${bg}">${[i+1, r.reg.projectName||'Untitled Project', r.reg.agencyLocation||'—', r.latest?.overallStatus||'Not Started', (r.latest?.percent||0)+'%', r.latest?.month||'—', flag].map(c=>`<td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8pt;">${c}</td>`).join('')}</tr>`;
+    }).join('')}
+  </table>`;
+
+  const html = _buildPrintPage({
+    title: 'PROJECT PROGRESS REPORT — SUMMARY',
+    stamp: 'AGENCY SUMMARY',
+    meta: [
+      {label:'Scope', value: scopeLabel},
+      {label:'Total Projects', value: rows.length},
+      {label:'Average Progress', value: avgPercent+'%'},
+      {label:'Overdue Updates', value: overdueIds.size},
+      ...Object.entries(statusCounts).map(([st,n])=>({label:st, value:n})),
+      {label:'Report Date', value: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})},
+      {label:'Prepared By', value: 'CQD, OCASC'},
+    ],
+    body: `
+      <div class="ps-kpi-row">
+        <div class="ps-kpi"><div class="ps-kpi-val">${rows.length}</div><div class="ps-kpi-lbl">Total Projects</div></div>
+        <div class="ps-kpi"><div class="ps-kpi-val">${avgPercent}%</div><div class="ps-kpi-lbl">Average Progress</div></div>
+        <div class="ps-kpi"><div class="ps-kpi-val" style="color:${overdueIds.size>0?'#dc2626':'#16a34a'};">${overdueIds.size}</div><div class="ps-kpi-lbl">Overdue Updates</div></div>
+        <div class="ps-kpi"><div class="ps-kpi-val" style="font-size:12pt;">${scopeLabel}</div><div class="ps-kpi-lbl">Scope</div></div>
+      </div>
+
+      <div class="ps-section-title">Project Summary</div>
+      ${summaryTable}
+    `,
+  });
+  _doPrint(html);
+}
+
 function _printRegistryReport(){
+  if(document.getElementById('reportRegistrySelect')?.value === 'ALL'){
+    _printRegistryAllReport();
+    return;
+  }
   const data = _registryReportData();
   if(!data){ toast('Please select a project first.'); return; }
   const { reg, linkedUpdates, latest, fmtM, fmtDate } = data;
@@ -19539,9 +19736,16 @@ async function exportAllDataBackup(){
 
 /* ── CSV / Excel export ── */
 function puExportCSV(format){
-  if(!projectUpdates.length){ toast('⚠️ No data to export.'); return; }
+  const isAdmin = currentUser && currentUser.isAdmin;
+  const scoped = isAdmin
+    ? projectUpdates
+    : projectUpdates.filter(r=>{
+        const reg = r.regId ? projectRegistry.find(p=>p.regId===r.regId) : null;
+        return reg && reg.agencyLocation === currentUser?.location;
+      });
+  if(!scoped.length){ toast('⚠️ No data to export.'); return; }
   const hdr=['S/N','Project','Contract No.','Location','Road Section','Overall Status','% Complete','Budget (Nu.)','Contract (Nu.)','Engineer','Eng. Contact','Contractor','Cont. Contact','Work Components','Current Activity','Next Work','Month','Updated Date','Remarks'];
-  const rows=projectUpdates.map(r=>[
+  const rows=scoped.map(r=>[
     r.sn, r.projectName||'', r.contractNo||'', r.location||'', r.roadSection||'',
     r.overallStatus||'', r.percent||'0', r.approvedBudget||'', r.contractAmount||'',
     r.engineerName||'', r.engineerContact||'', r.contractorName||'', r.contractorContact||'',
