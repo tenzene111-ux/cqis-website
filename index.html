@@ -2128,6 +2128,12 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <div class="breakdown-card"><div class="breakdown-title">📅 By Month</div><table class="breakdown-table"><thead><tr><th>Month</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="monthBody"></tbody></table></div>
       </div>
 
+      <!-- RECENT ACTIVITY FEED -->
+      <div class="breakdown-card" style="margin-bottom:20px;">
+        <div class="breakdown-title">🕒 Recent Activity</div>
+        <div id="recentActivityList" style="font-size:12px;color:#374151;"></div>
+      </div>
+
       <!-- ALL CHARTS GRID -->
       <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
         <div>
@@ -2208,6 +2214,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <select class="filter-select" id="tblRO" onchange="renderTable()"><option value="">All RO / Thromde</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
             <select class="filter-select" id="tblOther" onchange="renderTable()"><option value="">All Others</option></select>
             <select class="filter-select" id="tblDefect" onchange="renderTable()"><option value="">All Records</option><option value="Yes">Defects Only</option><option value="No">No Defects</option></select>
+            <input type="date" class="filter-select" id="tblDateFrom" onchange="renderTable()" title="From date" style="padding:6px 8px;">
+            <span style="color:#9ca3af;font-size:12px;">to</span>
+            <input type="date" class="filter-select" id="tblDateTo" onchange="renderTable()" title="To date" style="padding:6px 8px;">
+            <button class="action-btn" onclick="document.getElementById('tblDateFrom').value='';document.getElementById('tblDateTo').value='';renderTable()" title="Clear date range" style="padding:6px 10px;">✕</button>
             <span id="tableCount" style="font-size:12px;color:#6b7280;">0 records</span>
           </div>
         </div>
@@ -6247,6 +6257,7 @@ function printAllConst(){
         <div class="table-toolbar">
           <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:#374151;">All Defect Entries — ATR Status</div>
           <select class="filter-select" id="atrFilter" onchange="renderATR()"><option value="">All Statuses</option><option value="OVERDUE">Overdue Only</option><option value="DUE SOON">Due Soon Only</option><option value="Pending">Pending Only</option><option value="Submitted">Submitted Only</option></select>
+          <button class="btn-secondary" onclick="exportATRCSV()">📊 Export CSV</button>
         </div>
         <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Other</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Review Status<br><span style="font-size:9px;font-weight:400;color:#fbbf24;">Admin only after submission</span></th><th>Remarks</th><th class="atr-rmk-actions-col" style="width:90px;">Rmk Actions</th></tr></thead><tbody id="atrBody"></tbody></table></div>
         <div class="no-data" id="noATR" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">✅</div>No ATR records found.</div>
@@ -12240,9 +12251,31 @@ function triggerQCCheck(){
   panel.classList.add('show');
 }
 
+// ===== RECENT ACTIVITY FEED =====
+function renderRecentActivity(){
+  const el=document.getElementById('recentActivityList');
+  if(!el) return;
+  const visiblePool=getUserVisibleInspections();
+  const recent=[...visiblePool]
+    .filter(r=>r.updatedAt)
+    .sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''))
+    .slice(0,8);
+  if(!recent.length){ el.innerHTML='<div style="color:#9ca3af;padding:6px 0;">No recent activity yet.</div>'; return; }
+  el.innerHTML=recent.map(r=>{
+    const created = r.createdAt===r.updatedAt;
+    const when = new Date(r.updatedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const action = created ? '➕ Created' : '✏️ Updated';
+    return `<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #f1f3f9;">
+      <span>${action} <strong>${r.projectName||'—'}</strong> (S/N ${r.sn||'—'}) by ${r.updatedBy||'Unknown'}</span>
+      <span style="color:#9ca3af;white-space:nowrap;">${when}</span>
+    </div>`;
+  }).join('');
+}
+
 // ===== DASHBOARD =====
 function refreshDash(){
   document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  renderRecentActivity();
 
   // Show location badge for users
   let locBanner = document.getElementById('userLocBanner');
@@ -12472,6 +12505,8 @@ function renderTable(){
   const roF=(document.getElementById('tblRO')||{}).value||'';
   const othF=(document.getElementById('tblOther')||{}).value||'';
   const defF=document.getElementById('tblDefect').value;
+  const dateFrom=document.getElementById('tblDateFrom').value;
+  const dateTo=document.getElementById('tblDateTo').value;
 
   // Users see only their location; admins/viewers see all
   const visiblePool = getUserVisibleInspections();
@@ -12488,6 +12523,8 @@ function renderTable(){
     if(roF&&r.ro!==roF)return false;
     if(othF&&r.other!==othF)return false;
     if(defF&&r.defect!==defF)return false;
+    if(dateFrom&&(!r.dateInspected||r.dateInspected<dateFrom))return false;
+    if(dateTo&&(!r.dateInspected||r.dateInspected>dateTo))return false;
     if(search&&!JSON.stringify(r).toLowerCase().includes(search))return false;
     return true;
   });
@@ -12534,6 +12571,8 @@ function exportInspectionsCSV(){
   const roF=(document.getElementById('tblRO')||{}).value||'';
   const othF=(document.getElementById('tblOther')||{}).value||'';
   const defF=document.getElementById('tblDefect').value;
+  const dateFrom=document.getElementById('tblDateFrom').value;
+  const dateTo=document.getElementById('tblDateTo').value;
 
   const visiblePool = getUserVisibleInspections();
   const sorted=[...visiblePool].sort((a,b)=>(a.sn||0)-(b.sn||0));
@@ -12542,6 +12581,8 @@ function exportInspectionsCSV(){
     if(roF&&r.ro!==roF)return false;
     if(othF&&r.other!==othF)return false;
     if(defF&&r.defect!==defF)return false;
+    if(dateFrom&&(!r.dateInspected||r.dateInspected<dateFrom))return false;
+    if(dateTo&&(!r.dateInspected||r.dateInspected>dateTo))return false;
     if(search&&!JSON.stringify(r).toLowerCase().includes(search))return false;
     return true;
   });
@@ -12716,6 +12757,7 @@ function saveEntry(){
   if(!proj){alert('Please enter the Project Name.');return;}
   if(!loc){alert('Please select a '+(locType==='dzongkhag'?'Dzongkhag':locType==='rothromde'?'RO / Thromde':'Other Agency / Location')+'.');return;}
   if(!dt){alert('Please select the Date Inspected.');return;}
+  if(dt > new Date().toISOString().slice(0,10)){alert('Date Inspected cannot be in the future.');return;}
   if(!insp){alert('Please enter the Inspector Name.');return;}
   if(!def){alert('Please select whether a Defect was Found.');return;}
 
@@ -12882,6 +12924,37 @@ function clearForm(){
 }
 
 // ===== ATR =====
+function exportATRCSV(){
+  const flt=document.getElementById('atrFilter').value;
+  const locFilter = getUserLocationFilter();
+  const defects=[...inspections].filter(locFilter).sort((a,b)=>(a.sn||0)-(b.sn||0)).filter(r=>r.defect==='Yes');
+  const rows=defects.filter(r=>!flt||calcATRStatus(r)===flt);
+
+  if(!rows.length){ (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('⚠️ No ATR records to export.'); return; }
+
+  const cols=[
+    ['S/N','sn'],['Project','projectName'],['Dzongkhag','dzongkhag'],['RO/Thromde','ro'],['Other','other'],
+    ['Defect Description','defectDesc'],['Action Required','action'],['Inspector','inspector'],
+    ['ATR Deadline','atrDeadline'],['ATR Submitted','atrSubmitted']
+  ];
+  const esc=v=>{
+    const s=(v===undefined||v===null)?'':String(v);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const lines=[[...cols.map(c=>esc(c[0])), 'ATR Status'].join(',')];
+  rows.forEach(r=>{
+    lines.push([...cols.map(c=>esc(r[c[1]])), esc(calcATRStatus(r))].join(','));
+  });
+  const csv=lines.join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='CQIS_ATR_Tracker_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))('✅ CSV exported ('+rows.length+' records).');
+}
+
 function renderATR(){
   const flt=document.getElementById('atrFilter').value;
   // Apply location restriction for users
@@ -14162,7 +14235,12 @@ function entryHandlePhotoUpload(files){
     ? document.getElementById('fROForm')?.value
     : document.getElementById('fDzongkhag')?.value) || 'Unknown';
   const proj = document.getElementById('fProjectName')?.value?.trim() || 'Unknown Project';
+  const MAX_PHOTO_BYTES = 5*1024*1024; // 5MB per photo
   Array.from(files).forEach(file=>{
+    if(file.size > MAX_PHOTO_BYTES){
+      (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))(`⚠️ "${file.name}" is too large (max 5MB). Skipped.`);
+      return;
+    }
     const reader = new FileReader();
     reader.onload = function(e){
       const dataUrl = e.target.result;
