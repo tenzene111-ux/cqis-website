@@ -7224,7 +7224,7 @@ function printAllConst(){
               <th style="min-width:130px;white-space:normal;">Project Location</th>
               <th style="min-width:160px;white-space:normal;">Site Engineer</th>
               <th style="min-width:150px;white-space:normal;">Remarks, if any</th>
-              <th style="position:sticky;right:0;z-index:3;background:#1a3a6e;min-width:120px;text-align:center;">Actions</th>
+              <th style="background:#1a3a6e;min-width:120px;text-align:center;">Actions</th>
             </tr></thead>
             <tbody id="prBody"></tbody>
           </table>
@@ -18361,7 +18361,7 @@ function buildPRRow(r, i) {
     </td>
     <td style="font-size:12px;">${r.engineerName||'—'}${r.engineerContact ? '<br><span style="font-size:10px;color:#6b7280;">'+r.engineerContact+'</span>' : ''}</td>
     <td style="font-size:12px;max-width:180px;">${r.remarks||'—'}</td>
-    <td style="white-space:nowrap;position:sticky;right:0;background:#fff;z-index:2;border-left:2px solid #e2e8f0;padding:8px 10px;text-align:center;">
+    <td style="white-space:nowrap;background:#fff;border-left:2px solid #e2e8f0;padding:8px 10px;text-align:center;">
       <div style="font-size:10px;color:#8b5cf6;font-weight:700;background:rgba(139,92,246,.1);border-radius:3px;padding:2px 7px;margin-bottom:6px;display:inline-block;">${updateCount} update${updateCount!==1?'s':''}</div>
       <div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;">
         ${canEdit ? `<button onclick="openPRForm('${r.regId}')" style="background:#eff6ff;border:1.5px solid #3b82f6;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#1d4ed8;cursor:pointer;white-space:nowrap;">✏️ Edit</button>` : ''}
