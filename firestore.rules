@@ -35,8 +35,12 @@ service cloud.firestore {
     // every read and write across all collections used by CQIS:
     //   inspections, projectUpdates, projectRegistry, qcTestReports,
     //   adminNotifications, inspection_notifications, observer_comments,
-    //   approved_users, pending_users, counters, presence,
-    //   emailAddressBook, emOtherContacts, system_config/news_banner
+    //   approved_users, pending_users, counters, presence, activityLog,
+    //   photoLibrary, emailAddressBook, emOtherContacts,
+    //   system_config/news_banner
+    //
+    // NOTE: photoLibrary documents' binary files live in Firebase Storage —
+    // see storage.rules for the matching baseline rules there.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }

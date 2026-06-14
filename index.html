@@ -20,6 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <style>
 /* ═══ UNIVERSAL CONTENT TEXT COLOR FIX ═══
    Body has dark theme color (white text) but all content panels/cards
@@ -7323,6 +7324,7 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 // Firestore collection references
 const COL_INSPECTIONS  = 'inspections';
@@ -14299,41 +14301,62 @@ function _printProjectReport(){
 // ═══════════════════════════════════════════════════════════════════════
 //  PHOTO LIBRARY — upload, organise, store, render
 // ═══════════════════════════════════════════════════════════════════════
-const PHOTO_LIB_KEY = 'cqis_photo_library';
+// Photo library is now stored in Firebase Storage (binary files) + a
+// 'photoLibrary' Firestore collection (metadata + download URL), so photos
+// sync across devices/users in real time. PHOTO_LIB_KEY is kept only as a
+// local cache for instant rendering before the Firestore listener responds.
+const PHOTO_LIB_KEY = 'cqis_photo_library_cache';
+let _photoLib = [];
 
-function photoGetLib(){ try{ return JSON.parse(localStorage.getItem(PHOTO_LIB_KEY)||'[]'); }catch(e){ return []; } }
-function photoSetLib(arr){ localStorage.setItem(PHOTO_LIB_KEY, JSON.stringify(arr)); }
+function photoGetLib(){ return _photoLib; }
+function photoSetLibCache(arr){ try{ localStorage.setItem(PHOTO_LIB_KEY, JSON.stringify(arr.slice(0,300))); }catch(e){} }
 
-function entryHandlePhotoUpload(files){
+// Real-time sync of the shared photo library across all users/devices
+function startPhotoLibraryListener(){
+  try{ _photoLib = JSON.parse(localStorage.getItem(PHOTO_LIB_KEY)||'[]'); }catch(e){ _photoLib = []; }
+  db.collection('photoLibrary').orderBy('date','desc').limit(300)
+    .onSnapshot(snap=>{
+      _photoLib = snap.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+      photoSetLibCache(_photoLib);
+      entryRenderPhotoPreviews();
+      dlRenderPhotos();
+      if(typeof bzRefreshSlideshow==='function') bzRefreshSlideshow();
+    }, err => console.error('Photo library listener error:', err));
+}
+
+async function entryHandlePhotoUpload(files){
   if(!files||!files.length) return;
   const loc  = (document.querySelector('input[name="locType"]:checked')?.value==='rothromde'
     ? document.getElementById('fROForm')?.value
     : document.getElementById('fDzongkhag')?.value) || 'Unknown';
   const proj = document.getElementById('fProjectName')?.value?.trim() || 'Unknown Project';
+  const notes = document.getElementById('fPhotoNotes')?.value?.trim()||'';
   const MAX_PHOTO_BYTES = 5*1024*1024; // 5MB per photo
-  Array.from(files).forEach(file=>{
+  const who = (currentUser && (currentUser.name || currentUser.username)) || 'Unknown';
+  for(const file of Array.from(files)){
     if(file.size > MAX_PHOTO_BYTES){
-      (typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert))(`⚠️ "${file.name}" is too large (max 5MB). Skipped.`);
-      return;
+      showToast(`⚠️ "${file.name}" is too large (max 5MB). Skipped.`);
+      continue;
     }
-    const reader = new FileReader();
-    reader.onload = function(e){
-      const dataUrl = e.target.result;
-      const lib = photoGetLib();
-      lib.unshift({
-        id:'PH-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
-        dataUrl, area:loc, project:proj,
-        date: new Date().toISOString(),
-        notes: document.getElementById('fPhotoNotes')?.value?.trim()||'',
-        filename: file.name
+    const id = 'PH-'+Date.now()+'-'+Math.random().toString(36).slice(2,6);
+    const storagePath = `photoLibrary/${id}_${file.name}`;
+    try{
+      showToast('📤 Uploading "'+file.name+'"…');
+      const ref = storage.ref(storagePath);
+      await ref.put(file);
+      const url = await ref.getDownloadURL();
+      await db.collection('photoLibrary').doc(id).set({
+        url, storagePath, area: loc, project: proj,
+        date: new Date().toISOString(), notes, filename: file.name,
+        uploadedBy: who
       });
-      photoSetLib(lib);
-      entryRenderPhotoPreviews();
-      // Also refresh slideshow with new photo
-      if(typeof bzRefreshSlideshow==='function') bzRefreshSlideshow();
-    };
-    reader.readAsDataURL(file);
-  });
+    } catch(e){
+      console.error('Photo upload error:', e);
+      showToast('⚠️ Upload failed for "'+file.name+'": '+(e.message||e));
+    }
+  }
+  // entryRenderPhotoPreviews / dlRenderPhotos / slideshow refresh via the
+  // photoLibrary onSnapshot listener once the new doc lands.
 }
 
 function entryHandlePhotoDrop(e){
@@ -14344,18 +14367,21 @@ function entryHandlePhotoDrop(e){
 }
 
 // Photos are stored in library on upload (not on save), so they auto-appear in slideshow immediately
-// On save we update the area/project tagging
-function entryUpdatePhotoMetaOnSave(proj, area){
-  const lib = photoGetLib();
+// On save we update the area/project tagging for any just-uploaded "Unknown" photos
+async function entryUpdatePhotoMetaOnSave(proj, area){
   const cutoff = Date.now() - 5*60*1000; // last 5 min = "just uploaded in this entry"
-  lib.forEach(p=>{
-    if(new Date(p.date).getTime() > cutoff && (p.area==='Unknown'||p.project==='Unknown Project')){
-      p.area    = area || p.area;
-      p.project = proj || p.project;
-      p.notes   = document.getElementById('fPhotoNotes')?.value?.trim() || p.notes;
-    }
-  });
-  photoSetLib(lib);
+  const notes = document.getElementById('fPhotoNotes')?.value?.trim();
+  const toUpdate = _photoLib.filter(p =>
+    new Date(p.date).getTime() > cutoff && (p.area==='Unknown' || p.project==='Unknown Project'));
+  for(const p of toUpdate){
+    try{
+      await db.collection('photoLibrary').doc(p.id).update({
+        area: area || p.area,
+        project: proj || p.project,
+        notes: notes || p.notes || ''
+      });
+    } catch(e){ console.error('Photo meta update error:', e); }
+  }
 }
 
 function entryRenderPhotoPreviews(){
@@ -14366,16 +14392,26 @@ function entryRenderPhotoPreviews(){
   if(!recent.length){ grid.innerHTML=''; return; }
   grid.innerHTML = recent.map(p=>`
     <div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;background:#f8fafc;">
-      <img src="${p.dataUrl}" alt="${p.filename||'photo'}" style="width:100%;height:100px;object-fit:cover;display:block;">
+      <img src="${p.url||p.dataUrl}" alt="${p.filename||'photo'}" style="width:100%;height:100px;object-fit:cover;display:block;">
       <div style="padding:5px 7px;font-size:10px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.filename||'photo'}</div>
       <button onclick="photoDelete('${p.id}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);border:none;color:#fff;border-radius:4px;padding:2px 6px;font-size:10px;cursor:pointer;">✕</button>
     </div>`).join('');
 }
 
-function photoDelete(id){
-  photoSetLib(photoGetLib().filter(p=>p.id!==id));
+async function photoDelete(id){
+  const p = _photoLib.find(x=>x.id===id);
+  // Optimistic local removal — the Firestore listener will also refresh
+  _photoLib = _photoLib.filter(x=>x.id!==id);
+  photoSetLibCache(_photoLib);
   entryRenderPhotoPreviews();
   dlRenderPhotos();
+  try{
+    if(p && p.storagePath) await storage.ref(p.storagePath).delete();
+    await db.collection('photoLibrary').doc(id).delete();
+  } catch(e){
+    console.error('Photo delete error:', e);
+    showToast('⚠️ Delete failed: '+(e.message||e));
+  }
 }
 
 // ── Downloads sub-tab switcher ──
@@ -14451,7 +14487,7 @@ function dlRenderPhotos(){
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
             ${photos.map(p=>`
               <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#f8fafc;">
-                <img src="${p.dataUrl}" alt="${p.filename||'photo'}" style="width:100%;height:120px;object-fit:cover;display:block;cursor:pointer;" onclick="photoLightbox('${p.id}')">
+                <img src="${p.url||p.dataUrl}" alt="${p.filename||'photo'}" style="width:100%;height:120px;object-fit:cover;display:block;cursor:pointer;" onclick="photoLightbox('${p.id}')">
                 <div style="padding:7px 9px;">
                   <div style="font-size:10px;color:#374151;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.filename||'photo'}</div>
                   <div style="font-size:9px;color:#94a3b8;margin-top:1px;">${p.date?new Date(p.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):''}</div>
@@ -14472,17 +14508,22 @@ function photoLightbox(id){
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
   ov.onclick=()=>ov.remove();
   ov.innerHTML=`<div style="max-width:90vw;max-height:90vh;text-align:center;">
-    <img src="${p.dataUrl}" style="max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6);">
+    <img src="${p.url||p.dataUrl}" style="max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6);">
     <div style="color:#fff;font-size:12px;margin-top:10px;opacity:.7;">${p.filename||''} · ${p.area||''} → ${p.project||''}</div>
     ${p.notes?`<div style="color:#fbbf24;font-size:12px;margin-top:4px;">"${p.notes}"</div>`:''}
   </div>`;
   document.body.appendChild(ov);
 }
 
-function dlClearPhotos(){
+async function dlClearPhotos(){
   if(!confirm('Clear ALL inspection photos? This cannot be undone.')) return;
-  photoSetLib([]);
-  dlRenderPhotos();
+  const lib = [..._photoLib];
+  for(const p of lib){
+    try{
+      if(p.storagePath) await storage.ref(p.storagePath).delete();
+      await db.collection('photoLibrary').doc(p.id).delete();
+    } catch(e){ console.error('Photo clear error:', e); }
+  }
   showToast('📷 Photo library cleared.');
 }
 
@@ -14795,6 +14836,8 @@ function initApp(){
   trLoadAllFromFirestore();
   // Real-time Recent Activity feed
   startActivityListener();
+  // Real-time shared photo library (Firebase Storage + Firestore)
+  startPhotoLibraryListener();
 }
 
 // ===== SBRW SECTIONS (embedded from SBRW2025 tool) =====
@@ -21979,10 +22022,10 @@ function bzInitSlideshow(){
   // Merge SITE_IMAGES with any user-uploaded photos
   let slides = [...(typeof SITE_IMAGES!=='undefined'?SITE_IMAGES:[])];
   try {
-    const photoLib = JSON.parse(localStorage.getItem('cqis_photo_library')||'[]');
     // Add newest photos first so they appear early in slideshow
-    photoLib.slice().reverse().forEach(p=>{
-      if(p.dataUrl && !slides.includes(p.dataUrl)) slides.unshift(p.dataUrl);
+    _photoLib.slice().reverse().forEach(p=>{
+      const src = p.url || p.dataUrl;
+      if(src && !slides.includes(src)) slides.unshift(src);
     });
   } catch(e){}
 

@@ -1,0 +1,33 @@
+rules_version = '2';
+
+// ════════════════════════════════════════════════════════════════════════
+// CQIS — BASELINE FIREBASE STORAGE RULES (DRAFT)
+//
+// Pairs with firestore.rules — the photo library (index.html's
+// entryHandlePhotoUpload / photoDelete) uploads files under
+// "photoLibrary/<id>_<filename>" and stores matching metadata docs in the
+// Firestore 'photoLibrary' collection.
+//
+// WHAT THIS DOES:
+//   Requires a Firebase Auth session (Google sign-in, or the anonymous
+//   session created automatically for password-based logins — see
+//   finishLogin() in index.html) to read or write any file in Storage.
+//   Blocks fully anonymous, drive-by access to uploaded photos via direct
+//   Storage URLs/API calls that don't go through the app.
+//
+// WHAT THIS DOES NOT DO:
+//   Like firestore.rules, this does not enforce Admin/User/Viewer role
+//   permissions — any signed-in session (including anonymous) can upload
+//   or delete any photo.
+//
+// BEFORE DEPLOYING:
+//   Firebase Console → Storage → Rules → paste, simulate, then Publish.
+// ════════════════════════════════════════════════════════════════════════
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
