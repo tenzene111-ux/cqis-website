@@ -1993,6 +1993,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-icon"><i class="fa fa-map-marked-alt"></i></span>
       <span class="sb-label">Bhutan Map</span>
     </button>
+    <button class="nav-tab" onclick="showTab('myreport',this)">
+      <span class="sb-icon"><i class="fa fa-file-alt"></i></span>
+      <span class="sb-label">My Report</span>
+    </button>
     <button class="nav-tab" onclick="showTab('notifications',this)" id="notifNavBtn">
       <span class="sb-icon"><i class="fa fa-bell"></i></span>
       <span class="sb-label">Notifications</span>
@@ -6251,6 +6255,42 @@ function printAllConst(){
         </div>
         <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Dzongkhag</th><th>RO</th><th>Other</th><th>Defect Description</th><th>Action Required</th><th>Inspector</th><th>ATR Deadline</th><th>Days Left</th><th>ATR Status</th><th>ATR Submitted</th><th>ATR File</th><th>Review Status<br><span style="font-size:9px;font-weight:400;color:#fbbf24;">Admin only after submission</span></th><th>Remarks</th><th class="atr-rmk-actions-col" style="width:90px;">Rmk Actions</th></tr></thead><tbody id="atrBody"></tbody></table></div>
         <div class="no-data" id="noATR" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">✅</div>No ATR records found.</div>
+      </div>
+    </div>
+
+    <div id="tab-myreport" style="display:none">
+      <div class="section-header">
+        <div>
+          <div class="section-title">📄 MY REPORT</div>
+          <div class="section-badge">A summary of your own inspections — handy when someone asks for a quick report</div>
+        </div>
+        <button class="btn-primary" onclick="printMyReport()" style="padding:10px 22px;font-size:13px;">🖨️ Print / Save Report</button>
+      </div>
+
+      <div class="filters">
+        <span class="filter-label">📅 PERIOD:</span>
+        <input type="date" class="filter-select" id="myReportFrom" onchange="renderMyReport()">
+        <span style="color:#9ca3af;font-size:12px;">to</span>
+        <input type="date" class="filter-select" id="myReportTo" onchange="renderMyReport()">
+        <button class="btn-secondary" onclick="document.getElementById('myReportFrom').value='';document.getElementById('myReportTo').value='';renderMyReport();" style="padding:7px 14px;font-size:12px;">✕ Clear</button>
+        <span style="font-size:12px;color:#6b7280;margin-left:auto;">Inspector: <strong id="myReportName" style="color:#1a2236;"></strong></span>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card blue"><div class="kpi-icon">🛣️</div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="myKpi1">0</div></div>
+        <div class="kpi-card gold"><div class="kpi-icon">⚠️</div><div class="kpi-label">Defects Found</div><div class="kpi-value" id="myKpi2">0</div></div>
+        <div class="kpi-card orange"><div class="kpi-icon">📋</div><div class="kpi-label">Actions Pending</div><div class="kpi-value" id="myKpi3">0</div></div>
+        <div class="kpi-card red"><div class="kpi-icon">🚨</div><div class="kpi-label">ATR Overdue</div><div class="kpi-value" id="myKpi4">0</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-label">Tests Passed</div><div class="kpi-value" id="myKpi5">0</div></div>
+        <div class="kpi-card purple"><div class="kpi-icon">❌</div><div class="kpi-label">Tests Failed</div><div class="kpi-value" id="myKpi6">0</div></div>
+      </div>
+
+      <div class="table-card">
+        <div style="overflow-x:auto;"><table class="data-table">
+          <thead><tr><th>S/N</th><th>Date</th><th>Project</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Item</th><th>Defect?</th><th>Action</th><th>ATR Status</th><th>Test Result</th></tr></thead>
+          <tbody id="myReportBody"></tbody>
+        </table></div>
+        <div class="no-data" id="myReportEmpty" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">📄</div>No inspections found for this period.</div>
       </div>
     </div>
 
@@ -11457,6 +11497,7 @@ function showTab(id,btn){
   if(id==='analytics') renderCharts();
   if(id==='test-report') { trRender(); trRenderStandalone(); trLoadAllFromFirestore(); }
   if(id==='report') renderReport();
+  if(id==='myreport') renderMyReport();
   if(id==='followup') renderNCRReport();
   if(id==='dashboard') refreshDash();
   if(id==='qc') sbrwUpdateSum();
@@ -13448,6 +13489,92 @@ function renderReport(){
   db.innerHTML=defects.map((r,i)=>`<tr><td>${i+1}</td><td>${r.projectName||'—'}</td><td>${r.dzongkhag||r.ro||r.other||'—'}</td><td>${r.dateInspected||'—'}</td><td>${r.defectDesc||'—'}</td><td>${r.action||'—'}</td><td>${r.atrDeadline||'—'}</td></tr>`).join('');
   // Also populate project dropdown
   _populateProjectDropdown();
+}
+
+// ===== MY REPORT (per-inspector summary) =====
+function _myReportRecords(){
+  const myName = (currentUser && currentUser.name) ? currentUser.name.trim().toLowerCase() : '';
+  let recs = (inspections || []).filter(r => (r.inspector || '').trim().toLowerCase() === myName);
+  const from = document.getElementById('myReportFrom')?.value || '';
+  const to   = document.getElementById('myReportTo')?.value || '';
+  if (from) recs = recs.filter(r => r.dateInspected && r.dateInspected >= from);
+  if (to)   recs = recs.filter(r => r.dateInspected && r.dateInspected <= to);
+  return recs.sort((a,b) => (b.dateInspected||'').localeCompare(a.dateInspected||''));
+}
+
+function renderMyReport(){
+  const nameEl = document.getElementById('myReportName');
+  if (nameEl) nameEl.textContent = (currentUser && currentUser.name) ? currentUser.name : '—';
+
+  const recs = _myReportRecords();
+  const defects   = recs.filter(r => r.defect === 'Yes');
+  const pending   = defects.filter(r => ['Pending','DUE SOON'].includes(calcATRStatus(r)));
+  const atrOverdue= defects.filter(r => calcATRStatus(r) === 'OVERDUE');
+  const tests     = recs.filter(r => r.passFailResult);
+  const passed    = tests.filter(r => r.passFailResult === 'Pass');
+  const failed    = tests.filter(r => r.passFailResult === 'Fail');
+
+  document.getElementById('myKpi1').textContent = recs.length;
+  document.getElementById('myKpi2').textContent = defects.length;
+  document.getElementById('myKpi3').textContent = pending.length;
+  document.getElementById('myKpi4').textContent = atrOverdue.length;
+  document.getElementById('myKpi5').textContent = passed.length;
+  document.getElementById('myKpi6').textContent = failed.length;
+
+  const body  = document.getElementById('myReportBody');
+  const empty = document.getElementById('myReportEmpty');
+  if (!recs.length){
+    body.innerHTML = '';
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  body.innerHTML = recs.map((r,i) => `<tr>
+    <td>${i+1}</td>
+    <td>${r.dateInspected||'—'}</td>
+    <td>${r.projectName||'—'}</td>
+    <td>${r.dzongkhag||'—'}</td>
+    <td>${r.ro||'—'}</td>
+    <td>${r.other||'—'}</td>
+    <td>${r.workItem||r.workType||'—'}</td>
+    <td>${r.defect||'—'}</td>
+    <td>${r.action||'—'}</td>
+    <td>${r.defect==='Yes' ? calcATRStatus(r) : '—'}</td>
+    <td>${r.passFailResult||'—'}</td>
+  </tr>`).join('');
+}
+
+function printMyReport(){
+  const recs = _myReportRecords();
+  const defects    = recs.filter(r => r.defect === 'Yes');
+  const pending    = defects.filter(r => ['Pending','DUE SOON'].includes(calcATRStatus(r)));
+  const atrOverdue = defects.filter(r => calcATRStatus(r) === 'OVERDUE');
+  const tests      = recs.filter(r => r.passFailResult);
+  const passed     = tests.filter(r => r.passFailResult === 'Pass').length;
+  const failed     = tests.filter(r => r.passFailResult === 'Fail').length;
+
+  const from = document.getElementById('myReportFrom')?.value || '';
+  const to   = document.getElementById('myReportTo')?.value || '';
+  const period = (from || to) ? `${from || '…'} to ${to || '…'}` : 'All time';
+
+  const html = _buildPrintPage({
+    title: 'INSPECTION SUMMARY REPORT',
+    stamp: 'MY REPORT',
+    meta: [
+      { label:'Inspector', value: (currentUser && currentUser.name) || '—' },
+      { label:'Period', value: period },
+      { label:'Total Inspected', value: recs.length },
+      { label:'Defects Found', value: defects.length },
+      { label:'Actions Pending', value: pending.length },
+      { label:'ATR Overdue', value: atrOverdue.length },
+      { label:'Tests Passed', value: passed },
+      { label:'Tests Failed', value: failed },
+    ],
+    body: `<table><thead><tr><th>S/N</th><th>Date</th><th>Project</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Item</th><th>Defect?</th><th>Action</th><th>ATR Status</th><th>Test Result</th></tr></thead><tbody>${
+      recs.map((r,i) => `<tr><td>${i+1}</td><td>${r.dateInspected||'—'}</td><td>${r.projectName||'—'}</td><td>${r.dzongkhag||'—'}</td><td>${r.ro||'—'}</td><td>${r.other||'—'}</td><td>${r.workItem||r.workType||'—'}</td><td>${r.defect||'—'}</td><td>${r.action||'—'}</td><td>${r.defect==='Yes' ? calcATRStatus(r) : '—'}</td><td>${r.passFailResult||'—'}</td></tr>`).join('')
+    }</tbody></table>`,
+  });
+  _doPrint(html);
 }
 
 // ===== REPORT TYPE SWITCHING =====
