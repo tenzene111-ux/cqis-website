@@ -7196,6 +7196,7 @@ function printAllConst(){
               <option value="dzongkhag">Dzongkhag</option>
               <option value="ro">Regional Office</option>
               <option value="thromde">Thromde</option>
+              <option value="other">Other</option>
             </select>
             <select class="filter-select" id="prAgencyFilter" onchange="renderPRTable()">
               <option value="">All Agencies</option>
@@ -18021,6 +18022,13 @@ function puShowSubTab(tab) {
   }
 }
 
+/* ── show/hide custom agency name field when "Other" is selected ── */
+function prToggleAdminLocOther(val) {
+  const otherInput = document.getElementById('prAdminLocOther');
+  if (!otherInput) return;
+  otherInput.style.display = (val === 'Other|other') ? '' : 'none';
+}
+
 /* ── open project registry form ── */
 let prEditId = null;
 function openPRForm(editId) {
@@ -18059,8 +18067,16 @@ function openPRForm(editId) {
     document.getElementById('prEndDate').value        = reg.endDate || '';
     document.getElementById('prDescription').value    = reg.description || '';
     if (currentUser.isAdmin && document.getElementById('prAdminLoc')) {
-      const val = reg.agencyLocation + '|' + reg.agencyType;
-      document.getElementById('prAdminLoc').value = val;
+      const adminLoc = document.getElementById('prAdminLoc');
+      if (reg.agencyType === 'other') {
+        adminLoc.value = 'Other|other';
+        prToggleAdminLocOther('Other|other');
+        const otherInput = document.getElementById('prAdminLocOther');
+        if (otherInput) otherInput.value = reg.agencyLocation || '';
+      } else {
+        adminLoc.value = reg.agencyLocation + '|' + reg.agencyType;
+        prToggleAdminLocOther(adminLoc.value);
+      }
     }
   } else {
     document.getElementById('prFormTitle').textContent = '🏗 REGISTER NEW PROJECT';
@@ -18071,6 +18087,8 @@ function openPRForm(editId) {
     });
     const adminLoc = document.getElementById('prAdminLoc');
     if (adminLoc) adminLoc.selectedIndex = 0;
+    const otherInput = document.getElementById('prAdminLocOther');
+    if (otherInput) { otherInput.value = ''; otherInput.style.display = 'none'; }
   }
   document.getElementById('prFormOverlay').style.display = 'flex';
 }
@@ -18094,9 +18112,15 @@ function savePREntry() {
     const adminLocVal = document.getElementById('prAdminLoc')?.value || '';
     if (!adminLocVal) { alert('Please select an Agency/Location.'); return; }
     const parts = adminLocVal.split('|');
-    agencyLocation = parts[0];
-    agencyType     = parts[1] || 'dzongkhag';
-    agencyName     = agencyLocation + ' (' + agencyType.charAt(0).toUpperCase() + agencyType.slice(1) + ')';
+    agencyType = parts[1] || 'dzongkhag';
+    if (agencyType === 'other') {
+      agencyLocation = document.getElementById('prAdminLocOther')?.value.trim() || '';
+      if (!agencyLocation) { alert('Please enter the agency/organisation name.'); return; }
+      agencyName = agencyLocation;
+    } else {
+      agencyLocation = parts[0];
+      agencyName     = agencyLocation + ' (' + agencyType.charAt(0).toUpperCase() + agencyType.slice(1) + ')';
+    }
   } else {
     agencyLocation = currentUser.location || '';
     agencyType     = currentUser.locType  || 'dzongkhag';
@@ -21610,7 +21634,7 @@ ${CQIS_WATERMARK_CSS}
       <!-- Admin agency/location selector -->
       <div id="prAdminLocWrap" style="display:none;grid-column:1/-1;">
         <label class="cqis-modal-label">AGENCY / LOCATION (Admin)</label>
-        <select id="prAdminLoc" class="cqis-modal-input">
+        <select id="prAdminLoc" class="cqis-modal-input" onchange="prToggleAdminLocOther(this.value)">
           <option value="">— Select Agency/Location —</option>
           <optgroup label="— Dzongkhags —">
             <option value="Bumthang|dzongkhag">Bumthang</option><option value="Chhukha|dzongkhag">Chhukha</option><option value="Dagana|dzongkhag">Dagana</option><option value="Gasa|dzongkhag">Gasa</option><option value="Haa|dzongkhag">Haa</option><option value="Lhuentse|dzongkhag">Lhuentse</option><option value="Mongar|dzongkhag">Mongar</option><option value="Paro|dzongkhag">Paro</option><option value="Pemagatshel|dzongkhag">Pemagatshel</option><option value="Punakha|dzongkhag">Punakha</option><option value="S/Jongkhar|dzongkhag">S/Jongkhar</option><option value="Samtse|dzongkhag">Samtse</option><option value="Sarpang|dzongkhag">Sarpang</option><option value="Thimphu|dzongkhag">Thimphu</option><option value="Trashigang|dzongkhag">Trashigang</option><option value="Trashi Yangtse|dzongkhag">Trashi Yangtse</option><option value="Trongsa|dzongkhag">Trongsa</option><option value="Tsirang|dzongkhag">Tsirang</option><option value="Wangdue Phodrang|dzongkhag">Wangdue Phodrang</option><option value="Zhemgang|dzongkhag">Zhemgang</option>
@@ -21621,7 +21645,11 @@ ${CQIS_WATERMARK_CSS}
           <optgroup label="— Thromdes —">
             <option value="Thimphu Thromde|thromde">Thimphu Thromde</option><option value="Phuentshogling Thromde|thromde">Phuentshogling Thromde</option><option value="Gelephu Thromde|thromde">Gelephu Thromde</option><option value="Samdrup Jongkhar Thromde|thromde">Samdrup Jongkhar Thromde</option>
           </optgroup>
+          <optgroup label="— Other —">
+            <option value="Other|other">Other</option>
+          </optgroup>
         </select>
+        <input id="prAdminLocOther" class="cqis-modal-input" style="margin-top:8px;display:none;" placeholder="Enter agency/organisation name…">
       </div>
 
       <!-- Non-admin agency display -->
