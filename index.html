@@ -2032,6 +2032,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-label">Insp. Schedule</span>
       <span class="sb-badge" style="background:rgba(139,92,246,.2);border-color:rgba(139,92,246,.4);color:#c4b5fd;">ADMIN</span>
     </button>
+    <button class="nav-tab" onclick="showTab('projupdates',this)" id="projUpdatesNavBtn">
+      <span class="sb-icon"><i class="fa fa-building"></i></span>
+      <span class="sb-label">Project Registry</span>
+    </button>
     <button class="nav-tab" onclick="showTab('atr',this)">
       <span class="sb-icon"><i class="fa fa-exclamation-triangle"></i></span>
       <span class="sb-label">ATR Tracker</span>
@@ -11499,6 +11503,10 @@ function applyRoleRestrictions() {
   // Email Notifications: visible to admin AND observer
   const emailBtn = document.getElementById('emailNotifNavBtn');
   if (emailBtn) emailBtn.style.display = (isAdmin || isObserver) ? '' : 'none';
+
+  // Project Registry: visible to admin AND user (not observer/viewer)
+  const projUpdatesBtn = document.getElementById('projUpdatesNavBtn');
+  if (projUpdatesBtn) projUpdatesBtn.style.display = (isAdmin || isUser) ? '' : 'none';
 
 
 
