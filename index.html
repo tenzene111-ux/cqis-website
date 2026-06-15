@@ -413,19 +413,6 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .kpi-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#111827;margin-bottom:10px;font-family:'Poppins',sans-serif;font-weight:600;}
 .kpi-value{font-family:'Rajdhani',sans-serif;font-size:38px;font-weight:700;line-height:1;color:#e2e8f0;}
 .kpi-icon{position:absolute;right:14px;top:14px;font-size:22px;opacity:.15;}
-.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.kpi-icon-badge{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.kpi-card.blue .kpi-icon-badge{background:rgba(59,130,246,.12);}
-.kpi-card.gold .kpi-icon-badge{background:rgba(245,158,11,.12);}
-.kpi-card.red .kpi-icon-badge{background:rgba(239,68,68,.12);}
-.kpi-card.orange .kpi-icon-badge{background:rgba(249,115,22,.12);}
-.kpi-card.green .kpi-icon-badge{background:rgba(16,185,129,.12);}
-.kpi-card.purple .kpi-icon-badge{background:rgba(139,92,246,.12);}
-.kpi-trend{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:3px 7px;border-radius:6px;white-space:nowrap;}
-.kpi-trend.up{color:#16a34a;background:rgba(22,163,74,.1);}
-.kpi-trend.down{color:#dc2626;background:rgba(220,38,38,.1);}
-.kpi-trend.flat{color:#6b7280;background:rgba(107,114,128,.08);}
-.kpi-trend-sub{font-size:9px;color:#9ca3af;font-weight:400;margin-left:3px;}
 
 /* FILTERS */
 .filters{background:#fff;border:1px solid #e2e6ef;border-radius:10px;color:#111827;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05);}
@@ -2156,12 +2143,12 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <select class="filter-select" id="fOther" onchange="refreshDash()"><option value="">All Others</option></select>
       </div>
       <div class="kpi-grid">
-        <div class="kpi-card blue"><div class="kpi-top"><div class="kpi-icon-badge">🛣️</div><div class="kpi-trend flat" id="kpi1Trend">—</div></div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="kpi1">0</div></div>
-        <div class="kpi-card gold"><div class="kpi-top"><div class="kpi-icon-badge">⚠️</div><div class="kpi-trend flat" id="kpi2Trend">—</div></div><div class="kpi-label">Defects Found</div><div class="kpi-value" id="kpi2">0</div></div>
-        <div class="kpi-card orange"><div class="kpi-top"><div class="kpi-icon-badge">📋</div><div class="kpi-trend flat" id="kpi3Trend">—</div></div><div class="kpi-label">Actions Pending</div><div class="kpi-value" id="kpi3">0</div></div>
-        <div class="kpi-card red"><div class="kpi-top"><div class="kpi-icon-badge">🚨</div><div class="kpi-trend flat" id="kpi4Trend">—</div></div><div class="kpi-label">ATR Overdue</div><div class="kpi-value" id="kpi4">0</div></div>
-        <div class="kpi-card green"><div class="kpi-top"><div class="kpi-icon-badge">✅</div><div class="kpi-trend flat" id="kpi5Trend">—</div></div><div class="kpi-label">Tests Passed</div><div class="kpi-value" id="kpi5">0</div></div>
-        <div class="kpi-card purple"><div class="kpi-top"><div class="kpi-icon-badge">❌</div><div class="kpi-trend flat" id="kpi6Trend">—</div></div><div class="kpi-label">Tests Failed</div><div class="kpi-value" id="kpi6">0</div></div>
+        <div class="kpi-card blue"><div class="kpi-icon">🛣️</div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="kpi1">0</div></div>
+        <div class="kpi-card gold"><div class="kpi-icon">⚠️</div><div class="kpi-label">Defects Found</div><div class="kpi-value" id="kpi2">0</div></div>
+        <div class="kpi-card orange"><div class="kpi-icon">📋</div><div class="kpi-label">Actions Pending</div><div class="kpi-value" id="kpi3">0</div></div>
+        <div class="kpi-card red"><div class="kpi-icon">🚨</div><div class="kpi-label">ATR Overdue</div><div class="kpi-value" id="kpi4">0</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-label">Tests Passed</div><div class="kpi-value" id="kpi5">0</div></div>
+        <div class="kpi-card purple"><div class="kpi-icon">❌</div><div class="kpi-label">Tests Failed</div><div class="kpi-value" id="kpi6">0</div></div>
       </div>
 
       <!-- ACTIVE PROJECTS & RECENT INSPECTIONS -->
@@ -2281,7 +2268,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <span id="tableCount" style="font-size:12px;color:#6b7280;">0 records</span>
           </div>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>MOIT Ref</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th style="background:rgba(232,130,12,.15);">🔬 QC Tests</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th style="background:rgba(232,130,12,.15);">🔬 QC Tests</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
         <div class="no-data" id="noData" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">🛣️</div>No inspection records found. Add a new entry to get started.</div>
       </div>
     </div>
@@ -2553,21 +2540,6 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           <div class="field-wrap" style="grid-column:1/-1" id="defectFields">
             <label>Defect Description</label>
             <textarea id="fDefectDesc" placeholder="Describe the defect observed…"></textarea>
-          </div>
-          <div class="field-wrap" id="moitRefField">
-            <label>MOIT Specification Reference <span style="font-size:10px;color:#6b7280;font-weight:400;">(select multiple)</span></label>
-            <div id="fMOITRefWrap" style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:6px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;">
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.303" class="moit-cb" style="accent-color:#e8820c;"> Cl.303 — Subgrade</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.305" class="moit-cb" style="accent-color:#e8820c;"> Cl.305 — Sub-base</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.401" class="moit-cb" style="accent-color:#e8820c;"> Cl.401 — WMM</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.501" class="moit-cb" style="accent-color:#e8820c;"> Cl.501 — Prime Coat</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.507" class="moit-cb" style="accent-color:#e8820c;"> Cl.507 — DBM</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.508" class="moit-cb" style="accent-color:#e8820c;"> Cl.508 — BC</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.601" class="moit-cb" style="accent-color:#e8820c;"> Cl.601 — Culverts</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.702" class="moit-cb" style="accent-color:#e8820c;"> Cl.702 — Retaining Walls</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.801" class="moit-cb" style="accent-color:#e8820c;"> Cl.801 — Road Signs</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;"><input type="checkbox" value="Cl.1001" class="moit-cb" style="accent-color:#e8820c;"> Cl.1001 — Bridges</label>
-            </div>
           </div>
           <div class="field-wrap" id="actionField">
             <label>Action Required</label>
@@ -6925,11 +6897,6 @@ function printAllConst(){
         </div>
       </div>
 
-      <div class="moit-ref">
-        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">MOIT Specification References</div>
-        <span style="color:#f97316">Cl.303</span> = Subgrade &nbsp;|&nbsp; <span style="color:#f97316">Cl.305</span> = Sub-base &nbsp;|&nbsp; <span style="color:#f97316">Cl.401</span> = WMM &nbsp;|&nbsp; <span style="color:#f97316">Cl.501</span> = Prime Coat &nbsp;|&nbsp; <span style="color:#f97316">Cl.507</span> = DBM<br>
-        <span style="color:#f97316">Cl.508</span> = BC &nbsp;|&nbsp; <span style="color:#f97316">Cl.601</span> = Culverts &nbsp;|&nbsp; <span style="color:#f97316">Cl.702</span> = Retaining Walls &nbsp;|&nbsp; <span style="color:#f97316">Cl.801</span> = Road Signs &nbsp;|&nbsp; <span style="color:#f97316">Cl.1001</span> = Bridges
-      </div>
     </div>
 
     <div id="tab-compliance-contractor" style="display:none">
@@ -10968,7 +10935,6 @@ function trShowDetail(r, td) {
         ['Inspector', r.inspector||'—'],
         ['Date Inspected', r.dateInspected||'—'],
         ['Defect Found', r.defect||'—'],
-        ['MOIT Reference', r.moitRef||'—'],
         ['Remarks', r.remarks||'—'],
       ].map(([k,v])=>`<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:2px;">${k}</div>
         <div style="font-size:12px;font-weight:600;color:#111827;">${v}</div></div>`).join('')}
@@ -11060,7 +11026,6 @@ function trPrintOne(idx) {
     ['Date Inspected', r.dateInspected||'—'],
     ['Inspector', r.inspector||'—'],
     ['Defect Found', r.defect||'No'],
-    ['MOIT Reference', r.moitRef||'—'],
     ['Remarks', r.remarks||'—'],
   ].map(([k,v])=>`<tr><td class="mk">${k}</td><td class="mv">${v}</td></tr>`).join('');
 
@@ -12665,9 +12630,6 @@ function refreshDash(){
   // Mirror to public overview section
   if(typeof syncPublicKPIs === 'function') syncPublicKPIs();
 
-  // ---- KPI trend pills (this month vs last month) ----
-  _renderKpiTrends();
-
   // ---- Recent Inspections & Active Projects panels ----
   _renderDashRecentInspections();
   _renderDashActiveProjects();
@@ -12734,39 +12696,6 @@ function refreshDash(){
   });
   document.getElementById('monthBody').innerHTML=moHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:#6b7280;">No data</td></tr>';
   dashDrawAllCharts();
-}
-
-/* ── KPI trend pills: compare this calendar month vs last calendar month ── */
-function _dashTrend(curr, prev){
-  if(prev===0) return curr===0 ? {cls:'flat', txt:'— flat'} : {cls:'up', txt:'▲ new'};
-  const pct = Math.round((curr-prev)/prev*100);
-  if(pct===0) return {cls:'flat', txt:'— flat'};
-  return pct>0 ? {cls:'up', txt:`▲ ${pct}%`} : {cls:'down', txt:`▼ ${Math.abs(pct)}%`};
-}
-function _renderKpiTrends(){
-  const now = new Date();
-  let pIdx = now.getMonth()-1, pYear = now.getFullYear();
-  if(pIdx<0){ pIdx=11; pYear--; }
-  const curName = MONTHS[now.getMonth()], curYear = now.getFullYear();
-  const prevName = MONTHS[pIdx];
-
-  const curRows  = inspections.filter(r=>r.month===curName && getYear(r.dateInspected)===String(curYear));
-  const prevRows = inspections.filter(r=>r.month===prevName && getYear(r.dateInspected)===String(pYear));
-
-  const metrics = {
-    kpi1: [curRows.length, prevRows.length],
-    kpi2: [curRows.filter(r=>r.defect==='Yes').length, prevRows.filter(r=>r.defect==='Yes').length],
-    kpi3: [curRows.filter(r=>r.defect==='Yes' && ['Pending','DUE SOON'].includes(calcATRStatus(r))).length, prevRows.filter(r=>r.defect==='Yes' && ['Pending','DUE SOON'].includes(calcATRStatus(r))).length],
-    kpi4: [curRows.filter(r=>r.defect==='Yes' && calcATRStatus(r)==='OVERDUE').length, prevRows.filter(r=>r.defect==='Yes' && calcATRStatus(r)==='OVERDUE').length],
-    kpi5: [curRows.filter(r=>r.passFailResult==='Pass').length, prevRows.filter(r=>r.passFailResult==='Pass').length],
-    kpi6: [curRows.filter(r=>r.passFailResult==='Fail').length, prevRows.filter(r=>r.passFailResult==='Fail').length],
-  };
-  Object.entries(metrics).forEach(([id,[cur,prev]])=>{
-    const el = document.getElementById(id+'Trend'); if(!el) return;
-    const t = _dashTrend(cur, prev);
-    el.className = 'kpi-trend ' + t.cls;
-    el.innerHTML = t.txt + '<span class="kpi-trend-sub">vs last mo.</span>';
-  });
 }
 
 /* ── Recent Inspections panel (latest 5) ── */
@@ -12985,7 +12914,6 @@ function renderTable(){
       <td>${r.dateInspected||'—'}</td>
       <td>${badgeHtml(r.defect)}</td>
       <td style="max-width:150px;">${r.defectDesc||'—'}</td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${r.moitRef||'—'}</td>
       <td style="max-width:130px;">${r.action||'—'}</td>
       <td>${r.inspector||'—'}</td><td>${r.atrDeadline||'—'}</td><td>${r.atrSubmitted||'—'}</td>
       <td>${badgeHtml(status)}</td>
@@ -13040,7 +12968,7 @@ function exportInspectionsCSV(format){
     ['S/N','sn'],['Project','projectName'],['Contract No.','contractNo'],['Road/Chainage','roadSection'],
     ['Contractor','contractor'],['Dzongkhag','dzongkhag'],['RO/Thromde','ro'],['Other','other'],
     ['Work Type','workType'],['Work Item','workItem'],['Date','dateInspected'],['Defect?','defect'],
-    ['Description','defectDesc'],['MOIT Ref','moitRef'],['Action','action'],['Inspector','inspector'],
+    ['Description','defectDesc'],['Action','action'],['Inspector','inspector'],
     ['ATR Deadline','atrDeadline'],['ATR Submitted','atrSubmitted'],
     ['Test','test'],['Req Value','reqVal'],['Result','result'],['Pass/Fail','passFailResult'],
     ['Month','month'],['Year','year']
@@ -13108,7 +13036,6 @@ function editEntry(i){
   document.getElementById('eiInspector').value=r.inspector||'';
   document.getElementById('eiDefect').value=r.defect||'';
   document.getElementById('eiDefectDesc').value=r.defectDesc||'';
-  document.getElementById('eiMoitRef').value=r.moitRef||'';
   document.getElementById('eiAction').value=r.action||'';
   document.getElementById('eiAtrDeadline').value=r.atrDeadline||'';
   document.getElementById('eiAtrSubmitted').value=r.atrSubmitted||'';
@@ -13145,7 +13072,6 @@ function saveEditEntry(){
     inspector:document.getElementById('eiInspector').value.trim(),
     defect:document.getElementById('eiDefect').value,
     defectDesc:document.getElementById('eiDefectDesc').value.trim(),
-    moitRef:document.getElementById('eiMoitRef').value.trim(),
     action:document.getElementById('eiAction').value.trim(),
     atrDeadline:document.getElementById('eiAtrDeadline').value,
     atrSubmitted:document.getElementById('eiAtrSubmitted').value,
@@ -13188,7 +13114,6 @@ function toggleDefect(){
   const val=document.getElementById('fDefect').value,show=val==='Yes';
   document.getElementById('fATRDeadline').disabled=!show;
   document.getElementById('defectFields').style.opacity=show?'1':'0.4';
-  document.getElementById('moitRefField').style.opacity=show?'1':'0.4';
   document.getElementById('actionField').style.opacity=show?'1':'0.4';
 }
 
@@ -13218,10 +13143,6 @@ function saveEntry(){
   if(!def){alert('Please select whether a Defect was Found.');return;}
 
   const contractNo = (document.getElementById('fContractNo').value||'').trim();
-
-  // Collect multiple MOIT references from checkboxes
-  const moitSelected=[...document.querySelectorAll('.moit-cb:checked')].map(cb=>cb.value);
-  const moitRef=moitSelected.join(', ');
 
   // Collect multiple test rows
   const testRows=[];
@@ -13287,7 +13208,6 @@ function saveEntry(){
         workItem:document.getElementById('fWorkItem').value.trim(),
         dateInspected:dt,defect:def,
         defectDesc:document.getElementById('fDefectDesc').value.trim(),
-        moitRef,
         action:document.getElementById('fAction').value.trim(),
         inspector:insp,
         atrDeadline:document.getElementById('fATRDeadline').value||'',
@@ -13365,8 +13285,6 @@ function clearForm(){
     const note=document.getElementById('wtn-'+key);
     if(note) note.value='';
   });
-  // Uncheck all MOIT checkboxes
-  document.querySelectorAll('.moit-cb').forEach(cb=>cb.checked=false);
   // Reset schedule picker and info box
   const schedSel=document.getElementById('fScheduleLink');
   if(schedSel) schedSel.value='';
@@ -22153,7 +22071,6 @@ function _printInspectionReport(){
       <td style="font-size:8pt;">${r.dzongkhag||r.ro||r.other||'—'}</td>
       <td style="font-size:8pt;">${r.dateInspected||'—'}</td>
       <td style="font-size:8pt;">${r.defectDesc||'—'}</td>
-      <td style="font-size:8pt;">${r.moitRef||'—'}</td>
       <td style="font-size:8pt;">${r.action||'—'}</td>
       <td style="font-size:8pt;">${r.atrDeadline||'—'}</td>
       <td><span style="font-size:8pt;font-weight:700;color:${stCls};">${status}</span></td>
@@ -22318,7 +22235,7 @@ ${defRows ? `
 <table>
   <thead><tr>
     <th style="width:28px;">#</th><th>Project</th><th>Location</th><th>Date</th>
-    <th>Defect Description</th><th>MOIT Ref.</th><th>Action Required</th><th>ATR Deadline</th><th>Status</th>
+    <th>Defect Description</th><th>Action Required</th><th>ATR Deadline</th><th>Status</th>
   </tr></thead>
   <tbody>${defRows}</tbody>
 </table>` : ''}
@@ -22647,10 +22564,6 @@ ${CQIS_WATERMARK_CSS}
           <option value="Yes">Yes</option>
           <option value="No">No</option>
         </select>
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:600;color:#374151;letter-spacing:1px;">MOIT REF</label>
-        <input id="eiMoitRef" style="width:100%;margin-top:4px;padding:9px 12px;border:1px solid #e2e6ef;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;" placeholder="MOIT reference(s)">
       </div>
       <!-- Row 8 -->
       <div style="grid-column:1/-1;">
