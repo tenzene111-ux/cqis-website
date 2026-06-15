@@ -2126,6 +2126,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
     <!-- DASHBOARD -->
     <div id="tab-dashboard">
+      <div id="dashWelcome" style="margin-bottom:18px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:#1a2236;" id="dashWelcomeName">Welcome</div>
+        <div style="font-size:13px;color:#6b7280;margin-top:2px;">Here's what's happening on your projects today.</div>
+      </div>
       <div class="section-header">
         <div>
           <div class="section-title">DASHBOARD</div>
@@ -12630,6 +12634,8 @@ function renderRecentActivity(){
 // ===== DASHBOARD =====
 function refreshDash(){
   document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const dashWelcomeName=document.getElementById('dashWelcomeName');
+  if(dashWelcomeName) dashWelcomeName.textContent='Welcome, '+(currentUser?.name||'User')+' 👋';
   renderRecentActivity();
 
   // Show location badge for users
