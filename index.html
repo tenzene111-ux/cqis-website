@@ -21,6 +21,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <!-- Leaflet.js loaded lazily on first visit to the Map tab — see _ensureLeafletLoaded() -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -6540,6 +6541,58 @@ function printAllConst(){
           <div id="finYearEmpty" style="text-align:center;padding:24px;color:#6b7280;font-size:12px;display:none;">No yearly financial data yet.</div>
         </div>
       </div>
+
+      <!-- ===== PROJECT PROGRESS TRENDS SECTION ===== -->
+      <div style="margin-top:8px;margin-bottom:16px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;border-left:4px solid #2563eb;padding-left:12px;color:#2563eb;">
+          📈 Project Progress Trends
+        </div>
+        <div style="font-size:12px;color:#6b7280;margin-top:4px;padding-left:16px;">Progress, defect &amp; pass-rate trends over time for a selected project and its agency</div>
+      </div>
+
+      <!-- PROJECT TREND SELECTOR -->
+      <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Select Project</span>
+          <select id="trendProjectSelect" onchange="renderProjectTrends()"
+            style="background:#f8f9fc;border:1.5px solid #2563eb;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:280px;">
+            <option value="">— Select a project —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- PROJECT TREND KPI PILLS -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" id="trendKPI">
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:10px;padding:14px 16px;color:#111827;border-top:3px solid #2563eb;">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Current Progress</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#2563eb;" id="trKpi1">—</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:10px;padding:14px 16px;color:#111827;border-top:3px solid #16a34a;">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Avg Monthly Progress</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#16a34a;" id="trKpi2">—</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:10px;padding:14px 16px;color:#111827;border-top:3px solid #d97706;">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Updates Submitted</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#d97706;" id="trKpi3">—</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:10px;padding:14px 16px;color:#111827;border-top:3px solid #f97316;">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Latest Status</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#f97316;" id="trKpi4">—</div>
+        </div>
+      </div>
+
+      <!-- PROJECT TREND CHARTS -->
+      <div class="analytics-grid" style="margin-bottom:20px;">
+        <div class="chart-card">
+          <div class="chart-title">📊 Progress % Over Time</div>
+          <canvas id="chartTrendProgress" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">🛡️ Agency Defect &amp; Pass Rate Trend (Last 6 Months)</div>
+          <canvas id="chartTrendQuality" height="220"></canvas>
+        </div>
+      </div>
+      <div id="trendEmpty" style="display:none;text-align:center;padding:24px;color:#6b7280;font-size:12px;background:#fff;border:1px solid #e2e6ef;border-radius:10px;margin-bottom:20px;">Select a project above to view its progress &amp; quality trends.</div>
 
     </div>
 
@@ -13708,6 +13761,88 @@ function renderCharts(){
 
   // ---- FINANCIAL section ----
   renderFinancials();
+
+  // ---- PROJECT PROGRESS TRENDS section ----
+  _populateTrendProjectDropdown();
+  renderProjectTrends();
+}
+
+/* ── Project Progress Trends ── */
+function _populateTrendProjectDropdown(){
+  const sel = document.getElementById('trendProjectSelect'); if(!sel) return;
+  const isAdmin = currentUser && currentUser.isAdmin;
+  const regs = isAdmin ? projectRegistry : projectRegistry.filter(r=>r.agencyLocation === currentUser?.location);
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Select a project —</option>' +
+    regs.map(r=>`<option value="${r.regId}" ${r.regId===cur?'selected':''}>${r.projectName||'Untitled Project'}</option>`).join('');
+}
+
+function renderProjectTrends(){
+  const regId = document.getElementById('trendProjectSelect')?.value;
+  destroyChart('trendProgress');
+  destroyChart('trendQuality');
+  const empty = document.getElementById('trendEmpty');
+  if(!regId){
+    if(empty) empty.style.display='block';
+    ['trKpi1','trKpi2','trKpi3','trKpi4'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='—'; });
+    return;
+  }
+  if(empty) empty.style.display='none';
+  const reg = projectRegistry.find(r=>r.regId===regId);
+  if(!reg) return;
+  const updates = projectUpdates.filter(u=>u.regId===regId || u.projectName===reg.projectName)
+    .slice().sort((a,b)=>new Date(a.submittedAt||a.updatedDate||0)-new Date(b.submittedAt||b.updatedDate||0));
+
+  // KPIs
+  const latest = updates[updates.length-1];
+  document.getElementById('trKpi1').textContent = latest ? (Number(latest.percent)||0)+'%' : '—';
+  document.getElementById('trKpi3').textContent = updates.length;
+  document.getElementById('trKpi4').textContent = latest?.overallStatus || 'Not Started';
+  if(updates.length >= 2){
+    const first = updates[0];
+    const months = updates.length - 1;
+    const totalGain = (Number(latest.percent)||0) - (Number(first.percent)||0);
+    document.getElementById('trKpi2').textContent = months>0 ? (totalGain/months).toFixed(1)+'%' : '—';
+  } else {
+    document.getElementById('trKpi2').textContent = '—';
+  }
+
+  // ---- Progress % over time chart ----
+  const labels = updates.map(u=>{
+    const d = u.submittedAt||u.updatedDate;
+    return d ? new Date(d).toLocaleDateString('en-GB',{month:'short',year:'2-digit'}) : (u.month||'—');
+  });
+  const progressData = updates.map(u=>Number(u.percent)||0);
+  charts['trendProgress']=new Chart(document.getElementById('chartTrendProgress'),{
+    type:'line',
+    data:{labels, datasets:[{label:'Progress %',data:progressData,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,0.15)',tension:0.3,fill:true,pointRadius:4}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#374151',font:{size:11}}}},scales:{y:{min:0,max:100,ticks:{color:'#9ca3af',callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.06)'}},x:{ticks:{color:'#9ca3af'},grid:{display:false}}}}
+  });
+
+  // ---- Agency defect / pass-rate trend (last 6 months) ----
+  const now = new Date();
+  const monthSlots = [];
+  for(let i=5;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    monthSlots.push({ name: MONTHS[d.getMonth()], year: d.getFullYear(), label: d.toLocaleDateString('en-GB',{month:'short',year:'2-digit'}) });
+  }
+  const agencyInspections = inspections.filter(r => r.dzongkhag===reg.agencyLocation || r.ro===reg.agencyLocation || r.other===reg.agencyLocation);
+  const defectRates = monthSlots.map(({name,year})=>{
+    const rows = agencyInspections.filter(r=>r.month===name && getYear(r.dateInspected)===String(year));
+    return rows.length ? Math.round(rows.filter(r=>r.defect==='Yes').length/rows.length*100) : 0;
+  });
+  const passRates = monthSlots.map(({name,year})=>{
+    const rows = agencyInspections.filter(r=>r.month===name && getYear(r.dateInspected)===String(year) && r.passFailResult);
+    return rows.length ? Math.round(rows.filter(r=>r.passFailResult==='Pass').length/rows.length*100) : 0;
+  });
+  charts['trendQuality']=new Chart(document.getElementById('chartTrendQuality'),{
+    type:'line',
+    data:{labels:monthSlots.map(m=>m.label), datasets:[
+      {label:'Defect Rate %',data:defectRates,borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.1)',tension:0.3,pointRadius:3},
+      {label:'Pass Rate %',data:passRates,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,0.1)',tension:0.3,pointRadius:3}
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#374151',font:{size:11}}}},scales:{y:{min:0,max:100,ticks:{color:'#9ca3af',callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.06)'}},x:{ticks:{color:'#9ca3af'},grid:{display:false}}}}
+  });
 }
 
 function renderFinancials(){
@@ -15513,6 +15648,7 @@ function initApp(){
   initTestRows(); // initialize multi-test rows
   setTimeout(checkDueDates, 1000);
   setTimeout(checkOverdueProjectUpdates, 1200);
+  setTimeout(openProjectFromURLParam, 1500);
   // Guard: only register the interval once — prevent duplicate timers on re-init
   if(!_dueDateIntervalId){ _dueDateIntervalId = setInterval(checkDueDates, 60000); }
   setTimeout(showAtrLoginPopup, 1200);
@@ -18896,9 +19032,54 @@ function buildPRRow(r, i) {
         ${canEdit ? `<button onclick="openPRForm('${r.regId}')" style="background:#eff6ff;border:1.5px solid #3b82f6;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#1d4ed8;cursor:pointer;white-space:nowrap;">✏️ Edit</button>` : ''}
         ${isAdmin ? `<button onclick="deletePR('${r.regId}')" style="background:#fff1f2;border:1.5px solid #ef4444;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#dc2626;cursor:pointer;white-space:nowrap;">🗑 Delete</button>` : '<span style="font-size:10px;color:#9ca3af;">—</span>'}
         ${!currentUser?.isAdmin && canEdit ? `<button onclick="puShowSubTab('updates');openPUFormForProject('${r.regId}')" style="background:#f0fdf4;border:1.5px solid #22c55e;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#16a34a;cursor:pointer;white-space:nowrap;">➕ Update</button>` : ''}
+        <button onclick="showProjectQR('${r.regId}')" style="background:#f8f9fc;border:1.5px solid #6b7280;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#374151;cursor:pointer;white-space:nowrap;">📱 QR Code</button>
       </div>
     </td>
   </tr>`;
+}
+
+/* ── QR Code for project status link ── */
+let _qrProjectName = '';
+function showProjectQR(regId){
+  const reg = projectRegistry.find(r=>r.regId===regId);
+  if(!reg){ toast('⚠️ Project not found.'); return; }
+  _qrProjectName = reg.projectName||'Project';
+  document.getElementById('projectQRName').textContent = _qrProjectName;
+  const holder = document.getElementById('projectQRCanvas');
+  holder.innerHTML = '';
+  const url = window.location.origin + window.location.pathname + '?project=' + encodeURIComponent(regId);
+  new QRCode(holder, { text: url, width: 184, height: 184, colorDark:'#1a2236', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  document.getElementById('projectQRModal').style.display = 'flex';
+}
+function closeProjectQRModal(){
+  document.getElementById('projectQRModal').style.display = 'none';
+}
+function downloadProjectQR(){
+  const holder = document.getElementById('projectQRCanvas');
+  const canvas = holder.querySelector('canvas');
+  if(!canvas){ toast('⚠️ QR code not ready yet.'); return; }
+  const link = document.createElement('a');
+  link.download = `QR_${(_qrProjectName||'project').replace(/[^a-z0-9]+/gi,'_')}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+/* ── Open a project's progress report via ?project=<regId> URL parameter (used by QR codes) ── */
+function openProjectFromURLParam(){
+  const params = new URLSearchParams(window.location.search);
+  const regId = params.get('project');
+  if(!regId) return;
+  const reg = projectRegistry.find(r=>r.regId===regId);
+  if(!reg) return;
+  const reportBtn = document.querySelector(".nav-tab[onclick*=\"'report'\"]");
+  showTab('report', reportBtn);
+  const typeSel = document.getElementById('reportTypeSelect');
+  if(typeSel) typeSel.value = 'registry';
+  onReportTypeChange();
+  setTimeout(()=>{
+    const regSel = document.getElementById('reportRegistrySelect');
+    if(regSel){ regSel.value = regId; renderRegistryReport(); }
+  }, 200);
 }
 
 /* ── CSV / Excel export for registry ── */
@@ -22142,6 +22323,21 @@ ${CQIS_WATERMARK_CSS}
 </div>
 
 <!-- ===== EDIT INSPECTION MODAL ===== -->
+<div id="projectQRModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:340px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <div style="background:linear-gradient(135deg,#1a2236,#374151);padding:18px 22px;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#fff;letter-spacing:1px;">📱 PROJECT QR CODE</div>
+      <button onclick="closeProjectQRModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <div style="padding:22px;text-align:center;">
+      <div id="projectQRName" style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#1a2236;margin-bottom:12px;"></div>
+      <div id="projectQRCanvas" style="display:flex;align-items:center;justify-content:center;margin:0 auto 14px;width:200px;height:200px;background:#fff;border:1px solid #e2e6ef;border-radius:8px;"></div>
+      <div style="font-size:11px;color:#6b7280;margin-bottom:14px;">Scan to open this project's progress report directly in CQIS.</div>
+      <button onclick="downloadProjectQR()" style="background:#f97316;border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;padding:9px 18px;cursor:pointer;">⬇️ Download QR Code</button>
+    </div>
+  </div>
+</div>
+
 <div id="editInspectionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
   <div style="background:#fff;border-radius:16px;width:100%;max-width:820px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
     <!-- Header -->
