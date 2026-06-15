@@ -2168,8 +2168,24 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <div class="kpi-card purple"><div class="kpi-top"><div class="kpi-icon-badge">❌</div><div class="kpi-trend flat" id="kpi6Trend">—</div></div><div class="kpi-label">Tests Failed</div><div class="kpi-value" id="kpi6">0</div></div>
       </div>
 
-      <!-- ACTIVE PROJECTS & RECENT INSPECTIONS -->
-      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:24px;">
+      <!-- OVERVIEW CHARTS: Status / Over Time / Severity -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:10px;">📊 Inspection Status Overview</div>
+          <div style="position:relative;height:200px;"><canvas id="dcStatus"></canvas></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:10px;">📈 Inspections Over Time</div>
+          <div style="position:relative;height:200px;"><canvas id="dcOverTime"></canvas></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:10px;">🚨 Issues by Severity</div>
+          <div style="position:relative;height:200px;"><canvas id="dcSeverity"></canvas></div>
+        </div>
+      </div>
+
+      <!-- RECENT INSPECTIONS, TOP ISSUES & ACTIVE PROJECTS -->
+      <div style="display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
         <div class="breakdown-card">
           <div class="breakdown-title">🕒 Recent Inspections</div>
           <div style="overflow-x:auto;">
@@ -2179,9 +2195,52 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             </table>
           </div>
         </div>
+        <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:10px;">📌 Top Issue Categories</div>
+          <div style="position:relative;height:220px;"><canvas id="dcTopIssues"></canvas></div>
+        </div>
         <div class="breakdown-card">
           <div class="breakdown-title">🏗️ Active Projects</div>
           <div id="dashActiveProjects" style="padding:12px 16px;"></div>
+        </div>
+      </div>
+
+      <!-- SYSTEM FEATURES -->
+      <div class="breakdown-card" style="margin-bottom:20px;padding:18px 20px;">
+        <div class="breakdown-title" style="margin-bottom:14px;">⚙️ System Features</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:20px;">📱</div>
+            <div><div style="font-size:12.5px;font-weight:700;color:#1a2236;">Mobile Inspections</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Inspect on-site using any device</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:20px;">✅</div>
+            <div><div style="font-size:12.5px;font-weight:700;color:#1a2236;">Custom Checklists</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Create and manage project checklists</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:20px;">📷</div>
+            <div><div style="font-size:12.5px;font-weight:700;color:#1a2236;">Photo Evidence</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Capture and attach photos with notes</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:20px;">⚠️</div>
+            <div><div style="font-size:12.5px;font-weight:700;color:#1a2236;">Issues Management</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Log, assign and track issues to resolution</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:20px;">📊</div>
+            <div><div style="font-size:12.5px;font-weight:700;color:#1a2236;">Reports &amp; Analytics</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Generate reports and analyze quality data</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:20px;">📁</div>
+            <div><div style="font-size:12.5px;font-weight:700;color:#1a2236;">Document Control</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Store and manage project documents</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:20px;">👥</div>
+            <div><div style="font-size:12.5px;font-weight:700;color:#1a2236;">Team Collaboration</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Assign tasks and collaborate in real-time</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:20px;">🔔</div>
+            <div><div style="font-size:12.5px;font-weight:700;color:#1a2236;">Notifications</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Stay updated with alerts and reminders</div></div>
+          </div>
         </div>
       </div>
       <div class="breakdown-grid">
@@ -12919,6 +12978,44 @@ function dashDrawAllCharts(){
         }
       }
     }});
+  // DC-STATUS — Inspection Status Overview donut (Passed / Minor Issues / Failed)
+  const stPassed=fd.filter(r=>r.defect!=='Yes' && r.passFailResult!=='Fail').length;
+  const stDefect=fd.filter(r=>r.defect==='Yes').length;
+  const stFailed=fd.filter(r=>r.defect!=='Yes' && r.passFailResult==='Fail').length;
+  const stTot=stPassed+stDefect+stFailed;
+  mk('dcStatus',{type:'doughnut',data:{labels:['Passed','Minor Issues','Failed'],
+    datasets:[{data:[stPassed,stDefect,stFailed],backgroundColor:['#16a34a','#f59e0b','#dc2626'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{color:lc,font:{family:'Poppins',size:10},padding:10,boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed/(stTot||1)*100)}%)`}}}}});
+
+  // DC-OVERTIME — Inspections over the last 7 days
+  const ot_l=[],ot_d=[];
+  for(let i=6;i>=0;i--){
+    const dt=new Date(); dt.setDate(dt.getDate()-i);
+    const ds=dt.toISOString().slice(0,10);
+    ot_l.push(dt.toLocaleDateString('en-GB',{month:'short',day:'numeric'}));
+    ot_d.push(fd.filter(r=>r.dateInspected===ds).length);
+  }
+  mk('dcOverTime',{type:'line',data:{labels:ot_l,datasets:[
+    {label:'Inspections',data:ot_d,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.12)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#2563eb',tension:0.35,fill:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tip},scales:{x:{...ax()},y:{...ax('Count'),beginAtZero:true,ticks:{...ax().ticks,precision:0}}}}});
+
+  // DC-SEVERITY — Issues by Severity donut (based on ATR urgency of open defects)
+  const defAll=fd.filter(r=>r.defect==='Yes');
+  const sevHigh=defAll.filter(r=>calcATRStatus(r)==='OVERDUE').length;
+  const sevMed=defAll.filter(r=>calcATRStatus(r)==='DUE SOON').length;
+  const sevLow=defAll.filter(r=>['Pending','Submitted'].includes(calcATRStatus(r))).length;
+  const sevTot=sevHigh+sevMed+sevLow;
+  mk('dcSeverity',{type:'doughnut',data:{labels:['High','Medium','Low'],
+    datasets:[{data:[sevHigh,sevMed,sevLow],backgroundColor:['#dc2626','#ea580c','#fbbf24'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{color:lc,font:{family:'Poppins',size:10},padding:10,boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed/(sevTot||1)*100)}%)`}}}}});
+
+  // DC-TOPISSUES — Top issue categories by work type (defect counts)
+  const ti_map={};
+  defAll.forEach(r=>{ const k=r.workType||'Other'; ti_map[k]=(ti_map[k]||0)+1; });
+  const ti_sorted=Object.entries(ti_map).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  mk('dcTopIssues',{type:'bar',data:{labels:ti_sorted.map(x=>x[0]),datasets:[
+    {label:'Issues',data:ti_sorted.map(x=>x[1]),backgroundColor:BLU,borderRadius:4,borderSkipped:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:tip},scales:{x:{...ax('Count'),beginAtZero:true,ticks:{...ax().ticks,precision:0}},y:{...ax(),ticks:{color:tc,font:{size:9}}}}}});
 }
 
 function dashDrawChart(){ dashDrawAllCharts(); }
