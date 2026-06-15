@@ -1867,6 +1867,13 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         </div>
       </a>
       <div class="top-bar-right">
+        <div class="global-search-wrap" style="position:relative;">
+          <input type="text" id="globalSearchInput" placeholder="🔍 Search projects, contracts, inspections…"
+            oninput="globalSearch(this.value)" onfocus="if(this.value.trim().length>=2) globalSearch(this.value)"
+            style="background:#f8f9fc;border:1.5px solid #e2e6ef;border-radius:7px;padding:8px 14px;font-size:12px;font-family:'Poppins',sans-serif;color:#1a2236;outline:none;width:230px;">
+          <div id="globalSearchResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;width:340px;max-height:380px;overflow-y:auto;background:#fff;border:1px solid #e2e6ef;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.12);z-index:5000;"></div>
+          <style>.gs-result:hover{background:#f8f9fc;}</style>
+        </div>
         <div id="viewerGlobalBanner" style="display:none;background:rgba(232,130,12,.08);border:1px solid rgba(232,130,12,.2);padding:4px 12px;font-size:11px;color:#f97316;align-items:center;gap:8px;border-radius:4px;">
           <span>👁</span><span><strong>Viewer Access</strong> — Read-only</span>
         </div>
@@ -7279,9 +7286,9 @@ function printAllConst(){
             <button class="btn-primary" onclick="openPRForm()">➕ Register New Project</button>
             <button class="btn-secondary" onclick="prExportCSV('csv')" style="padding:9px 16px;font-size:12px;">⬇ Export CSV</button>
             <button class="btn-secondary" onclick="prExportCSV('xlsx')" style="padding:9px 16px;font-size:12px;">📗 Export Excel</button>
-            <button class="btn-secondary" onclick="document.getElementById('prImportFile').click()" style="padding:9px 16px;font-size:12px;">📥 Import CSV</button>
+            <button class="btn-secondary" onclick="document.getElementById('prImportFile').click()" style="padding:9px 16px;font-size:12px;">📥 Import CSV/Excel</button>
             <button class="btn-secondary" onclick="prDownloadTemplate()" style="padding:9px 16px;font-size:12px;">📄 Download Template</button>
-            <input type="file" id="prImportFile" accept=".csv" style="display:none;" onchange="prImportCSV(this.files[0])">
+            <input type="file" id="prImportFile" accept=".csv,.xlsx,.xls" style="display:none;" onchange="prImportCSV(this.files[0])">
           </div>
         </div>
 
@@ -19082,6 +19089,110 @@ function openProjectFromURLParam(){
   }, 200);
 }
 
+/* ── GLOBAL SEARCH ── */
+let _gsResults = [];
+function _gsEsc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function globalSearch(q){
+  const panel = document.getElementById('globalSearchResults');
+  if(!panel) return;
+  q = (q||'').trim().toLowerCase();
+  if(q.length < 2){ panel.style.display='none'; panel.innerHTML=''; return; }
+
+  const results = [];
+
+  // Projects (Registry)
+  projectRegistry.forEach(r=>{
+    const hay = [r.projectName, r.contractNo, r.contractorName, r.agencyLocation, r.roadSection, r.engineerName].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q)){
+      results.push({
+        icon:'🏗️', label:r.projectName||'Untitled Project',
+        sub:`Project · ${r.contractNo||'—'} · ${r.agencyLocation||'—'}`,
+        action:()=>_gsGoToProject(r.regId)
+      });
+    }
+  });
+
+  // Inspections
+  inspections.forEach(r=>{
+    const hay = [r.projectName, r.contractNo, r.contractor, r.dzongkhag, r.ro, r.other, r.workType, r.workItem].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q)){
+      results.push({
+        icon:'📋', label:r.projectName||r.workItem||'Inspection',
+        sub:`Inspection · ${r.workType||'—'} · ${r.dateInspected||'—'} · ${r.dzongkhag||r.ro||r.other||'—'}`,
+        action:()=>_gsGoToInspection(r.projectName||r.contractNo||'')
+      });
+    }
+  });
+
+  // Monthly Updates
+  projectUpdates.forEach(r=>{
+    const hay = [r.projectName, r.location].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q)){
+      results.push({
+        icon:'📅', label:r.projectName||'Project Update',
+        sub:`Monthly Update · ${r.month||'—'} ${r.updatedDate?'('+r.updatedDate+')':''} · ${r.overallStatus||'—'}`,
+        action:()=>_gsGoToUpdate(r.projectName||'')
+      });
+    }
+  });
+
+  _gsResults = results.slice(0, 20);
+
+  if(!_gsResults.length){
+    panel.innerHTML = `<div style="padding:14px;text-align:center;color:#9ca3af;font-size:12px;">No matches found.</div>`;
+  } else {
+    panel.innerHTML = _gsResults.map((r,i)=>`<div class="gs-result" data-idx="${i}" style="padding:9px 14px;cursor:pointer;border-bottom:1px solid #f1f3f7;display:flex;gap:10px;align-items:flex-start;">
+       <span style="font-size:15px;">${r.icon}</span>
+       <div><div style="font-size:12px;font-weight:600;color:#1a2236;">${_gsEsc(r.label)}</div><div style="font-size:10px;color:#6b7280;margin-top:2px;">${_gsEsc(r.sub)}</div></div>
+     </div>`).join('');
+    panel.querySelectorAll('.gs-result').forEach(el=>{
+      el.onclick = ()=>{ _gsResults[+el.dataset.idx].action(); closeGlobalSearch(); };
+    });
+  }
+  panel.style.display='block';
+}
+function closeGlobalSearch(){
+  const panel = document.getElementById('globalSearchResults');
+  const input = document.getElementById('globalSearchInput');
+  if(panel) panel.style.display='none';
+  if(input) input.value='';
+}
+document.addEventListener('click', e=>{
+  const wrap = document.querySelector('.global-search-wrap');
+  if(wrap && !wrap.contains(e.target)) closeGlobalSearch();
+});
+function _gsGoToProject(regId){
+  const btn = document.querySelector(".nav-tab[onclick*=\"'projupdates'\"]");
+  showTab('projupdates', btn);
+  puShowSubTab('registry');
+  const reg = projectRegistry.find(r=>r.regId===regId);
+  const term = reg?.projectName || '';
+  setTimeout(()=>{
+    const isAdmin = currentUser && currentUser.isAdmin;
+    const sel = document.getElementById(isAdmin ? 'prSearch' : 'prSearchUser');
+    if(sel){ sel.value = term; renderPRTable(); }
+  }, 100);
+}
+function _gsGoToInspection(term){
+  const btn = document.querySelector(".nav-tab[onclick*=\"'data'\"]");
+  showTab('data', btn);
+  setTimeout(()=>{
+    const sel = document.getElementById('tableSearch');
+    if(sel){ sel.value = term; renderTable(); }
+  }, 100);
+}
+function _gsGoToUpdate(term){
+  const btn = document.querySelector(".nav-tab[onclick*=\"'projupdates'\"]");
+  showTab('projupdates', btn);
+  puShowSubTab('updates');
+  setTimeout(()=>{
+    const sel = document.getElementById('puSearch');
+    if(sel){ sel.value = term; renderPUTable(); }
+  }, 100);
+}
+
 /* ── CSV / Excel export for registry ── */
 function prExportCSV(format) {
   if (!projectRegistry.length) { toast('⚠️ No registry data to export.'); return; }
@@ -19183,11 +19294,19 @@ function prImportCSV(file) {
     showToast('⚠️ Only registered users and admins can import projects.'); return;
   }
 
+  const isExcel = /\.xlsx?$/i.test(file.name);
   const reader = new FileReader();
   reader.onload = async function(e) {
-    const rows = _parseCSVText(String(e.target.result || ''));
+    let rows;
+    if (isExcel) {
+      const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:''}).map(r => r.map(c => String(c==null?'':c)));
+    } else {
+      rows = _parseCSVText(String(e.target.result || ''));
+    }
     document.getElementById('prImportFile').value = '';
-    if (rows.length < 2) { showToast('⚠️ CSV file is empty or has no data rows.'); return; }
+    if (rows.length < 2) { showToast('⚠️ File is empty or has no data rows.'); return; }
 
     // Map header names (case-insensitive, trimmed) to column index
     const hdr = rows[0].map(h => h.trim().toLowerCase());
@@ -19196,7 +19315,7 @@ function prImportCSV(file) {
 
     const iName = colIdx('project name');
     if (iName === -1) {
-      showToast('⚠️ CSV must include a "Project Name" column. Use "Export CSV" to get the expected format.');
+      showToast('⚠️ File must include a "Project Name" column. Use "Export CSV" or "Export Excel" to get the expected format.');
       return;
     }
 
@@ -19277,7 +19396,7 @@ function prImportCSV(file) {
     logActivity('imported', 'Project Registry', `${saved} project(s) via CSV`);
   };
   reader.onerror = () => showToast('⚠️ Could not read the file.');
-  reader.readAsText(file);
+  if (isExcel) reader.readAsArrayBuffer(file); else reader.readAsText(file);
 }
 
 /* ── open monthly update form pre-filled from a registered project ── */
