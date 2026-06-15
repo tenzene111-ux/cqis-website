@@ -1910,6 +1910,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#25d366;">77101680</div>
           </div>
         </a>
+        <div class="topbar-bell" onclick="showTab('notifications', document.getElementById('notifNavBtn')); notifClearBadge();" title="Notifications" style="position:relative;cursor:pointer;width:38px;height:38px;border-radius:50%;background:#f8f9fc;border:1px solid #e2e6ef;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">
+          🔔
+          <span id="topBellBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;border-radius:10px;min-width:18px;height:18px;align-items:center;justify-content:center;padding:0 4px;font-family:'JetBrains Mono',monospace;line-height:18px;text-align:center;">0</span>
+        </div>
         <div class="user-badge">
           <div class="user-avatar" id="userAvatar">A</div>
           <div>
@@ -24346,9 +24350,15 @@ function notifAdd(type, title, desc, extraData){
 function notifUpdateBadge(){
   const unread = notifications.filter(n=>!n.read).length;
   const badge  = document.getElementById('notifBadgeCount');
-  if(!badge) return;
-  if(unread > 0){ badge.textContent = unread > 99 ? '99+' : unread; badge.style.display = ''; }
-  else { badge.style.display = 'none'; }
+  const bell   = document.getElementById('topBellBadge');
+  if(badge){
+    if(unread > 0){ badge.textContent = unread > 99 ? '99+' : unread; badge.style.display = ''; }
+    else { badge.style.display = 'none'; }
+  }
+  if(bell){
+    if(unread > 0){ bell.textContent = unread > 99 ? '99+' : unread; bell.style.display = 'flex'; }
+    else { bell.style.display = 'none'; }
+  }
 }
 
 function notifClearBadge(){
