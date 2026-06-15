@@ -413,6 +413,19 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .kpi-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#111827;margin-bottom:10px;font-family:'Poppins',sans-serif;font-weight:600;}
 .kpi-value{font-family:'Rajdhani',sans-serif;font-size:38px;font-weight:700;line-height:1;color:#e2e8f0;}
 .kpi-icon{position:absolute;right:14px;top:14px;font-size:22px;opacity:.15;}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.kpi-icon-badge{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.kpi-card.blue .kpi-icon-badge{background:rgba(59,130,246,.12);}
+.kpi-card.gold .kpi-icon-badge{background:rgba(245,158,11,.12);}
+.kpi-card.red .kpi-icon-badge{background:rgba(239,68,68,.12);}
+.kpi-card.orange .kpi-icon-badge{background:rgba(249,115,22,.12);}
+.kpi-card.green .kpi-icon-badge{background:rgba(16,185,129,.12);}
+.kpi-card.purple .kpi-icon-badge{background:rgba(139,92,246,.12);}
+.kpi-trend{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:3px 7px;border-radius:6px;white-space:nowrap;}
+.kpi-trend.up{color:#16a34a;background:rgba(22,163,74,.1);}
+.kpi-trend.down{color:#dc2626;background:rgba(220,38,38,.1);}
+.kpi-trend.flat{color:#6b7280;background:rgba(107,114,128,.08);}
+.kpi-trend-sub{font-size:9px;color:#9ca3af;font-weight:400;margin-left:3px;}
 
 /* FILTERS */
 .filters{background:#fff;border:1px solid #e2e6ef;border-radius:10px;color:#111827;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05);}
@@ -2143,12 +2156,29 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         <select class="filter-select" id="fOther" onchange="refreshDash()"><option value="">All Others</option></select>
       </div>
       <div class="kpi-grid">
-        <div class="kpi-card blue"><div class="kpi-icon">🛣️</div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="kpi1">0</div></div>
-        <div class="kpi-card gold"><div class="kpi-icon">⚠️</div><div class="kpi-label">Defects Found</div><div class="kpi-value" id="kpi2">0</div></div>
-        <div class="kpi-card orange"><div class="kpi-icon">📋</div><div class="kpi-label">Actions Pending</div><div class="kpi-value" id="kpi3">0</div></div>
-        <div class="kpi-card red"><div class="kpi-icon">🚨</div><div class="kpi-label">ATR Overdue</div><div class="kpi-value" id="kpi4">0</div></div>
-        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-label">Tests Passed</div><div class="kpi-value" id="kpi5">0</div></div>
-        <div class="kpi-card purple"><div class="kpi-icon">❌</div><div class="kpi-label">Tests Failed</div><div class="kpi-value" id="kpi6">0</div></div>
+        <div class="kpi-card blue"><div class="kpi-top"><div class="kpi-icon-badge">🛣️</div><div class="kpi-trend flat" id="kpi1Trend">—</div></div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="kpi1">0</div></div>
+        <div class="kpi-card gold"><div class="kpi-top"><div class="kpi-icon-badge">⚠️</div><div class="kpi-trend flat" id="kpi2Trend">—</div></div><div class="kpi-label">Defects Found</div><div class="kpi-value" id="kpi2">0</div></div>
+        <div class="kpi-card orange"><div class="kpi-top"><div class="kpi-icon-badge">📋</div><div class="kpi-trend flat" id="kpi3Trend">—</div></div><div class="kpi-label">Actions Pending</div><div class="kpi-value" id="kpi3">0</div></div>
+        <div class="kpi-card red"><div class="kpi-top"><div class="kpi-icon-badge">🚨</div><div class="kpi-trend flat" id="kpi4Trend">—</div></div><div class="kpi-label">ATR Overdue</div><div class="kpi-value" id="kpi4">0</div></div>
+        <div class="kpi-card green"><div class="kpi-top"><div class="kpi-icon-badge">✅</div><div class="kpi-trend flat" id="kpi5Trend">—</div></div><div class="kpi-label">Tests Passed</div><div class="kpi-value" id="kpi5">0</div></div>
+        <div class="kpi-card purple"><div class="kpi-top"><div class="kpi-icon-badge">❌</div><div class="kpi-trend flat" id="kpi6Trend">—</div></div><div class="kpi-label">Tests Failed</div><div class="kpi-value" id="kpi6">0</div></div>
+      </div>
+
+      <!-- ACTIVE PROJECTS & RECENT INSPECTIONS -->
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:24px;">
+        <div class="breakdown-card">
+          <div class="breakdown-title">🕒 Recent Inspections</div>
+          <div style="overflow-x:auto;">
+            <table class="breakdown-table">
+              <thead><tr><th>Project</th><th>Location</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody id="dashRecentInspBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="breakdown-card">
+          <div class="breakdown-title">🏗️ Active Projects</div>
+          <div id="dashActiveProjects" style="padding:12px 16px;"></div>
+        </div>
       </div>
       <div class="breakdown-grid">
         <div class="breakdown-card"><div class="breakdown-title">📍 By Dzongkhag</div><table class="breakdown-table"><thead><tr><th>Dzongkhag</th><th>Inspected</th><th>Defects</th><th>%</th></tr></thead><tbody id="dzongBody"></tbody></table></div>
@@ -12634,6 +12664,13 @@ function refreshDash(){
   document.getElementById('kpi6').textContent=failed.length;
   // Mirror to public overview section
   if(typeof syncPublicKPIs === 'function') syncPublicKPIs();
+
+  // ---- KPI trend pills (this month vs last month) ----
+  _renderKpiTrends();
+
+  // ---- Recent Inspections & Active Projects panels ----
+  _renderDashRecentInspections();
+  _renderDashActiveProjects();
   const tot=fd.length||1;
 
   // User's own location for highlighting
@@ -12697,6 +12734,82 @@ function refreshDash(){
   });
   document.getElementById('monthBody').innerHTML=moHtml||'<tr><td colspan="4" style="padding:12px;text-align:center;color:#6b7280;">No data</td></tr>';
   dashDrawAllCharts();
+}
+
+/* ── KPI trend pills: compare this calendar month vs last calendar month ── */
+function _dashTrend(curr, prev){
+  if(prev===0) return curr===0 ? {cls:'flat', txt:'— flat'} : {cls:'up', txt:'▲ new'};
+  const pct = Math.round((curr-prev)/prev*100);
+  if(pct===0) return {cls:'flat', txt:'— flat'};
+  return pct>0 ? {cls:'up', txt:`▲ ${pct}%`} : {cls:'down', txt:`▼ ${Math.abs(pct)}%`};
+}
+function _renderKpiTrends(){
+  const now = new Date();
+  let pIdx = now.getMonth()-1, pYear = now.getFullYear();
+  if(pIdx<0){ pIdx=11; pYear--; }
+  const curName = MONTHS[now.getMonth()], curYear = now.getFullYear();
+  const prevName = MONTHS[pIdx];
+
+  const curRows  = inspections.filter(r=>r.month===curName && getYear(r.dateInspected)===String(curYear));
+  const prevRows = inspections.filter(r=>r.month===prevName && getYear(r.dateInspected)===String(pYear));
+
+  const metrics = {
+    kpi1: [curRows.length, prevRows.length],
+    kpi2: [curRows.filter(r=>r.defect==='Yes').length, prevRows.filter(r=>r.defect==='Yes').length],
+    kpi3: [curRows.filter(r=>r.defect==='Yes' && ['Pending','DUE SOON'].includes(calcATRStatus(r))).length, prevRows.filter(r=>r.defect==='Yes' && ['Pending','DUE SOON'].includes(calcATRStatus(r))).length],
+    kpi4: [curRows.filter(r=>r.defect==='Yes' && calcATRStatus(r)==='OVERDUE').length, prevRows.filter(r=>r.defect==='Yes' && calcATRStatus(r)==='OVERDUE').length],
+    kpi5: [curRows.filter(r=>r.passFailResult==='Pass').length, prevRows.filter(r=>r.passFailResult==='Pass').length],
+    kpi6: [curRows.filter(r=>r.passFailResult==='Fail').length, prevRows.filter(r=>r.passFailResult==='Fail').length],
+  };
+  Object.entries(metrics).forEach(([id,[cur,prev]])=>{
+    const el = document.getElementById(id+'Trend'); if(!el) return;
+    const t = _dashTrend(cur, prev);
+    el.className = 'kpi-trend ' + t.cls;
+    el.innerHTML = t.txt + '<span class="kpi-trend-sub">vs last mo.</span>';
+  });
+}
+
+/* ── Recent Inspections panel (latest 5) ── */
+function _renderDashRecentInspections(){
+  const body = document.getElementById('dashRecentInspBody'); if(!body) return;
+  const recent = inspections.slice().sort((a,b)=>new Date(b.dateInspected||0)-new Date(a.dateInspected||0)).slice(0,5);
+  if(!recent.length){ body.innerHTML='<tr><td colspan="4" style="padding:12px;text-align:center;color:#6b7280;">No inspections yet</td></tr>'; return; }
+  body.innerHTML = recent.map(r=>{
+    let statusLabel, statusColor;
+    if(r.defect==='Yes'){ statusLabel='⚠️ Defect'; statusColor='#d97706'; }
+    else if(r.passFailResult==='Fail'){ statusLabel='❌ Failed'; statusColor='#dc2626'; }
+    else { statusLabel='✅ Passed'; statusColor='#16a34a'; }
+    const loc = r.dzongkhag || r.ro || r.other || '—';
+    return `<tr><td><strong>${r.projectName||r.workItem||'—'}</strong></td><td>${loc}</td><td>${r.dateInspected||'—'}</td>
+      <td><span style="background:${statusColor}1a;color:${statusColor};border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">${statusLabel}</span></td></tr>`;
+  }).join('');
+}
+
+/* ── Active Projects panel — top projects by latest reported progress ── */
+function _renderDashActiveProjects(){
+  const holder = document.getElementById('dashActiveProjects'); if(!holder) return;
+  const isAdmin = currentUser && currentUser.isAdmin;
+  const regs = isAdmin ? projectRegistry : projectRegistry.filter(r=>r.agencyLocation === currentUser?.location);
+  const rows = regs.map(reg=>{
+    const linked = projectUpdates.filter(u => u.regId === reg.regId || u.projectName === reg.projectName)
+      .slice().sort((a,b) => new Date(b.submittedAt||b.updatedDate||0) - new Date(a.submittedAt||a.updatedDate||0));
+    const latest = linked[0];
+    return { name: reg.projectName||'Untitled Project', percent: Number(latest?.percent)||0, status: latest?.overallStatus||'Not Started' };
+  }).filter(r=>r.status!=='Completed')
+    .sort((a,b)=>b.percent-a.percent)
+    .slice(0,5);
+
+  if(!rows.length){ holder.innerHTML='<div style="text-align:center;padding:20px;color:#9ca3af;font-size:12px;">No active projects.</div>'; return; }
+  holder.innerHTML = rows.map(r=>`
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+        <span style="font-size:12px;font-weight:600;color:#1a2236;">${r.name}</span>
+        <span style="font-size:11px;font-weight:700;color:#e8820c;">${r.percent}%</span>
+      </div>
+      <div style="background:#f0f2f7;border-radius:6px;height:7px;overflow:hidden;">
+        <div style="background:linear-gradient(90deg,#e8820c,#fbbf24);height:100%;width:${r.percent}%;border-radius:6px;"></div>
+      </div>
+    </div>`).join('');
 }
 
 // ===== DASHBOARD — ALL CHARTS =====
