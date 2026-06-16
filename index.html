@@ -6619,6 +6619,7 @@ function printAllConst(){
             <option value="summary">📋 Overall Inspection Summary Report</option>
             <option value="project">🏗️ Full Project Report (by Project)</option>
             <option value="registry">📊 Project Progress Report (Registry &amp; Updates)</option>
+            <option value="mgmt">📊 Management Summary Report</option>
           </select>
         </div>
         <!-- Monthly filter — shown only for summary report -->
@@ -6649,7 +6650,44 @@ function printAllConst(){
             <option value="">— Select a project —</option>
           </select>
         </div>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <!-- Management Summary period selector -->
+        <div id="mgmtReportSelector" style="display:none;flex-wrap:wrap;gap:12px;align-items:flex-end;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Period</span>
+            <select id="mgmtPeriod" onchange="mgmtPeriodChange()"
+              style="background:#f8f9fc;border:1.5px solid #d97706;border-radius:7px;padding:9px 14px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;">
+              <option value="week">This Week (Last 7 Days)</option>
+              <option value="month" selected>This Month</option>
+              <option value="quarter">This Quarter</option>
+              <option value="lastmonth">Last Month</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+          <div id="mgmtCustomRange" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">From</span>
+              <input type="date" id="mgmtDateFrom" style="background:#f8f9fc;border:1.5px solid #d97706;border-radius:7px;padding:9px 12px;font-size:13px;color:#1a2236;outline:none;">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">To</span>
+              <input type="date" id="mgmtDateTo" style="background:#f8f9fc;border:1.5px solid #d97706;border-radius:7px;padding:9px 12px;font-size:13px;color:#1a2236;outline:none;">
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;">Location</span>
+            <select id="mgmtLocFilter"
+              style="background:#f8f9fc;border:1.5px solid #d97706;border-radius:7px;padding:9px 14px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:180px;">
+              <option value="">All Locations</option>
+              <option value="Bumthang">Bumthang</option><option value="Chhukha">Chhukha</option><option value="Dagana">Dagana</option>
+              <option value="Gasa">Gasa</option><option value="Haa">Haa</option><option value="Lhuentse">Lhuentse</option>
+              <option value="Mongar">Mongar</option><option value="Paro">Paro</option><option value="Pemagatshel">Pemagatshel</option>
+              <option value="Punakha">Punakha</option><option value="S/Jongkhar">S/Jongkhar</option><option value="Samtse">Samtse</option>
+              <option value="Sarpang">Sarpang</option><option value="Thimphu">Thimphu</option><option value="Trashigang">Trashigang</option>
+              <option value="Trashi Yangtse">Trashi Yangtse</option><option value="Trongsa">Trongsa</option><option value="Tsirang">Tsirang</option>
+              <option value="Wangdue Phodrang">Wangdue Phodrang</option><option value="Zhemgang">Zhemgang</option>
+            </select>
+          </div>
+        </div>
           <button id="btnSaveReport" onclick="saveCurrentReport()" style="background:#f8f9fc;border:1px solid #cbd2e0;border-radius:7px;padding:9px 16px;color:#f97316;font-size:13px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;">💾 Save to Downloads</button>
           <button id="btnPrintReport" onclick="printCurrentReport()" style="background:linear-gradient(135deg,#e8820c,#1d4ed8);border:none;border-radius:7px;padding:9px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;">🖨️ Print / Export PDF</button>
         </div>
@@ -6711,6 +6749,15 @@ function printAllConst(){
         <div id="registry-report-content" style="display:none;">
           <!-- Dynamically generated -->
         </div>
+      </div>
+      <!-- Management Summary Report Panel -->
+      <div id="report-mgmt-panel" style="display:none;text-align:center;padding:60px 20px;color:#6b7280;">
+        <div style="font-size:40px;margin-bottom:12px;">📊</div>
+        <div style="font-size:14px;font-weight:600;color:#1a2236;margin-bottom:6px;">Management Summary Report</div>
+        <div style="font-size:12px;margin-bottom:20px;">Select a period above then click <strong>Print / Export PDF</strong> to generate.</div>
+        <button onclick="printCurrentReport()" style="background:linear-gradient(135deg,#e8820c,#1d4ed8);border:none;border-radius:8px;padding:12px 28px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;">
+          🖨️ Generate &amp; Print Report
+        </button>
       </div>
     </div>
 
@@ -14107,32 +14154,284 @@ function renderReport(){
 }
 
 // ===== REPORT TYPE SWITCHING =====
+function mgmtPeriodChange(){
+  const v = document.getElementById('mgmtPeriod')?.value;
+  const cr = document.getElementById('mgmtCustomRange');
+  if(cr) cr.style.display = v==='custom' ? 'flex' : 'none';
+}
+
+function _mgmtGetDateRange(){
+  const v = document.getElementById('mgmtPeriod')?.value || 'month';
+  const now = new Date();
+  let from, to, label;
+  if(v==='week'){
+    to = new Date(now); from = new Date(now); from.setDate(from.getDate()-6);
+    label = 'Last 7 Days';
+  } else if(v==='month'){
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to   = new Date(now.getFullYear(), now.getMonth()+1, 0);
+    label = now.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  } else if(v==='quarter'){
+    const q = Math.floor(now.getMonth()/3);
+    from = new Date(now.getFullYear(), q*3, 1);
+    to   = new Date(now.getFullYear(), q*3+3, 0);
+    label = `Q${q+1} ${now.getFullYear()}`;
+  } else if(v==='lastmonth'){
+    const lm = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    from = lm;
+    to   = new Date(now.getFullYear(), now.getMonth(), 0);
+    label = lm.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  } else {
+    from = new Date(document.getElementById('mgmtDateFrom')?.value||now.toISOString().slice(0,10));
+    to   = new Date(document.getElementById('mgmtDateTo')?.value||now.toISOString().slice(0,10));
+    label = `${from.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})} – ${to.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}`;
+  }
+  const fromStr = from.toISOString().slice(0,10);
+  const toStr   = to.toISOString().slice(0,10);
+  return { from: fromStr, to: toStr, label };
+}
+
+function _printMgmtSummaryReport(){
+  const { from, to, label } = _mgmtGetDateRange();
+  const locFilter = document.getElementById('mgmtLocFilter')?.value || '';
+  const now = new Date();
+  const refNo = `OPMC/OCASC/CQD/MSR/${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+  const generatedAt = now.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+  const preparedBy = (currentUser&&currentUser.name)||'CQD Team';
+
+  // Filter inspections by date range and optional location
+  const fd = (inspections||[]).filter(r=>{
+    if(!r.dateInspected) return false;
+    if(r.dateInspected < from || r.dateInspected > to) return false;
+    if(locFilter && r.dzongkhag!==locFilter && r.ro!==locFilter && r.other!==locFilter) return false;
+    return true;
+  });
+
+  const total     = fd.length;
+  const defects   = fd.filter(r=>r.defect==='Yes');
+  const defCount  = defects.length;
+  const defRate   = total ? Math.round(defCount/total*100) : 0;
+  const tests     = fd.filter(r=>r.passFailResult==='Pass'||r.passFailResult==='Fail');
+  const passed    = tests.filter(r=>r.passFailResult==='Pass').length;
+  const failed    = tests.filter(r=>r.passFailResult==='Fail').length;
+  const passRate  = tests.length ? Math.round(passed/tests.length*100) : 0;
+  const atrOvd    = defects.filter(r=>calcATRStatus(r)==='OVERDUE').length;
+  const atrPend   = defects.filter(r=>['Pending','DUE SOON'].includes(calcATRStatus(r))).length;
+  const atrSub    = defects.filter(r=>r.atrSubmitted).length;
+  const atrComp   = defCount ? Math.round(atrSub/defCount*100) : 100;
+
+  // Performance by Dzongkhag
+  const dzongs=['Bumthang','Chhukha','Dagana','Gasa','Haa','Lhuentse','Mongar','Paro','Pemagatshel','Punakha','S/Jongkhar','Samtse','Sarpang','Thimphu','Trashigang','Trashi Yangtse','Trongsa','Tsirang','Wangdue Phodrang','Zhemgang'];
+  const locRows = [];
+  dzongs.forEach(dz=>{
+    const rows=fd.filter(r=>r.dzongkhag===dz); if(!rows.length)return;
+    const def=rows.filter(r=>r.defect==='Yes').length;
+    const ts=rows.filter(r=>r.passFailResult==='Pass'||r.passFailResult==='Fail');
+    const ps=ts.filter(r=>r.passFailResult==='Pass').length;
+    const atrS=rows.filter(r=>r.defect==='Yes'&&r.atrSubmitted).length;
+    const atrD=rows.filter(r=>r.defect==='Yes').length;
+    locRows.push({name:dz,total:rows.length,def,defRate:Math.round(def/(rows.length||1)*100),passRate:ts.length?Math.round(ps/ts.length*100):'-',atrComp:atrD?Math.round(atrS/atrD*100):100});
+  });
+  // Also include ROs
+  ['RO Thimphu','RO Phuentsholing','RO Sarpang','RO Samdrup Jongkhar','RO Trongsa','RO Tingtibi','RO Lingmethang','RO Lobeysa','RO Trashigang','Thimphu Thromde','Phuentshogling Thromde','Gelephu Thromde','Samdrup Jongkhar Thromde'].forEach(ro=>{
+    const rows=fd.filter(r=>r.ro===ro); if(!rows.length)return;
+    const def=rows.filter(r=>r.defect==='Yes').length;
+    const ts=rows.filter(r=>r.passFailResult==='Pass'||r.passFailResult==='Fail');
+    const ps=ts.filter(r=>r.passFailResult==='Pass').length;
+    const atrS=rows.filter(r=>r.defect==='Yes'&&r.atrSubmitted).length;
+    const atrD=rows.filter(r=>r.defect==='Yes').length;
+    locRows.push({name:ro,total:rows.length,def,defRate:Math.round(def/(rows.length||1)*100),passRate:ts.length?Math.round(ps/ts.length*100):'-',atrComp:atrD?Math.round(atrS/atrD*100):100});
+  });
+  locRows.sort((a,b)=>b.total-a.total);
+
+  // Top defect categories by work type
+  const wtMap={};
+  defects.forEach(r=>{ const k=r.workType||'Other'; if(!wtMap[k])wtMap[k]=0; wtMap[k]++; });
+  const topCats=Object.entries(wtMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  // Monthly trend within period
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const moMap={};
+  fd.forEach(r=>{ const mo=r.month||''; if(!mo)return; if(!moMap[mo])moMap[mo]={t:0,d:0}; moMap[mo].t++; if(r.defect==='Yes')moMap[mo].d++; });
+  const moRows=months.filter(m=>moMap[m]).map(m=>({mo:m,t:moMap[m].t,d:moMap[m].d,rate:Math.round(moMap[m].d/moMap[m].t*100)}));
+
+  const locRowsHtml = locRows.map((r,i)=>`
+    <tr style="${i%2===0?'background:#f9fafb;':''}">
+      <td style="padding:5px 8px;">${r.name}</td>
+      <td style="padding:5px 8px;text-align:center;font-weight:700;">${r.total}</td>
+      <td style="padding:5px 8px;text-align:center;">${r.def}</td>
+      <td style="padding:5px 8px;text-align:center;color:${r.defRate>=50?'#b91c1c':r.defRate>=25?'#d97706':'#16a34a'};font-weight:700;">${r.defRate}%</td>
+      <td style="padding:5px 8px;text-align:center;">${r.passRate==='−'?'—':r.passRate+'%'}</td>
+      <td style="padding:5px 8px;text-align:center;color:${r.atrComp>=80?'#16a34a':r.atrComp>=50?'#d97706':'#b91c1c'};font-weight:700;">${r.atrComp}%</td>
+    </tr>`).join('');
+
+  const catRowsHtml = topCats.map(([cat,cnt],i)=>`
+    <tr style="${i%2===0?'background:#f9fafb;':''}">
+      <td style="padding:5px 8px;">${cat}</td>
+      <td style="padding:5px 8px;text-align:center;font-weight:700;color:#b91c1c;">${cnt}</td>
+      <td style="padding:5px 8px;text-align:center;">${defCount?Math.round(cnt/defCount*100):0}%</td>
+      <td style="padding:5px 8px;">
+        <div style="background:#fee2e2;border-radius:3px;height:8px;width:100%;"><div style="background:#dc2626;height:100%;border-radius:3px;width:${defCount?Math.round(cnt/defCount*100):0}%;"></div></div>
+      </td>
+    </tr>`).join('');
+
+  const moRowsHtml = moRows.map((r,i)=>`
+    <tr style="${i%2===0?'background:#f9fafb;':''}">
+      <td style="padding:5px 8px;">${r.mo}</td>
+      <td style="padding:5px 8px;text-align:center;font-weight:700;">${r.t}</td>
+      <td style="padding:5px 8px;text-align:center;">${r.d}</td>
+      <td style="padding:5px 8px;text-align:center;color:${r.rate>=50?'#b91c1c':r.rate>=25?'#d97706':'#16a34a'};font-weight:700;">${r.rate}%</td>
+    </tr>`).join('');
+
+  const overallStatus = defRate < 20 ? 'SATISFACTORY' : defRate < 40 ? 'NEEDS ATTENTION' : 'CRITICAL — IMMEDIATE ACTION REQUIRED';
+  const statusColor   = defRate < 20 ? '#16a34a' : defRate < 40 ? '#d97706' : '#b91c1c';
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Management Summary Report — ${label}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:9.5pt;color:#1a1a2e;background:#fff;line-height:1.5;}
+.page{max-width:210mm;margin:0 auto;padding:14mm 16mm 12mm;}
+.hdr{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-bottom:3px double #0d4a2c;padding-bottom:10px;margin-bottom:12px;}
+.hdr-left{font-size:8pt;color:#555;line-height:1.8;}
+.hdr-center{text-align:center;}
+.hdr-right{text-align:right;font-size:8pt;color:#555;line-height:1.8;}
+.flag{font-size:38px;line-height:1;}
+.gov{font-size:11pt;font-weight:700;color:#0d4a2c;margin-top:4px;}
+.dept{font-size:8.5pt;color:#0d4a2c;font-weight:600;}
+.addr{font-size:7pt;color:#888;}
+.title-band{background:linear-gradient(90deg,#0d4a2c,#16a34a);color:#fff;padding:9px 16px;border-radius:4px;margin:12px 0 8px;display:flex;justify-content:space-between;align-items:center;}
+.title-band h1{font-size:12pt;font-weight:700;letter-spacing:.5px;}
+.title-band .period{font-size:9pt;opacity:.85;}
+.status-banner{border:2px solid ${statusColor};background:${statusColor}18;border-radius:5px;padding:8px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.status-banner .sl{font-size:10.5pt;font-weight:700;color:${statusColor};}
+.status-banner .sr{font-size:8pt;color:#555;}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;}
+.kpi{text-align:center;border:1.5px solid #c8d4e8;border-radius:5px;padding:10px 6px;background:#f8faff;}
+.kpi-v{font-size:17pt;font-weight:700;color:#0d4a2c;line-height:1;}
+.kpi-l{font-size:7pt;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;margin-top:3px;}
+.sec{background:#0d4a2c;color:#fff;font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:5px 12px;margin:14px 0 6px;border-radius:2px;}
+table.rt{width:100%;border-collapse:collapse;font-size:8.5pt;}
+table.rt th{background:#0d4a2c;color:#fff;padding:5px 8px;text-align:left;font-size:7.5pt;letter-spacing:.4px;}
+table.rt td{border-bottom:1px solid #e5e7eb;vertical-align:middle;}
+.sig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px;}
+.sig-box{text-align:center;}
+.sig-line{border-top:1.5px solid #1a2236;margin-bottom:4px;margin-top:32px;}
+.sig-role{font-size:8pt;font-weight:700;color:#1a2236;}
+.sig-name{font-size:7.5pt;color:#555;}
+.ft{display:flex;justify-content:space-between;font-size:7pt;color:#888;border-top:1.5px solid #0d4a2c;margin-top:12px;padding-top:5px;}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+</style></head>
+<body>
+<div class="page">
+  <div class="hdr">
+    <div class="hdr-left">
+      Ref: ${refNo}<br>
+      Generated: ${generatedAt}<br>
+      Prepared by: ${preparedBy}
+    </div>
+    <div class="hdr-center">
+      <div class="flag">🇧🇹</div>
+      <div class="gov">Royal Government of Bhutan</div>
+      <div class="dept">Office of Prime Minister &amp; Cabinet — OPMC/OCASC</div>
+      <div class="addr">Construction Quality Division (CQD) · Gyalyong Tshogkhang, Thimphu</div>
+    </div>
+    <div class="hdr-right">
+      RESTRICTED<br>
+      Management Use Only<br>
+      ${locFilter ? 'Location: '+locFilter : 'All Locations'}
+    </div>
+  </div>
+
+  <div class="title-band">
+    <h1>📊 MANAGEMENT SUMMARY REPORT</h1>
+    <span class="period">Period: ${label}</span>
+  </div>
+
+  <div class="status-banner">
+    <span class="sl">Overall Status: ${overallStatus}</span>
+    <span class="sr">Based on ${total} inspection${total!==1?'s':''} · ${defCount} defect${defCount!==1?'s':''} found · ${defRate}% defect rate</span>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-v">${total}</div><div class="kpi-l">Total Inspections</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:${defRate>=40?'#b91c1c':defRate>=20?'#d97706':'#16a34a'}">${defRate}%</div><div class="kpi-l">Defect Rate</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:${passRate>=80?'#16a34a':passRate>=60?'#d97706':'#b91c1c'}">${tests.length?passRate+'%':'—'}</div><div class="kpi-l">Test Pass Rate</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:${atrComp>=80?'#16a34a':atrComp>=50?'#d97706':'#b91c1c'}">${atrComp}%</div><div class="kpi-l">ATR Compliance</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:${atrOvd>0?'#b91c1c':'#16a34a'}">${atrOvd}</div><div class="kpi-l">ATR Overdue</div></div>
+  </div>
+
+  <!-- ATR Breakdown -->
+  <div class="sec">ATR Status Breakdown</div>
+  <table class="rt" style="margin-bottom:8px;">
+    <thead><tr><th>Status</th><th>Count</th><th>% of Defects</th><th>Action Required</th></tr></thead>
+    <tbody>
+      <tr style="background:#fee2e2;"><td style="padding:5px 8px;font-weight:700;color:#b91c1c;">🔴 Overdue</td><td style="padding:5px 8px;font-weight:700;color:#b91c1c;">${atrOvd}</td><td style="padding:5px 8px;">${defCount?Math.round(atrOvd/defCount*100):0}%</td><td style="padding:5px 8px;font-size:7.5pt;">Immediate follow-up required</td></tr>
+      <tr style="background:#fef3c7;"><td style="padding:5px 8px;font-weight:700;color:#d97706;">🟡 Pending</td><td style="padding:5px 8px;font-weight:700;color:#d97706;">${atrPend}</td><td style="padding:5px 8px;">${defCount?Math.round(atrPend/defCount*100):0}%</td><td style="padding:5px 8px;font-size:7.5pt;">Monitor &amp; follow up</td></tr>
+      <tr style="background:#dcfce7;"><td style="padding:5px 8px;font-weight:700;color:#16a34a;">✅ Submitted</td><td style="padding:5px 8px;font-weight:700;color:#16a34a;">${atrSub}</td><td style="padding:5px 8px;">${defCount?Math.round(atrSub/defCount*100):0}%</td><td style="padding:5px 8px;font-size:7.5pt;">No action needed</td></tr>
+    </tbody>
+  </table>
+
+  ${topCats.length ? `
+  <div class="sec">Top Defect Categories</div>
+  <table class="rt"><thead><tr><th>Work Type / Category</th><th style="text-align:center">Count</th><th style="text-align:center">% of Defects</th><th>Proportion</th></tr></thead>
+  <tbody>${catRowsHtml}</tbody></table>` : ''}
+
+  ${locRows.length ? `
+  <div class="sec">Performance by Location</div>
+  <table class="rt"><thead><tr><th>Location</th><th style="text-align:center">Inspections</th><th style="text-align:center">Defects</th><th style="text-align:center">Defect Rate</th><th style="text-align:center">Test Pass Rate</th><th style="text-align:center">ATR Compliance</th></tr></thead>
+  <tbody>${locRowsHtml}</tbody></table>` : ''}
+
+  ${moRows.length > 1 ? `
+  <div class="sec">Monthly Inspection Trend</div>
+  <table class="rt"><thead><tr><th>Month</th><th style="text-align:center">Inspections</th><th style="text-align:center">Defects</th><th style="text-align:center">Defect Rate</th></tr></thead>
+  <tbody>${moRowsHtml}</tbody></table>` : ''}
+
+  <!-- Signatures -->
+  <div class="sig-grid">
+    <div class="sig-box"><div class="sig-line"></div><div class="sig-role">Prepared By</div><div class="sig-name">${preparedBy}</div><div class="sig-name">Construction Quality Division, OCASC</div></div>
+    <div class="sig-box"><div class="sig-line"></div><div class="sig-role">Verified By</div><div class="sig-name">Chief, CQD</div><div class="sig-name">Construction Quality Division</div></div>
+    <div class="sig-box"><div class="sig-line"></div><div class="sig-role">Approved By</div><div class="sig-name">Director General</div><div class="sig-name">OPMC / OCASC</div></div>
+  </div>
+
+  <div class="ft">
+    <span>Gyalyong Tshogkhang, Thimphu, Bhutan</span>
+    <span style="font-weight:700;">${refNo}</span>
+    <span>Construction Quality Division · OPMC/OCASC · www.cabinet.gov.bt</span>
+  </div>
+</div>
+</body></html>`;
+
+  _doPrint(html);
+}
+
 function onReportTypeChange(){
   const type = document.getElementById('reportTypeSelect')?.value;
-  const sumPanel = document.getElementById('report-summary-panel');
+  const sumPanel  = document.getElementById('report-summary-panel');
   const projPanel = document.getElementById('report-project-panel');
-  const regPanel = document.getElementById('report-registry-panel');
-  const projSel = document.getElementById('projectReportSelector');
-  const regSel = document.getElementById('registryReportSelector');
-  const monthSel = document.getElementById('summaryMonthSelector');
+  const regPanel  = document.getElementById('report-registry-panel');
+  const mgmtPanel = document.getElementById('report-mgmt-panel');
+  const projSel   = document.getElementById('projectReportSelector');
+  const regSel    = document.getElementById('registryReportSelector');
+  const mgmtSel   = document.getElementById('mgmtReportSelector');
+  const monthSel  = document.getElementById('summaryMonthSelector');
+  // hide all
+  [sumPanel,projPanel,regPanel,mgmtPanel].forEach(p=>{ if(p) p.style.display='none'; });
+  [projSel,regSel,mgmtSel,monthSel].forEach(s=>{ if(s) s.style.display='none'; });
   if(type==='project'){
-    if(sumPanel) sumPanel.style.display='none';
     if(projPanel) projPanel.style.display='block';
-    if(regPanel) regPanel.style.display='none';
     if(projSel) projSel.style.display='flex';
-    if(regSel) regSel.style.display='none';
-    if(monthSel) monthSel.style.display='none';
     _populateProjectDropdown();
     renderProjectReport();
   } else if(type==='registry'){
-    if(sumPanel) sumPanel.style.display='none';
-    if(projPanel) projPanel.style.display='none';
     if(regPanel) regPanel.style.display='block';
-    if(projSel) projSel.style.display='none';
     if(regSel) regSel.style.display='flex';
-    if(monthSel) monthSel.style.display='none';
     _populateRegistryDropdown();
     renderRegistryReport();
+  } else if(type==='mgmt'){
+    if(mgmtPanel) mgmtPanel.style.display='block';
+    if(mgmtSel) mgmtSel.style.display='flex';
   } else {
     if(sumPanel) sumPanel.style.display='block';
     if(projPanel) projPanel.style.display='none';
@@ -14611,6 +14910,7 @@ function printCurrentReport(){
     const type = document.getElementById('reportTypeSelect')?.value || 'summary';
     if(type==='project') _printProjectReport();
     else if(type==='registry') _printRegistryReport();
+    else if(type==='mgmt') _printMgmtSummaryReport();
     else _printInspectionReport();
   } catch(e) {
     console.error('printCurrentReport error:', e);
