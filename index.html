@@ -6944,6 +6944,31 @@ function printAllConst(){
         </div>
       </div>
 
+      <!-- CONTRACTOR PERFORMANCE TRACKER -->
+      <div style="margin-top:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:1px;color:#1a2236;">🔍 CONTRACTOR PERFORMANCE TRACKER</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:1px;">Quality ratings based on defect rate, test pass rate &amp; ATR compliance</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="cpYear" onchange="renderContractorPerformance()" style="background:#f8f9fc;border:1.5px solid #e2e6ef;border-radius:7px;padding:8px 14px;font-size:12px;color:#1a2236;outline:none;cursor:pointer;">
+              <option value="">All Years</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option>
+            </select>
+          </div>
+        </div>
+        <div class="breakdown-card" style="overflow-x:auto;">
+          <table class="breakdown-table" style="min-width:800px;">
+            <thead><tr>
+              <th>Contractor</th><th style="text-align:center">Projects</th><th style="text-align:center">Inspections</th>
+              <th style="text-align:center">Defect Rate</th><th style="text-align:center">Test Pass Rate</th>
+              <th style="text-align:center">ATR Compliance</th><th style="text-align:center">Rating</th><th style="text-align:center">Scorecard</th>
+            </tr></thead>
+            <tbody id="contractorPerfBody"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
     <div id="tab-compliance-contractor" style="display:none">
@@ -12973,6 +12998,7 @@ function renderTable(){
             <button class="action-btn del" onclick="deleteEntry(${inspections.indexOf(r)})" style="color:#b91c1c;border-color:#fca5a5;font-weight:700;font-size:10px;padding:4px 8px;">🗑 Delete</button>`
         : ''
       }<button class="action-btn" onclick="openInspPhotoModal(${r.sn||0},'${(r.projectName||'').replace(/'/g,"\\'")}','${(r.dzongkhag||r.ro||r.other||'').replace(/'/g,"\\'")}',${inspections.indexOf(r)})" style="color:#16a34a;border-color:#bbf7d0;background:rgba(187,247,208,.4);font-weight:700;font-size:10px;padding:4px 8px;">${(()=>{const c=_photoLib.filter(p=>p.inspSN===String(r.sn||inspections.indexOf(r))).length;return '📷'+(c?' '+c:'');})()}</button>
+      <button class="action-btn" onclick="generateInspCertificate(${inspections.indexOf(r)})" style="color:#7c3aed;border-color:#ddd6fe;background:rgba(221,214,254,.4);font-weight:700;font-size:10px;padding:4px 8px;">📄 Cert</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -13850,6 +13876,7 @@ function renderCharts(){
   // ---- PROJECT PROGRESS TRENDS section ----
   _populateTrendProjectDropdown();
   renderProjectTrends();
+  renderContractorPerformance();
 }
 
 /* ── Project Progress Trends ── */
@@ -15780,6 +15807,236 @@ async function inspPhotoDelete(id){
 // ═══════════════════════════════════════════════════════════════════════
 //  INSPECTION SCHEDULE — link to project registry
 // ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+//  INSPECTION CERTIFICATE — formal quality inspection certificate
+// ═══════════════════════════════════════════════════════════════════════
+function generateInspCertificate(idx){
+  const r = inspections[idx]; if(!r) return;
+  const now = new Date();
+  const certNo = `OPMC/OCASC/CQD/CERT/${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}/${String(r.sn||idx+1).padStart(3,'0')}`;
+  const genDate = now.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+  const hasDefect = r.defect==='Yes';
+  const tests = [];
+  try{ const tr=JSON.parse(r.testRows||'[]'); if(Array.isArray(tr)) tests.push(...tr); }catch(e){}
+  if(!tests.length && r.test) tests.push({test:r.test,reqVal:r.reqVal,result:r.result,passFailResult:r.passFailResult});
+  const testsPassed = tests.filter(t=>t.passFailResult==='Pass').length;
+  const testsFailed = tests.filter(t=>t.passFailResult==='Fail').length;
+  const passRate = tests.length ? Math.round(testsPassed/tests.length*100) : null;
+  const atrStatus = calcATRStatus(r);
+
+  const isSatisfactory = !hasDefect && testsFailed===0;
+  const verdict = isSatisfactory ? 'SATISFACTORY' : 'UNSATISFACTORY';
+  const verdictColor = isSatisfactory ? '#16a34a' : '#b91c1c';
+  const verdictDesc = isSatisfactory
+    ? 'The inspected work meets the required quality standards and specifications.'
+    : 'The inspected work does not meet the required quality standards. Corrective action is required as detailed below.';
+
+  const testTableRows = tests.map((t,i)=>`
+    <tr style="${i%2===0?'background:#f9fafb;':''}">
+      <td style="padding:5px 10px;">${t.test||'—'}</td>
+      <td style="padding:5px 10px;text-align:center;">${t.reqVal||'—'}</td>
+      <td style="padding:5px 10px;text-align:center;font-weight:700;">${t.result||'—'}</td>
+      <td style="padding:5px 10px;text-align:center;font-weight:700;color:${t.passFailResult==='Pass'?'#16a34a':'#b91c1c'}">${t.passFailResult||'—'}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Quality Inspection Certificate — ${r.projectName||'Inspection'}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:10pt;color:#1a1a2e;background:#fff;}
+.page{max-width:210mm;margin:0 auto;padding:16mm 18mm 14mm;}
+.hdr{text-align:center;border-bottom:3px double #0d4a2c;padding-bottom:12px;margin-bottom:16px;}
+.flag{height:40px;margin-bottom:6px;}
+.gov{font-size:13pt;font-weight:700;color:#0d4a2c;}
+.dept{font-size:9pt;color:#0d4a2c;font-weight:600;margin-top:2px;}
+.addr{font-size:7.5pt;color:#888;margin-top:2px;}
+.cert-title{text-align:center;font-size:15pt;font-weight:700;color:#0d4a2c;letter-spacing:1.5px;margin:16px 0 6px;text-transform:uppercase;border:2px solid #0d4a2c;padding:10px;border-radius:4px;}
+.ref-line{text-align:center;font-size:8pt;color:#6b7280;margin-bottom:18px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-bottom:18px;}
+.detail-grid .dk{font-size:8.5pt;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;}
+.detail-grid .dv{font-size:10pt;font-weight:600;color:#111;padding-bottom:6px;border-bottom:1px solid #e5e7eb;}
+.verdict-box{text-align:center;border:3px solid ${verdictColor};border-radius:6px;padding:16px;margin:18px 0;background:${verdictColor}0a;}
+.verdict-label{font-size:9pt;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.verdict-val{font-size:20pt;font-weight:800;color:${verdictColor};letter-spacing:2px;}
+.verdict-desc{font-size:9pt;color:#555;margin-top:8px;}
+.sec-t{background:#0d4a2c;color:#fff;font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:5px 12px;margin:14px 0 8px;border-radius:2px;}
+table.ct{width:100%;border-collapse:collapse;font-size:9pt;}
+table.ct th{background:#0d4a2c;color:#fff;padding:6px 10px;text-align:left;font-size:8pt;}
+table.ct td{border-bottom:1px solid #e5e7eb;}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.summary-card{text-align:center;border:1.5px solid #c8d4e8;border-radius:5px;padding:10px;}
+.summary-val{font-size:18pt;font-weight:700;line-height:1;}
+.summary-lbl{font-size:7pt;text-transform:uppercase;color:#6b7280;margin-top:3px;letter-spacing:.5px;}
+.sig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:28px;}
+.sig-box{text-align:center;}
+.sig-line{border-top:1.5px solid #1a2236;margin-bottom:4px;margin-top:40px;}
+.sig-role{font-size:8.5pt;font-weight:700;color:#1a2236;}
+.sig-name{font-size:7.5pt;color:#555;}
+.ft{border-top:1.5px solid #0d4a2c;margin-top:16px;padding-top:5px;display:flex;justify-content:space-between;font-size:7pt;color:#888;}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+</style></head><body>
+<div class="page">
+  <div class="hdr">
+    <img class="flag" src="https://flagcdn.com/w80/bt.png" alt="Bhutan">
+    <div class="gov">Royal Government of Bhutan</div>
+    <div class="dept">Office of Prime Minister &amp; Cabinet — OPMC/OCASC</div>
+    <div class="addr">Construction Quality Division (CQD) · Gyalyong Tshogkhang, Thimphu</div>
+  </div>
+  <div class="cert-title">Quality Inspection Certificate</div>
+  <div class="ref-line">Certificate No: ${certNo} &nbsp;·&nbsp; Date: ${genDate}</div>
+
+  <div class="detail-grid">
+    <div><div class="dk">Project Name</div><div class="dv">${r.projectName||'—'}</div></div>
+    <div><div class="dk">Contract No.</div><div class="dv">${r.contractNo||'—'}</div></div>
+    <div><div class="dk">Contractor</div><div class="dv">${r.contractor||'—'}</div></div>
+    <div><div class="dk">Location</div><div class="dv">${r.dzongkhag||r.ro||r.other||'—'}</div></div>
+    <div><div class="dk">Road Section / Chainage</div><div class="dv">${r.roadSection||'—'}</div></div>
+    <div><div class="dk">Date of Inspection</div><div class="dv">${r.dateInspected||'—'}</div></div>
+    <div><div class="dk">Inspecting Officer</div><div class="dv">${r.inspector||'—'}</div></div>
+    <div><div class="dk">Work Type</div><div class="dv">${r.workType||'—'}</div></div>
+  </div>
+
+  <div class="verdict-box">
+    <div class="verdict-label">Quality Inspection Verdict</div>
+    <div class="verdict-val">${verdict}</div>
+    <div class="verdict-desc">${verdictDesc}</div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card"><div class="summary-val" style="color:${hasDefect?'#b91c1c':'#16a34a'}">${hasDefect?'Yes':'No'}</div><div class="summary-lbl">Defect Found</div></div>
+    <div class="summary-card"><div class="summary-val">${tests.length||0}</div><div class="summary-lbl">Tests Conducted</div></div>
+    <div class="summary-card"><div class="summary-val" style="color:${passRate===null?'#6b7280':passRate>=80?'#16a34a':'#b91c1c'}">${passRate!==null?passRate+'%':'N/A'}</div><div class="summary-lbl">Test Pass Rate</div></div>
+    <div class="summary-card"><div class="summary-val" style="color:${atrStatus==='OVERDUE'?'#b91c1c':atrStatus==='Submitted'?'#16a34a':'#d97706'}">${hasDefect?atrStatus:'N/A'}</div><div class="summary-lbl">ATR Status</div></div>
+  </div>
+
+  ${tests.length ? `<div class="sec-t">Test Results</div>
+  <table class="ct"><thead><tr><th>Test</th><th style="text-align:center">Required</th><th style="text-align:center">Result</th><th style="text-align:center">Pass/Fail</th></tr></thead>
+  <tbody>${testTableRows}</tbody></table>` : ''}
+
+  ${hasDefect ? `<div class="sec-t">Defect Details &amp; Required Action</div>
+  <table class="ct">
+    <tr><td style="padding:6px 10px;font-weight:700;width:30%;background:#f8faff;">Defect Description</td><td style="padding:6px 10px;">${r.defectDesc||'—'}</td></tr>
+    <tr><td style="padding:6px 10px;font-weight:700;background:#f8faff;">Action Required</td><td style="padding:6px 10px;">${r.action||'—'}</td></tr>
+    <tr><td style="padding:6px 10px;font-weight:700;background:#f8faff;">ATR Deadline</td><td style="padding:6px 10px;">${r.atrDeadline||'—'}</td></tr>
+  </table>` : ''}
+
+  <div class="sig-grid">
+    <div class="sig-box"><div class="sig-line"></div><div class="sig-role">Inspecting Officer</div><div class="sig-name">${r.inspector||'CQD Inspector'}</div><div class="sig-name">Construction Quality Division</div></div>
+    <div class="sig-box"><div class="sig-line"></div><div class="sig-role">Chief, CQD</div><div class="sig-name">Construction Quality Division</div><div class="sig-name">OPMC / OCASC</div></div>
+    <div class="sig-box"><div class="sig-line"></div><div class="sig-role">Director General</div><div class="sig-name">OPMC / OCASC</div><div class="sig-name">Royal Government of Bhutan</div></div>
+  </div>
+
+  <div class="ft">
+    <span>Gyalyong Tshogkhang, Thimphu, Bhutan</span>
+    <span style="font-weight:700;">${certNo}</span>
+    <span>Construction Quality Division · OPMC/OCASC</span>
+  </div>
+</div></body></html>`;
+  _doPrint(html);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CONTRACTOR PERFORMANCE TRACKER
+// ═══════════════════════════════════════════════════════════════════════
+function renderContractorPerformance(){
+  const el = document.getElementById('contractorPerfBody'); if(!el) return;
+  const yrF = document.getElementById('cpYear')?.value||'';
+  const contractors = {};
+  (inspections||[]).forEach(r=>{
+    if(!r.contractor) return;
+    if(yrF && getYear(r.dateInspected)!==yrF) return;
+    if(!contractors[r.contractor]) contractors[r.contractor]={name:r.contractor,total:0,defects:0,testP:0,testF:0,atrSub:0,atrDef:0,projects:new Set()};
+    const c=contractors[r.contractor];
+    c.total++;
+    if(r.defect==='Yes'){ c.defects++; c.atrDef++; if(r.atrSubmitted) c.atrSub++; }
+    if(r.passFailResult==='Pass') c.testP++;
+    if(r.passFailResult==='Fail') c.testF++;
+    if(r.projectName) c.projects.add(r.projectName);
+  });
+  const list = Object.values(contractors).sort((a,b)=>b.total-a.total);
+  if(!list.length){ el.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af;">No contractor data found.</td></tr>'; return; }
+  el.innerHTML = list.map((c,i)=>{
+    const defRate=Math.round(c.defects/(c.total||1)*100);
+    const testT=c.testP+c.testF;
+    const passRate=testT?Math.round(c.testP/testT*100):null;
+    const atrComp=c.atrDef?Math.round(c.atrSub/c.atrDef*100):100;
+    let rating,rColor,rBg;
+    if(defRate<15&&(passRate===null||passRate>90)&&atrComp>90){rating='⭐ Excellent';rColor='#16a34a';rBg='rgba(22,163,74,.08)';}
+    else if(defRate<30&&(passRate===null||passRate>75)&&atrComp>75){rating='✅ Good';rColor='#2563eb';rBg='rgba(37,99,235,.06)';}
+    else if(defRate<50&&(passRate===null||passRate>60)&&atrComp>50){rating='⚠️ Fair';rColor='#d97706';rBg='rgba(217,119,6,.08)';}
+    else{rating='❌ Poor';rColor='#b91c1c';rBg='rgba(185,28,28,.06)';}
+    return `<tr style="${i%2===0?'background:#f9fafb;':''}">
+      <td style="padding:8px 12px;font-weight:600;">${c.name}</td>
+      <td style="padding:8px 12px;text-align:center;">${c.projects.size}</td>
+      <td style="padding:8px 12px;text-align:center;font-weight:700;">${c.total}</td>
+      <td style="padding:8px 12px;text-align:center;color:${defRate>=40?'#b91c1c':defRate>=20?'#d97706':'#16a34a'};font-weight:700;">${defRate}%</td>
+      <td style="padding:8px 12px;text-align:center;color:${passRate===null?'#6b7280':passRate>=80?'#16a34a':passRate>=60?'#d97706':'#b91c1c'};font-weight:700;">${passRate!==null?passRate+'%':'—'}</td>
+      <td style="padding:8px 12px;text-align:center;color:${atrComp>=80?'#16a34a':atrComp>=50?'#d97706':'#b91c1c'};font-weight:700;">${atrComp}%</td>
+      <td style="padding:8px 12px;text-align:center;"><span style="background:${rBg};color:${rColor};padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;">${rating}</span></td>
+      <td style="padding:8px 12px;text-align:center;"><button class="action-btn" onclick="printContractorScorecard('${c.name.replace(/'/g,"\\'")}')" style="font-size:10px;padding:3px 8px;">🖨️ Scorecard</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function printContractorScorecard(name){
+  const now=new Date();
+  const yrF=document.getElementById('cpYear')?.value||'';
+  const recs=(inspections||[]).filter(r=>r.contractor===name&&(!yrF||getYear(r.dateInspected)===yrF));
+  if(!recs.length){toast('No data for this contractor.');return;}
+  const total=recs.length, defects=recs.filter(r=>r.defect==='Yes').length, defRate=Math.round(defects/(total||1)*100);
+  const tests=recs.filter(r=>r.passFailResult==='Pass'||r.passFailResult==='Fail');
+  const passRate=tests.length?Math.round(tests.filter(r=>r.passFailResult==='Pass').length/tests.length*100):null;
+  const atrDef=recs.filter(r=>r.defect==='Yes');
+  const atrSub=atrDef.filter(r=>r.atrSubmitted).length;
+  const atrComp=atrDef.length?Math.round(atrSub/atrDef.length*100):100;
+  const projects=[...new Set(recs.map(r=>r.projectName).filter(Boolean))];
+  let rating;
+  if(defRate<15&&(passRate===null||passRate>90)&&atrComp>90) rating='⭐ EXCELLENT';
+  else if(defRate<30&&(passRate===null||passRate>75)&&atrComp>75) rating='✅ GOOD';
+  else if(defRate<50&&(passRate===null||passRate>60)&&atrComp>50) rating='⚠️ FAIR';
+  else rating='❌ POOR';
+  const projListHtml=projects.map((p,i)=>{
+    const pr=recs.filter(r=>r.projectName===p);
+    const pd=pr.filter(r=>r.defect==='Yes').length;
+    return `<tr style="${i%2===0?'background:#f9fafb;':''}"><td style="padding:4px 8px;">${p}</td><td style="padding:4px 8px;text-align:center;">${pr.length}</td><td style="padding:4px 8px;text-align:center;color:${pd?'#b91c1c':'#16a34a'}">${pd}</td></tr>`;
+  }).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contractor Scorecard — ${name}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Calibri,Arial,sans-serif;font-size:9.5pt;color:#1a1a2e;background:#fff;}
+.page{max-width:210mm;margin:0 auto;padding:14mm 16mm 12mm;}
+.hdr{text-align:center;border-bottom:3px double #0d4a2c;padding-bottom:10px;margin-bottom:14px;}
+.gov{font-size:11pt;font-weight:700;color:#0d4a2c;}.dept{font-size:8.5pt;color:#0d4a2c;font-weight:600;margin-top:2px;}.addr{font-size:7pt;color:#888;margin-top:2px;}
+.title-band{background:linear-gradient(90deg,#0d4a2c,#16a34a);color:#fff;padding:9px 16px;border-radius:4px;margin:12px 0;text-align:center;font-size:12pt;font-weight:700;letter-spacing:.5px;}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-bottom:14px;}
+.ik{font-size:8pt;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;}.iv{font-size:10pt;font-weight:600;color:#111;padding-bottom:4px;border-bottom:1px solid #e5e7eb;}
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.kpi{text-align:center;border:1.5px solid #c8d4e8;border-radius:5px;padding:10px 6px;background:#f8faff;}
+.kpi-v{font-size:17pt;font-weight:700;line-height:1;}.kpi-l{font-size:7pt;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;margin-top:3px;}
+.sec{background:#0d4a2c;color:#fff;font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:5px 12px;margin:12px 0 6px;border-radius:2px;}
+table.st{width:100%;border-collapse:collapse;font-size:9pt;}table.st th{background:#0d4a2c;color:#fff;padding:5px 8px;text-align:left;font-size:7.5pt;}table.st td{border-bottom:1px solid #e5e7eb;}
+.rating-box{text-align:center;border:3px solid #0d4a2c;border-radius:6px;padding:14px;margin:16px 0;}.rating-lbl{font-size:9pt;color:#6b7280;text-transform:uppercase;letter-spacing:1px;}.rating-val{font-size:22pt;font-weight:800;color:#0d4a2c;margin-top:4px;}
+.sig-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:24px;}.sig-box{text-align:center;}.sig-line{border-top:1.5px solid #1a2236;margin:36px 0 4px;}.sig-role{font-size:8.5pt;font-weight:700;}.sig-name{font-size:7.5pt;color:#555;}
+.ft{border-top:1.5px solid #0d4a2c;margin-top:14px;padding-top:5px;display:flex;justify-content:space-between;font-size:7pt;color:#888;}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style></head><body>
+<div class="page">
+  <div class="hdr"><img src="https://flagcdn.com/w80/bt.png" alt="Bhutan" style="height:36px;margin-bottom:4px;"><div class="gov">Royal Government of Bhutan</div><div class="dept">Office of Prime Minister &amp; Cabinet — OPMC/OCASC</div><div class="addr">Construction Quality Division (CQD) · Gyalyong Tshogkhang, Thimphu</div></div>
+  <div class="title-band">CONTRACTOR PERFORMANCE SCORECARD</div>
+  <div class="info"><div><div class="ik">Contractor</div><div class="iv">${name}</div></div><div><div class="ik">Period</div><div class="iv">${yrF||'All Years'}</div></div><div><div class="ik">Projects</div><div class="iv">${projects.length}</div></div><div><div class="ik">Generated</div><div class="iv">${now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</div></div></div>
+  <div class="kpi-strip">
+    <div class="kpi"><div class="kpi-v">${total}</div><div class="kpi-l">Total Inspections</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:${defRate>=40?'#b91c1c':defRate>=20?'#d97706':'#16a34a'}">${defRate}%</div><div class="kpi-l">Defect Rate</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:${passRate===null?'#6b7280':passRate>=80?'#16a34a':'#b91c1c'}">${passRate!==null?passRate+'%':'—'}</div><div class="kpi-l">Test Pass Rate</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:${atrComp>=80?'#16a34a':'#b91c1c'}">${atrComp}%</div><div class="kpi-l">ATR Compliance</div></div>
+  </div>
+  <div class="rating-box"><div class="rating-lbl">Overall Performance Rating</div><div class="rating-val">${rating}</div></div>
+  <div class="sec">Project Breakdown</div>
+  <table class="st"><thead><tr><th>Project Name</th><th style="text-align:center">Inspections</th><th style="text-align:center">Defects</th></tr></thead><tbody>${projListHtml}</tbody></table>
+  <div class="sig-grid"><div class="sig-box"><div class="sig-line"></div><div class="sig-role">CQD Team</div><div class="sig-name">Construction Quality Division, OCASC</div></div><div class="sig-box"><div class="sig-line"></div><div class="sig-role">Chief, CQD</div><div class="sig-name">Construction Quality Division</div></div></div>
+  <div class="ft"><span>Gyalyong Tshogkhang, Thimphu</span><span>Construction Quality Division · OPMC/OCASC</span></div>
+</div></body></html>`;
+  _doPrint(html);
+}
+
 function ispOpenFromProject(){
   const panel=document.getElementById('ispFromProjectPanel');
   if(!panel) return;
@@ -20433,25 +20690,75 @@ function puRenderWorkComponents(){
 /* ── Full Firestore backup (admin) — downloads every collection as one JSON file ── */
 async function exportAllDataBackup(){
   if (!currentUser || !currentUser.isAdmin) return;
-  const collections = [
-    'inspections', 'approved_users', 'pending_users', 'counters',
-    'adminNotifications', 'inspection_notifications', 'observer_comments'
-  ];
-  toast('⏳ Preparing backup… this may take a moment.');
+  toast('⏳ Preparing full database backup… this may take a moment.');
   try {
-    const backup = { exportedAt: new Date().toISOString(), collections: {} };
-    for (const name of collections) {
-      const snap = await db.collection(name).get();
-      backup.collections[name] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if(typeof XLSX === 'undefined'){ toast('⚠️ Excel library not loaded.'); return; }
+    const wb = XLSX.utils.book_new();
+    const now = new Date();
+
+    // Sheet 1: Inspections
+    const inspHdr=['S/N','Project','Contract No.','Road/Chainage','Contractor','Dzongkhag','RO/Thromde','Other','Work Type','Work Item','Date','Defect','Description','Action','Inspector','ATR Deadline','ATR Submitted','Test','Req Value','Result','Pass/Fail','Month','Year'];
+    const inspRows=(inspections||[]).map(r=>[r.sn,r.projectName,r.contractNo,r.roadSection,r.contractor,r.dzongkhag,r.ro,r.other,r.workType,r.workItem,r.dateInspected,r.defect,r.defectDesc,r.action,r.inspector,r.atrDeadline,r.atrSubmitted,r.test,r.reqVal,r.result,r.passFailResult,r.month,r.year]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([inspHdr,...inspRows]), 'Inspections');
+
+    // Sheet 2: Project Registry
+    const regHdr=['Reg ID','Project Name','Contract No.','Contractor','Road Section','Agency Location','Contract Amount','Funding Source','Start Date','End Date'];
+    const regRows=(projectRegistry||[]).map(r=>[r.regId,r.projectName,r.contractNo,r.contractorName,r.roadSection,r.agencyLocation,r.contractAmount,r.fundingSource,r.startDate,r.endDate]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([regHdr,...regRows]), 'Project Registry');
+
+    // Sheet 3: Project Updates
+    const puHdr=['S/N','Project','Contract No.','Location','Road Section','Status','% Complete','Engineer','Contractor','Month','Updated Date','Remarks'];
+    const puRows=(projectUpdates||[]).map(r=>[r.sn,r.projectName,r.contractNo,r.location,r.roadSection,r.overallStatus,r.percent,r.engineerName,r.contractorName,r.month,r.updatedDate,r.remarks]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([puHdr,...puRows]), 'Project Updates');
+
+    // Sheet 4: Inspection Schedule
+    const schHdr=['ID','Project','Location','Date','Inspector','Work Type','Status'];
+    const schRows=(typeof ispSchedules!=='undefined'?ispSchedules:[]).map(r=>[r.id,r.project,r.location,r.date,r.inspector,r.workType,r.status]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([schHdr,...schRows]), 'Schedules');
+
+    // Sheet 5: Notifications
+    const notHdr=['ID','Type','Title','Description','User','Role','Timestamp','Read'];
+    const notRows=(notifications||[]).map(n=>[n.id,n.type,n.title,n.desc,n.user,n.role,n.timestamp,n.read?'Yes':'No']);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([notHdr,...notRows]), 'Notifications');
+
+    // Sheet 6: Photo Metadata
+    const phHdr=['ID','Project','Area','Filename','Date','Uploaded By','Inspection SN','Lat','Lng','URL'];
+    const phRows=(_photoLib||[]).map(p=>[p.id,p.project,p.area,p.filename,p.date,p.uploadedBy,p.inspSN||'',p.lat||'',p.lng||'',p.url||'']);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([phHdr,...phRows]), 'Photo Metadata');
+
+    // Sheet 7: Firebase collections backup
+    const fbCollections = ['approved_users','pending_users','adminNotifications','inspection_notifications','observer_comments','activityLog'];
+    for(const colName of fbCollections){
+      try{
+        const snap = await db.collection(colName).limit(500).get();
+        if(!snap.empty){
+          const docs = snap.docs.map(d=>({id:d.id,...d.data()}));
+          const keys = [...new Set(docs.flatMap(d=>Object.keys(d)))];
+          const hdr = keys;
+          const rows = docs.map(d=>keys.map(k=>{ const v=d[k]; return v===null||v===undefined?'':typeof v==='object'?JSON.stringify(v):String(v); }));
+          XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([hdr,...rows]), colName.substring(0,31));
+        }
+      }catch(e){ console.warn('Backup skip collection:', colName, e); }
     }
-    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = 'CQIS_Backup_' + new Date().toISOString().substring(0,10) + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('✅ Backup downloaded successfully.');
+
+    // Sheet 8: Summary
+    const sumData=[
+      ['CQIS Full Database Backup'],
+      ['Generated At', now.toISOString()],
+      ['Generated By', currentUser?.name||'Admin'],
+      [''],
+      ['Collection','Records'],
+      ['Inspections', (inspections||[]).length],
+      ['Project Registry', (projectRegistry||[]).length],
+      ['Project Updates', (projectUpdates||[]).length],
+      ['Schedules', (typeof ispSchedules!=='undefined'?ispSchedules:[]).length],
+      ['Notifications', (notifications||[]).length],
+      ['Photos', (_photoLib||[]).length],
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sumData), 'Summary');
+
+    XLSX.writeFile(wb, 'CQIS_Full_Backup_'+now.toISOString().substring(0,10)+'.xlsx');
+    toast('✅ Full database backup downloaded as Excel workbook!');
   } catch(e) {
     console.error('[Backup] failed:', e);
     toast('❌ Backup failed: ' + e.message);
