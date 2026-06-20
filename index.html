@@ -6099,6 +6099,23 @@ function printAllConst(){
         <span id="notifCount" style="font-size:12px;color:#6b7280;margin-left:auto;">0 notifications</span>
       </div>
 
+      <!-- ── Upcoming Inspection Reminders ── -->
+      <div id="upcomingRemindersPanel" style="margin-bottom:18px;background:#fff;border:1px solid #e2e6ef;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+        <div style="padding:14px 18px;background:linear-gradient(135deg,#fef3c7,#fff7ed);border-bottom:1px solid #e2e6ef;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:20px;">⏰</span>
+            <div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#92400e;letter-spacing:.5px;">UPCOMING INSPECTION REMINDERS</div>
+              <div style="font-size:11px;color:#b45309;">Scheduled inspections due in the next 7 days</div>
+            </div>
+          </div>
+          <button onclick="sendAllUpcomingReminders()" style="background:linear-gradient(135deg,#e8820c,#d97706);border:none;border-radius:7px;padding:8px 16px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;">📧 Send All Reminders</button>
+        </div>
+        <div id="upcomingRemindersList" style="padding:12px 18px;">
+          <div style="text-align:center;color:#9ca3af;font-size:12px;padding:16px;">Loading…</div>
+        </div>
+      </div>
+
       <!-- Notification feed -->
       <div id="notifFeed"></div>
       <div class="no-data" id="notifEmpty" style="display:none;">
@@ -6148,6 +6165,28 @@ function printAllConst(){
         <div>
           <div class="section-title">📧 EMAIL NOTIFICATIONS</div>
           <div class="section-badge">Send emails to selected admins, Dzongkhags, ROs, Thromdes or custom recipients</div>
+        </div>
+      </div>
+
+      <!-- ── Quick Automated Actions ── -->
+      <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px 20px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#374151;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:4px;height:16px;background:#e8820c;border-radius:2px;display:inline-block;"></span>
+          AUTOMATED QUICK ACTIONS
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="autoComposeWeeklySummary()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;padding:10px 18px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;display:flex;align-items:center;gap:6px;">
+            📊 Weekly Summary Email
+          </button>
+          <button onclick="autoComposeNCRAlert()" style="background:linear-gradient(135deg,#dc2626,#b91c1c);border:none;border-radius:8px;padding:10px 18px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;display:flex;align-items:center;gap:6px;">
+            ⚠️ NCR Alert Email
+          </button>
+          <button onclick="autoComposeScheduleReminder()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:8px;padding:10px 18px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;display:flex;align-items:center;gap:6px;">
+            ⏰ Inspection Reminder Email
+          </button>
+          <button onclick="_buildOverdueUpdateTemplate();emAutoFillOverdueReminder()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;padding:10px 18px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;display:flex;align-items:center;gap:6px;">
+            📅 Overdue Update Reminder
+          </button>
         </div>
       </div>
 
@@ -11801,7 +11840,7 @@ function showTab(id,btn){
   if(id==='compliance-contractor'){ populateCCContractorDropdown(); renderContractorCompliance(); }
   if(id==='compliance-area'){ renderAreaCompliance(); }
   if(id==='downloads') dlRender();
-  if(id==='notifications'){ notifRender(); notifClearBadge(); }
+  if(id==='notifications'){ notifRender(); notifClearBadge(); renderUpcomingReminders(); }
   if(id==='recent-activity'){ activityRender(); }
   if(id==='email-notify'){ emLoadAddressBook(true).then(()=>{ emRefreshDropdownAndButtons(); }); emRenderHistory(); emShowSubTab('compose'); }
   if(id==='insp-schedule'){
@@ -13327,6 +13366,8 @@ function saveEntry(){
       notifyObserversNewInspection(entry);
       // ── Auto-update news banner with latest inspection result ──
       autoUpdateBannerWithInspection(entry);
+      // ── Auto-offer NCR email if defect found ──
+      _autoOfferNCREmail(entry);
 
       document.getElementById('formSuccess').style.display='block';
       setTimeout(()=>document.getElementById('formSuccess').style.display='none',3000);
@@ -25976,6 +26017,232 @@ function emClearCompose() {
   const b = document.getElementById('emBody');
   if (s) s.value = '';
   if (b) b.value = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  AUTOMATED EMAIL QUICK ACTIONS
+// ═══════════════════════════════════════════════════════════════════════
+
+function autoComposeWeeklySummary(){
+  const today = new Date();
+  const weekAgo = new Date(today); weekAgo.setDate(today.getDate()-7);
+  const fmt = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const weekStr = fmt(weekAgo) + ' — ' + fmt(today);
+
+  const recent = (inspections||[]).filter(r=>{
+    if(!r.dateInspected) return false;
+    const d = new Date(r.dateInspected+'T00:00:00');
+    return d >= weekAgo && d <= today;
+  });
+  const totalWeek = recent.length;
+  const defectsWeek = recent.filter(r=>r.defect==='Yes').length;
+  const cleanWeek = totalWeek - defectsWeek;
+  const passRate = totalWeek>0 ? Math.round(cleanWeek/totalWeek*100) : 0;
+
+  const overdueATR = (inspections||[]).filter(r=>{
+    if(r.defect!=='Yes'||!r.atrDeadline||r.atrSubmitted) return false;
+    return new Date(r.atrDeadline+'T00:00:00') < today;
+  }).length;
+
+  const upcoming = (typeof ispSchedules!=='undefined'?ispSchedules:[]).filter(s=>{
+    if(s.status==='Completed') return false;
+    const sd = new Date(s.scheduledDate+'T00:00:00');
+    const nextWeek = new Date(today); nextWeek.setDate(today.getDate()+7);
+    return sd >= today && sd <= nextWeek;
+  });
+
+  const byDz = {};
+  recent.forEach(r=>{
+    const loc = r.dzongkhag||r.ro||r.other||'Other';
+    byDz[loc] = (byDz[loc]||0)+1;
+  });
+  const dzBreakdown = Object.entries(byDz).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`  • ${k}: ${v} inspection(s)`).join('\n');
+
+  const subject = `📊 Weekly Inspection Summary — ${weekStr} — OPMC/OCASC · CQD`;
+  const body = `Dear Management,\n\nPlease find below the weekly inspection summary for the period ${weekStr}.\n\n` +
+    `═══════════════════════════════════\n` +
+    `  WEEKLY STATISTICS\n` +
+    `═══════════════════════════════════\n` +
+    `📋 Total Inspections  : ${totalWeek}\n` +
+    `✅ Clean (No Defect)  : ${cleanWeek}\n` +
+    `⚠️ Defects Found      : ${defectsWeek}\n` +
+    `📈 Pass Rate          : ${passRate}%\n` +
+    `🔴 Overdue ATRs       : ${overdueATR}\n\n` +
+    (dzBreakdown ? `═══════════════════════════════════\n  BY LOCATION\n═══════════════════════════════════\n${dzBreakdown}\n\n` : '') +
+    (upcoming.length ? `═══════════════════════════════════\n  UPCOMING INSPECTIONS (Next 7 Days)\n═══════════════════════════════════\n${upcoming.map(s=>`  • ${s.scheduledDate} — ${s.projectName} (${s.dzongkhag||''})`).join('\n')}\n\n` : '') +
+    `All data is accessible through the CQIS portal.\n\nRegards,\nOPMC/OCASC · CQD\nConstruction Quality Division`;
+
+  const subEl = document.getElementById('emSubject');
+  const bodyEl = document.getElementById('emBody');
+  if(subEl) subEl.value = subject;
+  if(bodyEl) bodyEl.value = body;
+  emShowSubTab('compose');
+  toast('📊 Weekly summary composed — add recipients and send.');
+}
+
+function autoComposeNCRAlert(){
+  const recentNCR = (inspections||[]).filter(r=>r.defect==='Yes').sort((a,b)=>(b.dateInspected||'').localeCompare(a.dateInspected||'')).slice(0,10);
+  if(!recentNCR.length){ toast('✅ No defects/NCRs found in the system.'); return; }
+
+  const overdueATR = (inspections||[]).filter(r=>{
+    if(r.defect!=='Yes'||!r.atrDeadline||r.atrSubmitted) return false;
+    return new Date(r.atrDeadline+'T00:00:00') < new Date();
+  });
+
+  const ncrList = recentNCR.map(r=>
+    `  • S/N ${r.sn||'—'} | ${r.dateInspected||'—'} | ${r.projectName||'—'} | ${r.dzongkhag||r.ro||r.other||'—'}\n    Defect: ${r.defectDesc||'Not specified'}\n    Action Required: ${r.action||'Submit ATR'}${r.atrDeadline?' | Deadline: '+r.atrDeadline:''}`
+  ).join('\n\n');
+
+  const subject = `⚠️ NCR Alert — ${recentNCR.length} Non-Conformance(s) — OPMC/OCASC · CQD`;
+  const body = `Dear Contractor / Focal Person,\n\nThis is an official notification regarding Non-Conformance Report(s) (NCR) issued during recent construction quality inspections.\n\n` +
+    `═══════════════════════════════════\n  RECENT NCRs (Latest 10)\n═══════════════════════════════════\n${ncrList}\n\n` +
+    (overdueATR.length ? `🔴 OVERDUE ATRs: ${overdueATR.length} action(s) past deadline.\n\n` : '') +
+    `Please submit your Action Taken Report (ATR) through CQIS immediately.\n\nFailure to comply within the stipulated deadline may result in further action.\n\nRegards,\nOPMC/OCASC · CQD\nConstruction Quality Division`;
+
+  const subEl = document.getElementById('emSubject');
+  const bodyEl = document.getElementById('emBody');
+  if(subEl) subEl.value = subject;
+  if(bodyEl) bodyEl.value = body;
+  emShowSubTab('compose');
+  toast('⚠️ NCR alert composed — add recipients and send.');
+}
+
+function autoComposeScheduleReminder(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const nextWeek = new Date(today); nextWeek.setDate(today.getDate()+7);
+  const upcoming = (typeof ispSchedules!=='undefined'?ispSchedules:[]).filter(s=>{
+    if(s.status==='Completed') return false;
+    const sd = new Date(s.scheduledDate+'T00:00:00');
+    return sd >= today && sd <= nextWeek;
+  }).sort((a,b)=>(a.scheduledDate||'').localeCompare(b.scheduledDate||''));
+
+  if(!upcoming.length){ toast('✅ No upcoming inspections in the next 7 days.'); return; }
+
+  const list = upcoming.map(s=>
+    `  • ${s.scheduledDate} — ${s.projectName||'—'}\n    Location: ${s.dzongkhag||'—'} | Inspector: ${s.inspector||'—'} | Status: ${s.status}`
+  ).join('\n\n');
+
+  const subject = `⏰ Upcoming Inspection Schedule — Next 7 Days — OPMC/OCASC · CQD`;
+  const body = `Dear Team,\n\nThe following inspections are scheduled for the next 7 days:\n\n` +
+    `═══════════════════════════════════\n  SCHEDULED INSPECTIONS\n═══════════════════════════════════\n${list}\n\n` +
+    `Please ensure:\n  • Site access and safety arrangements are in place\n  • Contract documents and drawings are available\n  • Material test certificates are ready\n  • Contractor representative and engineer are present on site\n\n` +
+    `Regards,\nOPMC/OCASC · CQD\nConstruction Quality Division`;
+
+  const subEl = document.getElementById('emSubject');
+  const bodyEl = document.getElementById('emBody');
+  if(subEl) subEl.value = subject;
+  if(bodyEl) bodyEl.value = body;
+  emShowSubTab('compose');
+  toast('⏰ Inspection reminder composed — add recipients and send.');
+}
+
+function emAutoFillOverdueReminder(){
+  const tpl = _buildOverdueUpdateTemplate();
+  const subEl = document.getElementById('emSubject');
+  const bodyEl = document.getElementById('emBody');
+  if(subEl) subEl.value = tpl.subject;
+  if(bodyEl) bodyEl.value = tpl.body;
+  emShowSubTab('compose');
+  toast('📅 Overdue reminder composed — add recipients and send.');
+}
+
+// ── Upcoming Inspection Reminders (Notification tab) ──
+function renderUpcomingReminders(){
+  const container = document.getElementById('upcomingRemindersList');
+  if(!container) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const nextWeek = new Date(today); nextWeek.setDate(today.getDate()+7);
+  const upcoming = (typeof ispSchedules!=='undefined'?ispSchedules:[])
+    .map((s,i)=>({...s,_idx:i}))
+    .filter(s=>{
+      if(s.status==='Completed') return false;
+      const sd = new Date(s.scheduledDate+'T00:00:00');
+      return sd >= today && sd <= nextWeek;
+    })
+    .sort((a,b)=>(a.scheduledDate||'').localeCompare(b.scheduledDate||''));
+
+  if(!upcoming.length){
+    container.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:12px;padding:20px;">✅ No upcoming inspections in the next 7 days.</div>';
+    return;
+  }
+
+  container.innerHTML = upcoming.map(s=>{
+    const sd = new Date(s.scheduledDate+'T00:00:00');
+    const diffDays = Math.ceil((sd - today)/(1000*60*60*24));
+    const urgency = diffDays<=1 ? 'background:#fef2f2;border-left:4px solid #dc2626;' :
+                    diffDays<=3 ? 'background:#fff7ed;border-left:4px solid #f59e0b;' :
+                                  'background:#f0fdf4;border-left:4px solid #16a34a;';
+    const dayLabel = diffDays===0 ? '<span style="color:#dc2626;font-weight:700;">TODAY</span>' :
+                     diffDays===1 ? '<span style="color:#dc2626;font-weight:700;">TOMORROW</span>' :
+                     `<span style="color:#92400e;font-weight:600;">In ${diffDays} days</span>`;
+    return `<div style="${urgency}border-radius:8px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#1a2236;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.projectName||'—'}</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px;">📍 ${s.dzongkhag||'—'} · 👷 ${s.inspector||'—'} · 📅 ${s.scheduledDate}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        ${dayLabel}
+        <button onclick="sendSingleReminder(${s._idx})" style="background:#e8820c;border:none;border-radius:6px;padding:6px 12px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;white-space:nowrap;">📧 Remind</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function sendSingleReminder(idx){
+  const s = (typeof ispSchedules!=='undefined'?ispSchedules:[])[idx];
+  if(!s){ toast('⚠️ Schedule not found.'); return; }
+  const subject = `⏰ Inspection Reminder — ${s.projectName||'Project'} — ${s.scheduledDate} — OPMC/OCASC · CQD`;
+  const body = `Dear Team,\n\nThis is a reminder for an upcoming inspection:\n\n` +
+    `  Project    : ${s.projectName||'—'}\n  Location   : ${s.dzongkhag||'—'}\n  Date       : ${s.scheduledDate}\n  Inspector  : ${s.inspector||'—'}\n  Work Type  : ${s.workType||'—'}\n\n` +
+    `Please ensure site readiness and all required documents.\n\nRegards,\nOPMC/OCASC · CQD`;
+  const url = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  window.open(url, '_blank');
+  toast('📧 Reminder email opened for: ' + (s.projectName||'inspection'));
+}
+
+function sendAllUpcomingReminders(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const nextWeek = new Date(today); nextWeek.setDate(today.getDate()+7);
+  const upcoming = (typeof ispSchedules!=='undefined'?ispSchedules:[]).filter(s=>{
+    if(s.status==='Completed') return false;
+    const sd = new Date(s.scheduledDate+'T00:00:00');
+    return sd >= today && sd <= nextWeek;
+  });
+  if(!upcoming.length){ toast('✅ No upcoming inspections to remind about.'); return; }
+
+  const list = upcoming.map(s=>`  • ${s.scheduledDate} — ${s.projectName||'—'} (${s.dzongkhag||'—'})`).join('\n');
+  const subject = `⏰ Upcoming Inspections — Next 7 Days — OPMC/OCASC · CQD`;
+  const body = `Dear Team,\n\nThe following inspections are scheduled:\n\n${list}\n\nPlease ensure site readiness.\n\nRegards,\nOPMC/OCASC · CQD`;
+  const url = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  window.open(url, '_blank');
+  toast('📧 Bulk reminder opened for ' + upcoming.length + ' inspection(s)');
+}
+
+// ── Auto NCR alert after saving inspection with defect ──
+function _autoOfferNCREmail(entry){
+  if(entry.defect!=='Yes') return;
+  setTimeout(()=>{
+    const send = confirm(`⚠️ Defect found in "${entry.projectName}"!\n\nWould you like to send an NCR alert email to the contractor/focal person now?`);
+    if(!send) return;
+    const subject = `⚠️ NCR — ${entry.projectName} — ${entry.dateInspected} — OPMC/OCASC · CQD`;
+    const body = `Dear Contractor / Focal Person,\n\nA Non-Conformance has been identified during a recent construction quality inspection.\n\n` +
+      `═══════════════════════════════════\n  INSPECTION DETAILS\n═══════════════════════════════════\n` +
+      `  S/N           : ${entry.sn||'—'}\n` +
+      `  Project       : ${entry.projectName}\n` +
+      `  Location      : ${entry.dzongkhag||entry.ro||entry.other||'—'}\n` +
+      `  Road Section  : ${entry.roadSection||'—'}\n` +
+      `  Contractor    : ${entry.contractor||'—'}\n` +
+      `  Date Inspected: ${entry.dateInspected}\n` +
+      `  Inspector     : ${entry.inspector||'—'}\n\n` +
+      `═══════════════════════════════════\n  DEFECT DETAILS\n═══════════════════════════════════\n` +
+      `  ${entry.defectDesc||'See CQIS portal for details.'}\n\n` +
+      `═══════════════════════════════════\n  ACTION REQUIRED\n═══════════════════════════════════\n` +
+      `  ${entry.action||'Submit Action Taken Report (ATR) immediately.'}\n` +
+      (entry.atrDeadline ? `  Deadline: ${entry.atrDeadline}\n` : '') +
+      `\nPlease submit your ATR through CQIS at the earliest.\n\nRegards,\nOPMC/OCASC · CQD\nConstruction Quality Division`;
+    const url = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    window.open(url, '_blank');
+  }, 500);
 }
 
 // ── Sent history (localStorage) ──
