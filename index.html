@@ -2525,8 +2525,56 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <input type="hidden" id="fLng">
           </div>
           <div class="field-wrap" style="grid-column:1/-1"><label>Remarks</label><textarea id="fRemarks" placeholder="Additional observations, site conditions, notes…"></textarea></div>
+
+          <!-- ── Weather Conditions ── -->
+          <div style="grid-column:1/-1;margin-top:8px;">
+            <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#374151;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+              <span style="width:4px;height:16px;background:#3b82f6;border-radius:2px;display:inline-block;"></span>
+              🌤️ WEATHER CONDITIONS
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+              <div class="field-wrap"><label>Weather</label>
+                <select id="fWeather" style="font-size:13px;">
+                  <option value="">— Select —</option>
+                  <option value="Sunny">☀️ Sunny</option>
+                  <option value="Cloudy">☁️ Cloudy</option>
+                  <option value="Light Rain">🌦️ Light Rain</option>
+                  <option value="Heavy Rain">🌧️ Heavy Rain</option>
+                  <option value="Fog">🌫️ Fog</option>
+                  <option value="Windy">💨 Windy</option>
+                  <option value="Snow">❄️ Snow</option>
+                </select>
+              </div>
+              <div class="field-wrap"><label>Temperature (°C)</label>
+                <input type="number" id="fTemperature" placeholder="e.g. 25" min="-10" max="50" step="0.5">
+              </div>
+              <div class="field-wrap"><label>Ground Condition</label>
+                <select id="fGroundCondition" style="font-size:13px;">
+                  <option value="">— Select —</option>
+                  <option value="Dry">🏜️ Dry</option>
+                  <option value="Damp">💧 Damp</option>
+                  <option value="Wet">🌊 Wet</option>
+                  <option value="Waterlogged">🚿 Waterlogged</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- ── Inspection Checklist / Scoring ── -->
+      <div class="form-section" id="inspChecklistSection" style="display:none;">
+        <div class="form-section-title" style="display:flex;align-items:center;gap:10px;">
+          <span style="background:#16a34a;color:#fff;font-size:11px;font-weight:800;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:3px;">STEP 3B</span>
+          ✅ Inspection Checklist
+          <span id="checklistScore" style="margin-left:auto;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:4px 14px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#16a34a;display:none;">0%</span>
+        </div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;">
+          Auto-generated checklist based on selected Work Type(s). Toggle each item as <strong>Pass</strong>, <strong>Fail</strong>, or <strong>N/A</strong>.
+        </div>
+        <div id="checklistItems" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+
       <div class="form-section">
         <div class="form-section-title" style="display:flex;align-items:center;gap:10px;">
           <span style="background:#dc2626;color:#fff;font-size:11px;font-weight:800;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:3px;">STEP 4</span>
@@ -2603,6 +2651,24 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <label>Photo Observation Notes</label>
             <textarea id="fPhotoNotes" placeholder="Describe what the photos show — e.g. poor compaction at Ch.2+300, exposed rebar at retaining wall…" style="min-height:70px;"></textarea>
           </div>
+        </div>
+
+        <!-- ── Voice Notes / Audio Memo ── -->
+        <div style="margin-top:16px;border-top:1px solid #e2e8f0;padding-top:16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#374151;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+            <span style="width:4px;height:16px;background:#8b5cf6;border-radius:2px;display:inline-block;"></span>
+            🎙️ VOICE NOTE
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <button type="button" id="btnVoiceRecord" onclick="toggleVoiceRecording()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;display:flex;align-items:center;gap:6px;">
+              🎙️ Start Recording
+            </button>
+            <span id="voiceRecordTimer" style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#6b7280;display:none;">00:00</span>
+            <span id="voiceRecordStatus" style="font-size:12px;color:#6b7280;"></span>
+          </div>
+          <div id="voiceNotePlayer" style="display:none;margin-top:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px;">
+          </div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:6px;">Max 2 minutes · Uses device microphone · Saved with inspection record</div>
         </div>
       </div>
 
@@ -12612,6 +12678,7 @@ function wtCheck(key){
   } else {
     item.classList.remove('active');
   }
+  updateChecklist();
 }
 
 function getSelectedWorkTypes(){
@@ -12625,6 +12692,168 @@ function getSelectedWorkTypes(){
     result.push(label);
   });
   return result;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INSPECTION CHECKLIST — auto-generated per work type
+// ═══════════════════════════════════════════════════════════════════════
+const INSP_CHECKLISTS = {
+  'Earthwork': ['Compaction test done','Layer thickness verified','Moisture content within spec','CBR test available','Slopes properly graded','Material quality acceptable'],
+  'Sub-base / GSB': ['Gradation verified','Layer thickness checked','Compaction test done','Material source approved','Surface level within tolerance'],
+  'WMM (Wet Mix Macadam)': ['Gradation verified','Layer thickness checked','Compaction test done','Aggregate quality acceptable','Surface profile checked'],
+  'Prime Coat / Tack Coat': ['Surface cleaned before application','Application rate verified','Curing time adequate','Temperature at application checked','Coverage uniform'],
+  'DBM (Dense Bituminous Macadam)': ['Mix design approved','Temperature at laying checked','Roller passes adequate','Joint treatment proper','Core samples taken','Layer thickness verified'],
+  'Bituminous Concrete (BC)': ['Mix design approved','Temperature at laying checked','Roller passes adequate','Joint treatment proper','Core samples taken','Surface finish acceptable','Compaction achieved'],
+  'Culvert / CD Works': ['Foundation prepared properly','Reinforcement as per drawing','Concrete grade verified','Formwork aligned','Waterproofing done','Fill compaction adequate'],
+  'Retaining / Breast Wall': ['Foundation depth adequate','Stone/block quality acceptable','Mortar mix correct','Drainage provisions made','Wall alignment checked','Weep holes provided'],
+  'Signs / Markings': ['Sign placement per standard','Visibility adequate','Reflectivity checked','Road markings width correct','Paint quality acceptable'],
+  'Bridge / Viaduct': ['Foundation/pile integrity checked','Reinforcement as per drawing','Concrete grade verified','Bearings installed correctly','Expansion joints proper','Deck alignment checked'],
+  'Drainage': ['Drain size adequate','Gradient sufficient','Outfall location proper','Joint sealing done','Catch pit/manhole installed'],
+  'Slope Protection': ['Treatment type appropriate','Coverage adequate','Anchoring sufficient','Drainage behind slope provided','Surface stabilized'],
+  'Filling & Embankments': ['Layer thickness within spec','Compaction test done','Material quality acceptable','Side slopes proper','Moisture content checked'],
+  'Paver Blocks & Kerb': ['Block thickness adequate','Base preparation done','Joint sand filled','Pattern alignment correct','Kerb alignment checked','Edge restraint provided'],
+  'Bioengineering': ['Species appropriate for location','Coverage adequate','Planting density sufficient','Watering arrangement made','Survival rate acceptable'],
+  'Gabion / Masonry Wall': ['Wire mesh spec verified','Stone fill quality acceptable','Lacing wire secured','Foundation adequate','Wall alignment checked','Drainage provided'],
+  'Concrete Works': ['Mix design approved','Slump test done','Cube samples taken','Curing arrangement in place','Formwork alignment checked','Reinforcement cover adequate','Vibration done properly'],
+};
+
+function updateChecklist(){
+  const section = document.getElementById('inspChecklistSection');
+  const container = document.getElementById('checklistItems');
+  if(!section||!container) return;
+  const selected = [];
+  document.querySelectorAll('.wt-cb:checked').forEach(cb=>selected.push(cb.value));
+  if(!selected.length){ section.style.display='none'; return; }
+  section.style.display='';
+  const items = [];
+  selected.forEach(wt=>{
+    const list = INSP_CHECKLISTS[wt];
+    if(list) list.forEach(item=>{ if(!items.find(x=>x.item===item)) items.push({workType:wt,item}); });
+  });
+  if(!items.length){ section.style.display='none'; return; }
+  container.innerHTML = items.map((x,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${i%2===0?'#f8fafc':'#fff'};border:1px solid #e2e8f0;border-radius:8px;" data-cl-idx="${i}">
+      <span style="flex:1;font-size:13px;color:#1a2236;font-family:'Poppins',sans-serif;">${x.item}</span>
+      <span style="font-size:10px;color:#9ca3af;white-space:nowrap;">${x.workType.split('(')[0].trim()}</span>
+      <div style="display:flex;gap:4px;">
+        <button type="button" onclick="setChecklistVal(${i},'Pass')" id="cl-p-${i}" style="padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #bbf7d0;background:#f0fdf4;color:#16a34a;font-family:'Rajdhani',sans-serif;">Pass</button>
+        <button type="button" onclick="setChecklistVal(${i},'Fail')" id="cl-f-${i}" style="padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #fecaca;background:#fff;color:#dc2626;font-family:'Rajdhani',sans-serif;">Fail</button>
+        <button type="button" onclick="setChecklistVal(${i},'NA')" id="cl-n-${i}" style="padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#6b7280;font-family:'Rajdhani',sans-serif;">N/A</button>
+      </div>
+    </div>`).join('');
+  _checklistValues = items.map(x=>({item:x.item,workType:x.workType,value:''}));
+  updateChecklistScore();
+}
+
+let _checklistValues = [];
+function setChecklistVal(idx,val){
+  if(!_checklistValues[idx]) return;
+  _checklistValues[idx].value = val;
+  ['p','f','n'].forEach(k=>{
+    const btn = document.getElementById(`cl-${k}-${idx}`);
+    if(!btn) return;
+    const isActive = (k==='p'&&val==='Pass')||(k==='f'&&val==='Fail')||(k==='n'&&val==='NA');
+    if(k==='p'){ btn.style.background=isActive?'#16a34a':'#f0fdf4'; btn.style.color=isActive?'#fff':'#16a34a'; }
+    if(k==='f'){ btn.style.background=isActive?'#dc2626':'#fff'; btn.style.color=isActive?'#fff':'#dc2626'; }
+    if(k==='n'){ btn.style.background=isActive?'#6b7280':'#fff'; btn.style.color=isActive?'#fff':'#6b7280'; }
+  });
+  updateChecklistScore();
+}
+
+function updateChecklistScore(){
+  const badge = document.getElementById('checklistScore');
+  if(!badge) return;
+  const answered = _checklistValues.filter(x=>x.value);
+  const applicable = _checklistValues.filter(x=>x.value&&x.value!=='NA');
+  const passed = _checklistValues.filter(x=>x.value==='Pass');
+  if(!applicable.length){ badge.style.display=answered.length?'':'none'; badge.textContent='N/A'; badge.style.color='#6b7280'; badge.style.borderColor='#e2e8f0'; badge.style.background='#f8fafc'; return; }
+  const pct = Math.round(passed.length/applicable.length*100);
+  badge.style.display='';
+  badge.textContent = pct+'%';
+  badge.style.color = pct>=80?'#16a34a':pct>=50?'#d97706':'#dc2626';
+  badge.style.borderColor = pct>=80?'#bbf7d0':pct>=50?'#fde68a':'#fecaca';
+  badge.style.background = pct>=80?'#f0fdf4':pct>=50?'#fffbeb':'#fef2f2';
+}
+
+function collectChecklistData(){
+  return _checklistValues.filter(x=>x.value).length ? _checklistValues : [];
+}
+function calcChecklistScore(){
+  const applicable = _checklistValues.filter(x=>x.value&&x.value!=='NA');
+  const passed = _checklistValues.filter(x=>x.value==='Pass');
+  return applicable.length ? Math.round(passed.length/applicable.length*100) : null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  VOICE NOTE RECORDING
+// ═══════════════════════════════════════════════════════════════════════
+let _voiceMediaRecorder = null;
+let _voiceChunks = [];
+let _voiceNoteBlob = null;
+let _voiceNoteUrl = '';
+let _voiceTimerInterval = null;
+let _voiceStartTime = 0;
+const VOICE_MAX_SECONDS = 120;
+
+function toggleVoiceRecording(){
+  if(_voiceMediaRecorder && _voiceMediaRecorder.state==='recording'){
+    _voiceMediaRecorder.stop();
+    return;
+  }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    toast('⚠️ Your browser does not support audio recording.'); return;
+  }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    _voiceChunks=[];
+    _voiceMediaRecorder = new MediaRecorder(stream);
+    _voiceMediaRecorder.ondataavailable = e=>{ if(e.data.size>0) _voiceChunks.push(e.data); };
+    _voiceMediaRecorder.onstop = ()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      clearInterval(_voiceTimerInterval);
+      _voiceNoteBlob = new Blob(_voiceChunks,{type:'audio/webm'});
+      _voiceNoteUrl = URL.createObjectURL(_voiceNoteBlob);
+      const btn = document.getElementById('btnVoiceRecord');
+      if(btn) btn.innerHTML='🎙️ Re-record';
+      const status = document.getElementById('voiceRecordStatus');
+      if(status) status.textContent='✅ Voice note captured';
+      const timer = document.getElementById('voiceRecordTimer');
+      if(timer) timer.style.display='none';
+      const player = document.getElementById('voiceNotePlayer');
+      if(player){
+        player.style.display='flex';
+        player.innerHTML=`<audio controls src="${_voiceNoteUrl}" style="flex:1;height:36px;"></audio>
+          <button type="button" onclick="deleteVoiceNote()" style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:6px 10px;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;">🗑 Delete</button>`;
+      }
+    };
+    _voiceMediaRecorder.start();
+    _voiceStartTime = Date.now();
+    const btn = document.getElementById('btnVoiceRecord');
+    if(btn) btn.innerHTML='⏹ Stop Recording';
+    const status = document.getElementById('voiceRecordStatus');
+    if(status) status.textContent='Recording…';
+    const timer = document.getElementById('voiceRecordTimer');
+    if(timer) timer.style.display='';
+    _voiceTimerInterval = setInterval(()=>{
+      const elapsed = Math.floor((Date.now()-_voiceStartTime)/1000);
+      if(timer) timer.textContent = String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0');
+      if(elapsed >= VOICE_MAX_SECONDS){ _voiceMediaRecorder.stop(); toast('⏰ Max 2 minutes reached.'); }
+    },500);
+  }).catch(err=>{
+    toast('⚠️ Microphone access denied. Please allow microphone access.');
+    console.error('Mic error:',err);
+  });
+}
+
+function deleteVoiceNote(){
+  _voiceNoteBlob=null;
+  if(_voiceNoteUrl) URL.revokeObjectURL(_voiceNoteUrl);
+  _voiceNoteUrl='';
+  const player = document.getElementById('voiceNotePlayer');
+  if(player){player.style.display='none';player.innerHTML='';}
+  const btn = document.getElementById('btnVoiceRecord');
+  if(btn) btn.innerHTML='🎙️ Start Recording';
+  const status = document.getElementById('voiceRecordStatus');
+  if(status) status.textContent='';
 }
 
 function triggerQCCheck(){
@@ -13082,7 +13311,8 @@ function exportInspectionsCSV(format){
     ['Description','defectDesc'],['Action','action'],['Inspector','inspector'],
     ['ATR Deadline','atrDeadline'],['ATR Submitted','atrSubmitted'],
     ['Test','test'],['Req Value','reqVal'],['Result','result'],['Pass/Fail','passFailResult'],
-    ['Month','month'],['Year','year']
+    ['Month','month'],['Year','year'],
+    ['Weather','weather'],['Temperature','temperature'],['Ground Condition','groundCondition'],['Checklist Score','checklistScore']
   ];
   const header = cols.map(c=>c[0]);
   const dataRows = rows.map((r,i)=> cols.map(c=> c[1]==='sn'?(r.sn||(i+1)):(r[c[1]]??'')));
@@ -13333,6 +13563,12 @@ function saveEntry(){
         remarks:document.getElementById('fRemarks').value.trim(),
         lat: parseFloat(document.getElementById('fLat')?.value) || null,
         lng: parseFloat(document.getElementById('fLng')?.value) || null,
+        weather: document.getElementById('fWeather')?.value||'',
+        temperature: document.getElementById('fTemperature')?.value||'',
+        groundCondition: document.getElementById('fGroundCondition')?.value||'',
+        checklistData: JSON.stringify(collectChecklistData()),
+        checklistScore: calcChecklistScore(),
+        voiceNoteUrl: _voiceNoteUrl||'',
       };
       inspections.push(entry);
       save();
@@ -13360,6 +13596,19 @@ function saveEntry(){
 
       dbLoading(true,'Saving inspection to Firebase…');
       await fbSaveInspection(entry);
+      // Upload voice note if recorded
+      if(_voiceNoteBlob && entry.sn){
+        try {
+          dbLoading(true,'Uploading voice note…');
+          const vRef = firebase.storage().ref('audio/'+entry.sn+'/voice_note.webm');
+          await vRef.put(_voiceNoteBlob,{contentType:'audio/webm'});
+          const vUrl = await vRef.getDownloadURL();
+          entry.voiceNoteUrl = vUrl;
+          inspections[inspections.length-1].voiceNoteUrl = vUrl;
+          save();
+          await fbSaveInspection(entry);
+        } catch(e){ console.error('Voice upload error:',e); }
+      }
       dbLoading(false);
 
       // ── Notify observers about new inspection ──
@@ -13411,6 +13660,18 @@ function clearForm(){
   const dzRadio=document.querySelector('input[name="locType"][value="dzongkhag"]');
   if(dzRadio){dzRadio.checked=true;toggleLocType('dzongkhag');}
   document.getElementById('qcResultPanel').classList.remove('show');
+  // Reset weather fields
+  ['fWeather','fGroundCondition'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  {const el=document.getElementById('fTemperature');if(el)el.value='';}
+  // Reset checklist
+  document.getElementById('checklistItems').innerHTML='';
+  document.getElementById('inspChecklistSection').style.display='none';
+  const cs=document.getElementById('checklistScore');if(cs){cs.style.display='none';cs.textContent='0%';}
+  // Reset voice note
+  _voiceNoteBlob=null;_voiceNoteUrl='';
+  const vp=document.getElementById('voiceNotePlayer');if(vp){vp.style.display='none';vp.innerHTML='';}
+  const vb=document.getElementById('btnVoiceRecord');if(vb)vb.innerHTML='🎙️ Start Recording';
+  const vs=document.getElementById('voiceRecordStatus');if(vs)vs.textContent='';
 }
 
 // ===== GPS Auto-Capture =====
@@ -20737,8 +20998,8 @@ async function exportAllDataBackup(){
     const now = new Date();
 
     // Sheet 1: Inspections
-    const inspHdr=['S/N','Project','Contract No.','Road/Chainage','Contractor','Dzongkhag','RO/Thromde','Other','Work Type','Work Item','Date','Defect','Description','Action','Inspector','ATR Deadline','ATR Submitted','Test','Req Value','Result','Pass/Fail','Month','Year'];
-    const inspRows=(inspections||[]).map(r=>[r.sn,r.projectName,r.contractNo,r.roadSection,r.contractor,r.dzongkhag,r.ro,r.other,r.workType,r.workItem,r.dateInspected,r.defect,r.defectDesc,r.action,r.inspector,r.atrDeadline,r.atrSubmitted,r.test,r.reqVal,r.result,r.passFailResult,r.month,r.year]);
+    const inspHdr=['S/N','Project','Contract No.','Road/Chainage','Contractor','Dzongkhag','RO/Thromde','Other','Work Type','Work Item','Date','Defect','Description','Action','Inspector','ATR Deadline','ATR Submitted','Test','Req Value','Result','Pass/Fail','Month','Year','Weather','Temperature','Ground Condition','Checklist Score'];
+    const inspRows=(inspections||[]).map(r=>[r.sn,r.projectName,r.contractNo,r.roadSection,r.contractor,r.dzongkhag,r.ro,r.other,r.workType,r.workItem,r.dateInspected,r.defect,r.defectDesc,r.action,r.inspector,r.atrDeadline,r.atrSubmitted,r.test,r.reqVal,r.result,r.passFailResult,r.month,r.year,r.weather||'',r.temperature||'',r.groundCondition||'',r.checklistScore!=null?r.checklistScore+'%':'']);
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([inspHdr,...inspRows]), 'Inspections');
 
     // Sheet 2: Project Registry
