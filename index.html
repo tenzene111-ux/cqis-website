@@ -13698,6 +13698,7 @@ function captureGPSLocation(){
       if(lngEl) lngEl.value=lng;
       if(display) display.value=lat.toFixed(6)+', '+lng.toFixed(6)+' (±'+Math.round(acc)+'m)';
       toastFn('✅ GPS location captured.');
+      autoFetchWeather(lat, lng);
     },
     err=>{
       if(display) display.value='';
@@ -13709,6 +13710,39 @@ function captureGPSLocation(){
     },
     { enableHighAccuracy:true, timeout:15000, maximumAge:0 }
   );
+}
+
+function autoFetchWeather(lat, lng){
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code,rain,snow_depth,wind_speed_10m,relative_humidity_2m`;
+  fetch(url).then(r=>r.json()).then(data=>{
+    if(!data.current) return;
+    const c = data.current;
+    const tempEl = document.getElementById('fTemperature');
+    if(tempEl) tempEl.value = Math.round(c.temperature_2m*10)/10;
+
+    const wCode = c.weather_code||0;
+    let weather = '';
+    if(wCode<=3) weather = c.wind_speed_10m>30?'Windy':'Sunny';
+    if(wCode>=2&&wCode<=3&&c.temperature_2m<25) weather = 'Cloudy';
+    if(wCode>=45&&wCode<=48) weather = 'Fog';
+    if(wCode>=51&&wCode<=65) weather = c.rain>2.5?'Heavy Rain':'Light Rain';
+    if(wCode>=66&&wCode<=77) weather = 'Snow';
+    if(wCode>=80&&wCode<=82) weather = c.rain>5?'Heavy Rain':'Light Rain';
+    if(wCode>=95) weather = 'Heavy Rain';
+    const wEl = document.getElementById('fWeather');
+    if(wEl && weather){ for(let i=0;i<wEl.options.length;i++){ if(wEl.options[i].value===weather){wEl.selectedIndex=i;break;} } }
+
+    let ground = '';
+    if(c.rain>5) ground='Wet';
+    else if(c.rain>0.5) ground='Damp';
+    else if(c.relative_humidity_2m>90) ground='Damp';
+    else ground='Dry';
+    if(c.rain>20||c.snow_depth>0) ground='Waterlogged';
+    const gEl = document.getElementById('fGroundCondition');
+    if(gEl && ground){ for(let i=0;i<gEl.options.length;i++){ if(gEl.options[i].value===ground){gEl.selectedIndex=i;break;} } }
+
+    toast('🌤️ Weather auto-filled from GPS location.');
+  }).catch(()=>{});
 }
 
 // ===== ATR =====
