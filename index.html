@@ -13270,13 +13270,19 @@ function dashDrawChart(){ dashDrawAllCharts(); }
 
 function _captureChartImagesHTML(){
   const dashTab = document.getElementById('tab-dashboard');
-  const wasHidden = dashTab && dashTab.style.display === 'none';
+  if(!dashTab) return '';
+  const wasHidden = dashTab.style.display === 'none';
   if(wasHidden){
     dashTab.style.display = '';
-    dashTab.style.position = 'absolute';
-    dashTab.style.left = '-9999px';
-    dashDrawAllCharts();
+    dashTab.style.position = 'fixed';
+    dashTab.style.top = '0';
+    dashTab.style.left = '0';
+    dashTab.style.width = '100%';
+    dashTab.style.zIndex = '-9999';
+    dashTab.style.opacity = '0';
+    dashTab.style.pointerEvents = 'none';
   }
+  try{ dashDrawAllCharts(); }catch(e){}
   const chartIds=['dc1','dc2','dc3','dc4','dc5','dc6','dc7','dc8'];
   const chartTitles={
     dc1:(document.getElementById('dc1Title')||{}).textContent||'Inspections by Location',
@@ -13291,10 +13297,10 @@ function _captureChartImagesHTML(){
   let imgs='';
   chartIds.forEach(id=>{
     const canvas=document.getElementById(id);
-    if(!canvas||canvas.width===0) return;
+    if(!canvas||canvas.width===0||canvas.height===0) return;
     try{
       const img=canvas.toDataURL('image/png',1.0);
-      if(img.length<100) return;
+      if(img.length<200) return;
       imgs+=`<div style="break-inside:avoid;margin-bottom:18px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff;">
         <div style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 14px;">
           <div style="font-size:11px;font-weight:700;color:#1a2236;">${chartTitles[id]||id}</div>
@@ -13308,7 +13314,12 @@ function _captureChartImagesHTML(){
   if(wasHidden){
     dashTab.style.display = 'none';
     dashTab.style.position = '';
+    dashTab.style.top = '';
     dashTab.style.left = '';
+    dashTab.style.width = '';
+    dashTab.style.zIndex = '';
+    dashTab.style.opacity = '';
+    dashTab.style.pointerEvents = '';
   }
   if(!imgs) return '';
   return `<div style="page-break-before:always;padding-top:10px;">
