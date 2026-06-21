@@ -2134,22 +2134,25 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         </div>
         <div style="font-size:11px;color:#7c3aed;margin-top:8px;opacity:.7;">Your comment will be saved to the system and emailed to all administrators.</div>
       </div>
-      <div class="filters" style="flex-wrap:wrap;gap:6px;">
-        <span class="filter-label">📅 VIEW BY:</span>
-        <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select>
-        <select class="filter-select" id="fMonth" onchange="refreshDash()"><option value="">All Months</option><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
-        <div style="width:1px;height:24px;background:#e2e6ef;margin:0 2px;"></div>
-        <span class="filter-label">📍 LOCATION:</span>
-        <select class="filter-select" id="fLocType" onchange="dashToggleLocFilter()" style="font-weight:600;border-color:#e8820c;">
-          <option value="">All Locations</option>
-          <option value="dzongkhag">🏔️ Dzongkhag</option>
-          <option value="ro">🏢 RO / Thromde</option>
-          <option value="other">📋 Other</option>
-        </select>
-        <select class="filter-select" id="fDzong" onchange="refreshDash()" style="display:none;"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
-        <select class="filter-select" id="fRO" onchange="refreshDash()" style="display:none;"><option value="">All RO / Thromde</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
-        <select class="filter-select" id="fOther" onchange="refreshDash()" style="display:none;"><option value="">All Others</option></select>
-        <button onclick="dashResetFilters()" style="background:none;border:1px solid #e2e6ef;border-radius:5px;padding:4px 10px;font-size:10px;color:#6b7280;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">✕ Reset</button>
+      <div style="background:#fff;border:1px solid #e2e6ef;border-radius:10px;padding:12px 16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:10px;color:#374151;letter-spacing:2px;text-transform:uppercase;font-weight:700;font-family:'Poppins',sans-serif;">📅 Period:</span>
+          <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select>
+          <select class="filter-select" id="fMonth" onchange="refreshDash()"><option value="">All Months</option><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
+          <div style="width:1px;height:24px;background:#e2e6ef;margin:0 4px;"></div>
+          <span style="font-size:10px;color:#374151;letter-spacing:2px;text-transform:uppercase;font-weight:700;font-family:'Poppins',sans-serif;">📍 Location:</span>
+          <select class="filter-select" id="fLocType" onchange="dashToggleLocFilter()" style="font-weight:600;background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1.5px solid #e8820c;color:#92400e;">
+            <option value="">All Locations</option>
+            <option value="dzongkhag">🏔️ Dzongkhag</option>
+            <option value="ro">🏢 RO / Thromde</option>
+            <option value="other">📋 Other</option>
+          </select>
+          <select class="filter-select" id="fDzong" onchange="refreshDash()" style="display:none;"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
+          <select class="filter-select" id="fRO" onchange="refreshDash()" style="display:none;"><option value="">All RO / Thromde</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+          <select class="filter-select" id="fOther" onchange="refreshDash()" style="display:none;"><option value="">All Others</option></select>
+          <button onclick="dashResetFilters()" style="background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.2);border-radius:5px;padding:5px 12px;font-size:10px;color:#dc2626;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">✕ Reset</button>
+        </div>
+        <div id="dashFilterBadge" style="display:none;margin-top:8px;background:linear-gradient(135deg,rgba(232,130,12,.08),rgba(245,158,11,.04));border:1px solid rgba(232,130,12,.2);border-radius:6px;padding:6px 12px;font-size:11px;color:#92400e;font-family:'Poppins',sans-serif;"></div>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card blue"><div class="kpi-icon">🛣️</div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="kpi1">0</div></div>
@@ -12968,7 +12971,7 @@ function refreshDash(){
     locBanner.style.display = 'none';
   }
 
-  // Dashboard overview: all inspections (location restriction only in Register/ATR/Report)
+  dashUpdateFilterBadge();
   const fd=getFiltered();
   const defects=fd.filter(r=>r.defect==='Yes');
   const atrOverdue=defects.filter(r=>calcATRStatus(r)==='OVERDUE');
@@ -13266,6 +13269,26 @@ function dashToggleLocFilter(){
   document.getElementById('fRO').selectedIndex=0;
   document.getElementById('fOther').selectedIndex=0;
   refreshDash();
+}
+function dashUpdateFilterBadge(){
+  const badge=document.getElementById('dashFilterBadge');
+  if(!badge) return;
+  const yr=document.getElementById('fYear').value;
+  const mo=document.getElementById('fMonth').value;
+  const locType=document.getElementById('fLocType').value;
+  const dz=document.getElementById('fDzong').value;
+  const ro=document.getElementById('fRO').value;
+  const oth=document.getElementById('fOther').value;
+  const parts=[];
+  if(yr) parts.push('Year: <strong>'+yr+'</strong>');
+  if(mo) parts.push('Month: <strong>'+mo+'</strong>');
+  if(locType==='dzongkhag') parts.push('Type: <strong>🏔️ Dzongkhag</strong>'+(dz?' → <strong>'+dz+'</strong>':''));
+  else if(locType==='ro') parts.push('Type: <strong>🏢 RO/Thromde</strong>'+(ro?' → <strong>'+ro+'</strong>':''));
+  else if(locType==='other') parts.push('Type: <strong>📋 Other</strong>'+(oth?' → <strong>'+oth+'</strong>':''));
+  if(!parts.length){ badge.style.display='none'; return; }
+  const fd=getFiltered();
+  badge.style.display='';
+  badge.innerHTML='🔍 Filtered: '+parts.join(' · ')+' — <strong>'+fd.length+'</strong> inspection(s) found';
 }
 
 function dashResetFilters(){
