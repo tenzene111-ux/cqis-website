@@ -331,9 +331,9 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 /* ══ ONLINE USERS BAR ══ */
 .online-bar{
   background:#ffffff;border-bottom:1px solid #e2e6ef;
-  padding:0 20px;height:36px;display:flex;align-items:center;gap:14px;
-  font-size:11px;font-family:'Poppins',sans-serif;
-  position:sticky;top:56px;z-index:488;
+  padding:0 16px;height:28px;display:flex;align-items:center;gap:10px;
+  font-size:10px;font-family:'Poppins',sans-serif;
+  position:sticky;top:42px;z-index:488;
   box-shadow:0 1px 4px rgba(0,0,0,.06);
 }
 .online-bar-label{
@@ -1619,7 +1619,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
 /* ── Remove "Online Now" bar; keep news banner fixed under the top bar ── */
 .online-bar{ display:none !important; }
-#newsBannerWrap{ position:sticky !important; top:56px !important; z-index:489 !important; }
+#newsBannerWrap{ position:sticky !important; top:42px !important; z-index:489 !important; }
 .cqis-sidebar{ top:78px !important; height:calc(100vh - 78px) !important; }
 
 </style>
@@ -1924,8 +1924,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
   <!-- ══ SCROLLING NEWS BANNER ══ -->
   <div id="newsBannerWrap" style="display:none;background:linear-gradient(135deg,#0f172a,#1e3a5f);
-       border-top:1px solid rgba(232,130,12,.3);border-bottom:2px solid #e8820c;
-       padding:0;overflow:hidden;flex-shrink:0;position:relative;width:100%;">
+       border-top:none;border-bottom:2px solid #e8820c;
+       padding:0;margin:0;overflow:hidden;flex-shrink:0;position:relative;width:100%;">
 
     <!-- EDIT button — admin only, always visible to admin -->
     <button id="newsBannerEditBtn" onclick="openNewsBannerEditor()"
