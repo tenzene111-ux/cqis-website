@@ -2217,8 +2217,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
         <!-- Row 3 -->
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">✅ Pass / Fail by Work Type</div>
-          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Test results across work categories</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">📍 Inspection Trends by Location</div>
+          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Total inspections vs defects per Dzongkhag</div>
           <div style="position:relative;height:220px;"><canvas id="dc5"></canvas></div>
         </div>
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
@@ -13132,14 +13132,21 @@ function dashDrawAllCharts(){
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:tip},
     scales:{x:{...ax()},y:{...ax('Defect %'),beginAtZero:true,max:100,ticks:{color:tc,font:{size:9},callback:v=>v+'%'}},y2:{position:'right',ticks:{color:tc,font:{size:9}},grid:{drawOnChartArea:false},border:{color:gc}}}}});
 
-  // DC5 — Pass/Fail by Work Type (horizontal bars like screenshots)
-  const wt_map={};
-  fd.forEach(r=>{ if(!r.workType)return; if(!wt_map[r.workType])wt_map[r.workType]={p:0,f:0}; if(r.passFailResult==='Pass')wt_map[r.workType].p++; else if(r.passFailResult==='Fail')wt_map[r.workType].f++; });
-  const wt_l=Object.keys(wt_map);
-  mk('dc5',{type:'bar',data:{labels:wt_l,datasets:[
-    {label:'Pass',data:wt_l.map(k=>wt_map[k].p),backgroundColor:GRN,borderRadius:4,borderSkipped:false},
-    {label:'Fail',data:wt_l.map(k=>wt_map[k].f),backgroundColor:RED,borderRadius:4,borderSkipped:false},
-  ]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:tip},scales:{x:{...ax('Count'),beginAtZero:true},y:{...ax(),ticks:{color:tc,font:{size:9}}}}}});
+  // DC5 — Inspection Trends by Location (grouped bar: total vs defects per Dzongkhag)
+  const loc_map={};
+  fd.forEach(r=>{
+    const loc=r.dzongkhag||r.ro||r.other||'';
+    if(!loc) return;
+    if(!loc_map[loc]) loc_map[loc]={total:0,defects:0,clean:0};
+    loc_map[loc].total++;
+    if(r.defect==='Yes') loc_map[loc].defects++; else loc_map[loc].clean++;
+  });
+  const loc_sorted=Object.entries(loc_map).sort((a,b)=>b[1].total-a[1].total).slice(0,12);
+  const loc_labels=loc_sorted.map(x=>x[0].length>14?x[0].slice(0,12)+'…':x[0]);
+  mk('dc5',{type:'bar',data:{labels:loc_labels,datasets:[
+    {label:'Clean',data:loc_sorted.map(x=>x[1].clean),backgroundColor:'rgba(22,163,74,0.7)',borderRadius:4,borderSkipped:false},
+    {label:'Defects',data:loc_sorted.map(x=>x[1].defects),backgroundColor:'rgba(220,38,38,0.7)',borderRadius:4,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>{const d=loc_sorted[ctx.dataIndex][1];return ` ${ctx.dataset.label}: ${ctx.parsed.y} (${d.total} total, ${Math.round(d.defects/d.total*100)}% defect rate)`;}}}},scales:{x:{...ax(),stacked:true,ticks:{color:tc,font:{size:8},maxRotation:45}},y:{...ax('Inspections'),stacked:true,beginAtZero:true}}}});
 
   // DC6 — Inspections by RO (horizontal bars like screenshots)
   const ro_l=[],ro_t=[],ro_d=[];
