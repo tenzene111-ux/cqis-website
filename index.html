@@ -16354,7 +16354,10 @@ function dlRenderPhotos(){
                   <div style="font-size:9px;color:#94a3b8;margin-top:1px;">${p.date?new Date(p.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):''}</div>
                   ${p.lat!=null?`<div style="font-size:9px;color:#2563eb;margin-top:1px;font-family:'JetBrains Mono',monospace;">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div>`:''}
                   ${p.notes?`<div style="font-size:10px;color:#6b7280;margin-top:3px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.notes}</div>`:''}
-                  <button onclick="photoDelete('${p.id}')" style="margin-top:5px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:4px;padding:2px 8px;font-size:10px;color:#dc2626;cursor:pointer;width:100%;">🗑 Remove</button>
+                  <div style="display:flex;gap:4px;margin-top:5px;">
+                    <button onclick="openAnnotator('${p.id}')" style="flex:1;background:rgba(232,130,12,.08);border:1px solid rgba(232,130,12,.25);border-radius:4px;padding:2px 0;font-size:10px;color:#e8820c;cursor:pointer;">✏️ Annotate</button>
+                    <button onclick="photoDelete('${p.id}')" style="flex:1;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:4px;padding:2px 0;font-size:10px;color:#dc2626;cursor:pointer;">🗑 Remove</button>
+                  </div>
                 </div>
               </div>`).join('')}
           </div>
@@ -16368,14 +16371,253 @@ function photoLightbox(id){
   if(!p) return;
   const ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
-  ov.onclick=()=>ov.remove();
+  ov.onclick=(e)=>{ if(e.target===ov) ov.remove(); };
   ov.innerHTML=`<div style="max-width:90vw;max-height:90vh;text-align:center;">
-    <img src="${p.url||p.dataUrl}" style="max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6);">
+    <img src="${p.url||p.dataUrl}" style="max-width:100%;max-height:75vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6);">
     <div style="color:#fff;font-size:12px;margin-top:10px;opacity:.7;">${p.filename||''} · ${p.area||''} → ${p.project||''}</div>
     ${p.lat!=null?`<div style="color:#93c5fd;font-size:12px;margin-top:4px;font-family:'JetBrains Mono',monospace;">📍 ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}${p.capturedAt?' · '+new Date(p.capturedAt).toLocaleString('en-GB'):''}</div>`:''}
     ${p.notes?`<div style="color:#fbbf24;font-size:12px;margin-top:4px;">"${p.notes}"</div>`:''}
+    <div style="margin-top:10px;">
+      <button onclick="event.stopPropagation();document.querySelector('.photo-lb-overlay')?.remove();openAnnotator('${p.id}')" style="background:#e8820c;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">✏️ Annotate</button>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;margin-left:8px;">✕ Close</button>
+    </div>
   </div>`;
+  ov.classList.add('photo-lb-overlay');
   document.body.appendChild(ov);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PHOTO ANNOTATION — draw/mark on photos to highlight defects
+// ═══════════════════════════════════════════════════════════════════════
+let _annCanvas=null, _annCtx=null, _annImg=null, _annPhotoId=null;
+let _annTool='draw', _annColor='#dc2626', _annSize=3, _annHistory=[], _annDrawing=false;
+let _annStartX=0, _annStartY=0, _annSnapshot=null;
+
+function openAnnotator(photoId){
+  const p=photoGetLib().find(x=>x.id===photoId);
+  if(!p){ showToast('Photo not found'); return; }
+  _annPhotoId=photoId;
+  _annHistory=[];
+  _annTool='draw'; _annColor='#dc2626'; _annSize=3;
+
+  document.querySelector('.photo-lb-overlay')?.remove();
+
+  const overlay=document.createElement('div');
+  overlay.id='annotatorOverlay';
+  overlay.style.cssText='position:fixed;inset:0;background:#111;z-index:10000;display:flex;flex-direction:column;';
+  overlay.innerHTML=`
+    <div id="annToolbar" style="background:linear-gradient(90deg,#1a2236,#1a3a6e);padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span style="color:#fff;font-size:14px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-right:8px;">✏️ ANNOTATE</span>
+      <button onclick="_annSetTool('draw')" id="annBtnDraw" class="ann-btn ann-active" title="Freehand Draw">✏️ Draw</button>
+      <button onclick="_annSetTool('arrow')" id="annBtnArrow" class="ann-btn" title="Arrow">➡️ Arrow</button>
+      <button onclick="_annSetTool('circle')" id="annBtnCircle" class="ann-btn" title="Circle">⭕ Circle</button>
+      <button onclick="_annSetTool('rect')" id="annBtnRect" class="ann-btn" title="Rectangle">▭ Rect</button>
+      <button onclick="_annSetTool('text')" id="annBtnText" class="ann-btn" title="Add Text">🔤 Text</button>
+      <span style="width:1px;height:24px;background:rgba(255,255,255,.2);margin:0 4px;"></span>
+      <input type="color" id="annColorPick" value="#dc2626" onchange="_annColor=this.value" style="width:30px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0;">
+      <select id="annSizePick" onchange="_annSize=+this.value" style="background:#2a3a5e;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:4px 8px;font-size:12px;">
+        <option value="2">Thin</option>
+        <option value="3" selected>Medium</option>
+        <option value="5">Thick</option>
+        <option value="8">Bold</option>
+      </select>
+      <span style="width:1px;height:24px;background:rgba(255,255,255,.2);margin:0 4px;"></span>
+      <button onclick="_annUndo()" class="ann-btn" title="Undo">↩ Undo</button>
+      <button onclick="_annClear()" class="ann-btn" title="Clear All">🗑 Clear</button>
+      <span style="flex:1;"></span>
+      <button onclick="_annSave()" style="background:#16a34a;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:12px;font-weight:700;cursor:pointer;">💾 Save</button>
+      <button onclick="_annClose()" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;">✕ Cancel</button>
+    </div>
+    <div id="annCanvasWrap" style="flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;background:#222;padding:8px;">
+      <canvas id="annCanvas" style="border-radius:4px;cursor:crosshair;box-shadow:0 4px 24px rgba(0,0,0,.5);"></canvas>
+    </div>
+    <style>
+      .ann-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:5px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:600;}
+      .ann-btn:hover{background:rgba(255,255,255,.2);}
+      .ann-btn.ann-active{background:#e8820c;border-color:#e8820c;color:#fff;}
+    </style>`;
+  document.body.appendChild(overlay);
+
+  _annCanvas=document.getElementById('annCanvas');
+  _annCtx=_annCanvas.getContext('2d');
+
+  _annImg=new Image();
+  _annImg.crossOrigin='anonymous';
+  _annImg.onload=()=>{
+    const wrap=document.getElementById('annCanvasWrap');
+    const maxW=wrap.clientWidth-16, maxH=wrap.clientHeight-16;
+    let w=_annImg.naturalWidth, h=_annImg.naturalHeight;
+    if(w>maxW){ const s=maxW/w; w=maxW; h=Math.round(h*s); }
+    if(h>maxH){ const s=maxH/h; h=maxH; w=Math.round(w*s); }
+    _annCanvas.width=w; _annCanvas.height=h;
+    _annCtx.drawImage(_annImg,0,0,w,h);
+    _annSaveState();
+  };
+  _annImg.onerror=()=>{ showToast('Failed to load photo for annotation'); _annClose(); };
+  _annImg.src=p.url||p.dataUrl;
+
+  _annCanvas.addEventListener('pointerdown',_annPointerDown);
+  _annCanvas.addEventListener('pointermove',_annPointerMove);
+  _annCanvas.addEventListener('pointerup',_annPointerUp);
+  _annCanvas.addEventListener('pointerleave',_annPointerUp);
+}
+
+function _annSetTool(t){
+  _annTool=t;
+  document.querySelectorAll('.ann-btn').forEach(b=>b.classList.remove('ann-active'));
+  const btn=document.getElementById('annBtn'+t.charAt(0).toUpperCase()+t.slice(1));
+  if(btn) btn.classList.add('ann-active');
+}
+
+function _annSaveState(){
+  _annHistory.push(_annCtx.getImageData(0,0,_annCanvas.width,_annCanvas.height));
+  if(_annHistory.length>30) _annHistory.shift();
+}
+
+function _annUndo(){
+  if(_annHistory.length>1){
+    _annHistory.pop();
+    _annCtx.putImageData(_annHistory[_annHistory.length-1],0,0);
+  }
+}
+
+function _annClear(){
+  _annCtx.clearRect(0,0,_annCanvas.width,_annCanvas.height);
+  _annCtx.drawImage(_annImg,0,0,_annCanvas.width,_annCanvas.height);
+  _annHistory=[]; _annSaveState();
+}
+
+function _annGetPos(e){
+  const r=_annCanvas.getBoundingClientRect();
+  return {x:e.clientX-r.left, y:e.clientY-r.top};
+}
+
+function _annPointerDown(e){
+  _annDrawing=true;
+  const pos=_annGetPos(e);
+  _annStartX=pos.x; _annStartY=pos.y;
+  _annSnapshot=_annCtx.getImageData(0,0,_annCanvas.width,_annCanvas.height);
+
+  if(_annTool==='text'){
+    _annDrawing=false;
+    const txt=prompt('Enter annotation text:');
+    if(txt){
+      _annCtx.font=`bold ${Math.max(_annSize*5,14)}px 'Segoe UI',sans-serif`;
+      _annCtx.fillStyle=_annColor;
+      _annCtx.strokeStyle='#fff';
+      _annCtx.lineWidth=2;
+      _annCtx.strokeText(txt,pos.x,pos.y);
+      _annCtx.fillText(txt,pos.x,pos.y);
+      _annSaveState();
+    }
+    return;
+  }
+
+  if(_annTool==='draw'){
+    _annCtx.beginPath();
+    _annCtx.moveTo(pos.x,pos.y);
+    _annCtx.strokeStyle=_annColor;
+    _annCtx.lineWidth=_annSize;
+    _annCtx.lineCap='round';
+    _annCtx.lineJoin='round';
+  }
+}
+
+function _annPointerMove(e){
+  if(!_annDrawing) return;
+  const pos=_annGetPos(e);
+
+  if(_annTool==='draw'){
+    _annCtx.lineTo(pos.x,pos.y);
+    _annCtx.stroke();
+    return;
+  }
+
+  _annCtx.putImageData(_annSnapshot,0,0);
+  _annCtx.strokeStyle=_annColor;
+  _annCtx.lineWidth=_annSize;
+  _annCtx.lineCap='round';
+
+  if(_annTool==='arrow'){
+    const dx=pos.x-_annStartX, dy=pos.y-_annStartY;
+    const angle=Math.atan2(dy,dx);
+    const len=Math.sqrt(dx*dx+dy*dy);
+    const headLen=Math.min(len*.25,20);
+    _annCtx.beginPath();
+    _annCtx.moveTo(_annStartX,_annStartY);
+    _annCtx.lineTo(pos.x,pos.y);
+    _annCtx.stroke();
+    _annCtx.beginPath();
+    _annCtx.moveTo(pos.x,pos.y);
+    _annCtx.lineTo(pos.x-headLen*Math.cos(angle-Math.PI/6),pos.y-headLen*Math.sin(angle-Math.PI/6));
+    _annCtx.moveTo(pos.x,pos.y);
+    _annCtx.lineTo(pos.x-headLen*Math.cos(angle+Math.PI/6),pos.y-headLen*Math.sin(angle+Math.PI/6));
+    _annCtx.stroke();
+  } else if(_annTool==='circle'){
+    const rx=Math.abs(pos.x-_annStartX)/2, ry=Math.abs(pos.y-_annStartY)/2;
+    const cx=(_annStartX+pos.x)/2, cy=(_annStartY+pos.y)/2;
+    _annCtx.beginPath();
+    _annCtx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);
+    _annCtx.stroke();
+  } else if(_annTool==='rect'){
+    _annCtx.beginPath();
+    _annCtx.strokeRect(_annStartX,_annStartY,pos.x-_annStartX,pos.y-_annStartY);
+  }
+}
+
+function _annPointerUp(){
+  if(_annDrawing){
+    _annDrawing=false;
+    _annSaveState();
+  }
+}
+
+async function _annSave(){
+  if(!_annCanvas||!_annPhotoId) return;
+  const p=photoGetLib().find(x=>x.id===_annPhotoId);
+  if(!p){ showToast('Photo not found'); return; }
+
+  const saveBtn=document.querySelector('#annotatorOverlay [onclick*=_annSave]');
+  if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='⏳ Saving...'; }
+
+  try{
+    const blob=await new Promise(r=>_annCanvas.toBlob(r,'image/jpeg',0.92));
+    const annName='annotated_'+(_annPhotoId)+'_'+(p.filename||'photo.jpg');
+    const path='photoLibrary/'+annName;
+    const ref=storage.ref(path);
+    await ref.put(blob,{contentType:'image/jpeg'});
+    const url=await ref.getDownloadURL();
+
+    const annDoc={
+      id:'ANN-'+Date.now()+'-'+Math.random().toString(36).substring(2,6),
+      url: url,
+      storagePath: path,
+      area: p.area||'',
+      project: p.project||'',
+      date: new Date().toISOString(),
+      notes: (p.notes?p.notes+' · ':'')+'Annotated',
+      filename: annName,
+      uploadedBy: p.uploadedBy||'',
+      lat: p.lat||null,
+      lng: p.lng||null,
+      capturedAt: p.capturedAt||null,
+      inspSN: p.inspSN||null,
+      annotatedFrom: _annPhotoId,
+    };
+    await db.collection('photoLibrary').doc(annDoc.id).set(annDoc);
+    showToast('✅ Annotated photo saved!');
+    _annClose();
+  } catch(e){
+    console.error('Annotation save error:',e);
+    showToast('❌ Save failed: '+(e.message||e));
+    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='💾 Save'; }
+  }
+}
+
+function _annClose(){
+  document.getElementById('annotatorOverlay')?.remove();
+  _annCanvas=null; _annCtx=null; _annImg=null; _annPhotoId=null;
+  _annHistory=[]; _annSnapshot=null;
 }
 
 async function dlClearPhotos(){
@@ -16430,10 +16672,10 @@ function _renderInspPhotoGrid(){
         <div style="font-size:10px;font-weight:600;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.filename||'photo'}</div>
         <div style="font-size:9px;color:#9ca3af;margin-top:1px;">${p.date?new Date(p.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):''}</div>
         ${p.notes?`<div style="font-size:10px;color:#6b7280;margin-top:3px;font-style:italic;">${p.notes}</div>`:''}
-        <button onclick="inspPhotoDelete('${p.id}')"
-          style="margin-top:5px;background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.2);border-radius:4px;padding:2px 0;font-size:10px;color:#dc2626;cursor:pointer;width:100%;">
-          🗑 Remove
-        </button>
+        <div style="display:flex;gap:4px;margin-top:5px;">
+          <button onclick="openAnnotator('${p.id}')" style="flex:1;background:rgba(232,130,12,.08);border:1px solid rgba(232,130,12,.25);border-radius:4px;padding:2px 0;font-size:10px;color:#e8820c;cursor:pointer;">✏️ Annotate</button>
+          <button onclick="inspPhotoDelete('${p.id}')" style="flex:1;background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.2);border-radius:4px;padding:2px 0;font-size:10px;color:#dc2626;cursor:pointer;">🗑 Remove</button>
+        </div>
       </div>
     </div>`).join('');
 }
