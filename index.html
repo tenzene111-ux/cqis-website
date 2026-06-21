@@ -14985,6 +14985,64 @@ table.rt td{border-bottom:1px solid #e5e7eb;vertical-align:middle;}
     <div class="kpi"><div class="kpi-v" style="color:${atrOvd>0?'#b91c1c':'#16a34a'}">${atrOvd}</div><div class="kpi-l">ATR Overdue</div></div>
   </div>
 
+  <!-- At-a-Glance -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+    <div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:8px 10px;background:#f8faff;">
+      <div style="font-size:7pt;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;font-weight:700;margin-bottom:6px;">Pass / Fail Ratio</div>
+      <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;background:#eee;">
+        <div style="width:${passRate}%;background:#16a34a;"></div>
+        <div style="width:${100-passRate}%;background:#dc2626;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:6.5pt;color:#555;margin-top:3px;">
+        <span>✓ Pass ${passRate}%</span><span>✗ Fail ${100-passRate}%</span>
+      </div>
+    </div>
+    <div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:8px 10px;background:#f8faff;">
+      <div style="font-size:7pt;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;font-weight:700;margin-bottom:6px;">Defect Proportion</div>
+      <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;background:#eee;">
+        <div style="width:${100-defRate}%;background:#16a34a;"></div>
+        <div style="width:${defRate}%;background:#dc2626;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:6.5pt;color:#555;margin-top:3px;">
+        <span>Clean ${100-defRate}%</span><span>Defect ${defRate}%</span>
+      </div>
+    </div>
+    <div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:8px 10px;background:#f8faff;">
+      <div style="font-size:7pt;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;font-weight:700;margin-bottom:6px;">ATR Completion</div>
+      <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;background:#eee;">
+        <div style="width:${defCount?Math.round(atrSub/defCount*100):100}%;background:#16a34a;"></div>
+        <div style="width:${defCount?Math.round(atrPend/defCount*100):0}%;background:#f59e0b;"></div>
+        <div style="width:${defCount?Math.round(atrOvd/defCount*100):0}%;background:#dc2626;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:6.5pt;color:#555;margin-top:3px;">
+        <span style="color:#16a34a;">✓ ${atrSub}</span><span style="color:#d97706;">⏳ ${atrPend}</span><span style="color:#dc2626;">⚠ ${atrOvd}</span>
+      </div>
+    </div>
+  </div>
+
+  ${moRows.length > 1 ? `
+  <div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:10px 12px;background:#f8faff;margin-bottom:12px;">
+    <div style="font-size:7pt;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;font-weight:700;margin-bottom:8px;">Monthly Inspection Trend</div>
+    <div style="display:flex;align-items:flex-end;gap:3px;height:60px;">
+      ${moRows.map(r=>{
+        const maxMo=Math.max(...moRows.map(x=>x.t),1);
+        const h=Math.max(Math.round(r.t/maxMo*50),3);
+        const hd=r.d?Math.max(Math.round(r.d/maxMo*50),2):0;
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+          <div style="font-size:6pt;color:#0d4a2c;font-weight:700;">${r.t}</div>
+          <div style="width:80%;height:${h}px;background:#16a34a;border-radius:2px 2px 0 0;position:relative;margin-top:1px;">
+            ${hd?`<div style="position:absolute;bottom:0;width:100%;height:${hd}px;background:#dc2626;border-radius:0;"></div>`:''}
+          </div>
+          <div style="font-size:5.5pt;color:#888;margin-top:2px;">${r.mo.substring(0,3)}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:5px;font-size:6.5pt;color:#555;">
+      <span><span style="display:inline-block;width:8px;height:6px;background:#16a34a;border-radius:1px;vertical-align:middle;margin-right:3px;"></span>Inspections</span>
+      <span><span style="display:inline-block;width:8px;height:6px;background:#dc2626;border-radius:1px;vertical-align:middle;margin-right:3px;"></span>Defects</span>
+    </div>
+  </div>` : ''}
+
   <!-- ATR Breakdown -->
   <div class="sec">ATR Status Breakdown</div>
   <table class="rt" style="margin-bottom:8px;">
@@ -15663,6 +15721,29 @@ function _printProjectReport(){
         <div class="ps-kpi"><div class="ps-kpi-val" style="color:${defects.length>0?'#dc2626':'#16a34a'}">${defects.length}</div><div class="ps-kpi-lbl">Defects Found</div></div>
         <div class="ps-kpi"><div class="ps-kpi-val" style="color:#16a34a">${passed}</div><div class="ps-kpi-lbl">Tests Passed</div></div>
         <div class="ps-kpi"><div class="ps-kpi-val" style="color:${passRate>=80?'#16a34a':passRate>=50?'#c47700':'#dc2626'}">${passRate}%</div><div class="ps-kpi-lbl">Pass Rate</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:7px 10px;background:#f8faff;">
+          <div style="font-size:6.5pt;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;font-weight:700;margin-bottom:5px;">Test Pass / Fail</div>
+          <div style="display:flex;height:12px;border-radius:3px;overflow:hidden;background:#eee;">
+            <div style="width:${passRate}%;background:#16a34a;"></div>
+            <div style="width:${100-passRate}%;background:#dc2626;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:6pt;color:#555;margin-top:2px;">
+            <span>✓ Pass ${passRate}% (${passed})</span><span>✗ Fail ${100-passRate}% (${failed})</span>
+          </div>
+        </div>
+        <div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:7px 10px;background:#f8faff;">
+          <div style="font-size:6.5pt;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;font-weight:700;margin-bottom:5px;">Clean vs Defect</div>
+          <div style="display:flex;height:12px;border-radius:3px;overflow:hidden;background:#eee;">
+            <div style="width:${recs.length?Math.round((recs.length-defects.length)/recs.length*100):100}%;background:#16a34a;"></div>
+            <div style="width:${recs.length?Math.round(defects.length/recs.length*100):0}%;background:#dc2626;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:6pt;color:#555;margin-top:2px;">
+            <span>Clean ${recs.length-defects.length}</span><span>Defect ${defects.length}</span>
+          </div>
+        </div>
       </div>
 
       <div class="ps-section-title">Inspection Overview</div>
@@ -23502,6 +23583,30 @@ ${CQIS_WATERMARK_CSS}
   <div class="kpi"><div class="kpi-v" style="color:#15803d;">${passed}</div><div class="kpi-l">Tests Passed</div></div>
   <div class="kpi"><div class="kpi-v" style="color:#b91c1c;">${failed}</div><div class="kpi-l">Tests Failed</div></div>
   <div class="kpi"><div class="kpi-v" style="color:${rate>=80?'#15803d':rate>=50?'#d97706':'#b91c1c'};">${rate}%</div><div class="kpi-l">Pass Rate</div></div>
+</div>
+
+<!-- At-a-Glance Bars -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+  <div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:7px 10px;background:#f8faff;">
+    <div style="font-size:6.5pt;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;font-weight:700;margin-bottom:5px;">Test Pass / Fail</div>
+    <div style="display:flex;height:12px;border-radius:3px;overflow:hidden;background:#eee;">
+      <div style="width:${rate}%;background:#16a34a;"></div>
+      <div style="width:${100-rate}%;background:#dc2626;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:6pt;color:#555;margin-top:2px;">
+      <span>✓ Pass ${rate}% (${passed})</span><span>✗ Fail ${100-rate}% (${failed})</span>
+    </div>
+  </div>
+  <div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:7px 10px;background:#f8faff;">
+    <div style="font-size:6.5pt;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;font-weight:700;margin-bottom:5px;">Clean vs Defect</div>
+    <div style="display:flex;height:12px;border-radius:3px;overflow:hidden;background:#eee;">
+      <div style="width:${total?Math.round((total-defCount)/total*100):100}%;background:#16a34a;"></div>
+      <div style="width:${total?Math.round(defCount/total*100):0}%;background:#dc2626;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:6pt;color:#555;margin-top:2px;">
+      <span>Clean ${total-defCount}</span><span>Defect ${defCount}</span>
+    </div>
+  </div>
 </div>
 
 <!-- Summary Narrative -->
