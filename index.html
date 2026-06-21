@@ -13268,18 +13268,8 @@ function dashDrawAllCharts(){
 
 function dashDrawChart(){ dashDrawAllCharts(); }
 
-function _cssBar(pct,color,h){
-  h=h||'12px';
-  return `<div style="background:#eef2f7;border-radius:3px;height:${h};width:100%;overflow:hidden;"><div style="height:100%;width:${Math.min(pct,100)}%;background:${color};border-radius:3px;"></div></div>`;
-}
-function _cssDonut(segments,size){
-  size=size||70;
-  let grad='',cum=0;
-  segments.forEach(s=>{ grad+=(grad?',':'')+ s.color+' '+cum+'% '+(cum+s.pct)+'%'; cum+=s.pct; });
-  if(cum<100) grad+=',#e2e8f0 '+cum+'% 100%';
-  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:conic-gradient(${grad});margin:0 auto;position:relative;"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${size*.5}px;height:${size*.5}px;background:#fff;border-radius:50%;"></div></div>`;
-}
-function _buildReportCharts(opts){
+function _removed_old_charts(){ // dead code placeholder
+  const opts={recs:null,locRows:null,moRows:null,wtData:null,atrData:null,themeColor:null};
   const {recs,locRows,moRows,wtData,atrData,themeColor} = opts;
   if(!recs||!recs.length) return '';
   const tc=themeColor||'#1a3a6e';
@@ -14886,14 +14876,15 @@ function _printMgmtSummaryReport(){
   fd.forEach(r=>{ const mo=r.month||''; if(!mo)return; if(!moMap[mo])moMap[mo]={t:0,d:0}; moMap[mo].t++; if(r.defect==='Yes')moMap[mo].d++; });
   const moRows=months.filter(m=>moMap[m]).map(m=>({mo:m,t:moMap[m].t,d:moMap[m].d,rate:Math.round(moMap[m].d/moMap[m].t*100)}));
 
+  const _ib=(pct,c)=>`<div style="display:inline-block;width:40px;height:6px;background:#eee;border-radius:3px;vertical-align:middle;margin-left:4px;"><div style="height:100%;width:${Math.min(pct,100)}%;background:${c};border-radius:3px;"></div></div>`;
   const locRowsHtml = locRows.map((r,i)=>`
     <tr style="${i%2===0?'background:#f9fafb;':''}">
       <td style="padding:5px 8px;">${r.name}</td>
       <td style="padding:5px 8px;text-align:center;font-weight:700;">${r.total}</td>
       <td style="padding:5px 8px;text-align:center;">${r.def}</td>
-      <td style="padding:5px 8px;text-align:center;color:${r.defRate>=50?'#b91c1c':r.defRate>=25?'#d97706':'#16a34a'};font-weight:700;">${r.defRate}%</td>
-      <td style="padding:5px 8px;text-align:center;">${r.passRate==='−'?'—':r.passRate+'%'}</td>
-      <td style="padding:5px 8px;text-align:center;color:${r.atrComp>=80?'#16a34a':r.atrComp>=50?'#d97706':'#b91c1c'};font-weight:700;">${r.atrComp}%</td>
+      <td style="padding:5px 8px;text-align:center;"><span style="color:${r.defRate>=50?'#b91c1c':r.defRate>=25?'#d97706':'#16a34a'};font-weight:700;">${r.defRate}%</span>${_ib(r.defRate,r.defRate>=50?'#dc2626':r.defRate>=25?'#d97706':'#f59e0b')}</td>
+      <td style="padding:5px 8px;text-align:center;">${r.passRate==='-'?'—':`<span>${r.passRate}%</span>${_ib(r.passRate,r.passRate>=80?'#16a34a':r.passRate>=50?'#d97706':'#dc2626')}`}</td>
+      <td style="padding:5px 8px;text-align:center;"><span style="color:${r.atrComp>=80?'#16a34a':r.atrComp>=50?'#d97706':'#b91c1c'};font-weight:700;">${r.atrComp}%</span>${_ib(r.atrComp,r.atrComp>=80?'#16a34a':r.atrComp>=50?'#d97706':'#dc2626')}</td>
     </tr>`).join('');
 
   const catRowsHtml = topCats.map(([cat,cnt],i)=>`
@@ -14906,12 +14897,13 @@ function _printMgmtSummaryReport(){
       </td>
     </tr>`).join('');
 
+  const maxMoT=Math.max(...moRows.map(r=>r.t),1);
   const moRowsHtml = moRows.map((r,i)=>`
     <tr style="${i%2===0?'background:#f9fafb;':''}">
       <td style="padding:5px 8px;">${r.mo}</td>
-      <td style="padding:5px 8px;text-align:center;font-weight:700;">${r.t}</td>
+      <td style="padding:5px 8px;text-align:center;font-weight:700;">${r.t}${_ib(r.t/maxMoT*100,'#3b82f6')}</td>
       <td style="padding:5px 8px;text-align:center;">${r.d}</td>
-      <td style="padding:5px 8px;text-align:center;color:${r.rate>=50?'#b91c1c':r.rate>=25?'#d97706':'#16a34a'};font-weight:700;">${r.rate}%</td>
+      <td style="padding:5px 8px;text-align:center;"><span style="color:${r.rate>=50?'#b91c1c':r.rate>=25?'#d97706':'#16a34a'};font-weight:700;">${r.rate}%</span>${_ib(r.rate,r.rate>=50?'#dc2626':r.rate>=25?'#d97706':'#f59e0b')}</td>
     </tr>`).join('');
 
   const overallStatus = defRate < 20 ? 'SATISFACTORY' : defRate < 40 ? 'NEEDS ATTENTION' : 'CRITICAL — IMMEDIATE ACTION REQUIRED';
@@ -15034,10 +15026,6 @@ table.rt td{border-bottom:1px solid #e5e7eb;vertical-align:middle;}
 </div>
 </body></html>`;
 
-  const wtData2=topCats.map(([name,count])=>({name,count}));
-  const atrData2={submitted:atrSub,pending:atrPend,overdue:atrOvd};
-  const chartHtml=_buildReportCharts({recs:fd,locRows,moRows,wtData:wtData2,atrData:atrData2,themeColor:'#0d4a2c'});
-  html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
 
@@ -15634,7 +15622,8 @@ function _printProjectReport(){
     ${Object.entries(wTypeMap).map(([wt,v],i)=>{
       const r=(v.pass+v.fail)>0?Math.round(v.pass/(v.pass+v.fail)*100):0;
       const bg=i%2===1?'background:#f5f8ff;':'';
-      return `<tr style="${bg}">${[`<strong>${wt}</strong>`,v.pass+v.fail,v.defects,`<span style="color:#16a34a;font-weight:700;">${v.pass}</span>`,`<span style="color:#dc2626;font-weight:700;">${v.fail}</span>`,`<strong style="color:${r>=80?'#16a34a':r>=50?'#c47700':'#dc2626'}">${r}%</strong>`].map(c=>`<td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;text-align:center;">${c}</td>`).join('')}</tr>`;
+      const _b=`<div style="display:inline-block;width:40px;height:6px;background:#eee;border-radius:3px;vertical-align:middle;margin-left:4px;"><div style="height:100%;width:${r}%;background:${r>=80?'#16a34a':r>=50?'#d97706':'#dc2626'};border-radius:3px;"></div></div>`;
+      return `<tr style="${bg}">${[`<strong>${wt}</strong>`,v.pass+v.fail,v.defects,`<span style="color:#16a34a;font-weight:700;">${v.pass}</span>`,`<span style="color:#dc2626;font-weight:700;">${v.fail}</span>`,`<strong style="color:${r>=80?'#16a34a':r>=50?'#c47700':'#dc2626'}">${r}%</strong>${_b}`].map(c=>`<td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;text-align:center;">${c}</td>`).join('')}</tr>`;
     }).join('')}
   </table>`;
 
@@ -15710,12 +15699,6 @@ function _printProjectReport(){
         ${recs.filter(r=>r.remarks).map((r,i)=>`<tr style="${i%2===1?'background:#f5f8ff;':''}"><td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8pt;width:14%;color:#555;">${r.dateInspected||'—'}</td><td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${r.remarks}</td></tr>`).join('') || '<tr><td colspan="2" style="padding:10px 8px;color:#888;font-size:8.5pt;font-style:italic;">No additional remarks recorded for this project.</td></tr>'}
       </table>`,
   });
-  const wtData2=Object.entries(wTypeMap).map(([name,v])=>({name,count:v.pass+v.fail}));
-  const atrSub2=defects.filter(r=>r.atrSubmitted).length;
-  const atrOvd2=defects.filter(r=>calcATRStatus(r)==='OVERDUE').length;
-  const atrPend2=defects.length-atrSub2-atrOvd2;
-  const chartHtml=_buildReportCharts({recs,locRows:null,moRows:null,wtData:wtData2,atrData:{submitted:atrSub2,pending:Math.max(0,atrPend2),overdue:atrOvd2}});
-  html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
 
@@ -16028,41 +16011,6 @@ function _printRegistryReport(){
       ${histTable}
     `,
   });
-  const pct=latest?.percent||0;
-  const tc2='#1a3a6e';
-  const secT2=(t)=>`<div style="background:${tc2};color:#fff;font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;margin:0 0 6px;border-radius:2px;">${t}</div>`;
-  const progCard=`<div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:8px;background:#f8faff;">
-    ${secT2('Physical Progress')}
-    <div style="text-align:center;margin:6px 0;font-size:18pt;font-weight:800;color:${pct>=80?'#16a34a':pct>=50?'#d97706':'#dc2626'};">${pct}%</div>
-    ${_cssBar(pct,pct>=80?'#16a34a':pct>=50?'#d97706':'#dc2626','16px')}
-    <div style="display:flex;justify-content:space-between;font-size:6.5pt;color:#6b7280;margin-top:3px;"><span>0%</span><span>50%</span><span>100%</span></div>
-  </div>`;
-  let moCard='';
-  if(linkedUpdates&&linkedUpdates.length>1){
-    const bars2=linkedUpdates.slice(-12).map(u=>{
-      const h=Math.max(Math.round((u.percent||0)/100*60),2);
-      const sc=u.overallStatus==='On Track'?'#16a34a':u.overallStatus==='Delayed'?'#dc2626':'#f59e0b';
-      return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:20px;">
-        <div style="font-size:5.5pt;font-weight:700;color:#374151;margin-bottom:1px;">${u.percent||0}%</div>
-        <div style="width:12px;height:${h}px;background:${sc};border-radius:2px 2px 0 0;"></div>
-        <div style="font-size:5pt;color:#6b7280;margin-top:2px;">${(u.month||'').substring(0,3)}</div>
-      </div>`;
-    }).join('');
-    moCard=`<div style="border:1.5px solid #c8d4e8;border-radius:5px;padding:8px;background:#f8faff;">
-      ${secT2('Progress Over Time')}
-      <div style="display:flex;align-items:flex-end;gap:1px;min-height:70px;padding:4px 0;">${bars2}</div>
-      <div style="display:flex;gap:10px;margin-top:4px;font-size:6pt;justify-content:center;">
-        <span><span style="display:inline-block;width:6px;height:6px;background:#16a34a;border-radius:1px;margin-right:2px;vertical-align:middle;"></span>On Track</span>
-        <span><span style="display:inline-block;width:6px;height:6px;background:#f59e0b;border-radius:1px;margin-right:2px;vertical-align:middle;"></span>In Progress</span>
-        <span><span style="display:inline-block;width:6px;height:6px;background:#dc2626;border-radius:1px;margin-right:2px;vertical-align:middle;"></span>Delayed</span>
-      </div>
-    </div>`;
-  }
-  const chartHtml=`<div style="margin-top:14px;">
-    <div style="background:${tc2};color:#fff;font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:5px 12px;margin:0 0 10px;border-radius:2px;">Data Visualization</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${progCard}${moCard}</div>
-  </div>`;
-  html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
 
@@ -23634,27 +23582,6 @@ ${testRows ? `
 
 </div></body></html>`;
 
-  // Build chart data from inspection records
-  const _locMap={};
-  recs.forEach(r=>{
-    const loc=r.dzongkhag||r.ro||r.other||'Unknown';
-    if(!_locMap[loc])_locMap[loc]={total:0,def:0};
-    _locMap[loc].total++; if(r.defect==='Yes')_locMap[loc].def++;
-  });
-  const _locRows=Object.entries(_locMap).map(([name,v])=>({name,total:v.total,def:v.def,defRate:Math.round(v.def/(v.total||1)*100)})).sort((a,b)=>b.total-a.total);
-  const _moMap={};
-  recs.forEach(r=>{ const mo=r.month||''; if(!mo)return; if(!_moMap[mo])_moMap[mo]={t:0,d:0}; _moMap[mo].t++; if(r.defect==='Yes')_moMap[mo].d++; });
-  const _months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const _moRows=_months.filter(m=>_moMap[m]).map(m=>({mo:m,t:_moMap[m].t,d:_moMap[m].d}));
-  const _wtMap2={};
-  recs.forEach(r=>{ const k=r.workType||'Other'; if(!_wtMap2[k])_wtMap2[k]=0; _wtMap2[k]++; });
-  const _wtData=Object.entries(_wtMap2).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
-  const _defRecs=recs.filter(r=>r.defect==='Yes');
-  const _atrSub=_defRecs.filter(r=>r.atrSubmitted).length;
-  const _atrOvd=_defRecs.filter(r=>calcATRStatus(r)==='OVERDUE').length;
-  const _atrPend=_defRecs.length-_atrSub-_atrOvd;
-  const chartHtml=_buildReportCharts({recs,locRows:_locRows,moRows:_moRows,wtData:_wtData,atrData:{submitted:_atrSub,pending:Math.max(0,_atrPend),overdue:_atrOvd}});
-  html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
 
