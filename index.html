@@ -2193,8 +2193,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
         <!-- Row 1 -->
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">📍 Inspections by Dzongkhag</div>
-          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Total inspections & defects per Dzongkhag</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">📍 Inspections by Location</div>
+          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Dzongkhag · RO/Thromde · Other — total &amp; defects</div>
           <div style="position:relative;height:220px;"><canvas id="dc1"></canvas></div>
         </div>
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
@@ -2205,8 +2205,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
         <!-- Row 2 -->
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">⚠️ Defect Rate by Dzongkhag (%)</div>
-          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Green &lt;25% · Orange 25–50% · Red ≥50%</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">⚠️ Defect Rate by Location (%)</div>
+          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">All locations · Green &lt;25% · Orange 25–50% · Red ≥50%</div>
           <div style="position:relative;height:220px;"><canvas id="dc3"></canvas></div>
         </div>
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
@@ -13101,13 +13101,22 @@ function dashDrawAllCharts(){
   const GRN='rgba(22,163,74,.8)',GRN_L='rgba(22,163,74,.12)';
   const BLU='rgba(59,130,246,.8)',BLU_L='rgba(59,130,246,.12)';
 
-  // DC1 — Inspections by Dzongkhag
-  const dz_l=[],dz_t=[],dz_d=[];
-  DZONGS.forEach(dz=>{ const r=fd.filter(x=>x.dzongkhag===dz); if(!r.length)return; dz_l.push(dz.length>9?dz.slice(0,9)+'…':dz); dz_t.push(r.length); dz_d.push(r.filter(x=>x.defect==='Yes').length); });
-  mk('dc1',{type:'bar',data:{labels:dz_l,datasets:[
-    {label:'Total',data:dz_t,backgroundColor:ORG,borderRadius:4,borderSkipped:false},
-    {label:'Defects',data:dz_d,backgroundColor:RED,borderRadius:4,borderSkipped:false},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:tip},scales:{x:{...ax(),ticks:{color:tc,font:{size:8},maxRotation:45}},y:{...ax('Count'),beginAtZero:true}}}});
+  // DC1 — Inspections by Location (Dzongkhag + RO + Other combined)
+  const allLoc={};
+  fd.forEach(r=>{
+    const loc=r.dzongkhag||r.ro||r.other||'';
+    if(!loc) return;
+    if(!allLoc[loc]) allLoc[loc]={total:0,defects:0,type:r.dzongkhag?'dz':r.ro?'ro':'other'};
+    allLoc[loc].total++;
+    if(r.defect==='Yes') allLoc[loc].defects++;
+  });
+  const allLoc_sorted=Object.entries(allLoc).sort((a,b)=>b[1].total-a[1].total).slice(0,15);
+  const allLoc_labels=allLoc_sorted.map(x=>{const n=x[0];const pre=x[1].type==='ro'?'🏢 ':x[1].type==='other'?'📋 ':'';return pre+(n.length>10?n.slice(0,9)+'…':n);});
+  const allLoc_colors=allLoc_sorted.map(x=>x[1].type==='dz'?ORG:x[1].type==='ro'?'rgba(59,130,246,0.7)':'rgba(139,92,246,0.7)');
+  mk('dc1',{type:'bar',data:{labels:allLoc_labels,datasets:[
+    {label:'Total',data:allLoc_sorted.map(x=>x[1].total),backgroundColor:allLoc_colors,borderRadius:4,borderSkipped:false},
+    {label:'Defects',data:allLoc_sorted.map(x=>x[1].defects),backgroundColor:RED,borderRadius:4,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>{const d=allLoc_sorted[ctx.dataIndex];return ` ${ctx.dataset.label}: ${ctx.parsed.y}${ctx.datasetIndex===0?' ('+d[1].type.toUpperCase()+')':''}`;} }}},scales:{x:{...ax(),ticks:{color:tc,font:{size:7},maxRotation:50}},y:{...ax('Count'),beginAtZero:true}}}});
 
   // DC2 — Monthly Trend (bars like screenshots)
   const mo_l=[],mo_t=[],mo_d=[];
@@ -13117,11 +13126,25 @@ function dashDrawAllCharts(){
     {label:'Defects',data:mo_d,backgroundColor:RED,borderRadius:4,borderSkipped:false},
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:tip},scales:{x:{...ax()},y:{...ax('Count'),beginAtZero:true}}}});
 
-  // DC3 — Defect Rate by Dzongkhag
+  // DC3 — Defect Rate by Location (all types)
   const dr_l=[],dr_d=[],dr_bg=[];
-  DZONGS.forEach(dz=>{ const r=fd.filter(x=>x.dzongkhag===dz); if(!r.length)return; const rt=Math.round(r.filter(x=>x.defect==='Yes').length/r.length*100); dr_l.push(dz.length>9?dz.slice(0,9)+'…':dz); dr_d.push(rt); dr_bg.push(rt>=50?'rgba(220,38,38,.8)':rt>=25?'rgba(234,88,12,.8)':'rgba(22,163,74,.8)'); });
+  const dr_locs={};
+  fd.forEach(r=>{
+    const loc=r.dzongkhag||r.ro||r.other||'';
+    if(!loc) return;
+    if(!dr_locs[loc]) dr_locs[loc]={total:0,defects:0,type:r.dzongkhag?'dz':r.ro?'ro':'other'};
+    dr_locs[loc].total++;
+    if(r.defect==='Yes') dr_locs[loc].defects++;
+  });
+  Object.entries(dr_locs).sort((a,b)=>b[1].total-a[1].total).slice(0,15).forEach(([loc,v])=>{
+    const rt=Math.round(v.defects/v.total*100);
+    const pre=v.type==='ro'?'🏢 ':v.type==='other'?'📋 ':'';
+    dr_l.push(pre+(loc.length>10?loc.slice(0,9)+'…':loc));
+    dr_d.push(rt);
+    dr_bg.push(rt>=50?'rgba(220,38,38,.8)':rt>=25?'rgba(234,88,12,.8)':'rgba(22,163,74,.8)');
+  });
   mk('dc3',{type:'bar',data:{labels:dr_l,datasets:[{label:'Defect %',data:dr_d,backgroundColor:dr_bg,borderRadius:4,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:ctx=>` ${ctx.parsed.y}%`}}},scales:{x:{...ax(),ticks:{color:tc,font:{size:8},maxRotation:45}},y:{...ax('%'),beginAtZero:true,max:100,ticks:{color:tc,font:{size:9},callback:v=>v+'%'}}}}});
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:ctx=>` ${dr_l[ctx.dataIndex]}: ${ctx.parsed.y}%`}}},scales:{x:{...ax(),ticks:{color:tc,font:{size:7},maxRotation:50}},y:{...ax('%'),beginAtZero:true,max:100,ticks:{color:tc,font:{size:9},callback:v=>v+'%'}}}}});
 
   // DC4 — Monthly Defect Rate Trend
   const mdr_l=[],mdr_r=[],mdr_t=[];
