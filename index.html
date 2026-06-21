@@ -14882,7 +14882,7 @@ function _printMgmtSummaryReport(){
   const overallStatus = defRate < 20 ? 'SATISFACTORY' : defRate < 40 ? 'NEEDS ATTENTION' : 'CRITICAL — IMMEDIATE ACTION REQUIRED';
   const statusColor   = defRate < 20 ? '#16a34a' : defRate < 40 ? '#d97706' : '#b91c1c';
 
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <title>Management Summary Report — ${label}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -15615,7 +15615,7 @@ function _printProjectReport(){
       }).join('')}
     </table>`;
 
-  const html = _buildPrintPage({
+  let html = _buildPrintPage({
     title: 'PROJECT QUALITY INSPECTION REPORT',
     stamp: 'PROJECT REPORT',
     meta: [
@@ -15944,7 +15944,7 @@ function _printRegistryReport(){
       </table>`
     : '<p style="color:#d97706;font-weight:700;text-align:center;padding:12px;">⚠️ No monthly update has been submitted for this project yet.</p>';
 
-  const html = _buildPrintPage({
+  let html = _buildPrintPage({
     title: 'PROJECT PROGRESS REPORT',
     stamp: 'PROGRESS REPORT',
     meta: [
@@ -23405,7 +23405,7 @@ function _printInspectionReport(){
   // Signature date
   const sigDate = `Date: _________________`;
 
-  const html = `<!DOCTYPE html>
+  let html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <title>Inspection Report — CQD OCASC</title>
 <style>
