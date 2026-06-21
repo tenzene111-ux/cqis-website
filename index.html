@@ -2217,13 +2217,13 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
         <!-- Row 3 -->
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">📍 Inspection Trends by Location</div>
-          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Total inspections vs defects per Dzongkhag</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">📈 Monthly Quality Trend</div>
+          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Inspections volume with defect rate over time</div>
           <div style="position:relative;height:220px;"><canvas id="dc5"></canvas></div>
         </div>
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">🏢 Inspections by RO / Thromde</div>
-          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Volume & defects per regional office</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">🔧 Work Type Distribution</div>
+          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Most inspected construction categories</div>
           <div style="position:relative;height:220px;"><canvas id="dc6"></canvas></div>
         </div>
 
@@ -13132,29 +13132,36 @@ function dashDrawAllCharts(){
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:tip},
     scales:{x:{...ax()},y:{...ax('Defect %'),beginAtZero:true,max:100,ticks:{color:tc,font:{size:9},callback:v=>v+'%'}},y2:{position:'right',ticks:{color:tc,font:{size:9}},grid:{drawOnChartArea:false},border:{color:gc}}}}});
 
-  // DC5 — Inspection Trends by Location (grouped bar: total vs defects per Dzongkhag)
-  const loc_map={};
+  // DC5 — Monthly Quality Trend (bar+line combo)
+  const mq_map={};
   fd.forEach(r=>{
-    const loc=r.dzongkhag||r.ro||r.other||'';
-    if(!loc) return;
-    if(!loc_map[loc]) loc_map[loc]={total:0,defects:0,clean:0};
-    loc_map[loc].total++;
-    if(r.defect==='Yes') loc_map[loc].defects++; else loc_map[loc].clean++;
+    if(!r.dateInspected) return;
+    const key=r.dateInspected.slice(0,7);
+    if(!mq_map[key]) mq_map[key]={total:0,defects:0};
+    mq_map[key].total++;
+    if(r.defect==='Yes') mq_map[key].defects++;
   });
-  const loc_sorted=Object.entries(loc_map).sort((a,b)=>b[1].total-a[1].total).slice(0,12);
-  const loc_labels=loc_sorted.map(x=>x[0].length>14?x[0].slice(0,12)+'…':x[0]);
-  mk('dc5',{type:'bar',data:{labels:loc_labels,datasets:[
-    {label:'Clean',data:loc_sorted.map(x=>x[1].clean),backgroundColor:'rgba(22,163,74,0.7)',borderRadius:4,borderSkipped:false},
-    {label:'Defects',data:loc_sorted.map(x=>x[1].defects),backgroundColor:'rgba(220,38,38,0.7)',borderRadius:4,borderSkipped:false},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>{const d=loc_sorted[ctx.dataIndex][1];return ` ${ctx.dataset.label}: ${ctx.parsed.y} (${d.total} total, ${Math.round(d.defects/d.total*100)}% defect rate)`;}}}},scales:{x:{...ax(),stacked:true,ticks:{color:tc,font:{size:8},maxRotation:45}},y:{...ax('Inspections'),stacked:true,beginAtZero:true}}}});
+  const mq_keys=Object.keys(mq_map).sort().slice(-12);
+  const mq_labels=mq_keys.map(k=>{const[y,m]=k.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]+' '+y.slice(2);});
+  mk('dc5',{type:'bar',data:{labels:mq_labels,datasets:[
+    {label:'Inspections',data:mq_keys.map(k=>mq_map[k].total),backgroundColor:'rgba(59,130,246,0.6)',borderRadius:4,borderSkipped:false,yAxisID:'y',order:2},
+    {label:'Defect Rate %',data:mq_keys.map(k=>mq_map[k].total?Math.round(mq_map[k].defects/mq_map[k].total*100):0),type:'line',borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.1)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#dc2626',fill:true,tension:0.3,yAxisID:'y2',order:1},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>ctx.dataset.yAxisID==='y2'?` Defect Rate: ${ctx.parsed.y}%`:` Inspections: ${ctx.parsed.y}`}}},scales:{x:{...ax(),ticks:{color:tc,font:{size:8},maxRotation:45}},y:{...ax('Count'),beginAtZero:true,position:'left'},y2:{position:'right',beginAtZero:true,max:100,ticks:{color:'#dc2626',font:{size:9},callback:v=>v+'%'},grid:{drawOnChartArea:false},border:{color:gc}}}}});
 
-  // DC6 — Inspections by RO (horizontal bars like screenshots)
-  const ro_l=[],ro_t=[],ro_d=[];
-  ROS.forEach(ro=>{ const r=fd.filter(x=>x.ro===ro); if(!r.length)return; ro_l.push(ro.replace('RO ','').replace(' Thromde','').slice(0,11)); ro_t.push(r.length); ro_d.push(r.filter(x=>x.defect==='Yes').length); });
-  mk('dc6',{type:'bar',data:{labels:ro_l,datasets:[
-    {label:'Total',data:ro_t,backgroundColor:ORG,borderRadius:4,borderSkipped:false},
-    {label:'Defects',data:ro_d,backgroundColor:RED,borderRadius:4,borderSkipped:false},
-  ]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:tip},scales:{x:{...ax('Count'),beginAtZero:true},y:{...ax(),ticks:{color:tc,font:{size:9}}}}}});
+  // DC6 — Work Type Distribution (doughnut)
+  const wt_dist={};
+  fd.forEach(r=>{
+    if(!r.workType) return;
+    r.workType.split(',').forEach(w=>{
+      const t=w.split(':')[0].trim();
+      if(t) wt_dist[t]=(wt_dist[t]||0)+1;
+    });
+  });
+  const wt_sorted=Object.entries(wt_dist).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const wt_colors=['#3b82f6','#e8820c','#16a34a','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1'];
+  mk('dc6',{type:'doughnut',data:{labels:wt_sorted.map(x=>x[0].length>20?x[0].slice(0,18)+'…':x[0]),
+    datasets:[{data:wt_sorted.map(x=>x[1]),backgroundColor:wt_colors.slice(0,wt_sorted.length),borderColor:'#fff',borderWidth:2,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{color:lc,font:{family:'Poppins',size:9},padding:8,boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>{const total=wt_sorted.reduce((s,x)=>s+x[1],0);return ` ${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed/total*100)}%)`;}}}}}});
 
   // DC7 — ATR Status donut (clean white style like screenshots)
   const def2=fd.filter(r=>r.defect==='Yes');
