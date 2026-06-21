@@ -13268,75 +13268,112 @@ function dashDrawAllCharts(){
 
 function dashDrawChart(){ dashDrawAllCharts(); }
 
-function _captureChartImagesHTML(){
-  return new Promise(resolve=>{
-    const dashTab = document.getElementById('tab-dashboard');
-    if(!dashTab){ resolve(''); return; }
-    const wasHidden = dashTab.style.display === 'none';
-    if(wasHidden){
-      dashTab.style.display = '';
-      dashTab.style.position = 'fixed';
-      dashTab.style.top = '0';
-      dashTab.style.left = '0';
-      dashTab.style.width = '100vw';
-      dashTab.style.height = 'auto';
-      dashTab.style.zIndex = '-9999';
-      dashTab.style.opacity = '0';
-      dashTab.style.pointerEvents = 'none';
-    }
-    try{ dashDrawAllCharts(); }catch(e){ console.error('chart draw err',e); }
+function _cssBar(pct,color,h){
+  h=h||'14px';
+  return `<div style="background:#f1f5f9;border-radius:4px;height:${h};width:100%;overflow:hidden;"><div style="height:100%;width:${Math.min(pct,100)}%;background:${color};border-radius:4px;transition:width .3s;"></div></div>`;
+}
+function _cssDonut(segments,size){
+  size=size||90;
+  let grad='',cum=0;
+  segments.forEach(s=>{ grad+=(grad?',':'')+ s.color+' '+cum+'% '+(cum+s.pct)+'%'; cum+=s.pct; });
+  if(cum<100) grad+=',#e2e8f0 '+cum+'% 100%';
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:conic-gradient(${grad});margin:0 auto;position:relative;"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${size*.55}px;height:${size*.55}px;background:#fff;border-radius:50%;"></div></div>`;
+}
+function _chartCard(title,content){
+  return `<div style="break-inside:avoid;border:1px solid #dde3ef;border-radius:8px;overflow:hidden;background:#fff;margin-bottom:6px;">
+    <div style="background:linear-gradient(90deg,#1a3a6e,#2563eb);padding:6px 12px;"><div style="font-size:8.5pt;font-weight:700;color:#fff;letter-spacing:.5px;">${title}</div></div>
+    <div style="padding:10px 12px;">${content}</div></div>`;
+}
+function _buildReportCharts(opts){
+  const {recs,locRows,moRows,wtData,atrData} = opts;
+  if(!recs||!recs.length) return '';
+  let cards='';
+  const total=recs.length, defCount=recs.filter(r=>r.defect==='Yes').length, cleanCount=total-defCount;
+  const defPct=total?Math.round(defCount/total*100):0, cleanPct=100-defPct;
 
-    function _doCapture(){
-      const chartIds=['dc1','dc2','dc3','dc4','dc5','dc6','dc7','dc8'];
-      const chartTitles={
-        dc1:(document.getElementById('dc1Title')||{}).textContent||'Inspections by Location',
-        dc2:'Monthly Inspection Trend',
-        dc3:(document.getElementById('dc3Title')||{}).textContent||'Defect Rate by Location',
-        dc4:'Monthly Defect Rate Trend',
-        dc5:'Monthly Quality Trend',
-        dc6:'Work Type Distribution',
-        dc7:'ATR Status Overview',
-        dc8:'Defects vs Clean'
-      };
-      let imgs='';
-      chartIds.forEach(id=>{
-        const canvas=document.getElementById(id);
-        if(!canvas||canvas.width===0||canvas.height===0) return;
-        try{
-          const img=canvas.toDataURL('image/png',1.0);
-          if(img.length<200) return;
-          imgs+=`<div style="break-inside:avoid;margin-bottom:18px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff;">
-            <div style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 14px;">
-              <div style="font-size:11px;font-weight:700;color:#1a2236;">${chartTitles[id]||id}</div>
-            </div>
-            <div style="padding:10px;text-align:center;">
-              <img src="${img}" style="max-width:100%;height:auto;">
-            </div>
-          </div>`;
-        }catch(e){}
-      });
-      if(wasHidden){
-        dashTab.style.display = 'none';
-        dashTab.style.position = '';
-        dashTab.style.top = '';
-        dashTab.style.left = '';
-        dashTab.style.width = '';
-        dashTab.style.height = '';
-        dashTab.style.zIndex = '';
-        dashTab.style.opacity = '';
-        dashTab.style.pointerEvents = '';
-      }
-      if(!imgs){ resolve(''); return; }
-      resolve(`<div style="page-break-before:always;padding-top:10px;">
-        <div style="text-align:center;margin-bottom:16px;padding:10px 0;border-bottom:2px solid #1a3a6e;">
-          <div style="font-size:14px;font-weight:800;color:#1a3a6e;letter-spacing:1px;">DATA VISUALIZATION</div>
-          <div style="font-size:9px;color:#666;margin-top:4px;">Charts from Dashboard · Auto-generated</div>
+  // 1. Defects vs Clean donut
+  const donut=_cssDonut([{pct:cleanPct,color:'#16a34a'},{pct:defPct,color:'#dc2626'}],80);
+  cards+=_chartCard('Defects vs Clean',`<div style="display:flex;align-items:center;gap:16px;">
+    ${donut}
+    <div style="font-size:8pt;">
+      <div style="margin-bottom:4px;"><span style="display:inline-block;width:10px;height:10px;background:#16a34a;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Clean: <strong>${cleanCount}</strong> (${cleanPct}%)</div>
+      <div><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Defects: <strong>${defCount}</strong> (${defPct}%)</div>
+    </div></div>`);
+
+  // 2. Inspections by Location (horizontal bars)
+  if(locRows&&locRows.length){
+    const maxT=Math.max(...locRows.map(r=>r.total),1);
+    let rows=locRows.slice(0,10).map(r=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+      <div style="width:110px;font-size:7.5pt;text-align:right;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
+      <div style="flex:1;">${_cssBar(r.total/maxT*100,'#3b82f6')}</div>
+      <div style="width:26px;font-size:7.5pt;font-weight:700;color:#1a3a6e;">${r.total}</div>
+    </div>`).join('');
+    cards+=_chartCard('Inspections by Location',rows);
+  }
+
+  // 3. Defect Rate by Location (horizontal bars)
+  if(locRows&&locRows.length){
+    let rows=locRows.filter(r=>r.def>0).slice(0,10).map(r=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+      <div style="width:110px;font-size:7.5pt;text-align:right;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
+      <div style="flex:1;">${_cssBar(r.defRate,r.defRate>=50?'#dc2626':r.defRate>=25?'#d97706':'#f59e0b')}</div>
+      <div style="width:30px;font-size:7.5pt;font-weight:700;color:#b91c1c;">${r.defRate}%</div>
+    </div>`).join('');
+    if(rows) cards+=_chartCard('Defect Rate by Location',rows);
+  }
+
+  // 4. Monthly Trend (vertical bar chart via table)
+  if(moRows&&moRows.length){
+    const maxM=Math.max(...moRows.map(r=>r.t),1);
+    let bars=moRows.map(r=>{
+      const hT=Math.round(r.t/maxM*80), hD=Math.round(r.d/maxM*80);
+      return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:28px;">
+        <div style="font-size:6.5pt;font-weight:700;color:#1a3a6e;margin-bottom:2px;">${r.t}</div>
+        <div style="width:16px;height:${hT}px;background:#3b82f6;border-radius:2px 2px 0 0;position:relative;">
+          ${r.d?`<div style="position:absolute;bottom:0;left:0;width:100%;height:${hD}px;background:#dc2626;border-radius:0 0 0 0;"></div>`:''}
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">${imgs}</div>
+        <div style="font-size:6pt;color:#6b7280;margin-top:3px;writing-mode:vertical-lr;transform:rotate(180deg);height:40px;overflow:hidden;">${r.mo.substring(0,3)}</div>
+      </div>`;
+    }).join('');
+    cards+=_chartCard('Monthly Trend',`<div style="display:flex;align-items:flex-end;gap:2px;min-height:100px;padding-top:6px;">${bars}</div>
+      <div style="display:flex;gap:12px;margin-top:6px;font-size:7pt;justify-content:center;">
+        <span><span style="display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:2px;margin-right:3px;vertical-align:middle;"></span>Inspections</span>
+        <span><span style="display:inline-block;width:8px;height:8px;background:#dc2626;border-radius:2px;margin-right:3px;vertical-align:middle;"></span>Defects</span>
       </div>`);
-    }
-    requestAnimationFrame(()=> requestAnimationFrame(_doCapture));
-  });
+  }
+
+  // 5. Work Type Distribution
+  if(wtData&&wtData.length){
+    const maxW=Math.max(...wtData.map(r=>r.count),1);
+    const colors=['#3b82f6','#f59e0b','#10b981','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1'];
+    let rows=wtData.slice(0,8).map((r,i)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+      <div style="width:100px;font-size:7.5pt;text-align:right;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
+      <div style="flex:1;">${_cssBar(r.count/maxW*100,colors[i%8])}</div>
+      <div style="width:26px;font-size:7.5pt;font-weight:700;color:#374151;">${r.count}</div>
+    </div>`).join('');
+    cards+=_chartCard('Work Type Distribution',rows);
+  }
+
+  // 6. ATR Status donut
+  if(atrData&&(atrData.submitted+atrData.pending+atrData.overdue)>0){
+    const aTotal=atrData.submitted+atrData.pending+atrData.overdue;
+    const sPct=Math.round(atrData.submitted/aTotal*100), pPct=Math.round(atrData.pending/aTotal*100), oPct=100-sPct-pPct;
+    const donut2=_cssDonut([{pct:sPct,color:'#16a34a'},{pct:pPct,color:'#f59e0b'},{pct:oPct,color:'#dc2626'}],80);
+    cards+=_chartCard('ATR Status',`<div style="display:flex;align-items:center;gap:16px;">
+      ${donut2}
+      <div style="font-size:8pt;">
+        <div style="margin-bottom:3px;"><span style="display:inline-block;width:10px;height:10px;background:#16a34a;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Submitted: <strong>${atrData.submitted}</strong></div>
+        <div style="margin-bottom:3px;"><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Pending: <strong>${atrData.pending}</strong></div>
+        <div><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Overdue: <strong>${atrData.overdue}</strong></div>
+      </div></div>`);
+  }
+
+  return `<div style="page-break-before:always;padding:10px 0;">
+    <div style="text-align:center;margin-bottom:14px;padding:8px 0;border-bottom:2.5px solid #1a3a6e;">
+      <div style="font-size:13pt;font-weight:800;color:#1a3a6e;letter-spacing:1.5px;">DATA VISUALIZATION</div>
+      <div style="font-size:8pt;color:#6b7280;margin-top:3px;">Auto-generated charts based on report data</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${cards}</div>
+  </div>`;
 }
 
 function getFiltered(){
@@ -14750,7 +14787,7 @@ function _mgmtGetDateRange(){
   return { from: fromStr, to: toStr, label };
 }
 
-async function _printMgmtSummaryReport(){
+function _printMgmtSummaryReport(){
   const { from, to, label } = _mgmtGetDateRange();
   const locFilter = document.getElementById('mgmtLocFilter')?.value || '';
   const now = new Date();
@@ -14962,7 +14999,9 @@ table.rt td{border-bottom:1px solid #e5e7eb;vertical-align:middle;}
 </div>
 </body></html>`;
 
-  const chartHtml = await _captureChartImagesHTML();
+  const wtData2=topCats.map(([name,count])=>({name,count}));
+  const atrData2={submitted:atrSub,pending:atrPend,overdue:atrOvd};
+  const chartHtml=_buildReportCharts({recs:fd,locRows,moRows,wtData:wtData2,atrData:atrData2});
   html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
@@ -15466,13 +15505,13 @@ function renderProjectReport(){
 }
 
 // ===== PRINT / SAVE CURRENT REPORT =====
-async function printCurrentReport(){
+function printCurrentReport(){
   try {
     const type = document.getElementById('reportTypeSelect')?.value || 'summary';
-    if(type==='project') await _printProjectReport();
-    else if(type==='registry') await _printRegistryReport();
-    else if(type==='mgmt') await _printMgmtSummaryReport();
-    else await _printInspectionReport();
+    if(type==='project') _printProjectReport();
+    else if(type==='registry') _printRegistryReport();
+    else if(type==='mgmt') _printMgmtSummaryReport();
+    else _printInspectionReport();
   } catch(e) {
     console.error('printCurrentReport error:', e);
     alert('Print error: ' + (e.message||e) + '\n\nPlease try again or allow pop-ups for this page.');
@@ -15529,7 +15568,7 @@ function saveCurrentReport(){
   toast(`✅ ${record.typeLabel} saved to Downloads.`);
 }
 
-async function _printProjectReport(){
+function _printProjectReport(){
   const proj = document.getElementById('reportProjectSelect')?.value;
   if(!proj){ toast('Please select a project first.'); return; }
   const recs = inspections.filter(r=>r.projectName===proj);
@@ -15636,7 +15675,11 @@ async function _printProjectReport(){
         ${recs.filter(r=>r.remarks).map((r,i)=>`<tr style="${i%2===1?'background:#f5f8ff;':''}"><td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8pt;width:14%;color:#555;">${r.dateInspected||'—'}</td><td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${r.remarks}</td></tr>`).join('') || '<tr><td colspan="2" style="padding:10px 8px;color:#888;font-size:8.5pt;font-style:italic;">No additional remarks recorded for this project.</td></tr>'}
       </table>`,
   });
-  const chartHtml = await _captureChartImagesHTML();
+  const wtData2=Object.entries(wTypeMap).map(([name,v])=>({name,count:v.pass+v.fail}));
+  const atrSub2=defects.filter(r=>r.atrSubmitted).length;
+  const atrOvd2=defects.filter(r=>calcATRStatus(r)==='OVERDUE').length;
+  const atrPend2=defects.length-atrSub2-atrOvd2;
+  const chartHtml=_buildReportCharts({recs,locRows:null,moRows:null,wtData:wtData2,atrData:{submitted:atrSub2,pending:Math.max(0,atrPend2),overdue:atrOvd2}});
   html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
@@ -15880,7 +15923,7 @@ function _printRegistryAllReport(){
   _doPrint(html);
 }
 
-async function _printRegistryReport(){
+function _printRegistryReport(){
   if(document.getElementById('reportRegistrySelect')?.value === 'ALL'){
     _printRegistryAllReport();
     return;
@@ -15950,7 +15993,31 @@ async function _printRegistryReport(){
       ${histTable}
     `,
   });
-  const chartHtml = await _captureChartImagesHTML();
+  const pct=latest?.percent||0;
+  const progChart=_chartCard('Physical Progress',`
+    <div style="text-align:center;margin-bottom:8px;font-size:20pt;font-weight:800;color:${pct>=80?'#16a34a':pct>=50?'#d97706':'#dc2626'};">${pct}%</div>
+    ${_cssBar(pct,pct>=80?'#16a34a':pct>=50?'#d97706':'#dc2626','20px')}
+    <div style="display:flex;justify-content:space-between;font-size:7pt;color:#6b7280;margin-top:4px;"><span>0%</span><span>50%</span><span>100%</span></div>`);
+  let moChart='';
+  if(linkedUpdates&&linkedUpdates.length>1){
+    const maxP=100;
+    const bars2=linkedUpdates.slice(-12).map(u=>{
+      const h=Math.round((u.percent||0)/maxP*70);
+      const sc=u.overallStatus==='On Track'?'#16a34a':u.overallStatus==='Delayed'?'#dc2626':'#f59e0b';
+      return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:24px;">
+        <div style="font-size:6pt;font-weight:700;color:#374151;margin-bottom:2px;">${u.percent||0}%</div>
+        <div style="width:14px;height:${h}px;background:${sc};border-radius:2px 2px 0 0;"></div>
+        <div style="font-size:5.5pt;color:#6b7280;margin-top:2px;">${(u.month||'').substring(0,3)}</div>
+      </div>`;
+    }).join('');
+    moChart=_chartCard('Progress Over Time',`<div style="display:flex;align-items:flex-end;gap:2px;min-height:80px;">${bars2}</div>`);
+  }
+  const chartHtml=`<div style="page-break-before:always;padding:10px 0;">
+    <div style="text-align:center;margin-bottom:14px;padding:8px 0;border-bottom:2.5px solid #1a3a6e;">
+      <div style="font-size:13pt;font-weight:800;color:#1a3a6e;letter-spacing:1.5px;">DATA VISUALIZATION</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${progChart}${moChart}</div>
+  </div>`;
   html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
@@ -23234,7 +23301,7 @@ function _doPrint(html){
 //  EXECUTIVE INSPECTION REPORT PRINT — only recorded entries
 // ═══════════════════════════════════════════════════════════════
 
-async function _printInspectionReport(){
+function _printInspectionReport(){
   // Apply month filter from the summary report dropdown
   const monthFilter = document.getElementById('reportMonthFilter')?.value || '';
   const monthNames = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June',
@@ -23523,7 +23590,26 @@ ${testRows ? `
 
 </div></body></html>`;
 
-  const chartHtml = await _captureChartImagesHTML();
+  // Build chart data from inspection records
+  const _locMap={};
+  recs.forEach(r=>{
+    const loc=r.dzongkhag||r.ro||r.other||'Unknown';
+    if(!_locMap[loc])_locMap[loc]={total:0,def:0};
+    _locMap[loc].total++; if(r.defect==='Yes')_locMap[loc].def++;
+  });
+  const _locRows=Object.entries(_locMap).map(([name,v])=>({name,total:v.total,def:v.def,defRate:Math.round(v.def/(v.total||1)*100)})).sort((a,b)=>b.total-a.total);
+  const _moMap={};
+  recs.forEach(r=>{ const mo=r.month||''; if(!mo)return; if(!_moMap[mo])_moMap[mo]={t:0,d:0}; _moMap[mo].t++; if(r.defect==='Yes')_moMap[mo].d++; });
+  const _months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const _moRows=_months.filter(m=>_moMap[m]).map(m=>({mo:m,t:_moMap[m].t,d:_moMap[m].d}));
+  const _wtMap2={};
+  recs.forEach(r=>{ const k=r.workType||'Other'; if(!_wtMap2[k])_wtMap2[k]=0; _wtMap2[k]++; });
+  const _wtData=Object.entries(_wtMap2).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
+  const _defRecs=recs.filter(r=>r.defect==='Yes');
+  const _atrSub=_defRecs.filter(r=>r.atrSubmitted).length;
+  const _atrOvd=_defRecs.filter(r=>calcATRStatus(r)==='OVERDUE').length;
+  const _atrPend=_defRecs.length-_atrSub-_atrOvd;
+  const chartHtml=_buildReportCharts({recs,locRows:_locRows,moRows:_moRows,wtData:_wtData,atrData:{submitted:_atrSub,pending:Math.max(0,_atrPend),overdue:_atrOvd}});
   html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
