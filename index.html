@@ -2196,17 +2196,26 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
         <div>
           <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:1px;color:#1a2236;">📊 DATA VISUALISATION</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:1px;">All charts update live with the filters above</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:1px;">Charts grouped by selected location view</div>
         </div>
-        <button onclick="dashDrawAllCharts()" style="background:#f8f9fc;border:1px solid #cbd2e0;border-radius:6px;padding:8px 16px;color:#f97316;font-size:12px;font-weight:700;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">↺ Refresh All</button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:10px;color:#374151;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;font-family:'Poppins',sans-serif;">VIEW:</span>
+          <select id="dashChartView" onchange="dashDrawAllCharts()" style="background:linear-gradient(135deg,#fff7ed,#fef3c7);border:2px solid #e8820c;border-radius:8px;padding:8px 14px;color:#92400e;font-size:13px;font-weight:700;cursor:pointer;outline:none;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;">
+            <option value="overall">🌐 Overall (All Locations)</option>
+            <option value="dzongkhag">🏔️ By Dzongkhag</option>
+            <option value="ro">🏢 By RO / Thromde</option>
+            <option value="other">📋 By Other</option>
+          </select>
+          <button onclick="dashDrawAllCharts()" style="background:#f8f9fc;border:1px solid #cbd2e0;border-radius:6px;padding:8px 16px;color:#f97316;font-size:12px;font-weight:700;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">↺ Refresh</button>
+        </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
 
         <!-- Row 1 -->
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">📍 Inspections by Location</div>
-          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">Dzongkhag · RO/Thromde · Other — total &amp; defects</div>
+          <div id="dc1Title" style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">📍 Inspections by Location</div>
+          <div id="dc1Sub" style="font-size:10px;color:#6b7280;margin-bottom:10px;">Dzongkhag · RO/Thromde · Other — total &amp; defects</div>
           <div style="position:relative;height:220px;"><canvas id="dc1"></canvas></div>
         </div>
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
@@ -2217,8 +2226,8 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
         <!-- Row 2 -->
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">⚠️ Defect Rate by Location (%)</div>
-          <div style="font-size:10px;color:#6b7280;margin-bottom:10px;">All locations · Green &lt;25% · Orange 25–50% · Red ≥50%</div>
+          <div id="dc3Title" style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:2px;">⚠️ Defect Rate by Location (%)</div>
+          <div id="dc3Sub" style="font-size:10px;color:#6b7280;margin-bottom:10px;">Green &lt;25% · Orange 25–50% · Red ≥50%</div>
           <div style="position:relative;height:220px;"><canvas id="dc3"></canvas></div>
         </div>
         <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
@@ -13120,22 +13129,37 @@ function dashDrawAllCharts(){
   const GRN='rgba(22,163,74,.8)',GRN_L='rgba(22,163,74,.12)';
   const BLU='rgba(59,130,246,.8)',BLU_L='rgba(59,130,246,.12)';
 
-  // DC1 — Inspections by Location (Dzongkhag + RO + Other combined)
-  const allLoc={};
+  // ── Chart View selector ──
+  const chartView = (document.getElementById('dashChartView')||{}).value||'overall';
+  const viewLabels = {overall:'All Locations',dzongkhag:'Dzongkhag',ro:'RO / Thromde',other:'Other'};
+  const viewIcons = {overall:'🌐',dzongkhag:'🏔️',ro:'🏢',other:'📋'};
+  const vl = viewLabels[chartView]||'All Locations';
+  const vi = viewIcons[chartView]||'📍';
+  const t1=document.getElementById('dc1Title'); if(t1) t1.textContent=`${vi} Inspections by ${vl}`;
+  const s1=document.getElementById('dc1Sub'); if(s1) s1.textContent=chartView==='overall'?'Dzongkhag · RO/Thromde · Other — total & defects':`Showing ${vl} only — total & defects`;
+  const t3=document.getElementById('dc3Title'); if(t3) t3.textContent=`⚠️ Defect Rate — ${vl} (%)`;
+  const s3=document.getElementById('dc3Sub'); if(s3) s3.textContent=chartView==='overall'?'All locations · Green <25% · Orange 25–50% · Red ≥50%':`${vl} · Green <25% · Orange 25–50% · Red ≥50%`;
+
+  // DC1 — Inspections by Location (filtered by view)
+  const dc1_map={};
   fd.forEach(r=>{
-    const loc=r.dzongkhag||r.ro||r.other||'';
+    let loc='', type='';
+    if(chartView==='overall'){ loc=r.dzongkhag||r.ro||r.other||''; type=r.dzongkhag?'dz':r.ro?'ro':'other'; }
+    else if(chartView==='dzongkhag'){ loc=r.dzongkhag||''; type='dz'; }
+    else if(chartView==='ro'){ loc=r.ro||''; type='ro'; }
+    else if(chartView==='other'){ loc=r.other||''; type='other'; }
     if(!loc) return;
-    if(!allLoc[loc]) allLoc[loc]={total:0,defects:0,type:r.dzongkhag?'dz':r.ro?'ro':'other'};
-    allLoc[loc].total++;
-    if(r.defect==='Yes') allLoc[loc].defects++;
+    if(!dc1_map[loc]) dc1_map[loc]={total:0,defects:0,type};
+    dc1_map[loc].total++;
+    if(r.defect==='Yes') dc1_map[loc].defects++;
   });
-  const allLoc_sorted=Object.entries(allLoc).sort((a,b)=>b[1].total-a[1].total).slice(0,15);
-  const allLoc_labels=allLoc_sorted.map(x=>{const n=x[0];const pre=x[1].type==='ro'?'🏢 ':x[1].type==='other'?'📋 ':'';return pre+(n.length>10?n.slice(0,9)+'…':n);});
-  const allLoc_colors=allLoc_sorted.map(x=>x[1].type==='dz'?ORG:x[1].type==='ro'?'rgba(59,130,246,0.7)':'rgba(139,92,246,0.7)');
-  mk('dc1',{type:'bar',data:{labels:allLoc_labels,datasets:[
-    {label:'Total',data:allLoc_sorted.map(x=>x[1].total),backgroundColor:allLoc_colors,borderRadius:4,borderSkipped:false},
-    {label:'Defects',data:allLoc_sorted.map(x=>x[1].defects),backgroundColor:RED,borderRadius:4,borderSkipped:false},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>{const d=allLoc_sorted[ctx.dataIndex];return ` ${ctx.dataset.label}: ${ctx.parsed.y}${ctx.datasetIndex===0?' ('+d[1].type.toUpperCase()+')':''}`;} }}},scales:{x:{...ax(),ticks:{color:tc,font:{size:7},maxRotation:50}},y:{...ax('Count'),beginAtZero:true}}}});
+  const dc1_sorted=Object.entries(dc1_map).sort((a,b)=>b[1].total-a[1].total).slice(0,15);
+  const dc1_labels=dc1_sorted.map(x=>{const n=x[0];const pre=chartView==='overall'?(x[1].type==='ro'?'🏢 ':x[1].type==='other'?'📋 ':''):'';return pre+(n.length>12?n.slice(0,11)+'…':n);});
+  const dc1_colors=dc1_sorted.map(x=>x[1].type==='dz'?ORG:x[1].type==='ro'?BLU:'rgba(139,92,246,0.7)');
+  mk('dc1',{type:'bar',data:{labels:dc1_labels,datasets:[
+    {label:'Total',data:dc1_sorted.map(x=>x[1].total),backgroundColor:dc1_colors,borderRadius:4,borderSkipped:false},
+    {label:'Defects',data:dc1_sorted.map(x=>x[1].defects),backgroundColor:RED,borderRadius:4,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:{...tip,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y}`}}},scales:{x:{...ax(),ticks:{color:tc,font:{size:7},maxRotation:50}},y:{...ax('Count'),beginAtZero:true}}}});
 
   // DC2 — Monthly Trend (bars like screenshots)
   const mo_l=[],mo_t=[],mo_d=[];
@@ -13145,20 +13169,23 @@ function dashDrawAllCharts(){
     {label:'Defects',data:mo_d,backgroundColor:RED,borderRadius:4,borderSkipped:false},
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:lc,font:{family:'Poppins',size:10},boxWidth:10}},tooltip:tip},scales:{x:{...ax()},y:{...ax('Count'),beginAtZero:true}}}});
 
-  // DC3 — Defect Rate by Location (all types)
+  // DC3 — Defect Rate by Location (filtered by view)
   const dr_l=[],dr_d=[],dr_bg=[];
   const dr_locs={};
   fd.forEach(r=>{
-    const loc=r.dzongkhag||r.ro||r.other||'';
+    let loc='';
+    if(chartView==='overall') loc=r.dzongkhag||r.ro||r.other||'';
+    else if(chartView==='dzongkhag') loc=r.dzongkhag||'';
+    else if(chartView==='ro') loc=r.ro||'';
+    else if(chartView==='other') loc=r.other||'';
     if(!loc) return;
-    if(!dr_locs[loc]) dr_locs[loc]={total:0,defects:0,type:r.dzongkhag?'dz':r.ro?'ro':'other'};
+    if(!dr_locs[loc]) dr_locs[loc]={total:0,defects:0};
     dr_locs[loc].total++;
     if(r.defect==='Yes') dr_locs[loc].defects++;
   });
   Object.entries(dr_locs).sort((a,b)=>b[1].total-a[1].total).slice(0,15).forEach(([loc,v])=>{
     const rt=Math.round(v.defects/v.total*100);
-    const pre=v.type==='ro'?'🏢 ':v.type==='other'?'📋 ':'';
-    dr_l.push(pre+(loc.length>10?loc.slice(0,9)+'…':loc));
+    dr_l.push(loc.length>12?loc.slice(0,11)+'…':loc);
     dr_d.push(rt);
     dr_bg.push(rt>=50?'rgba(220,38,38,.8)':rt>=25?'rgba(234,88,12,.8)':'rgba(22,163,74,.8)');
   });
