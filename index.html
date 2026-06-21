@@ -2134,13 +2134,22 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         </div>
         <div style="font-size:11px;color:#7c3aed;margin-top:8px;opacity:.7;">Your comment will be saved to the system and emailed to all administrators.</div>
       </div>
-      <div class="filters">
+      <div class="filters" style="flex-wrap:wrap;gap:6px;">
         <span class="filter-label">📅 VIEW BY:</span>
         <select class="filter-select" id="fYear" onchange="refreshDash()"><option value="">All Years</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select>
         <select class="filter-select" id="fMonth" onchange="refreshDash()"><option value="">All Months</option><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
-        <select class="filter-select" id="fDzong" onchange="refreshDash()"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
-        <select class="filter-select" id="fRO" onchange="refreshDash()"><option value="">All ROs</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
-        <select class="filter-select" id="fOther" onchange="refreshDash()"><option value="">All Others</option></select>
+        <div style="width:1px;height:24px;background:#e2e6ef;margin:0 2px;"></div>
+        <span class="filter-label">📍 LOCATION:</span>
+        <select class="filter-select" id="fLocType" onchange="dashToggleLocFilter()" style="font-weight:600;border-color:#e8820c;">
+          <option value="">All Locations</option>
+          <option value="dzongkhag">🏔️ Dzongkhag</option>
+          <option value="ro">🏢 RO / Thromde</option>
+          <option value="other">📋 Other</option>
+        </select>
+        <select class="filter-select" id="fDzong" onchange="refreshDash()" style="display:none;"><option value="">All Dzongkhags</option><option>Bumthang</option><option>Chhukha</option><option>Dagana</option><option>Gasa</option><option>Haa</option><option>Lhuentse</option><option>Mongar</option><option>Paro</option><option>Pemagatshel</option><option>Punakha</option><option>S/Jongkhar</option><option>Samtse</option><option>Sarpang</option><option>Thimphu</option><option>Trashigang</option><option>Trashi Yangtse</option><option>Trongsa</option><option>Tsirang</option><option>Wangdue Phodrang</option><option>Zhemgang</option></select>
+        <select class="filter-select" id="fRO" onchange="refreshDash()" style="display:none;"><option value="">All RO / Thromde</option><option>RO Thimphu</option><option>RO Phuentsholing</option><option>RO Sarpang</option><option>RO Samdrup Jongkhar</option><option>RO Trongsa</option><option>RO Tingtibi</option><option>RO Lingmethang</option><option>RO Lobeysa</option><option>RO Trashigang</option><option>Thimphu Thromde</option><option>Phuentshogling Thromde</option><option>Gelephu Thromde</option><option>Samdrup Jongkhar Thromde</option></select>
+        <select class="filter-select" id="fOther" onchange="refreshDash()" style="display:none;"><option value="">All Others</option></select>
+        <button onclick="dashResetFilters()" style="background:none;border:1px solid #e2e6ef;border-radius:5px;padding:4px 10px;font-size:10px;color:#6b7280;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">✕ Reset</button>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card blue"><div class="kpi-icon">🛣️</div><div class="kpi-label">Total Inspected</div><div class="kpi-value" id="kpi1">0</div></div>
@@ -12934,6 +12943,13 @@ function renderRecentActivity(){
 // ===== DASHBOARD =====
 function refreshDash(){
   document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  // Populate "Other" dropdown dynamically
+  const otherSel=document.getElementById('fOther');
+  if(otherSel){
+    const allOthers=[...new Set((inspections||[]).map(r=>r.other).filter(Boolean))].sort();
+    const cur=otherSel.value;
+    otherSel.innerHTML='<option value="">All Others</option>'+allOthers.map(o=>`<option${o===cur?' selected':''}>${o}</option>`).join('');
+  }
   renderRecentActivity();
 
   // Show location badge for users
@@ -13224,21 +13240,45 @@ function dashDrawChart(){ dashDrawAllCharts(); }
 
 
 function getFiltered(){
-  // Dashboard filters (year/month/dzongkhag/ro dropdowns)
   const yr=document.getElementById('fYear').value,mo=document.getElementById('fMonth').value;
+  const locType=(document.getElementById('fLocType')||{}).value||'';
   const dz=document.getElementById('fDzong').value,ro=document.getElementById('fRO').value;
   const oth=(document.getElementById('fOther')||{}).value||'';
-  // All users see all records in the overview/dashboard (for big-picture awareness)
-  // but location filter dropdowns still apply
-  // Dashboard/charts show ALL inspections — location restriction only in Register/ATR/Report
   return (inspections||[]).filter(r=>{
     if(yr&&getYear(r.dateInspected)!==yr)return false;
     if(mo&&r.month!==mo)return false;
+    if(locType==='dzongkhag'&&!r.dzongkhag)return false;
+    if(locType==='ro'&&!r.ro)return false;
+    if(locType==='other'&&!r.other)return false;
     if(dz&&r.dzongkhag!==dz)return false;
     if(ro&&r.ro!==ro)return false;
     if(oth&&r.other!==oth)return false;
     return true;
   });
+}
+
+function dashToggleLocFilter(){
+  const locType=document.getElementById('fLocType').value;
+  document.getElementById('fDzong').style.display=locType==='dzongkhag'?'':'none';
+  document.getElementById('fRO').style.display=locType==='ro'?'':'none';
+  document.getElementById('fOther').style.display=locType==='other'?'':'none';
+  document.getElementById('fDzong').selectedIndex=0;
+  document.getElementById('fRO').selectedIndex=0;
+  document.getElementById('fOther').selectedIndex=0;
+  refreshDash();
+}
+
+function dashResetFilters(){
+  document.getElementById('fYear').selectedIndex=0;
+  document.getElementById('fMonth').selectedIndex=0;
+  document.getElementById('fLocType').selectedIndex=0;
+  document.getElementById('fDzong').selectedIndex=0;
+  document.getElementById('fDzong').style.display='none';
+  document.getElementById('fRO').selectedIndex=0;
+  document.getElementById('fRO').style.display='none';
+  document.getElementById('fOther').selectedIndex=0;
+  document.getElementById('fOther').style.display='none';
+  refreshDash();
 }
 
 // ===== TABLE =====
