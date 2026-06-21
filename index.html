@@ -13269,66 +13269,74 @@ function dashDrawAllCharts(){
 function dashDrawChart(){ dashDrawAllCharts(); }
 
 function _captureChartImagesHTML(){
-  const dashTab = document.getElementById('tab-dashboard');
-  if(!dashTab) return '';
-  const wasHidden = dashTab.style.display === 'none';
-  if(wasHidden){
-    dashTab.style.display = '';
-    dashTab.style.position = 'fixed';
-    dashTab.style.top = '0';
-    dashTab.style.left = '0';
-    dashTab.style.width = '100%';
-    dashTab.style.zIndex = '-9999';
-    dashTab.style.opacity = '0';
-    dashTab.style.pointerEvents = 'none';
-  }
-  try{ dashDrawAllCharts(); }catch(e){}
-  const chartIds=['dc1','dc2','dc3','dc4','dc5','dc6','dc7','dc8'];
-  const chartTitles={
-    dc1:(document.getElementById('dc1Title')||{}).textContent||'Inspections by Location',
-    dc2:'Monthly Inspection Trend',
-    dc3:(document.getElementById('dc3Title')||{}).textContent||'Defect Rate by Location',
-    dc4:'Monthly Defect Rate Trend',
-    dc5:'Monthly Quality Trend',
-    dc6:'Work Type Distribution',
-    dc7:'ATR Status Overview',
-    dc8:'Defects vs Clean'
-  };
-  let imgs='';
-  chartIds.forEach(id=>{
-    const canvas=document.getElementById(id);
-    if(!canvas||canvas.width===0||canvas.height===0) return;
-    try{
-      const img=canvas.toDataURL('image/png',1.0);
-      if(img.length<200) return;
-      imgs+=`<div style="break-inside:avoid;margin-bottom:18px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff;">
-        <div style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 14px;">
-          <div style="font-size:11px;font-weight:700;color:#1a2236;">${chartTitles[id]||id}</div>
+  return new Promise(resolve=>{
+    const dashTab = document.getElementById('tab-dashboard');
+    if(!dashTab){ resolve(''); return; }
+    const wasHidden = dashTab.style.display === 'none';
+    if(wasHidden){
+      dashTab.style.display = '';
+      dashTab.style.position = 'fixed';
+      dashTab.style.top = '0';
+      dashTab.style.left = '0';
+      dashTab.style.width = '100vw';
+      dashTab.style.height = 'auto';
+      dashTab.style.zIndex = '-9999';
+      dashTab.style.opacity = '0';
+      dashTab.style.pointerEvents = 'none';
+    }
+    try{ dashDrawAllCharts(); }catch(e){ console.error('chart draw err',e); }
+
+    function _doCapture(){
+      const chartIds=['dc1','dc2','dc3','dc4','dc5','dc6','dc7','dc8'];
+      const chartTitles={
+        dc1:(document.getElementById('dc1Title')||{}).textContent||'Inspections by Location',
+        dc2:'Monthly Inspection Trend',
+        dc3:(document.getElementById('dc3Title')||{}).textContent||'Defect Rate by Location',
+        dc4:'Monthly Defect Rate Trend',
+        dc5:'Monthly Quality Trend',
+        dc6:'Work Type Distribution',
+        dc7:'ATR Status Overview',
+        dc8:'Defects vs Clean'
+      };
+      let imgs='';
+      chartIds.forEach(id=>{
+        const canvas=document.getElementById(id);
+        if(!canvas||canvas.width===0||canvas.height===0) return;
+        try{
+          const img=canvas.toDataURL('image/png',1.0);
+          if(img.length<200) return;
+          imgs+=`<div style="break-inside:avoid;margin-bottom:18px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff;">
+            <div style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 14px;">
+              <div style="font-size:11px;font-weight:700;color:#1a2236;">${chartTitles[id]||id}</div>
+            </div>
+            <div style="padding:10px;text-align:center;">
+              <img src="${img}" style="max-width:100%;height:auto;">
+            </div>
+          </div>`;
+        }catch(e){}
+      });
+      if(wasHidden){
+        dashTab.style.display = 'none';
+        dashTab.style.position = '';
+        dashTab.style.top = '';
+        dashTab.style.left = '';
+        dashTab.style.width = '';
+        dashTab.style.height = '';
+        dashTab.style.zIndex = '';
+        dashTab.style.opacity = '';
+        dashTab.style.pointerEvents = '';
+      }
+      if(!imgs){ resolve(''); return; }
+      resolve(`<div style="page-break-before:always;padding-top:10px;">
+        <div style="text-align:center;margin-bottom:16px;padding:10px 0;border-bottom:2px solid #1a3a6e;">
+          <div style="font-size:14px;font-weight:800;color:#1a3a6e;letter-spacing:1px;">DATA VISUALIZATION</div>
+          <div style="font-size:9px;color:#666;margin-top:4px;">Charts from Dashboard · Auto-generated</div>
         </div>
-        <div style="padding:10px;text-align:center;">
-          <img src="${img}" style="max-width:100%;height:auto;">
-        </div>
-      </div>`;
-    }catch(e){}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">${imgs}</div>
+      </div>`);
+    }
+    requestAnimationFrame(()=> requestAnimationFrame(_doCapture));
   });
-  if(wasHidden){
-    dashTab.style.display = 'none';
-    dashTab.style.position = '';
-    dashTab.style.top = '';
-    dashTab.style.left = '';
-    dashTab.style.width = '';
-    dashTab.style.zIndex = '';
-    dashTab.style.opacity = '';
-    dashTab.style.pointerEvents = '';
-  }
-  if(!imgs) return '';
-  return `<div style="page-break-before:always;padding-top:10px;">
-    <div style="text-align:center;margin-bottom:16px;padding:10px 0;border-bottom:2px solid #1a3a6e;">
-      <div style="font-size:14px;font-weight:800;color:#1a3a6e;letter-spacing:1px;">DATA VISUALIZATION</div>
-      <div style="font-size:9px;color:#666;margin-top:4px;">Charts from Dashboard · Auto-generated</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">${imgs}</div>
-  </div>`;
 }
 
 function getFiltered(){
@@ -14742,7 +14750,7 @@ function _mgmtGetDateRange(){
   return { from: fromStr, to: toStr, label };
 }
 
-function _printMgmtSummaryReport(){
+async function _printMgmtSummaryReport(){
   const { from, to, label } = _mgmtGetDateRange();
   const locFilter = document.getElementById('mgmtLocFilter')?.value || '';
   const now = new Date();
@@ -14952,9 +14960,10 @@ table.rt td{border-bottom:1px solid #e5e7eb;vertical-align:middle;}
     <span>Construction Quality Division · OPMC/OCASC · www.cabinet.gov.bt</span>
   </div>
 </div>
-${_captureChartImagesHTML()}
 </body></html>`;
 
+  const chartHtml = await _captureChartImagesHTML();
+  html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
 
@@ -15457,13 +15466,13 @@ function renderProjectReport(){
 }
 
 // ===== PRINT / SAVE CURRENT REPORT =====
-function printCurrentReport(){
+async function printCurrentReport(){
   try {
     const type = document.getElementById('reportTypeSelect')?.value || 'summary';
-    if(type==='project') _printProjectReport();
-    else if(type==='registry') _printRegistryReport();
-    else if(type==='mgmt') _printMgmtSummaryReport();
-    else _printInspectionReport();
+    if(type==='project') await _printProjectReport();
+    else if(type==='registry') await _printRegistryReport();
+    else if(type==='mgmt') await _printMgmtSummaryReport();
+    else await _printInspectionReport();
   } catch(e) {
     console.error('printCurrentReport error:', e);
     alert('Print error: ' + (e.message||e) + '\n\nPlease try again or allow pop-ups for this page.');
@@ -15520,7 +15529,7 @@ function saveCurrentReport(){
   toast(`✅ ${record.typeLabel} saved to Downloads.`);
 }
 
-function _printProjectReport(){
+async function _printProjectReport(){
   const proj = document.getElementById('reportProjectSelect')?.value;
   if(!proj){ toast('Please select a project first.'); return; }
   const recs = inspections.filter(r=>r.projectName===proj);
@@ -15627,7 +15636,8 @@ function _printProjectReport(){
         ${recs.filter(r=>r.remarks).map((r,i)=>`<tr style="${i%2===1?'background:#f5f8ff;':''}"><td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8pt;width:14%;color:#555;">${r.dateInspected||'—'}</td><td style="padding:4px 8px;border-bottom:1px solid #dde3ef;font-size:8.5pt;">${r.remarks}</td></tr>`).join('') || '<tr><td colspan="2" style="padding:10px 8px;color:#888;font-size:8.5pt;font-style:italic;">No additional remarks recorded for this project.</td></tr>'}
       </table>`,
   });
-  html = html.replace('</body>', _captureChartImagesHTML() + '</body>');
+  const chartHtml = await _captureChartImagesHTML();
+  html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
 
@@ -15870,7 +15880,7 @@ function _printRegistryAllReport(){
   _doPrint(html);
 }
 
-function _printRegistryReport(){
+async function _printRegistryReport(){
   if(document.getElementById('reportRegistrySelect')?.value === 'ALL'){
     _printRegistryAllReport();
     return;
@@ -15940,7 +15950,8 @@ function _printRegistryReport(){
       ${histTable}
     `,
   });
-  html = html.replace('</body>', _captureChartImagesHTML() + '</body>');
+  const chartHtml = await _captureChartImagesHTML();
+  html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
 
@@ -23223,7 +23234,7 @@ function _doPrint(html){
 //  EXECUTIVE INSPECTION REPORT PRINT — only recorded entries
 // ═══════════════════════════════════════════════════════════════
 
-function _printInspectionReport(){
+async function _printInspectionReport(){
   // Apply month filter from the summary report dropdown
   const monthFilter = document.getElementById('reportMonthFilter')?.value || '';
   const monthNames = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June',
@@ -23510,9 +23521,10 @@ ${testRows ? `
 </div>
 <div class="ft-c">Construction Quality Inspection System · Construction Quality Division · OPMC / OCASC</div>
 
-${_captureChartImagesHTML()}
 </div></body></html>`;
 
+  const chartHtml = await _captureChartImagesHTML();
+  html = html.replace('</body>', chartHtml + '</body>');
   _doPrint(html);
 }
 
