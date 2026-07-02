@@ -2099,6 +2099,22 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
       <span class="sb-icon"><i class="fa fa-trophy"></i></span>
       <span class="sb-label">Contractor Scorecard</span>
     </button>
+    <button class="nav-tab" onclick="showTab('comparative',this)">
+      <span class="sb-icon"><i class="fa fa-chart-bar"></i></span>
+      <span class="sb-label">Compare Projects</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('calculator',this)">
+      <span class="sb-icon"><i class="fa fa-calculator"></i></span>
+      <span class="sb-label">Material Calculator</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('quick-entry',this)" id="quickEntryNavBtn">
+      <span class="sb-icon"><i class="fa fa-bolt"></i></span>
+      <span class="sb-label">Quick Entry Mode</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('task-assign',this)" id="taskAssignNavBtn">
+      <span class="sb-icon"><i class="fa fa-user-check"></i></span>
+      <span class="sb-label">Task Assignment</span>
+    </button>
     <button class="nav-tab" onclick="showTab('noticeboard',this)">
       <span class="sb-icon"><i class="fa fa-bullhorn"></i></span>
       <span class="sb-label">Notice Board</span>
@@ -7657,6 +7673,353 @@ function printAllConst(){
       </div>
     </div>
     <!-- ══════════════════════════════════════════════════════════
+         COMPARATIVE PROJECT DASHBOARD
+    ══════════════════════════════════════════════════════════ -->
+    <div id="tab-comparative" style="display:none;padding:24px;max-width:1400px;margin:0 auto;">
+      <div class="section-header" style="margin-bottom:20px;">
+        <div>
+          <div class="section-title">📊 COMPARE PROJECTS</div>
+          <div class="section-badge">Side-by-side comparison of up to 3 projects across all KPIs</div>
+        </div>
+        <button onclick="printComparative()" style="background:linear-gradient(135deg,#0f1e3a,#1a3a6e);border:none;border-radius:7px;padding:9px 18px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;">🖨️ Print Comparison</button>
+      </div>
+
+      <!-- Project selectors -->
+      <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;font-weight:700;">Project A</label>
+          <select id="cmpProjA" onchange="renderComparative()" style="background:#f8fafc;border:1.5px solid #2563eb;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:220px;">
+            <option value="">— Select Project —</option>
+          </select>
+        </div>
+        <div style="font-size:20px;color:#9ca3af;padding-bottom:10px;">vs</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;font-weight:700;">Project B</label>
+          <select id="cmpProjB" onchange="renderComparative()" style="background:#f8fafc;border:1.5px solid #16a34a;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:220px;">
+            <option value="">— Select Project —</option>
+          </select>
+        </div>
+        <div style="font-size:20px;color:#9ca3af;padding-bottom:10px;">vs</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;font-weight:700;">Project C (optional)</label>
+          <select id="cmpProjC" onchange="renderComparative()" style="background:#f8fafc;border:1.5px solid #d97706;border-radius:7px;padding:9px 16px;color:#1a2236;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:220px;">
+            <option value="">— None —</option>
+          </select>
+        </div>
+        <button onclick="document.getElementById('cmpProjA').selectedIndex=0;document.getElementById('cmpProjB').selectedIndex=0;document.getElementById('cmpProjC').selectedIndex=0;renderComparative();" style="background:none;border:1px solid #e2e6ef;border-radius:7px;padding:9px 14px;color:#374151;font-size:12px;cursor:pointer;margin-bottom:0;">✕ Clear</button>
+      </div>
+
+      <!-- Comparison result -->
+      <div id="cmpResult">
+        <div style="text-align:center;padding:60px;color:#6b7280;">
+          <div style="font-size:40px;margin-bottom:12px;">📊</div>
+          <div style="font-size:14px;font-weight:600;">Select at least 2 projects above to compare</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         MATERIAL & MEASUREMENT CALCULATOR
+    ══════════════════════════════════════════════════════════ -->
+    <div id="tab-calculator" style="display:none;padding:24px;max-width:900px;margin:0 auto;">
+      <div class="section-header" style="margin-bottom:20px;">
+        <div>
+          <div class="section-title">🔢 MATERIAL & MEASUREMENT CALCULATOR</div>
+          <div class="section-badge">Earthwork, concrete, bitumen, compaction, and conversion tools</div>
+        </div>
+      </div>
+
+      <!-- Calculator tabs -->
+      <div style="display:flex;gap:0;background:#f0f2f7;border:1px solid #e2e6ef;border-radius:8px;padding:4px;margin-bottom:20px;flex-wrap:wrap;width:fit-content;">
+        <button id="calcTabEarth" onclick="calcShowTab('earth')" class="calc-sub-btn active" style="padding:7px 18px;border:none;border-radius:6px;font-size:11px;font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.5px;cursor:pointer;background:linear-gradient(135deg,#0f1e3a,#1a3a6e);color:#fff;">🏔 Earthwork</button>
+        <button id="calcTabConcrete" onclick="calcShowTab('concrete')" class="calc-sub-btn" style="padding:7px 18px;border:none;border-radius:6px;font-size:11px;font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.5px;cursor:pointer;background:none;color:#374151;">🪨 Concrete</button>
+        <button id="calcTabBitumen" onclick="calcShowTab('bitumen')" class="calc-sub-btn" style="padding:7px 18px;border:none;border-radius:6px;font-size:11px;font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.5px;cursor:pointer;background:none;color:#374151;">🛣️ Bitumen</button>
+        <button id="calcTabCompaction" onclick="calcShowTab('compaction')" class="calc-sub-btn" style="padding:7px 18px;border:none;border-radius:6px;font-size:11px;font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.5px;cursor:pointer;background:none;color:#374151;">⚙️ Compaction</button>
+        <button id="calcTabConvert" onclick="calcShowTab('convert')" class="calc-sub-btn" style="padding:7px 18px;border:none;border-radius:6px;font-size:11px;font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.5px;cursor:pointer;background:none;color:#374151;">🔄 Unit Convert</button>
+      </div>
+
+      <!-- Earth calculator -->
+      <div id="calcPanelEarth" style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:24px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#0f1e3a;margin-bottom:16px;letter-spacing:.5px;">🏔 EARTHWORK VOLUME CALCULATOR</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Length (m)</label><input type="number" id="earthLen" placeholder="0" oninput="calcEarth()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Width (m)</label><input type="number" id="earthWid" placeholder="0" oninput="calcEarth()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Depth / Layer Thickness (m)</label><input type="number" id="earthDep" placeholder="0" oninput="calcEarth()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Swell / Shrinkage Factor</label><input type="number" id="earthFactor" value="1.25" step="0.01" oninput="calcEarth()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+        </div>
+        <div id="earthResult" style="background:#f0fdf4;border:1.5px solid #16a34a;border-radius:8px;padding:14px 18px;display:none;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#15803d;margin-bottom:6px;">RESULTS</div>
+          <div id="earthResultBody" style="font-size:13px;color:#166534;line-height:1.8;"></div>
+        </div>
+      </div>
+
+      <!-- Concrete calculator -->
+      <div id="calcPanelConcrete" style="display:none;background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:24px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#0f1e3a;margin-bottom:16px;letter-spacing:.5px;">🪨 CONCRETE MIX QUANTITY CALCULATOR</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Volume of Concrete (m³)</label><input type="number" id="conVol" placeholder="0" oninput="calcConcrete()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Mix Ratio</label>
+            <select id="conRatio" onchange="calcConcrete()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:13px;color:#1a2236;outline:none;width:100%;">
+              <option value="1:1.5:3">M20 — 1:1.5:3</option>
+              <option value="1:2:4">M15 — 1:2:4</option>
+              <option value="1:1:2">M25 — 1:1:2</option>
+              <option value="1:3:6">M10 — 1:3:6</option>
+              <option value="1:1.5:3">M20 — 1:1.5:3 (default)</option>
+            </select>
+          </div>
+        </div>
+        <div id="conResult" style="background:#eff6ff;border:1.5px solid #2563eb;border-radius:8px;padding:14px 18px;display:none;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#1d4ed8;margin-bottom:6px;">MATERIAL QUANTITIES</div>
+          <div id="conResultBody" style="font-size:13px;color:#1e40af;line-height:1.8;"></div>
+        </div>
+      </div>
+
+      <!-- Bitumen calculator -->
+      <div id="calcPanelBitumen" style="display:none;background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:24px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#0f1e3a;margin-bottom:16px;letter-spacing:.5px;">🛣️ BITUMINOUS MIX / PRIME COAT CALCULATOR</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Road Length (m)</label><input type="number" id="bitLen" placeholder="0" oninput="calcBitumen()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Road Width (m)</label><input type="number" id="bitWid" placeholder="0" oninput="calcBitumen()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Layer Thickness (mm)</label><input type="number" id="bitThick" placeholder="50" oninput="calcBitumen()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Unit Weight (kg/m³)</label><input type="number" id="bitDens" value="2400" oninput="calcBitumen()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+        </div>
+        <div id="bitResult" style="background:#fff7ed;border:1.5px solid #d97706;border-radius:8px;padding:14px 18px;display:none;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#b45309;margin-bottom:6px;">RESULTS</div>
+          <div id="bitResultBody" style="font-size:13px;color:#92400e;line-height:1.8;"></div>
+        </div>
+      </div>
+
+      <!-- Compaction calculator -->
+      <div id="calcPanelCompaction" style="display:none;background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:24px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#0f1e3a;margin-bottom:16px;letter-spacing:.5px;">⚙️ COMPACTION & DENSITY CALCULATOR</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Dry Density — Field (kg/m³)</label><input type="number" id="cmpField" placeholder="0" oninput="calcCompaction()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">MDD — Lab Maximum (kg/m³)</label><input type="number" id="cmpMDD" placeholder="0" oninput="calcCompaction()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Wet Weight of Sample (g)</label><input type="number" id="cmpWet" placeholder="0" oninput="calcCompaction()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Dry Weight of Sample (g)</label><input type="number" id="cmpDry" placeholder="0" oninput="calcCompaction()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Minimum Compaction Required (%)</label><input type="number" id="cmpReq" value="95" oninput="calcCompaction()" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:10px 14px;font-size:14px;color:#1a2236;outline:none;width:100%;"></div>
+        </div>
+        <div id="cmpResult" style="border-radius:8px;padding:14px 18px;display:none;">
+          <div id="cmpResultBody" style="font-size:13px;line-height:1.8;"></div>
+        </div>
+      </div>
+
+      <!-- Unit converter -->
+      <div id="calcPanelConvert" style="display:none;background:#fff;border:1px solid #e2e6ef;border-radius:12px;padding:24px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#0f1e3a;margin-bottom:16px;letter-spacing:.5px;">🔄 UNIT CONVERTER</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">LENGTH</div>
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+              <input type="number" id="cvLen" placeholder="Value" oninput="cvConvert('len')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:8px 12px;font-size:13px;color:#1a2236;outline:none;flex:1;">
+              <select id="cvLenFrom" onchange="cvConvert('len')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:6px;padding:8px;font-size:12px;color:#1a2236;outline:none;">
+                <option value="m">m</option><option value="km">km</option><option value="mm">mm</option><option value="cm">cm</option><option value="ft">ft</option><option value="in">in</option><option value="mile">mile</option><option value="chain">chain</option>
+              </select>
+              <span style="color:#6b7280;">→</span>
+              <select id="cvLenTo" onchange="cvConvert('len')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:6px;padding:8px;font-size:12px;color:#1a2236;outline:none;">
+                <option value="km">km</option><option value="m">m</option><option value="mm">mm</option><option value="cm">cm</option><option value="ft">ft</option><option value="in">in</option><option value="mile">mile</option><option value="chain">chain</option>
+              </select>
+            </div>
+            <div id="cvLenResult" style="font-size:14px;font-weight:700;color:#2563eb;padding:4px 0;"></div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">AREA</div>
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+              <input type="number" id="cvArea" placeholder="Value" oninput="cvConvert('area')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:8px 12px;font-size:13px;color:#1a2236;outline:none;flex:1;">
+              <select id="cvAreaFrom" onchange="cvConvert('area')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:6px;padding:8px;font-size:12px;color:#1a2236;outline:none;">
+                <option value="m2">m²</option><option value="ha">ha</option><option value="km2">km²</option><option value="ft2">ft²</option><option value="acre">acre</option>
+              </select>
+              <span style="color:#6b7280;">→</span>
+              <select id="cvAreaTo" onchange="cvConvert('area')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:6px;padding:8px;font-size:12px;color:#1a2236;outline:none;">
+                <option value="ha">ha</option><option value="m2">m²</option><option value="km2">km²</option><option value="ft2">ft²</option><option value="acre">acre</option>
+              </select>
+            </div>
+            <div id="cvAreaResult" style="font-size:14px;font-weight:700;color:#2563eb;padding:4px 0;"></div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">VOLUME</div>
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+              <input type="number" id="cvVol" placeholder="Value" oninput="cvConvert('vol')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:8px 12px;font-size:13px;color:#1a2236;outline:none;flex:1;">
+              <select id="cvVolFrom" onchange="cvConvert('vol')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:6px;padding:8px;font-size:12px;color:#1a2236;outline:none;">
+                <option value="m3">m³</option><option value="L">L</option><option value="ft3">ft³</option><option value="yd3">yd³</option>
+              </select>
+              <span style="color:#6b7280;">→</span>
+              <select id="cvVolTo" onchange="cvConvert('vol')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:6px;padding:8px;font-size:12px;color:#1a2236;outline:none;">
+                <option value="ft3">ft³</option><option value="m3">m³</option><option value="L">L</option><option value="yd3">yd³</option>
+              </select>
+            </div>
+            <div id="cvVolResult" style="font-size:14px;font-weight:700;color:#2563eb;padding:4px 0;"></div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">WEIGHT</div>
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+              <input type="number" id="cvWt" placeholder="Value" oninput="cvConvert('wt')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:8px 12px;font-size:13px;color:#1a2236;outline:none;flex:1;">
+              <select id="cvWtFrom" onchange="cvConvert('wt')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:6px;padding:8px;font-size:12px;color:#1a2236;outline:none;">
+                <option value="kg">kg</option><option value="t">tonne</option><option value="lb">lb</option><option value="g">g</option>
+              </select>
+              <span style="color:#6b7280;">→</span>
+              <select id="cvWtTo" onchange="cvConvert('wt')" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:6px;padding:8px;font-size:12px;color:#1a2236;outline:none;">
+                <option value="t">tonne</option><option value="kg">kg</option><option value="lb">lb</option><option value="g">g</option>
+              </select>
+            </div>
+            <div id="cvWtResult" style="font-size:14px;font-weight:700;color:#2563eb;padding:4px 0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         QUICK ENTRY MODE
+    ══════════════════════════════════════════════════════════ -->
+    <div id="tab-quick-entry" style="display:none;padding:16px;max-width:600px;margin:0 auto;">
+      <div class="section-header" style="margin-bottom:16px;">
+        <div>
+          <div class="section-title">⚡ QUICK ENTRY MODE</div>
+          <div class="section-badge">Simplified mobile form — essential fields only</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #e2e6ef;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:12px;font-weight:700;color:#374151;">Project Name *</label>
+          <input type="text" id="qeProject" list="qeProjectList" placeholder="Type or select project" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px 14px;font-size:14px;color:#1a2236;outline:none;">
+          <datalist id="qeProjectList"></datalist>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;font-weight:700;color:#374151;">Work Type *</label>
+            <select id="qeWorkType" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px 10px;font-size:13px;color:#1a2236;outline:none;">
+              <option value="">— Select —</option>
+              <option>Earthwork</option><option>Sub-base Course</option><option>Base Course</option>
+              <option>Bituminous Work</option><option>Culvert/Drainage</option><option>Retaining Wall</option>
+              <option>Bridge/Structure</option><option>Concrete Works</option><option>Road Marking</option><option>Other</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;font-weight:700;color:#374151;">Inspection Date *</label>
+            <input type="date" id="qeDate" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px 10px;font-size:13px;color:#1a2236;outline:none;">
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:12px;font-weight:700;color:#374151;">Location / Road Section</label>
+          <input type="text" id="qeLocation" placeholder="e.g. Ch. 0+000 to 1+000" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px 14px;font-size:14px;color:#1a2236;outline:none;">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:12px;font-weight:700;color:#374151;">Contractor</label>
+          <input type="text" id="qeContractor" placeholder="Contractor name" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px 14px;font-size:14px;color:#1a2236;outline:none;">
+        </div>
+
+        <!-- Defect toggle -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label style="font-size:12px;font-weight:700;color:#374151;">Defect Found?</label>
+          <div style="display:flex;gap:10px;">
+            <button id="qeDefectNo" onclick="qeSetDefect(false)" style="flex:1;padding:14px;border:1.5px solid #16a34a;border-radius:8px;background:#f0fdf4;color:#16a34a;font-size:14px;font-weight:700;cursor:pointer;">✅ NO DEFECT</button>
+            <button id="qeDefectYes" onclick="qeSetDefect(true)" style="flex:1;padding:14px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;color:#374151;font-size:14px;font-weight:700;cursor:pointer;">⚠️ DEFECT</button>
+          </div>
+        </div>
+
+        <!-- Defect fields -->
+        <div id="qeDefectFields" style="display:none;flex-direction:column;gap:10px;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;font-weight:700;color:#dc2626;">Defect Description *</label>
+            <textarea id="qeDefectDesc" rows="3" placeholder="Describe the defect…" style="background:#fef2f2;border:1.5px solid #dc2626;border-radius:8px;padding:10px 14px;font-size:13px;color:#1a2236;outline:none;resize:none;"></textarea>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;font-weight:700;color:#374151;">ATR Deadline</label>
+            <input type="date" id="qeATRDeadline" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;color:#1a2236;outline:none;">
+          </div>
+        </div>
+
+        <!-- Pass/Fail -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label style="font-size:12px;font-weight:700;color:#374151;">Test Result</label>
+          <div style="display:flex;gap:10px;">
+            <button id="qePFPass" onclick="qeSetPF('Pass')" style="flex:1;padding:12px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;color:#374151;font-size:13px;font-weight:700;cursor:pointer;">PASS</button>
+            <button id="qePFFail" onclick="qeSetPF('Fail')" style="flex:1;padding:12px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;color:#374151;font-size:13px;font-weight:700;cursor:pointer;">FAIL</button>
+            <button id="qePFNA" onclick="qeSetPF('')" style="flex:1;padding:12px;border:1.5px solid #e2e8f0;border-radius:8px;background:#e2e8f0;color:#374151;font-size:13px;font-weight:700;cursor:pointer;">N/A</button>
+          </div>
+        </div>
+
+        <!-- GPS -->
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div style="flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:12px;color:#6b7280;" id="qeGPSDisplay">📍 GPS not captured</div>
+          <button onclick="qeCaptureGPS()" style="background:linear-gradient(135deg,#0f1e3a,#2563eb);border:none;border-radius:8px;padding:10px 16px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">📍 Capture GPS</button>
+        </div>
+        <input type="hidden" id="qeLat"><input type="hidden" id="qeLng">
+
+        <!-- Notes -->
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:12px;font-weight:700;color:#374151;">Quick Notes</label>
+          <textarea id="qeNotes" rows="2" placeholder="Additional observations…" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:13px;color:#1a2236;outline:none;resize:none;"></textarea>
+        </div>
+
+        <button onclick="qeSaveEntry()" style="background:linear-gradient(135deg,#0f1e3a,#1a3a6e);border:none;border-radius:10px;padding:16px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-top:4px;">💾 SAVE INSPECTION</button>
+        <div id="qeSaveMsg" style="display:none;text-align:center;font-size:13px;font-weight:700;color:#16a34a;padding:8px;"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         INSPECTOR TASK ASSIGNMENT
+    ══════════════════════════════════════════════════════════ -->
+    <div id="tab-task-assign" style="display:none;padding:24px;max-width:1000px;margin:0 auto;">
+      <div class="section-header" style="margin-bottom:20px;">
+        <div>
+          <div class="section-title">👤 INSPECTOR TASK ASSIGNMENT</div>
+          <div class="section-badge">Assign inspection tasks to inspectors — they see their own queue</div>
+        </div>
+        <button id="taAddBtn" onclick="showTaskForm()" style="background:linear-gradient(135deg,#0f1e3a,#1a3a6e);border:none;border-radius:7px;padding:9px 18px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;display:none;">+ Assign Task</button>
+      </div>
+
+      <!-- Assignment form (admin only) -->
+      <div id="taForm" style="display:none;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#0f1e3a;margin-bottom:14px;">NEW TASK ASSIGNMENT</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;font-weight:600;color:#374151;">Inspector Name *</label>
+            <input type="text" id="taInspector" list="taInspectorList" placeholder="Inspector name" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:9px 12px;font-size:13px;color:#1a2236;outline:none;">
+            <datalist id="taInspectorList"></datalist>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;font-weight:600;color:#374151;">Project / Task *</label>
+            <input type="text" id="taProject" list="taProjList" placeholder="Project name" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:9px 12px;font-size:13px;color:#1a2236;outline:none;">
+            <datalist id="taProjList"></datalist>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;font-weight:600;color:#374151;">Work Type</label>
+            <select id="taWorkType" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:9px 12px;font-size:13px;color:#1a2236;outline:none;">
+              <option value="">— Any —</option>
+              <option>Earthwork</option><option>Sub-base Course</option><option>Base Course</option>
+              <option>Bituminous Work</option><option>Culvert/Drainage</option><option>Retaining Wall</option>
+              <option>Bridge/Structure</option><option>Concrete Works</option><option>Road Marking</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;font-weight:600;color:#374151;">Due Date</label>
+            <input type="date" id="taDueDate" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:9px 12px;font-size:13px;color:#1a2236;outline:none;">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1;">
+            <label style="font-size:12px;font-weight:600;color:#374151;">Instructions / Notes</label>
+            <textarea id="taInstructions" rows="2" placeholder="Special instructions for the inspector…" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:9px 12px;font-size:13px;color:#1a2236;outline:none;resize:none;"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button onclick="saveTask()" style="background:linear-gradient(135deg,#0f1e3a,#1a3a6e);border:none;border-radius:7px;padding:9px 20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;">✔ Assign Task</button>
+          <button onclick="document.getElementById('taForm').style.display='none'" style="background:none;border:1px solid #e2e8f0;border-radius:7px;padding:9px 16px;color:#374151;font-size:12px;cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+
+      <!-- My tasks banner (for non-admin) -->
+      <div id="taMyTasksBanner" style="display:none;background:#eff6ff;border:1.5px solid #2563eb;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1e40af;font-weight:600;">
+        📋 Showing your assigned tasks only.
+      </div>
+
+      <!-- Task list -->
+      <div id="taList" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="text-align:center;padding:40px;color:#6b7280;">Loading tasks…</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
          CONTRACTOR PERFORMANCE SCORECARD
     ══════════════════════════════════════════════════════════ -->
     <div id="tab-scorecard" style="display:none;padding:24px;max-width:1400px;margin:0 auto;">
@@ -12051,6 +12414,10 @@ function applyRoleRestrictions() {
   if (dataBulkImportBtn) dataBulkImportBtn.style.display = isAdmin ? '' : 'none';
   const auditTrailBtn = document.getElementById('auditTrailNavBtn');
   if (auditTrailBtn) auditTrailBtn.style.display = isAdmin ? '' : 'none';
+  const taskAssignBtn = document.getElementById('taskAssignNavBtn');
+  if (taskAssignBtn) taskAssignBtn.style.display = (isAdmin||isUser) ? '' : 'none';
+  const quickEntryBtn = document.getElementById('quickEntryNavBtn');
+  if (quickEntryBtn) quickEntryBtn.style.display = (isAdmin||isUser) ? '' : 'none';
 
   // ── SBRW print button: admin + user ──
   document.querySelectorAll('.sbrw-wrap button[onclick*="print"]').forEach(b => {
@@ -12157,6 +12524,16 @@ function showTab(id,btn){
   if(id==='compliance-contractor'){ populateCCContractorDropdown(); renderContractorCompliance(); }
   if(id==='compliance-area'){ renderAreaCompliance(); }
   if(id==='scorecard'){ renderScorecard(); }
+  if(id==='comparative'){ _populateCmpDropdowns(); }
+  if(id==='calculator'){ calcShowTab('earth'); }
+  if(id==='quick-entry'){ _qeInitDropdowns(); }
+  if(id==='task-assign'){
+    loadTasks();
+    const addBtn=document.getElementById('taAddBtn');
+    if(addBtn) addBtn.style.display=(currentUser&&(currentUser.isAdmin||currentUser.isSuperAdmin))?'':'none';
+    const banner=document.getElementById('taMyTasksBanner');
+    if(banner) banner.style.display=(currentUser&&!currentUser.isAdmin&&!currentUser.isSuperAdmin)?'block':'none';
+  }
   if(id==='noticeboard'){ loadNoticeBoard(); const nbBtn=document.getElementById('nbPostBtn'); if(nbBtn) nbBtn.style.display=(currentUser&&(currentUser.isAdmin||currentUser.isSuperAdmin))?'':'none'; }
   if(id==='checklist-templates'){ renderChecklist(); const d=document.getElementById('clDate'); if(d&&!d.value) d.value=new Date().toISOString().substring(0,10); }
   if(id==='audit-trail'){ loadAuditTrail(); }
@@ -13759,6 +14136,7 @@ function renderTable(){
         : ''
       }<button class="action-btn" onclick="openInspPhotoModal(${r.sn||0},'${(r.projectName||'').replace(/'/g,"\\'")}','${(r.dzongkhag||r.ro||r.other||'').replace(/'/g,"\\'")}',${inspections.indexOf(r)})" style="color:#16a34a;border-color:#bbf7d0;background:rgba(187,247,208,.4);font-weight:700;font-size:10px;padding:4px 8px;">${(()=>{const c=_photoLib.filter(p=>p.inspSN===String(r.sn||inspections.indexOf(r))).length;return '📷'+(c?' '+c:'');})()}</button>
       <button class="action-btn" onclick="generateInspCertificate(${inspections.indexOf(r)})" style="color:#7c3aed;border-color:#ddd6fe;background:rgba(221,214,254,.4);font-weight:700;font-size:10px;padding:4px 8px;">📄 Cert</button>
+      <button class="action-btn" onclick="openCommentsModal('${(r.id||r.firestoreId||r.sn||'').toString().replace(/'/g,"\\'")}')" style="color:#0891b2;border-color:#a5f3fc;background:rgba(165,243,252,.3);font-weight:700;font-size:10px;padding:4px 8px;">💬 Notes</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -24363,6 +24741,23 @@ ${CQIS_WATERMARK_CSS}
 </div>
 
 <!-- ===== EDIT INSPECTION MODAL ===== -->
+<!-- INSPECTION COMMENTS MODAL -->
+<div id="commentsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;" onclick="e=>{if(e.target===this)closeCommentsModal()}">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25);" onclick="event.stopPropagation()">
+    <div style="background:linear-gradient(135deg,#0f1e3a,#1a3a6e);padding:16px 20px;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:1px;">💬 INSPECTION NOTES & COMMENTS</div>
+      <button onclick="closeCommentsModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <div id="commentsList" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;"></div>
+    <div style="padding:14px 16px;border-top:1px solid #e2e6ef;flex-shrink:0;">
+      <div style="display:flex;gap:8px;">
+        <textarea id="commentInput" rows="2" placeholder="Add a note or comment…" style="flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;color:#1a2236;outline:none;resize:none;font-family:'Poppins',sans-serif;"></textarea>
+        <button onclick="postComment()" style="background:linear-gradient(135deg,#0f1e3a,#1a3a6e);border:none;border-radius:8px;padding:10px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;align-self:flex-end;">💬 Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="projectQRModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
   <div style="background:#fff;border-radius:16px;width:100%;max-width:340px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
     <div style="background:linear-gradient(135deg,#1a2236,#374151);padding:18px 22px;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
@@ -28839,6 +29234,424 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, 2000); // wait for _qcTestCache to load from Firestore
 });
+
+/* ════════════════════════════════════════════════════════════════
+   INSPECTION COMMENTS / NOTES
+════════════════════════════════════════════════════════════════ */
+let _currentCommentInspId=null, _commentsCache=[];
+async function openCommentsModal(inspId){
+  _currentCommentInspId=inspId;
+  const modal=document.getElementById('commentsModal');
+  if(modal) modal.style.display='flex';
+  const list=document.getElementById('commentsList');
+  if(list) list.innerHTML='<div style="text-align:center;padding:20px;color:#6b7280;">Loading…</div>';
+  try{
+    const snap=await db.collection('inspectionComments').where('inspId','==',String(inspId)).orderBy('ts','asc').limit(100).get();
+    _commentsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+  }catch(e){ _commentsCache=[]; }
+  renderComments();
+}
+function renderComments(){
+  const list=document.getElementById('commentsList');
+  if(!list) return;
+  if(!_commentsCache.length){ list.innerHTML='<div style="text-align:center;padding:30px;color:#9ca3af;font-size:13px;">No comments yet. Add the first one!</div>'; return; }
+  list.innerHTML=_commentsCache.map(c=>{
+    const isMe=c.author===(currentUser?.name||'');
+    return `<div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'};gap:2px;">
+      <div style="font-size:10px;color:#9ca3af;">${_esc(c.author||'Unknown')} · ${c.ts||''}</div>
+      <div style="background:${isMe?'linear-gradient(135deg,#0f1e3a,#1a3a6e)':'#f0f2f7'};color:${isMe?'#fff':'#1a2236'};padding:9px 13px;border-radius:${isMe?'12px 12px 2px 12px':'12px 12px 12px 2px'};font-size:13px;max-width:90%;line-height:1.5;word-break:break-word;">${_esc(c.text||'')}</div>
+    </div>`;
+  }).join('');
+  list.scrollTop=list.scrollHeight;
+}
+async function postComment(){
+  const input=document.getElementById('commentInput');
+  const text=(input?.value||'').trim();
+  if(!text||!_currentCommentInspId){ toast('⚠️ Type a comment first.'); return; }
+  const comment={
+    inspId:String(_currentCommentInspId),
+    text, author:currentUser?.name||'User',
+    role:currentUser?.role||'',
+    ts:new Date().toLocaleString('en-BT')
+  };
+  try{
+    const ref=await db.collection('inspectionComments').add(comment);
+    _commentsCache.push({id:ref.id,...comment});
+    if(input) input.value='';
+    renderComments();
+    _logAudit('CREATE','Comment on inspection '+_currentCommentInspId);
+  }catch(e){ toast('❌ Failed: '+e.message); }
+}
+function closeCommentsModal(){
+  const modal=document.getElementById('commentsModal');
+  if(modal) modal.style.display='none';
+  _currentCommentInspId=null; _commentsCache=[];
+}
+
+/* ════════════════════════════════════════════════════════════════
+   COMPARATIVE PROJECT DASHBOARD
+════════════════════════════════════════════════════════════════ */
+function _populateCmpDropdowns(){
+  const projects=[...new Set((inspections||[]).map(r=>(r.projectName||'').trim()).filter(Boolean))].sort();
+  ['cmpProjA','cmpProjB','cmpProjC'].forEach((id,i)=>{
+    const sel=document.getElementById(id);
+    if(!sel||sel.options.length>1) return;
+    if(i===2) sel.innerHTML='<option value="">— None —</option>';
+    else sel.innerHTML='<option value="">— Select Project —</option>';
+    projects.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; sel.appendChild(o); });
+  });
+}
+function renderComparative(){
+  _populateCmpDropdowns();
+  const a=document.getElementById('cmpProjA')?.value||'';
+  const b=document.getElementById('cmpProjB')?.value||'';
+  const c=document.getElementById('cmpProjC')?.value||'';
+  const result=document.getElementById('cmpResult');
+  if(!result) return;
+  const projs=[a,b,c].filter(Boolean);
+  if(projs.length<2){ result.innerHTML='<div style="text-align:center;padding:60px;color:#6b7280;"><div style="font-size:40px;margin-bottom:12px;">📊</div><div style="font-size:14px;font-weight:600;">Select at least 2 projects above to compare</div></div>'; return; }
+  const colors=['#2563eb','#16a34a','#d97706'];
+  const _stats=p=>{
+    const rows=(inspections||[]).filter(r=>(r.projectName||'').trim()===p);
+    const defects=rows.filter(r=>(r.defect||'').toLowerCase()==='yes');
+    const tests=rows.filter(r=>r.passFailResult);
+    const passed=tests.filter(r=>r.passFailResult==='Pass');
+    const atrOverdue=defects.filter(r=>{ if(!r.atrDeadline||(r.atrSubmitted&&r.atrSubmitted!=='-'&&r.atrSubmitted!=='')) return false; return new Date(r.atrDeadline)<new Date(); });
+    const passRate=tests.length?Math.round(passed.length/tests.length*100):0;
+    const defRate=rows.length?Math.round(defects.length/rows.length*100):0;
+    return{name:p,total:rows.length,defects:defects.length,passed:passed.length,tests:tests.length,passRate,defRate,atrOverdue:atrOverdue.length};
+  };
+  const stats=projs.map(_stats);
+  const kpiRows=[
+    {label:'Total Inspections',key:'total',format:v=>v,better:'high'},
+    {label:'Pass Rate',key:'passRate',format:v=>v+'%',better:'high'},
+    {label:'Defect Rate',key:'defRate',format:v=>v+'%',better:'low'},
+    {label:'Defects Found',key:'defects',format:v=>v,better:'low'},
+    {label:'Tests Conducted',key:'tests',format:v=>v,better:'high'},
+    {label:'Tests Passed',key:'passed',format:v=>v,better:'high'},
+    {label:'ATR Overdue',key:'atrOverdue',format:v=>v,better:'low'},
+  ];
+  const headerCells=stats.map((s,i)=>`<th style="background:${colors[i]};color:#fff;padding:12px 16px;font-size:13px;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;">${s.name}</th>`).join('');
+  const bodyRows=kpiRows.map(kpi=>{
+    const vals=stats.map(s=>s[kpi.key]);
+    const best=kpi.better==='high'?Math.max(...vals):Math.min(...vals);
+    const cells=stats.map((s,i)=>{
+      const v=s[kpi.key];
+      const isBest=v===best&&vals.filter(x=>x===best).length<vals.length;
+      return `<td style="text-align:center;padding:10px 14px;font-size:14px;font-weight:${isBest?800:500};color:${isBest?colors[i]:'#374151'};background:${isBest?colors[i]+'10':''};">${kpi.format(v)}${isBest?' ★':''}</td>`;
+    }).join('');
+    return `<tr><td style="padding:10px 14px;font-weight:600;color:#374151;font-size:12px;border-right:1px solid #e2e6ef;">${kpi.label}</td>${cells}</tr>`;
+  }).join('');
+  result.innerHTML=`
+    <div style="background:#fff;border:1px solid #e2e6ef;border-radius:12px;overflow:hidden;">
+      <div style="padding:12px 18px;background:#f8f9fc;border-bottom:1px solid #e2e6ef;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#0f1e3a;letter-spacing:.5px;">
+        📊 PROJECT COMPARISON — ★ indicates the best value in each row
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr>
+            <th style="background:#0f1e3a;color:#fff;padding:12px 16px;text-align:left;font-size:12px;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;min-width:160px;">KPI</th>
+            ${headerCells}
+          </tr></thead>
+          <tbody>${bodyRows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;">
+      ${stats.map((s,i)=>`<div style="background:#fff;border:1.5px solid ${colors[i]}40;border-top:3px solid ${colors[i]};border-radius:10px;padding:14px 16px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:800;color:${colors[i]};margin-bottom:8px;">${s.name.substring(0,30)}</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:#6b7280;">Pass Rate</span><strong style="color:${s.passRate>=70?'#16a34a':'#dc2626'};">${s.passRate}%</strong></div>
+          <div style="height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;"><div style="width:${s.passRate}%;height:100%;background:${s.passRate>=70?'#16a34a':'#dc2626'};"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="font-size:11px;color:#6b7280;">Defect Rate</span><strong style="color:${s.defRate<=20?'#16a34a':'#dc2626'};">${s.defRate}%</strong></div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+function printComparative(){
+  const result=document.getElementById('cmpResult');
+  if(!result||!result.querySelector('table')){ toast('⚠️ Select projects first.'); return; }
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Project Comparison</title>
+  <style>body{font-family:Arial,sans-serif;padding:16mm;font-size:12px;}
+  h2{font-size:16px;font-weight:800;margin-bottom:4px;color:#0f1e3a;}
+  table{width:100%;border-collapse:collapse;margin-top:14px;}th,td{border:1px solid #ddd;padding:8px 10px;}
+  th{background:#0f1e3a;color:#fff;}tr:nth-child(even){background:#f8f9fc;}
+  @media print{@page{margin:14mm;}}</style></head><body>
+  <h2>📊 Project Comparison Report</h2>
+  <div style="font-size:11px;color:#666;margin-bottom:10px;">OPMC/OCASC · CQD — Generated ${new Date().toLocaleDateString('en-BT')}</div>
+  ${result.innerHTML}
+  <script>window.onload=()=>window.print()<\/script></body></html>`;
+  const w=window.open('','_blank','width=900,height=700');
+  if(w){w.document.write(html);w.document.close();}
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MATERIAL & MEASUREMENT CALCULATOR
+════════════════════════════════════════════════════════════════ */
+function calcShowTab(tab){
+  ['earth','concrete','bitumen','compaction','convert'].forEach(t=>{
+    const p=document.getElementById('calcPanel'+t.charAt(0).toUpperCase()+t.slice(1));
+    const b=document.getElementById('calcTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(p) p.style.display=t===tab?'block':'none';
+    if(b){ if(t===tab){ b.style.background='linear-gradient(135deg,#0f1e3a,#1a3a6e)'; b.style.color='#fff'; } else { b.style.background='none'; b.style.color='#374151'; } }
+  });
+}
+function calcEarth(){
+  const l=parseFloat(document.getElementById('earthLen')?.value)||0;
+  const w=parseFloat(document.getElementById('earthWid')?.value)||0;
+  const d=parseFloat(document.getElementById('earthDep')?.value)||0;
+  const f=parseFloat(document.getElementById('earthFactor')?.value)||1;
+  const resEl=document.getElementById('earthResult');
+  const bodyEl=document.getElementById('earthResultBody');
+  if(!l||!w||!d){ if(resEl) resEl.style.display='none'; return; }
+  const compacted=l*w*d;
+  const loose=compacted*f;
+  if(resEl) resEl.style.display='block';
+  if(bodyEl) bodyEl.innerHTML=`Compacted Volume: <strong>${compacted.toFixed(2)} m³</strong><br>Loose Volume (×${f} swell factor): <strong>${loose.toFixed(2)} m³</strong><br>Weight (bulk density 1800 kg/m³): <strong>${(compacted*1800/1000).toFixed(1)} tonnes</strong><br>Truck Loads (10m³ truck): <strong>${Math.ceil(loose/10)} loads</strong>`;
+}
+function calcConcrete(){
+  const vol=parseFloat(document.getElementById('conVol')?.value)||0;
+  const ratio=(document.getElementById('conRatio')?.value||'1:1.5:3').split(':').map(Number);
+  const resEl=document.getElementById('conResult');
+  const bodyEl=document.getElementById('conResultBody');
+  if(!vol||ratio.length<3){ if(resEl) resEl.style.display='none'; return; }
+  const sum=ratio[0]+ratio[1]+ratio[2];
+  const dryVol=vol*1.54; // 54% bulkage
+  const cement=(dryVol*ratio[0]/sum);
+  const bags=Math.ceil(cement/0.035); // 50kg bag = 0.035 m³
+  const sand=dryVol*ratio[1]/sum;
+  const agg=dryVol*ratio[2]/sum;
+  const water=Math.round(bags*25); // ~25L per bag
+  if(resEl) resEl.style.display='block';
+  if(bodyEl) bodyEl.innerHTML=`Cement: <strong>${cement.toFixed(3)} m³ ≈ ${bags} bags (50kg)</strong><br>Sand (FA): <strong>${sand.toFixed(3)} m³ ≈ ${(sand*1600/1000).toFixed(1)} tonnes</strong><br>Aggregate (CA): <strong>${agg.toFixed(3)} m³ ≈ ${(agg*1500/1000).toFixed(1)} tonnes</strong><br>Water (approx): <strong>${water} litres</strong>`;
+}
+function calcBitumen(){
+  const l=parseFloat(document.getElementById('bitLen')?.value)||0;
+  const w=parseFloat(document.getElementById('bitWid')?.value)||0;
+  const t=parseFloat(document.getElementById('bitThick')?.value)||0;
+  const d=parseFloat(document.getElementById('bitDens')?.value)||2400;
+  const resEl=document.getElementById('bitResult');
+  const bodyEl=document.getElementById('bitResultBody');
+  if(!l||!w||!t){ if(resEl) resEl.style.display='none'; return; }
+  const area=l*w;
+  const vol=area*(t/1000);
+  const weight=vol*d/1000;
+  if(resEl) resEl.style.display='block';
+  if(bodyEl) bodyEl.innerHTML=`Road Area: <strong>${area.toFixed(1)} m²</strong><br>Mix Volume: <strong>${vol.toFixed(2)} m³</strong><br>Mix Weight: <strong>${weight.toFixed(1)} tonnes</strong><br>Bitumen Content (5% by weight): <strong>${(weight*0.05*1000).toFixed(0)} kg</strong><br>Truck Loads (15t truck): <strong>${Math.ceil(weight/15)} loads</strong>`;
+}
+function calcCompaction(){
+  const fieldDD=parseFloat(document.getElementById('cmpField')?.value)||0;
+  const MDD=parseFloat(document.getElementById('cmpMDD')?.value)||0;
+  const wet=parseFloat(document.getElementById('cmpWet')?.value)||0;
+  const dry=parseFloat(document.getElementById('cmpDry')?.value)||0;
+  const req=parseFloat(document.getElementById('cmpReq')?.value)||95;
+  const resEl=document.getElementById('cmpResult');
+  const bodyEl=document.getElementById('cmpResultBody');
+  let html='';
+  if(wet&&dry&&wet>dry){
+    const mc=((wet-dry)/dry*100);
+    html+=`Moisture Content: <strong>${mc.toFixed(1)}%</strong><br>`;
+  }
+  if(fieldDD&&MDD){
+    const comp=(fieldDD/MDD*100);
+    const pass=comp>=req;
+    const color=pass?'#16a34a':'#dc2626';
+    html+=`Degree of Compaction: <strong style="color:${color};">${comp.toFixed(1)}%</strong><br>Required: <strong>${req}%</strong> → <strong style="color:${color};">${pass?'✅ PASS':'❌ FAIL'}</strong>`;
+    if(resEl){ resEl.style.display='block'; resEl.style.background=pass?'#f0fdf4':'#fef2f2'; resEl.style.border=`1.5px solid ${color}`; }
+    if(bodyEl){ bodyEl.innerHTML=html; bodyEl.style.color=color; }
+    return;
+  }
+  if(resEl) resEl.style.display=html?'block':'none';
+  if(bodyEl&&html){ bodyEl.innerHTML=html; bodyEl.style.color='#374151'; }
+}
+const _CV={
+  len:{m:1,km:1000,mm:0.001,cm:0.01,ft:0.3048,'in':0.0254,mile:1609.344,chain:20.1168},
+  area:{m2:1,ha:10000,km2:1e6,ft2:0.092903,acre:4046.86},
+  vol:{m3:1,L:0.001,ft3:0.028317,yd3:0.764555},
+  wt:{kg:1,t:1000,lb:0.453592,g:0.001}
+};
+function cvConvert(type){
+  const val=parseFloat(document.getElementById('cv'+type.charAt(0).toUpperCase()+type.slice(1))?.value)||0;
+  const from=document.getElementById('cv'+type.charAt(0).toUpperCase()+type.slice(1)+'From')?.value;
+  const to=document.getElementById('cv'+type.charAt(0).toUpperCase()+type.slice(1)+'To')?.value;
+  const resEl=document.getElementById('cv'+type.charAt(0).toUpperCase()+type.slice(1)+'Result');
+  if(!val||!from||!to||!resEl) return;
+  const map=type==='len'?_CV.len:type==='area'?_CV.area:type==='vol'?_CV.vol:_CV.wt;
+  if(!map[from]||!map[to]) return;
+  const result=val*map[from]/map[to];
+  resEl.textContent=`${val} ${from} = ${result.toFixed(4)} ${to}`;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   QUICK ENTRY MODE
+════════════════════════════════════════════════════════════════ */
+let _qeDefect=false, _qePF='';
+function qeSetDefect(val){
+  _qeDefect=val;
+  const yBtn=document.getElementById('qeDefectYes');
+  const nBtn=document.getElementById('qeDefectNo');
+  const fields=document.getElementById('qeDefectFields');
+  if(val){ yBtn.style.cssText='flex:1;padding:14px;border:1.5px solid #dc2626;border-radius:8px;background:#fef2f2;color:#dc2626;font-size:14px;font-weight:700;cursor:pointer;'; nBtn.style.cssText='flex:1;padding:14px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;color:#374151;font-size:14px;font-weight:700;cursor:pointer;'; fields.style.display='flex'; }
+  else { nBtn.style.cssText='flex:1;padding:14px;border:1.5px solid #16a34a;border-radius:8px;background:#f0fdf4;color:#16a34a;font-size:14px;font-weight:700;cursor:pointer;'; yBtn.style.cssText='flex:1;padding:14px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;color:#374151;font-size:14px;font-weight:700;cursor:pointer;'; fields.style.display='none'; }
+}
+function qeSetPF(val){
+  _qePF=val;
+  ['Pass','Fail',''].forEach(v=>{ const id=v===''?'qePFNA':'qePF'+v; const btn=document.getElementById(id); if(!btn) return; if(v===val){ btn.style.background=v==='Pass'?'#16a34a':v==='Fail'?'#dc2626':'#9ca3af'; btn.style.color='#fff'; btn.style.border='1.5px solid transparent'; } else { btn.style.background='#fff'; btn.style.color='#374151'; btn.style.border='1.5px solid #e2e8f0'; } });
+}
+function qeCaptureGPS(){
+  const disp=document.getElementById('qeGPSDisplay');
+  if(!navigator.geolocation){ toast('GPS not available on this device.'); return; }
+  if(disp) disp.textContent='📍 Capturing…';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude.toFixed(6);
+    const lng=pos.coords.longitude.toFixed(6);
+    if(document.getElementById('qeLat')) document.getElementById('qeLat').value=lat;
+    if(document.getElementById('qeLng')) document.getElementById('qeLng').value=lng;
+    if(disp) disp.textContent=`📍 ${lat}, ${lng}`;
+  }, err=>{ toast('⚠️ GPS error: '+err.message); if(disp) disp.textContent='📍 GPS not captured'; });
+}
+function _qeInitDropdowns(){
+  const projects=[...new Set((inspections||[]).map(r=>(r.projectName||'').trim()).filter(Boolean))].sort();
+  const list=document.getElementById('qeProjectList');
+  if(list){ list.innerHTML=''; projects.forEach(p=>{ const o=document.createElement('option'); o.value=p; list.appendChild(o); }); }
+  const today=new Date().toISOString().substring(0,10);
+  const dEl=document.getElementById('qeDate');
+  if(dEl&&!dEl.value) dEl.value=today;
+}
+async function qeSaveEntry(){
+  const proj=(document.getElementById('qeProject')?.value||'').trim();
+  const wt=(document.getElementById('qeWorkType')?.value||'').trim();
+  const date=(document.getElementById('qeDate')?.value||'').trim();
+  if(!proj||!wt||!date){ toast('⚠️ Project, Work Type and Date are required.'); return; }
+  const entry={
+    projectName:proj,
+    workType:wt,
+    dateInspected:date,
+    roadSection:(document.getElementById('qeLocation')?.value||'').trim(),
+    contractor:(document.getElementById('qeContractor')?.value||'').trim(),
+    defect:_qeDefect?'Yes':'No',
+    defectDesc:_qeDefect?(document.getElementById('qeDefectDesc')?.value||'').trim():'',
+    atrDeadline:_qeDefect?(document.getElementById('qeATRDeadline')?.value||''):'',
+    passFailResult:_qePF||'',
+    lat:document.getElementById('qeLat')?.value||'',
+    lng:document.getElementById('qeLng')?.value||'',
+    remarks:(document.getElementById('qeNotes')?.value||'').trim(),
+    inspector:currentUser?.name||'',
+    month:new Date(date).toLocaleString('en-US',{month:'long'}),
+    year:date.substring(0,4),
+    sn:(Math.max(0,...(inspections||[]).map(r=>r.sn||0))+1),
+    id:'QE-'+Date.now()
+  };
+  try{
+    entry.firestoreId=await fbSaveInspection(entry);
+    inspections.push(entry);
+    localStorage.setItem('inspections_cqis',JSON.stringify(inspections));
+    _logAudit('CREATE','Quick Entry: '+proj);
+    const msg=document.getElementById('qeSaveMsg');
+    if(msg){ msg.style.display='block'; msg.textContent='✅ Inspection saved successfully!'; setTimeout(()=>{ msg.style.display='none'; },4000); }
+    // Clear form
+    ['qeProject','qeLocation','qeContractor','qeDefectDesc','qeNotes','qeATRDeadline'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('qeDate').value=new Date().toISOString().substring(0,10);
+    qeSetDefect(false); qeSetPF(''); document.getElementById('qeGPSDisplay').textContent='📍 GPS not captured';
+    document.getElementById('qeLat').value=''; document.getElementById('qeLng').value='';
+  }catch(e){ toast('❌ Save failed: '+e.message); }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   INSPECTOR TASK ASSIGNMENT
+════════════════════════════════════════════════════════════════ */
+let _tasks=[];
+async function loadTasks(){
+  try{
+    const snap=await db.collection('inspectorTasks').orderBy('createdAt','desc').limit(200).get();
+    _tasks=snap.docs.map(d=>({id:d.id,...d.data()}));
+  }catch(e){ _tasks=[]; }
+  renderTasks();
+}
+function renderTasks(){
+  const listEl=document.getElementById('taList');
+  if(!listEl) return;
+  let tasks=_tasks;
+  // Non-admin sees only their own tasks
+  if(currentUser&&!currentUser.isAdmin&&!currentUser.isSuperAdmin){
+    tasks=tasks.filter(t=>(t.inspector||'').toLowerCase()===(currentUser.name||'').toLowerCase());
+  }
+  if(!tasks.length){ listEl.innerHTML='<div style="text-align:center;padding:40px;color:#6b7280;"><div style="font-size:36px;margin-bottom:10px;">📋</div><div style="font-size:13px;font-weight:600;">No tasks found.</div></div>'; return; }
+  const statusColor=s=>s==='Done'?'#16a34a':s==='In Progress'?'#2563eb':'#d97706';
+  const today=new Date(); today.setHours(0,0,0,0);
+  listEl.innerHTML=tasks.map(t=>{
+    const isOverdue=t.dueDate&&new Date(t.dueDate)<today&&t.status!=='Done';
+    const color=statusColor(t.status||'Pending');
+    return `<div style="background:#fff;border:1.5px solid ${isOverdue?'#dc2626':'#e2e8f0'};border-radius:10px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:800;color:#0f1e3a;">${_esc(t.project||'Unknown')}</span>
+          <span style="background:${color}20;color:${color};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;">${t.status||'Pending'}</span>
+          ${isOverdue?'<span style="background:#fef2f2;color:#dc2626;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;">⚠️ OVERDUE</span>':''}
+        </div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">👤 <strong>${_esc(t.inspector||'—')}</strong> · ${_esc(t.workType||'Any')} · Due: <strong>${t.dueDate||'—'}</strong></div>
+        ${t.instructions?`<div style="font-size:12px;color:#374151;margin-top:4px;font-style:italic;">${_esc(t.instructions)}</div>`:''}
+        <div style="font-size:10px;color:#9ca3af;margin-top:6px;">Assigned by ${_esc(t.assignedBy||'Admin')} · ${t.createdAt||''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+        ${t.status!=='Done'?`<button onclick="updateTaskStatus('${t.id}','In Progress')" style="background:#eff6ff;border:1px solid #2563eb;border-radius:6px;padding:5px 12px;font-size:10px;font-weight:700;color:#2563eb;cursor:pointer;white-space:nowrap;">▶ In Progress</button>
+        <button onclick="updateTaskStatus('${t.id}','Done')" style="background:#f0fdf4;border:1px solid #16a34a;border-radius:6px;padding:5px 12px;font-size:10px;font-weight:700;color:#16a34a;cursor:pointer;white-space:nowrap;">✅ Mark Done</button>`:'<span style="font-size:11px;color:#16a34a;font-weight:700;">✅ Completed</span>'}
+        ${currentUser?.isAdmin?`<button onclick="deleteTask('${t.id}')" style="background:#fef2f2;border:1px solid #dc2626;border-radius:6px;padding:5px 12px;font-size:10px;font-weight:700;color:#dc2626;cursor:pointer;">🗑</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function showTaskForm(){
+  const f=document.getElementById('taForm');
+  if(f){ f.style.display=f.style.display==='none'?'block':'none'; }
+  // Populate datalists
+  const inspectors=[...new Set((inspections||[]).map(r=>(r.inspector||'').trim()).filter(Boolean))].sort();
+  const iList=document.getElementById('taInspectorList');
+  if(iList){ iList.innerHTML=''; inspectors.forEach(n=>{ const o=document.createElement('option'); o.value=n; iList.appendChild(o); }); }
+  const projects=[...new Set((inspections||[]).map(r=>(r.projectName||'').trim()).filter(Boolean))].sort();
+  const pList=document.getElementById('taProjList');
+  if(pList){ pList.innerHTML=''; projects.forEach(p=>{ const o=document.createElement('option'); o.value=p; pList.appendChild(o); }); }
+}
+async function saveTask(){
+  const inspector=(document.getElementById('taInspector')?.value||'').trim();
+  const project=(document.getElementById('taProject')?.value||'').trim();
+  if(!inspector||!project){ toast('⚠️ Inspector and Project are required.'); return; }
+  const task={
+    inspector, project,
+    workType:document.getElementById('taWorkType')?.value||'',
+    dueDate:document.getElementById('taDueDate')?.value||'',
+    instructions:document.getElementById('taInstructions')?.value||'',
+    status:'Pending',
+    assignedBy:currentUser?.name||'Admin',
+    createdAt:new Date().toLocaleDateString('en-BT')
+  };
+  try{
+    const ref=await db.collection('inspectorTasks').add(task);
+    _tasks.unshift({id:ref.id,...task});
+    _logAudit('CREATE','Task assigned to '+inspector+': '+project);
+    toast('✅ Task assigned to '+inspector+'!');
+    document.getElementById('taForm').style.display='none';
+    ['taInspector','taProject','taInstructions','taDueDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+    renderTasks();
+  }catch(e){ toast('❌ Failed: '+e.message); }
+}
+async function updateTaskStatus(id,status){
+  try{
+    await db.collection('inspectorTasks').doc(id).update({status,updatedAt:new Date().toLocaleDateString('en-BT'),updatedBy:currentUser?.name||'Unknown'});
+    const t=_tasks.find(x=>x.id===id); if(t) t.status=status;
+    _logAudit('UPDATE','Task status → '+status+': '+id);
+    renderTasks();
+    toast('✅ Task marked as '+status);
+  }catch(e){ toast('❌ Failed: '+e.message); }
+}
+async function deleteTask(id){
+  if(!confirm('Delete this task?')) return;
+  await db.collection('inspectorTasks').doc(id).delete();
+  _tasks=_tasks.filter(t=>t.id!==id);
+  _logAudit('DELETE','Task deleted: '+id);
+  renderTasks();
+  toast('🗑 Task deleted.');
+}
 
 /* ════════════════════════════════════════════════════════════════
    CONTRACTOR PERFORMANCE SCORECARD
