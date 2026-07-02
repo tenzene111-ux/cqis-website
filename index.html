@@ -2324,7 +2324,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <span id="tableCount" style="font-size:12px;color:#6b7280;">0 records</span>
           </div>
         </div>
-        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th style="background:rgba(232,130,12,.15);">🔬 QC Tests</th><th>Month</th><th>Year</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
+        <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>S/N</th><th>Project</th><th>Contract No.</th><th>Road/Chainage</th><th>Contractor</th><th>Dzongkhag</th><th>RO/Thromde</th><th>Other</th><th>Work Type</th><th>Work Item</th><th>Date</th><th>Defect?</th><th>Description</th><th>Action</th><th>Inspector</th><th>ATR Deadline</th><th>ATR Submitted</th><th>ATR Status</th><th>Test</th><th>Req Value</th><th>Result</th><th>Pass/Fail</th><th style="background:rgba(232,130,12,.15);">🔬 QC Tests</th><th>Month</th><th>Year</th><th style="background:rgba(16,163,74,.1);">✅ Approval</th><th>Actions</th></tr></thead><tbody id="dataBody"></tbody></table></div>
         <div class="no-data" id="noData" style="display:none;"><div style="font-size:32px;margin-bottom:12px;">🛣️</div>No inspection records found. Add a new entry to get started.</div>
       </div>
     </div>
@@ -2384,7 +2384,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           </label>
         </div>
         <div class="form-grid">
-          <div class="field-wrap"><label>Project Name <span style="color:#dc2626;">*</span></label><input type="text" id="fProjectName" placeholder="e.g. Thimphu–Paro Highway Upgrade" oninput="triggerQCCheck()"></div>
+          <div class="field-wrap"><label>Project Name <span style="color:#dc2626;">*</span></label><input type="text" id="fProjectName" placeholder="e.g. Thimphu–Paro Highway Upgrade" oninput="triggerQCCheck();checkDuplicate()"></div>
           <div class="field-wrap">
             <label>Contract / Project No.
               <span id="contractNoLoadingSpinner" style="display:none;font-size:10px;color:#e8820c;margin-left:6px;">⏳ Loading…</span>
@@ -2569,7 +2569,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             </div>
           </div>
           <div class="field-wrap"><label>Work Item Inspected</label><input type="text" id="fWorkItem" placeholder="e.g. Compaction of subgrade layer"></div>
-          <div class="field-wrap"><label>Date Inspected</label><input type="date" id="fDateInspected"></div>
+          <div class="field-wrap"><label>Date Inspected</label><input type="date" id="fDateInspected" onchange="checkDuplicate()"></div>
           <div class="field-wrap"><label>Inspector Name</label><input type="text" id="fInspector" placeholder="e.g. Dorji Wangchuk, Engineer"></div>
           <div class="field-wrap">
             <label>GPS Location</label>
@@ -2580,7 +2580,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
             <input type="hidden" id="fLat">
             <input type="hidden" id="fLng">
           </div>
-          <div class="field-wrap" style="grid-column:1/-1"><label>Remarks</label><textarea id="fRemarks" placeholder="Additional observations, site conditions, notes…"></textarea></div>
+          <div class="field-wrap" style="grid-column:1/-1">
+            <label style="display:flex;align-items:center;gap:8px;">Remarks <button type="button" onclick="startVoiceInput('fRemarks',this)" style="background:#eff6ff;border:1px solid #93c5fd;border-radius:5px;padding:2px 10px;font-size:10px;font-weight:700;color:#1d4ed8;cursor:pointer;">🎤 Voice</button></label>
+            <textarea id="fRemarks" placeholder="Additional observations, site conditions, notes…"></textarea>
+          </div>
 
           <!-- ── Weather Conditions ── -->
           <div style="grid-column:1/-1;margin-top:8px;">
@@ -2642,7 +2645,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
           </div>
           <div class="field-wrap"><label>ATR Deadline Date</label><input type="date" id="fATRDeadline" disabled></div>
           <div class="field-wrap" style="grid-column:1/-1" id="defectFields">
-            <label>Defect Description</label>
+            <label style="display:flex;align-items:center;gap:8px;">Defect Description <button type="button" onclick="startVoiceInput('fDefectDesc',this)" style="background:#fef2f2;border:1px solid #fca5a5;border-radius:5px;padding:2px 10px;font-size:10px;font-weight:700;color:#dc2626;cursor:pointer;">🎤 Voice</button></label>
             <textarea id="fDefectDesc" placeholder="Describe the defect observed…"></textarea>
           </div>
           <div class="field-wrap" id="actionField">
@@ -6490,7 +6493,9 @@ function printAllConst(){
     </div>
 
     <div id="tab-atr" style="display:none">
-      <div class="section-header"><div><div class="section-title">ATR TRACKER</div><div class="section-badge">Action Taken Report — Live Deadline Monitor</div></div></div>
+      <div class="section-header"><div><div class="section-title">ATR TRACKER</div><div class="section-badge">Action Taken Report — Live Deadline Monitor</div></div>
+        <button id="batchATRBtn" onclick="openBatchATRUpdate()" style="display:none;background:linear-gradient(135deg,#dc2626,#b91c1c);border:none;border-radius:7px;padding:9px 18px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;">⚡ Batch Update ATR</button>
+      </div>
       <div class="atr-summary">
         <div class="atr-stat" style="border-top:3px solid #dc2626"><div class="atr-stat-val" style="color:#dc2626" id="atrOverdue">0</div><div class="atr-stat-lbl">🔴 Overdue</div></div>
         <div class="atr-stat" style="border-top:3px solid #f97316"><div class="atr-stat-val" style="color:#f97316" id="atrDueSoon">0</div><div class="atr-stat-lbl">🟠 Due Soon (≤7 days)</div></div>
@@ -7306,6 +7311,7 @@ function printAllConst(){
           <button onclick="toggleMapLayer('routes')" id="btnRoutes" style="background:#fef3c7;border:1.5px solid #e8820c;border-radius:6px;padding:6px 11px;font-size:11px;color:#c46a08;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">🛣 Routes</button>
           <button onclick="toggleMapLayer('labels')" id="btnLabels" style="background:#f0fdf4;border:1.5px solid #16a34a;border-radius:6px;padding:6px 11px;font-size:11px;color:#15803d;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">🏷 Labels</button>
           <button onclick="toggleMapLayer('overdue')" id="btnOverdue" style="background:#fff7ed;border:1.5px solid #f59e0b;border-radius:6px;padding:6px 11px;font-size:11px;color:#92400e;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">⚠️ Overdue Projects</button>
+          <button onclick="toggleDefectHeatmap()" id="btnHeatmap" style="background:#fef2f2;border:1.5px solid #dc2626;border-radius:6px;padding:6px 11px;font-size:11px;color:#dc2626;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;">🔥 Defect Heatmap</button>
           <div style="font-size:11px;color:#6b7280;font-family:'JetBrains Mono',monospace;padding:0 4px;" id="mapTotalLabel"></div>
         </div>
       </div>
@@ -8369,6 +8375,7 @@ async function loadAllDataFromFirebase() {
   setTimeout(()=>{
     _checkAtrOverdueAlert();
     _initOfflineIndicator();
+    _initBackupScheduler();
   }, 1500);
 }
 
@@ -8404,6 +8411,7 @@ async function fbSaveInspection(entry) {
     await db.collection(COL_INSPECTIONS).doc(docId).set(entryWithId, { merge: true });
     logActivity(isNew ? 'create' : 'update', 'Inspection', entry.projectName || entry.contractNo || ('S/N #'+entry.sn));
     _logAudit(isNew?'CREATE':'UPDATE', (isNew?'New inspection':'Updated inspection')+': '+(entry.projectName||'S/N #'+entry.sn), docId);
+    _saveVersionSnapshot({...entryWithId}, isNew?'CREATE':'UPDATE');
     // Store doc ID back into local array so future edits reuse the same doc
     const idx = inspections.findIndex(r => r.sn === entry.sn);
     if (idx > -1) Object.assign(inspections[idx], { id: docId, createdAt: entryWithId.createdAt, createdBy: entryWithId.createdBy, updatedAt: now, updatedBy: who });
@@ -12418,6 +12426,8 @@ function applyRoleRestrictions() {
   if (taskAssignBtn) taskAssignBtn.style.display = (isAdmin||isUser) ? '' : 'none';
   const quickEntryBtn = document.getElementById('quickEntryNavBtn');
   if (quickEntryBtn) quickEntryBtn.style.display = (isAdmin||isUser) ? '' : 'none';
+  const batchATRBtn = document.getElementById('batchATRBtn');
+  if (batchATRBtn) batchATRBtn.style.display = isAdmin ? '' : 'none';
 
   // ── SBRW print button: admin + user ──
   document.querySelectorAll('.sbrw-wrap button[onclick*="print"]').forEach(b => {
@@ -14130,6 +14140,7 @@ function renderTable(){
       <td>${badgeHtml(qcDerivedPassFail(r))}</td>
       <td style="min-width:110px;">${qcLinkedCell(r)}</td>
       <td>${r.month||'—'}</td><td>${r.year||'—'}</td>
+      <td>${_approvalBadge(r.approvalStatus||'Draft',r.id||r.firestoreId||'',isAdmin)}</td>
       <td><div style="display:flex;gap:5px;flex-wrap:wrap;">${isAdmin
         ? `<button class="action-btn" onclick="editEntry(${inspections.indexOf(r)})" style="color:#1d4ed8;border-color:#bfdbfe;background:rgba(219,234,254,.5);font-weight:700;font-size:10px;padding:4px 8px;">✏️ Edit</button>
             <button class="action-btn del" onclick="deleteEntry(${inspections.indexOf(r)})" style="color:#b91c1c;border-color:#fca5a5;font-weight:700;font-size:10px;padding:4px 8px;">🗑 Delete</button>`
@@ -14137,6 +14148,7 @@ function renderTable(){
       }<button class="action-btn" onclick="openInspPhotoModal(${r.sn||0},'${(r.projectName||'').replace(/'/g,"\\'")}','${(r.dzongkhag||r.ro||r.other||'').replace(/'/g,"\\'")}',${inspections.indexOf(r)})" style="color:#16a34a;border-color:#bbf7d0;background:rgba(187,247,208,.4);font-weight:700;font-size:10px;padding:4px 8px;">${(()=>{const c=_photoLib.filter(p=>p.inspSN===String(r.sn||inspections.indexOf(r))).length;return '📷'+(c?' '+c:'');})()}</button>
       <button class="action-btn" onclick="generateInspCertificate(${inspections.indexOf(r)})" style="color:#7c3aed;border-color:#ddd6fe;background:rgba(221,214,254,.4);font-weight:700;font-size:10px;padding:4px 8px;">📄 Cert</button>
       <button class="action-btn" onclick="openCommentsModal('${(r.id||r.firestoreId||r.sn||'').toString().replace(/'/g,"\\'")}')" style="color:#0891b2;border-color:#a5f3fc;background:rgba(165,243,252,.3);font-weight:700;font-size:10px;padding:4px 8px;">💬 Notes</button>
+      ${isAdmin?`<button class="action-btn" onclick="openVersionHistory('${(r.id||r.firestoreId||'').toString().replace(/'/g,"\\'")}')" style="color:#6b7280;border-color:#e5e7eb;font-weight:700;font-size:10px;padding:4px 8px;">🕐 History</button>`:''}
       </div></td>
     </tr>`;
   }).join('');
@@ -29234,6 +29246,291 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, 2000); // wait for _qcTestCache to load from Firestore
 });
+
+/* ════════════════════════════════════════════════════════════════
+   VOICE-TO-TEXT INPUT
+════════════════════════════════════════════════════════════════ */
+let _voiceRecognition=null, _voiceActive=false;
+function startVoiceInput(targetId, btn){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    toast('⚠️ Voice input not supported on this browser. Use Chrome or Edge.');
+    return;
+  }
+  if(_voiceActive&&_voiceRecognition){
+    _voiceRecognition.stop();
+    _voiceActive=false;
+    if(btn){ btn.textContent='🎤 Voice'; btn.style.background=''; }
+    return;
+  }
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  _voiceRecognition=new SpeechRecognition();
+  _voiceRecognition.lang='en-US';
+  _voiceRecognition.continuous=true;
+  _voiceRecognition.interimResults=true;
+  _voiceActive=true;
+  if(btn){ btn.textContent='🔴 Stop'; btn.style.background='#fef2f2'; btn.style.color='#dc2626'; }
+  toast('🎤 Listening… speak now. Click Stop when done.');
+  _voiceRecognition.onresult=e=>{
+    let final=''; let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript+' ';
+      else interim+=e.results[i][0].transcript;
+    }
+    const el=document.getElementById(targetId);
+    if(el&&final){ el.value=(el.value+final).trim()+' '; }
+  };
+  _voiceRecognition.onerror=e=>{ toast('🎤 Voice error: '+e.error); _voiceActive=false; if(btn){btn.textContent='🎤 Voice';btn.style.background='';} };
+  _voiceRecognition.onend=()=>{ _voiceActive=false; if(btn){btn.textContent='🎤 Voice';btn.style.background='';btn.style.color='';} };
+  _voiceRecognition.start();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DEFECT HEATMAP on Map
+════════════════════════════════════════════════════════════════ */
+let _heatmapLayers=[], _heatmapOn=false;
+function toggleDefectHeatmap(){
+  const btn=document.getElementById('btnHeatmap');
+  if(_heatmapOn){
+    _heatmapLayers.forEach(l=>{ if(_leafletMap) _leafletMap.removeLayer(l); });
+    _heatmapLayers=[];
+    _heatmapOn=false;
+    if(btn){ btn.style.background='#fef2f2'; btn.style.borderColor='#dc2626'; btn.textContent='🔥 Defect Heatmap'; }
+    return;
+  }
+  if(!_leafletMap){ toast('⚠️ Open the Map tab first to load the map.'); return; }
+  // Build defect density per dzongkhag
+  const DZ_CENTERS={ 'Thimphu':[27.4661,89.6419],'Paro':[27.4278,89.4197],'Punakha':[27.6191,89.8691],'Wangdue Phodrang':[27.4726,89.9006],'Bumthang':[27.5498,90.7318],'Chhukha':[27.0751,89.5267],'Dagana':[27.1001,89.8833],'Gasa':[28.0190,89.7233],'Haa':[27.3918,89.2816],'Lhuentse':[27.6614,91.1768],'Mongar':[27.2750,91.2375],'Pemagatshel':[27.0428,91.4027],'S/Jongkhar':[26.8011,91.5135],'Samtse':[26.9003,89.0790],'Sarpang':[26.8680,90.2685],'Trashigang':[27.3324,91.5541],'Trashi Yangtse':[27.6133,91.4913],'Trongsa':[27.4998,90.5003],'Tsirang':[27.0228,90.1189],'Zhemgang':[27.2166,90.6601] };
+  const defectsByDz={};
+  (inspections||[]).filter(r=>(r.defect||'').toLowerCase()==='yes').forEach(r=>{
+    const dz=(r.dzongkhag||'').trim();
+    if(dz) defectsByDz[dz]=(defectsByDz[dz]||0)+1;
+  });
+  const maxDef=Math.max(1,...Object.values(defectsByDz));
+  Object.entries(defectsByDz).forEach(([dz,count])=>{
+    const center=DZ_CENTERS[dz];
+    if(!center) return;
+    const ratio=count/maxDef;
+    const r=Math.round(30+ratio*60);
+    const opacity=0.3+ratio*0.5;
+    const color=ratio>0.7?'#dc2626':ratio>0.4?'#f59e0b':'#16a34a';
+    const circle=L.circle(center,{radius:r*1000,color,fillColor:color,fillOpacity:opacity,weight:1.5,opacity:0.8});
+    circle.bindPopup(`<div style="font-family:'Poppins',sans-serif;padding:6px;"><strong style="color:${color};">${dz}</strong><br><span style="font-size:12px;">${count} defect${count!==1?'s':''}</span></div>`);
+    circle.addTo(_leafletMap);
+    _heatmapLayers.push(circle);
+    // Label
+    const lbl=L.marker(center,{icon:L.divIcon({className:'',html:`<div style="background:${color};color:#fff;font-size:11px;font-weight:800;font-family:'Rajdhani',sans-serif;padding:2px 7px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3);">${count}</div>`,iconAnchor:[20,10]})});
+    lbl.addTo(_leafletMap);
+    _heatmapLayers.push(lbl);
+  });
+  if(!_heatmapLayers.length){ toast('⚠️ No defect records with Dzongkhag data found.'); return; }
+  _heatmapOn=true;
+  if(btn){ btn.style.background='#dc2626'; btn.style.borderColor='#dc2626'; btn.style.color='#fff'; btn.textContent='🔥 Hide Heatmap'; }
+  toast('🔥 Defect heatmap active — bigger/redder circles = more defects');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   INSPECTION APPROVAL WORKFLOW
+════════════════════════════════════════════════════════════════ */
+const APPROVAL_STATES=['Draft','Submitted','Under Review','Approved','Rejected'];
+function _approvalBadge(status, inspId, isAdmin){
+  const s=status||'Draft';
+  const col=s==='Approved'?'#16a34a':s==='Rejected'?'#dc2626':s==='Under Review'?'#7c3aed':s==='Submitted'?'#2563eb':'#6b7280';
+  const badge=`<span style="background:${col}15;color:${col};font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;white-space:nowrap;font-family:'JetBrains Mono',monospace;">${s.toUpperCase()}</span>`;
+  if(!isAdmin||!inspId) return badge;
+  const next=s==='Draft'?'Submitted':s==='Submitted'?'Under Review':s==='Under Review'?'Approved':null;
+  const nextBtn=next?`<button onclick="advanceApproval('${inspId.replace(/'/g,"\\'")}','${next}')" style="background:${col};border:none;border-radius:4px;padding:2px 7px;color:#fff;font-size:9px;font-weight:700;cursor:pointer;margin-left:3px;white-space:nowrap;">→${next}</button>`:'';
+  const rejectBtn=(s!=='Draft'&&s!=='Approved'&&s!=='Rejected')?`<button onclick="advanceApproval('${inspId.replace(/'/g,"\\'")}','Rejected')" style="background:#dc2626;border:none;border-radius:4px;padding:2px 7px;color:#fff;font-size:9px;font-weight:700;cursor:pointer;margin-left:3px;">✕</button>`:'';
+  return `<div style="display:flex;align-items:center;gap:2px;flex-wrap:nowrap;">${badge}${nextBtn}${rejectBtn}</div>`;
+}
+async function advanceApproval(inspId, newStatus){
+  const r=inspections.find(x=>(x.id||x.firestoreId)===inspId);
+  if(!r){ toast('⚠️ Record not found.'); return; }
+  const prev=r.approvalStatus||'Draft';
+  r.approvalStatus=newStatus;
+  r.approvalBy=currentUser?.name||'Admin';
+  r.approvalAt=new Date().toLocaleDateString('en-BT');
+  try{
+    const docId=r.id||r.firestoreId;
+    if(docId) await db.collection('inspections').doc(docId).update({approvalStatus:newStatus,approvalBy:r.approvalBy,approvalAt:r.approvalAt});
+    localStorage.setItem('inspections_cqis',JSON.stringify(inspections));
+    _logAudit('UPDATE',`Approval: ${prev} → ${newStatus} for inspection ${inspId}`);
+    toast(`✅ Status changed to "${newStatus}"`);
+    renderTable();
+  }catch(e){ toast('❌ '+e.message); r.approvalStatus=prev; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SMART DUPLICATE DETECTION
+════════════════════════════════════════════════════════════════ */
+function checkDuplicate(){
+  const proj=(document.getElementById('fProjectName')?.value||'').trim().toLowerCase();
+  const date=document.getElementById('fDateInspected')?.value||'';
+  const loc=(document.getElementById('fRoadSection')?.value||'').trim().toLowerCase();
+  if(!proj||!date) return;
+  const dupes=(inspections||[]).filter(r=>
+    (r.projectName||'').toLowerCase()===proj &&
+    (r.dateInspected||'')===date &&
+    (loc?(r.roadSection||'').toLowerCase()===loc:true)
+  );
+  let warn=document.getElementById('dupWarn');
+  if(!warn){
+    warn=document.createElement('div');
+    warn.id='dupWarn';
+    warn.style.cssText='display:none;background:#fff7ed;border:1.5px solid #f59e0b;border-radius:8px;padding:10px 14px;margin-top:8px;font-size:12px;color:#92400e;font-weight:600;grid-column:1/-1;';
+    const grid=document.querySelector('#tab-entry .form-grid');
+    if(grid) grid.appendChild(warn);
+  }
+  if(dupes.length){
+    warn.style.display='block';
+    warn.innerHTML=`⚠️ <strong>Possible duplicate detected!</strong> ${dupes.length} existing record${dupes.length>1?'s':''} found for this project on this date${loc?' at this location':''}. Check the Data Register before saving. <a onclick="showTab('data',document.querySelector('[onclick*=\\'data\\']'))" style="color:#d97706;cursor:pointer;text-decoration:underline;">View existing records →</a>`;
+  } else {
+    warn.style.display='none';
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BATCH ATR STATUS UPDATE
+════════════════════════════════════════════════════════════════ */
+function openBatchATRUpdate(){
+  const overdue=(inspections||[]).filter(r=>{
+    if(!r.atrDeadline) return false;
+    if(r.atrSubmitted&&r.atrSubmitted!=='-'&&r.atrSubmitted!=='') return false;
+    return new Date(r.atrDeadline)<new Date();
+  });
+  if(!overdue.length){ toast('✅ No overdue ATR records to update.'); return; }
+  const list=overdue.slice(0,20).map((r,i)=>`
+    <label style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #f0f2f7;cursor:pointer;">
+      <input type="checkbox" id="batchATR_${i}" style="margin-top:2px;flex-shrink:0;">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#0f1e3a;">${_esc(r.projectName||'?')} — S/N ${r.sn}</div>
+        <div style="font-size:11px;color:#6b7280;">${_esc(r.contractor||'?')} · Deadline: <span style="color:#dc2626;font-weight:700;">${r.atrDeadline}</span></div>
+      </div>
+    </label>`).join('');
+  const modal=document.createElement('div');
+  modal.id='batchATRModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;';
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:14px;width:100%;max-width:540px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="background:linear-gradient(135deg,#dc2626,#b91c1c);padding:16px 20px;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:1px;">⚡ BATCH ATR STATUS UPDATE</div>
+        <button onclick="document.getElementById('batchATRModal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:15px;">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px 20px;">
+        <div style="font-size:12px;color:#6b7280;margin-bottom:10px;">Select overdue records to mark as submitted:</div>
+        <label style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:12px;font-weight:700;color:#374151;cursor:pointer;">
+          <input type="checkbox" id="batchATRAll" onchange="_batchSelectAll(this)"> Select All (${overdue.length})
+        </label>
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:8px;">${overdue.length>20?'Showing first 20 records.':''}</div>
+        ${list}
+      </div>
+      <div style="padding:14px 20px;border-top:1px solid #e2e6ef;display:flex;gap:8px;">
+        <input type="date" id="batchATRDate" value="${new Date().toISOString().substring(0,10)}" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;padding:8px 12px;font-size:12px;color:#1a2236;outline:none;">
+        <button onclick="_executeBatchATR(${JSON.stringify(overdue.slice(0,20).map(r=>r.id||r.firestoreId))})" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:7px;padding:9px 18px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;flex:1;font-family:'Rajdhani',sans-serif;">✅ Mark Selected as Submitted</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function _batchSelectAll(cb){ document.querySelectorAll('[id^="batchATR_"]').forEach(c=>{ c.checked=cb.checked; }); }
+async function _executeBatchATR(ids){
+  const date=document.getElementById('batchATRDate')?.value||new Date().toISOString().substring(0,10);
+  const selected=ids.filter((_,i)=>{ const cb=document.getElementById('batchATR_'+i); return cb&&cb.checked; });
+  if(!selected.length){ toast('⚠️ Select at least one record.'); return; }
+  toast('⏳ Updating '+selected.length+' records…');
+  let updated=0;
+  for(const id of selected){
+    const r=inspections.find(x=>(x.id||x.firestoreId)===id);
+    if(!r) continue;
+    r.atrSubmitted=date;
+    try{ if(id) await db.collection('inspections').doc(id).update({atrSubmitted:date}); updated++; }catch(e){}
+  }
+  localStorage.setItem('inspections_cqis',JSON.stringify(inspections));
+  _logAudit('UPDATE',`Batch ATR update: ${updated} records marked submitted on ${date}`);
+  toast(`✅ ${updated} records marked as ATR Submitted on ${date}`);
+  document.getElementById('batchATRModal')?.remove();
+  renderATR();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DATA BACKUP SCHEDULER
+════════════════════════════════════════════════════════════════ */
+function _initBackupScheduler(){
+  const KEY='cqis_last_backup';
+  const last=localStorage.getItem(KEY);
+  const now=new Date();
+  if(last){
+    const diff=(now-new Date(last))/(1000*60*60*24);
+    if(diff>=7){
+      // Show reminder after 3 seconds
+      setTimeout(()=>{
+        const banner=document.createElement('div');
+        banner.style.cssText='position:fixed;bottom:70px;right:16px;background:#0f1e3a;color:#fff;font-size:12px;font-weight:700;padding:12px 16px;border-radius:10px;z-index:9998;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,.3);font-family:"Poppins",sans-serif;line-height:1.5;';
+        banner.innerHTML=`⚠️ <strong>Data Backup Due!</strong><br>Last backup was ${Math.floor(diff)} days ago. Download a backup now to protect your data.
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <button onclick="exportAllDataBackupEnhanced();localStorage.setItem('${KEY}',new Date().toISOString());this.closest('div[style]').remove();" style="background:#e8820c;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;">⬇ Backup Now</button>
+            <button onclick="localStorage.setItem('${KEY}',new Date().toISOString());this.closest('div[style]').remove();" style="background:rgba(255,255,255,.15);border:none;border-radius:6px;padding:6px 12px;color:#fff;font-size:11px;cursor:pointer;">Later</button>
+          </div>`;
+        document.body.appendChild(banner);
+      }, 4000);
+    }
+  } else {
+    localStorage.setItem(KEY, now.toISOString());
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   VERSION HISTORY for Inspections
+════════════════════════════════════════════════════════════════ */
+async function _saveVersionSnapshot(entry, action){
+  try{
+    const snap={...entry, _vAction:action, _vAt:new Date().toISOString(), _vBy:currentUser?.name||'Unknown'};
+    await db.collection('inspectionHistory').add(snap);
+  }catch(e){}
+}
+async function openVersionHistory(inspId){
+  let snap=[];
+  try{
+    const res=await db.collection('inspectionHistory').where('id','==',inspId).orderBy('_vAt','desc').limit(20).get();
+    if(res.empty){
+      // Try firestoreId field
+      const res2=await db.collection('inspectionHistory').where('firestoreId','==',inspId).orderBy('_vAt','desc').limit(20).get();
+      snap=res2.docs.map(d=>d.data());
+    } else { snap=res.docs.map(d=>d.data()); }
+  }catch(e){ snap=[]; }
+  const modal=document.createElement('div');
+  modal.id='versionHistoryModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;';
+  const rows=snap.length?snap.map(s=>`
+    <tr>
+      <td style="font-size:11px;white-space:nowrap;font-family:'JetBrains Mono',monospace;">${(s._vAt||'').substring(0,19)}</td>
+      <td style="font-size:11px;">${_esc(s._vBy||'—')}</td>
+      <td><span style="background:${s._vAction==='CREATE'?'#dcfce7':'#dbeafe'};color:${s._vAction==='CREATE'?'#166534':'#1e40af'};font-size:10px;font-weight:800;padding:2px 7px;border-radius:3px;">${s._vAction||'EDIT'}</span></td>
+      <td style="font-size:11px;">${_esc(s.projectName||'—')}</td>
+      <td style="font-size:11px;">${_esc(s.passFailResult||'—')}</td>
+      <td style="font-size:11px;">${_esc(s.defect||'—')}</td>
+    </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:24px;color:#6b7280;">No version history found. History is recorded from this point forward.</td></tr>';
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:14px;width:100%;max-width:700px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="background:linear-gradient(135deg,#0f1e3a,#1a3a6e);padding:16px 20px;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:1px;">🕐 VERSION HISTORY</div>
+        <button onclick="document.getElementById('versionHistoryModal').remove()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:15px;">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr style="background:#f8f9fc;">
+            <th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2e6ef;">Timestamp</th>
+            <th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2e6ef;">Changed By</th>
+            <th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2e6ef;">Action</th>
+            <th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2e6ef;">Project</th>
+            <th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2e6ef;">Pass/Fail</th>
+            <th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2e6ef;">Defect</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{ if(e.target===modal) modal.remove(); });
+}
 
 /* ════════════════════════════════════════════════════════════════
    INSPECTION COMMENTS / NOTES
