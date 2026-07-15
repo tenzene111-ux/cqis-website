@@ -1726,6 +1726,10 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
         </div>
       </div>
       <button class="btn-login" onclick="doAdminLogin()">⚙️ SIGN IN AS ADMIN</button>
+      <div style="text-align:center;margin-top:8px;">
+        <button onclick="sendAdminPasswordReset()" tabindex="-1"
+          style="background:none;border:none;color:#6b7280;font-size:12px;cursor:pointer;text-decoration:underline;">Forgot password?</button>
+      </div>
     </div>
 
     <!-- USER LOGIN PANEL -->
@@ -8544,11 +8548,15 @@ async function fbSaveAdminNotif(notif) {
 }
 
 // ===== ACCESS CONFIGURATION =====
-// Admin accounts — email + shared password
-const SUPER_ADMIN_ACCOUNTS = [
-  { email: 'tenzene111@gmail.com', name: 'Tenzin' },
-];
-const _SAP = atob('U1VQRVJAMjAyNg=='); // SUPER@2026
+// Admin role map — email → { name, isSuperAdmin }
+// Passwords are managed in Firebase Console (Authentication → Users).
+// To add/change admin passwords go to: Firebase Console → Authentication → Users.
+const ADMIN_ROLES = {
+  'tenzene111@gmail.com':      { name: 'Tenzin',      isSuperAdmin: true  },
+  'pemanamgay70@gmail.com':    { name: 'Pema Namgay', isSuperAdmin: false },
+  'luvchhetri@cabinet.gov.bt': { name: 'Luv Chhetri', isSuperAdmin: false },
+  'kdendup@cabinet.gov.bt':    { name: 'K. Dendup',   isSuperAdmin: false },
+};
 
 const OBSERVER_ACCOUNTS = [
   { username:'chencho@cabinet.gov.bt', password:'DG@OBS2026',  name:'Director General',   title:'Director General, OCASC',      email:'chencho@cabinet.gov.bt' },
@@ -8556,15 +8564,6 @@ const OBSERVER_ACCOUNTS = [
   { username:'DIROPMC', password:'DIR@OBS2026',  name:'Director OPMC',      title:'Director, OPMC',                email:'diropmc@cabinet.gov.bt' },
   { username:'HDCQD',   password:'HD@OBS2026',   name:'Head CQD',           title:'Head, Construction Quality Division', email:'hdcqd@cabinet.gov.bt' },
 ];
-
-const ADMIN_ACCOUNTS = [
-  { email: 'tenzene111@gmail.com',        name: 'Tenzin' },
-  { email: 'pemanamgay70@gmail.com',       name: 'Pema Namgay' },
-  { email: 'luvchhetri@cabinet.gov.bt',    name: 'Luv Chhetri' },
-  { email: 'kdendup@cabinet.gov.bt',       name: 'K. Dendup' },
-];
-// Shared admin password (obfuscated — not plain text)
-const _AP = atob('Q1FEQDIwMjY='); // CQD@2026
 
 // ===== USER ACCOUNTS — Dzongkhag, RO & Thromde =====
 const USER_ACCOUNTS = [
@@ -8718,33 +8717,57 @@ function togglePw(id, btn) {
   else { inp.type = 'password'; btn.textContent = '👁'; }
 }
 
-// ===== ADMIN / SUPER ADMIN LOGIN =====
-function doAdminLogin() {
+// ===== ADMIN / SUPER ADMIN LOGIN (Firebase Auth email/password) =====
+async function doAdminLogin() {
   const email = (document.getElementById('adminEmail')?.value || '').trim().toLowerCase();
   const pass  = document.getElementById('adminPass')?.value || '';
   if (!email) { showLoginError('Please enter your email address.'); return; }
   if (!pass)  { showLoginError('Please enter the password.'); return; }
-  // Check Super Admin first
-  const saAcc = SUPER_ADMIN_ACCOUNTS.find(a => a.email.toLowerCase() === email);
-  if (saAcc && pass === _SAP) {
+
+  const role = ADMIN_ROLES[email];
+  if (!role) { showLoginError('This email is not registered as an admin account.'); return; }
+
+  const btn = document.querySelector('#lpanel-admin .btn-login');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Signing in…'; }
+
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, pass);
     currentUser = {
-      username: saAcc.email, name: saAcc.name, email: saAcc.email,
-      picture: null, isSuperAdmin: true, isAdmin: true, role: 'Super Admin', isUser: false,
+      username: email, name: role.name, email,
+      picture: null,
+      isSuperAdmin: role.isSuperAdmin,
+      isAdmin: true,
+      role: role.isSuperAdmin ? 'Super Admin' : 'Administrator',
+      isUser: false, isObserver: false,
       canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
-      canManageUsers: true, canManageSystem: true,
+      canManageUsers: role.isSuperAdmin, canManageSystem: role.isSuperAdmin,
     };
-    finishLogin(); return;
+    finishLogin();
+  } catch (err) {
+    const msg =
+      (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials')
+        ? 'Incorrect password. Please try again.'
+      : err.code === 'auth/too-many-requests'
+        ? 'Too many failed attempts. Please wait a few minutes and try again.'
+      : err.code === 'auth/user-not-found'
+        ? 'No account found for this email. Please contact the system administrator.'
+      : 'Sign-in failed: ' + (err.message || err);
+    showLoginError(msg);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '⚙️ SIGN IN AS ADMIN'; }
   }
-  // Regular Admin
-  if (pass !== _AP) { showLoginError('Incorrect password. Please try again.'); return; }
-  const acc = ADMIN_ACCOUNTS.find(a => a.email.toLowerCase() === email);
-  if (!acc) { showLoginError('This email is not registered as an admin account.'); return; }
-  currentUser = {
-    username: acc.email, name: acc.name, email: acc.email,
-    picture: null, isSuperAdmin: false, isAdmin: true, role: 'Administrator', isUser: false,
-    canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
-  };
-  finishLogin();
+}
+
+async function sendAdminPasswordReset() {
+  const email = (document.getElementById('adminEmail')?.value || '').trim().toLowerCase();
+  if (!email) { showLoginError('Enter your admin email address first, then click Forgot Password.', 'info'); return; }
+  if (!ADMIN_ROLES[email]) { showLoginError('This email is not registered as an admin account.'); return; }
+  try {
+    await firebase.auth().sendPasswordResetEmail(email);
+    showLoginError('✅ Password reset email sent to ' + email + '. Check your inbox.', 'success');
+  } catch (err) {
+    showLoginError('Could not send reset email: ' + (err.message || err));
+  }
 }
 
 // ===== USER LOGIN (Dzongkhag / RO / Thromde) =====
@@ -9147,7 +9170,7 @@ async function submitObserverComment() {
       'ACTION: Log in to CQIS → ' + _obsSelectedPage + ' tab.',
       '— CQIS System, OPMC/OCASC',
     ].filter(Boolean).join('\n');
-    const adminEmails = ADMIN_ACCOUNTS.map(a => a.email).join(',');
+    const adminEmails = Object.keys(ADMIN_ROLES).join(',');
     window.open('mailto:' + adminEmails + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyLines), '_blank');
   }
 
@@ -11992,21 +12015,13 @@ function trPrintAll() {
 function loginAllowlistLookup(email) {
   email = (email || '').trim().toLowerCase();
   if (!email) return null;
-  const sa = SUPER_ADMIN_ACCOUNTS.find(a => a.email.toLowerCase() === email);
-  if (sa) {
+  const role = ADMIN_ROLES[email];
+  if (role) {
     return {
-      name: sa.name, email: sa.email,
-      isSuperAdmin: true, isAdmin: true, isUser: false, role: 'Super Admin',
+      name: role.name, email,
+      isSuperAdmin: role.isSuperAdmin, isAdmin: true, isUser: false, role: role.isSuperAdmin ? 'Super Admin' : 'Administrator',
       canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
-      canManageUsers: true, canManageSystem: true,
-    };
-  }
-  const ad = ADMIN_ACCOUNTS.find(a => a.email.toLowerCase() === email);
-  if (ad) {
-    return {
-      name: ad.name, email: ad.email,
-      isSuperAdmin: false, isAdmin: true, isUser: false, role: 'Administrator',
-      canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
+      canManageUsers: role.isSuperAdmin, canManageSystem: role.isSuperAdmin,
     };
   }
   const ob = OBSERVER_ACCOUNTS.find(a => (a.email || '').toLowerCase() === email);
@@ -12266,15 +12281,19 @@ async function finishLogin() {
   // ── PERSIST SESSION ──
   try {
     localStorage.setItem('cqis_session', JSON.stringify({
-      name:     currentUser.name,
-      role:     currentUser.role,
-      isAdmin:  currentUser.isAdmin,
-      isUser:   currentUser.isUser,
-      isViewer: currentUser.isViewer,
-      location: currentUser.location || '',
-      locType:  currentUser.locType  || '',
-      picture:  currentUser.picture  || '',
-      savedAt:  Date.now()
+      name:         currentUser.name,
+      role:         currentUser.role,
+      isAdmin:      currentUser.isAdmin      || false,
+      isSuperAdmin: currentUser.isSuperAdmin || false,
+      isUser:       currentUser.isUser       || false,
+      isObserver:   currentUser.isObserver   || false,
+      isViewer:     currentUser.isViewer     || false,
+      location:     currentUser.location     || '',
+      locType:      currentUser.locType      || '',
+      picture:      currentUser.picture      || '',
+      username:     currentUser.username     || '',
+      email:        currentUser.email        || '',
+      savedAt:      Date.now()
     }));
     // Remember the User-tab login identifier so it's pre-filled next time
     if (currentUser.isUser && currentUser.username) {
@@ -25832,14 +25851,28 @@ function showModalError(msg){
   const e=document.getElementById('modalLoginError');
   if(e){ e.textContent=msg; e.style.display='block'; }
 }
-function doModalLogin(){
-  const email = document.getElementById('mAdminEmail')?.value.trim();
-  const pass  = document.getElementById('mAdminPass')?.value;
-  const admin = typeof ADMIN_ACCOUNTS !== 'undefined' && ADMIN_ACCOUNTS.find(u=>u.email===email);
-  if(!admin || pass !== _AP){ showModalError('Invalid email or password.'); return; }
-  currentUser = { name:admin.name||'Admin', role:'admin', isAdmin:true, isUser:false, isViewer:false, picture:'' };
-  closeCqisModal();
-  finishLogin();
+async function doModalLogin(){
+  const email = (document.getElementById('mAdminEmail')?.value||'').trim().toLowerCase();
+  const pass  = document.getElementById('mAdminPass')?.value||'';
+  const role  = ADMIN_ROLES[email];
+  if(!role){ showModalError('This email is not registered as an admin account.'); return; }
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, pass);
+    currentUser = {
+      username: email, name: role.name, email, picture: '',
+      isSuperAdmin: role.isSuperAdmin, isAdmin: true,
+      role: role.isSuperAdmin ? 'Super Admin' : 'Administrator',
+      isUser: false, isObserver: false,
+      canEdit: true, canDelete: true, canAddPU: true, canPrint: true,
+      canManageUsers: role.isSuperAdmin, canManageSystem: role.isSuperAdmin,
+    };
+    closeCqisModal();
+    finishLogin();
+  } catch(err){
+    const msg = (err.code==='auth/wrong-password'||err.code==='auth/invalid-credential'||err.code==='auth/invalid-login-credentials')
+      ? 'Incorrect password.' : 'Sign-in failed: '+(err.message||err);
+    showModalError(msg);
+  }
 }
 function doModalUserLogin(){
   const uname = document.getElementById('mUserName')?.value.trim().toUpperCase();
