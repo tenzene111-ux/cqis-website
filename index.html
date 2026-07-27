@@ -30281,7 +30281,7 @@ function renderScorecard(){
     const worst = contractors[contractors.length-1];
     kpiEl.innerHTML=`
       <div class="kpi-card"><div class="kpi-value">${contractors.length}</div><div class="kpi-label">Contractors Rated</div></div>
-      <div class="kpi-card"><div class="kpi-value" style="color:#16a34a;">${best?best.name.substring(0,18):'—'}</div><div class="kpi-label">Top Performer</div></div>
+      <div class="kpi-card"><div class="kpi-value" style="color:#16a34a;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${best?_esc(best.name):''}">${best?_esc(best.name):'—'}</div><div class="kpi-label">Top Performer</div></div>
       <div class="kpi-card"><div class="kpi-value" style="color:#16a34a;">${best?best.score+'%':'—'}</div><div class="kpi-label">Best Score</div></div>
       <div class="kpi-card"><div class="kpi-value" style="color:#dc2626;">${worst&&worst!==best?worst.score+'%':'—'}</div><div class="kpi-label">Lowest Score</div></div>
       <div class="kpi-card"><div class="kpi-value">${rows.length}</div><div class="kpi-label">Total Inspections</div></div>
