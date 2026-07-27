@@ -1168,6 +1168,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
   border-radius:16px !important;
   box-shadow:0 12px 48px rgba(15,30,58,.25) !important;
   padding:20px 26px !important;
+  transition:transform .15s ease-out;
 }
 .login-title{color:#0f1e3a !important;font-size:16px !important;font-weight:800 !important;}
 .login-org{color:#64748b !important;}
@@ -1175,7 +1176,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 /* ── LOGIN PAGE: FULL-BLEED PHOTO WITH FLOATING CARD ── */
 #loginPage{display:flex;align-items:center !important;justify-content:flex-end !important;padding:24px !important;min-height:100vh !important;position:relative;overflow:hidden;}
 .login-side{position:absolute;inset:0;background:linear-gradient(135deg,#0f1e3a 0%,#1a3a6e 55%,#0d2b4a 100%);display:flex;align-items:flex-end;justify-content:flex-start;overflow:hidden;padding:32px;color:#fff;}
-.login-side-photo{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;}
+.login-side-photo{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;transition:transform .15s ease-out;will-change:transform;}
 .login-side-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(8,18,36,.78) 0%,rgba(8,18,36,.35) 30%,rgba(8,18,36,0) 60%);}
 .login-side-content{position:relative;z-index:2;max-width:340px;padding:18px 22px;border-radius:14px;background:rgba(8,18,36,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
 .login-side-org{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;color:#9fb4d4;text-transform:uppercase;margin-bottom:6px;}
@@ -1313,6 +1314,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .lp-nav-mobile a{display:block;font-family:'Poppins',sans-serif;font-size:13px;color:rgba(255,255,255,.7);padding:11px 32px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.04);}
 .lp-nav-mobile a:hover{color:#fff;background:rgba(255,255,255,.04);}
 @media(max-width:992px){.lp-hamburger{display:block;}.lp-nav-links,.lp-nav-cta{display:none;}}
+@media(max-width:700px){.lp-utility-bar{display:none;}}
 
 /* ── HERO ── */
 .lp-hero{position:relative;min-height:94vh;display:flex;align-items:center;overflow:hidden;background:#030812;}
@@ -1343,7 +1345,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 .lp-slide-dots{position:absolute;bottom:20px;right:32px;display:flex;gap:6px;z-index:2;}
 
 /* ── SHARED SECTION STYLES ── */
-.lp-section{padding:90px 0;}
+.lp-section{padding:90px 0;background:#fff;}
 .lp-dark{background:#04080f;}
 .lp-container{max-width:1280px;margin:0 auto;padding:0 32px;}
 .lp-container-fluid{max-width:100%;padding:0 40px;}
@@ -1647,6 +1649,203 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 
 <div class="wrapper">
 
+<!-- ═══════════════════════════════════════════════════════
+     PUBLIC LANDING PAGE — first thing a visitor sees.
+     Signing in opens #cqisPanel on top of this (see openCqisPanel()).
+════════════════════════════════════════════════════════ -->
+<div id="lpRoot">
+
+  <div class="lp-utility-bar">
+    <div class="lp-utility-inner">
+      <div class="lp-utility-left">
+        <span><i class="fas fa-map-marker-alt"></i>Thimphu, Bhutan</span>
+        <span class="lp-divider">|</span>
+        <span><i class="fas fa-landmark"></i>Construction Quality Division, Cabinet Secretariat</span>
+      </div>
+      <div class="lp-utility-right">
+        <span><i class="fab fa-whatsapp"></i><a href="https://wa.me/97577101680" style="color:inherit;text-decoration:none;">+975 77101680</a></span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="lp-nav">
+    <div class="lp-nav-inner">
+      <a href="javascript:void(0)" class="lp-nav-brand" onclick="bzScrollTo('lp-home')">
+        <span class="lp-brand-icon">🏗️</span>
+        <span>
+          <span class="lp-brand-title">CQIS</span>
+          <span class="lp-brand-sub">OPMC / OCASC</span>
+        </span>
+      </a>
+      <div class="lp-nav-links">
+        <a href="javascript:void(0)" class="lp-navlink active" onclick="bzScrollTo('lp-home')">Home</a>
+        <a href="javascript:void(0)" class="lp-navlink" onclick="bzScrollTo('lp-about')">About</a>
+        <a href="javascript:void(0)" class="lp-navlink" onclick="bzScrollTo('lp-modules')">Modules</a>
+        <button class="lp-nav-cta" onclick="openCqisPanel()">Sign In</button>
+      </div>
+      <button class="lp-hamburger" onclick="lpToggleNav()"><i class="fas fa-bars"></i></button>
+    </div>
+    <div class="lp-nav-mobile" id="lpNavMobile">
+      <a href="javascript:void(0)" onclick="bzScrollTo('lp-home')">Home</a>
+      <a href="javascript:void(0)" onclick="bzScrollTo('lp-about')">About</a>
+      <a href="javascript:void(0)" onclick="bzScrollTo('lp-modules')">Modules</a>
+      <a href="javascript:void(0)" onclick="openCqisPanel()">Sign In</a>
+    </div>
+  </nav>
+
+  <!-- HERO — background photo + dot-pattern move at different scroll speeds -->
+  <section class="lp-hero" id="lp-home">
+    <div class="lp-hero-bg" id="lpHeroBg" data-parallax-speed="0.22"></div>
+    <div class="lp-hero-overlay" data-parallax-speed="0.10"></div>
+    <div class="lp-hero-content">
+      <div class="lp-hero-eyebrow"><span class="lp-pulse"></span> Government of Bhutan · Cabinet Secretariat</div>
+      <h1 class="lp-hero-h1">Construction Quality<br><em>Inspection System</em></h1>
+      <p class="lp-hero-desc">A standardized, real-time inspection and quality-control platform for OPMC and OCASC construction works, run by the Construction Quality Division.</p>
+      <div class="lp-hero-actions">
+        <button class="lp-btn-primary lp-btn-lg" onclick="openCqisPanel()"><i class="fas fa-sign-in-alt"></i> Sign In to CQIS</button>
+        <a href="javascript:void(0)" class="lp-btn-ghost lp-btn-lg" onclick="bzScrollTo('lp-about')"><i class="fas fa-info-circle"></i> Learn More</a>
+      </div>
+      <div class="lp-hero-stats">
+        <div class="lp-hstat"><span class="lp-hstat-v">Real-Time</span><span class="lp-hstat-l">Inspection Tracking</span></div>
+        <div class="lp-hstat-div"></div>
+        <div class="lp-hstat"><span class="lp-hstat-v">MOIT</span><span class="lp-hstat-l">Standardized Workflows</span></div>
+        <div class="lp-hstat-div"></div>
+        <div class="lp-hstat"><span class="lp-hstat-v">Cloud</span><span class="lp-hstat-l">Firebase-Backed Data</span></div>
+      </div>
+    </div>
+    <div class="lp-hero-scroll-hint"><i class="fas fa-chevron-down"></i></div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="lp-section" id="lp-about">
+    <div class="lp-container">
+      <div class="lp-about-grid">
+        <div class="lp-about-text">
+          <div class="lp-section-label">About The System</div>
+          <h2 class="lp-section-h2">Built for OPMC &amp; OCASC construction quality oversight</h2>
+          <p class="lp-about-p">CQIS is the Construction Quality Division's digital inspection platform, used by administrators, field users, and observers to record inspections, QC test results, and monthly project updates against MOIT standards.</p>
+          <p class="lp-about-p">Every inspection, attachment, and analytics report is stored centrally and synced in real time, replacing paper-based inspection logs across dzongkhags, ROs, and thromdes.</p>
+          <div class="lp-about-features">
+            <div class="lp-af"><i class="fas fa-check-circle"></i> Real-time QC test tracking</div>
+            <div class="lp-af"><i class="fas fa-check-circle"></i> Standardized MOIT workflows</div>
+            <div class="lp-af"><i class="fas fa-check-circle"></i> Compliance analytics dashboard</div>
+            <div class="lp-af"><i class="fas fa-check-circle"></i> Offline-capable field entry</div>
+          </div>
+        </div>
+        <div class="lp-about-visual">
+          <div class="lp-av-bg"></div>
+          <div class="lp-av-card lp-av-1"><i class="fas fa-clipboard-check"></i> Inspection Entry</div>
+          <div class="lp-av-card lp-av-2"><i class="fas fa-chart-line"></i> Analytics Dashboard</div>
+          <div class="lp-av-card lp-av-3"><i class="fas fa-shield-alt"></i> Compliance Reports</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODULES -->
+  <section class="lp-section lp-dark" id="lp-modules">
+    <div class="lp-container">
+      <div class="lp-section-header">
+        <div class="lp-section-label light">System Modules</div>
+        <h2 class="lp-section-h2 light">Everything an inspection team needs, in one system</h2>
+      </div>
+      <div class="lp-modules-grid">
+        <div class="lp-module-card lp-mc-featured">
+          <div class="lp-mc-icon"><i class="fas fa-clipboard-list"></i></div>
+          <div class="lp-mc-code">MODULE / 01</div>
+          <div class="lp-mc-title">New Entry</div>
+          <div class="lp-mc-desc">Record inspections and QC test results directly from the field, with photo attachments and GPS geotagging.</div>
+        </div>
+        <div class="lp-module-card">
+          <div class="lp-mc-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="lp-mc-code">MODULE / 02</div>
+          <div class="lp-mc-title">Action Taken Report</div>
+          <div class="lp-mc-desc">Track and update corrective actions raised against non-conforming inspection findings.</div>
+        </div>
+        <div class="lp-module-card">
+          <div class="lp-mc-icon"><i class="fas fa-chart-bar"></i></div>
+          <div class="lp-mc-code">MODULE / 03</div>
+          <div class="lp-mc-title">Analytics</div>
+          <div class="lp-mc-desc">Pass/fail trends, location performance and defect breakdowns across every inspected site.</div>
+        </div>
+        <div class="lp-module-card">
+          <div class="lp-mc-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="lp-mc-code">MODULE / 04</div>
+          <div class="lp-mc-title">Compliance Reports</div>
+          <div class="lp-mc-desc">Contractor and area compliance breakdowns generated straight from recorded inspection data.</div>
+        </div>
+        <div class="lp-module-card">
+          <div class="lp-mc-icon"><i class="fas fa-project-diagram"></i></div>
+          <div class="lp-mc-code">MODULE / 05</div>
+          <div class="lp-mc-title">Project Updates</div>
+          <div class="lp-mc-desc">Monthly progress updates against the project registry, scoped to each agency's own projects.</div>
+        </div>
+        <div class="lp-module-card">
+          <div class="lp-mc-icon"><i class="fas fa-bell"></i></div>
+          <div class="lp-mc-code">MODULE / 06</div>
+          <div class="lp-mc-title">Notifications</div>
+          <div class="lp-mc-desc">Automated email alerts for overdue ATRs, overdue monthly updates, and admin notices.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI STRIP -->
+  <section class="lp-kpi-strip">
+    <div class="lp-container">
+      <div class="lp-kpi-grid">
+        <div class="lp-kpi-item"><span class="lp-kpi-val">24/7</span><span class="lp-kpi-lbl">System Availability</span></div>
+        <div class="lp-kpi-item"><span class="lp-kpi-val">3</span><span class="lp-kpi-lbl">Access Roles</span></div>
+        <div class="lp-kpi-item"><span class="lp-kpi-val">100%</span><span class="lp-kpi-lbl">Cloud Synced</span></div>
+        <div class="lp-kpi-item"><span class="lp-kpi-val">MOIT</span><span class="lp-kpi-lbl">Standard Aligned</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="lp-cta">
+    <div class="lp-container">
+      <div class="lp-cta-inner">
+        <div>
+          <div class="lp-cta-h2">Ready to sign in?</div>
+          <p class="lp-cta-p">Access your CQIS dashboard as an Admin, User, or Observer.</p>
+        </div>
+        <button class="lp-btn-primary lp-btn-lg" onclick="openCqisPanel()"><i class="fas fa-sign-in-alt"></i> Sign In to CQIS</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="lp-footer">
+    <div class="lp-container">
+      <div class="lp-footer-grid">
+        <div class="lp-footer-brand">
+          <div class="lp-footer-logo">CQIS</div>
+          <p><i class="fas fa-map-marker-alt"></i> Construction Quality Division, Cabinet Secretariat, Thimphu, Bhutan</p>
+          <p><i class="fab fa-whatsapp"></i> <a href="https://wa.me/97577101680" style="color:inherit;">+975 77101680</a></p>
+        </div>
+        <div class="lp-footer-links">
+          <h4>Navigate</h4>
+          <a href="javascript:void(0)" onclick="bzScrollTo('lp-home')">Home</a>
+          <a href="javascript:void(0)" onclick="bzScrollTo('lp-about')">About</a>
+          <a href="javascript:void(0)" onclick="bzScrollTo('lp-modules')">Modules</a>
+        </div>
+        <div class="lp-footer-links">
+          <h4>Access</h4>
+          <a href="javascript:void(0)" onclick="openCqisPanel()">Sign In</a>
+        </div>
+      </div>
+      <div class="lp-footer-bottom">
+        <div class="lp-fb-inner">
+          <span>&copy; 2026 Construction Quality Division &middot; OPMC / OCASC, Government of Bhutan</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="javascript:void(0)" class="lp-back-top" id="lpBackTop" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></a>
+
+</div><!-- /#lpRoot -->
 
 <!-- ═══════════════════════════════════════════════════════
      CQIS APP — Fixed full-screen panel over the landing page
@@ -1654,7 +1853,7 @@ button:active,.btn-login:active,.btn-google:active,.btn-logout:active,.btn-prima
 <div id="bz-app-section">
 
 <!-- Full-screen CQIS panel (hidden until opened) -->
-<div id="cqisPanel" style="display:block;position:fixed;inset:0;z-index:500;background:#f0f2f7;overflow-y:auto;overflow-x:hidden;">
+<div id="cqisPanel" style="display:none;position:fixed;inset:0;z-index:500;background:#f0f2f7;overflow-y:auto;overflow-x:hidden;">
 
 <!-- LOGIN PAGE -->
 <div id="loginPage">
@@ -25758,7 +25957,9 @@ const SITE_IMAGES = [
 
 <script>
 // ── CQIS PANEL OPEN / CLOSE ──
-document.addEventListener('DOMContentLoaded', openCqisPanel);
+// Panel opens on demand (Sign In / nav CTA) — see restoreSession() above,
+// which restores a saved session silently but leaves the panel closed so
+// the public landing page is always what a fresh visitor sees first.
 
 function openCqisPanel(){
   // Always enforce login check — never open app directly if not authenticated
@@ -25794,6 +25995,83 @@ function lpToggleNav(){
   const m=document.getElementById('lpNavMobile');
   if(m) m.classList.toggle('open');
 }
+
+// ── LANDING PAGE: scroll parallax, back-to-top, nav highlight ──
+(function lpInit(){
+  // Reuse the (already-loaded, no extra network request) login side photo
+  // as the hero background so the parallax layer is guaranteed to render.
+  const photoSrc = document.querySelector('.login-side-photo');
+  const heroBg = document.getElementById('lpHeroBg');
+  if(photoSrc && heroBg){
+    const bg = getComputedStyle(photoSrc).backgroundImage;
+    if(bg && bg !== 'none'){
+      heroBg.style.backgroundImage = bg;
+      const overlay = document.querySelector('.lp-hero-overlay');
+      if(overlay) overlay.style.background =
+        'linear-gradient(105deg,rgba(3,8,18,.82) 0%,rgba(3,8,18,.55) 45%,rgba(3,8,18,.25) 100%)';
+    }
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const parallaxLayers = document.querySelectorAll('#lpRoot [data-parallax-speed]');
+  const backTop = document.getElementById('lpBackTop');
+  const navLinks = document.querySelectorAll('#lpRoot .lp-navlink');
+  const sections = ['lp-home','lp-about','lp-modules'].map(id=>document.getElementById(id)).filter(Boolean);
+
+  let ticking = false;
+  function onScroll(){
+    const y = window.scrollY || window.pageYOffset;
+
+    if(!reduceMotion){
+      parallaxLayers.forEach(el=>{
+        const speed = parseFloat(el.dataset.parallaxSpeed || '0.2');
+        el.style.transform = 'translate3d(0,' + Math.round(y * speed) + 'px,0)';
+      });
+    }
+
+    if(backTop) backTop.classList.toggle('show', y > 500);
+
+    if(navLinks.length && sections.length){
+      let activeId = sections[0].id;
+      sections.forEach(sec=>{ if(y >= sec.offsetTop - 120) activeId = sec.id; });
+      navLinks.forEach(a=>{
+        a.classList.toggle('active', a.getAttribute('onclick') && a.getAttribute('onclick').includes("'" + activeId + "'"));
+      });
+    }
+
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ requestAnimationFrame(onScroll); ticking = true; }
+  }, {passive:true});
+  onScroll();
+})();
+
+// ── LOGIN SCREEN: subtle cursor-parallax depth (only while login is visible) ──
+(function loginParallaxInit(){
+  const stage = document.getElementById('loginPage');
+  const photo = stage ? stage.querySelector('.login-side-photo') : null;
+  const card  = stage ? stage.querySelector('.login-card') : null;
+  if(!stage || !photo) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(window.matchMedia('(pointer: coarse)').matches) return; // skip on touch devices
+
+  let rafId = null;
+  stage.addEventListener('mousemove', function(e){
+    if(rafId) return;
+    rafId = requestAnimationFrame(function(){
+      const nx = (e.clientX / window.innerWidth  - 0.5) * 2;  // -1..1
+      const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+      photo.style.transform = 'scale(1.06) translate(' + (-nx * 10) + 'px,' + (-ny * 10) + 'px)';
+      if(card) card.style.transform = 'translate(' + (nx * 4) + 'px,' + (ny * 4) + 'px)';
+      rafId = null;
+    });
+  });
+  stage.addEventListener('mouseleave', function(){
+    photo.style.transform = '';
+    if(card) card.style.transform = '';
+  });
+})();
 
 function closeBzNav(){
   const nav=document.getElementById('bzNavCollapse');
