@@ -19047,6 +19047,19 @@ function ccGlobalDesign(ccid){
   return { dbm: isNaN(dbm) ? null : dbm, acbc: isNaN(acbc) ? null : acbc };
 }
 
+// Judges DBM%/AC-BC% against the limit, treating a layer whose global design
+// was never entered as not applicable this session (e.g. a round of cores
+// that only tested the AC/BC wearing course) rather than as a failure —
+// otherwise a session that never touches one layer can never get a verdict.
+function ccLayerVerdict(dPct, aPct, gdes, limit){
+  const dApplicable = gdes.dbm  !== null;
+  const aApplicable = gdes.acbc !== null;
+  if(!dApplicable && !aApplicable) return null;
+  const dOk = dApplicable ? (dPct!==null && dPct>=limit) : true;
+  const aOk = aApplicable ? (aPct!==null && aPct>=limit) : true;
+  return { dApplicable, aApplicable, dOk, aOk, pass: dOk && aOk };
+}
+
 function ccAddRow(ccid){
   if(!_ccRowCounts[ccid]) _ccRowCounts[ccid] = 0;
   _ccRowCounts[ccid]++;
@@ -19160,14 +19173,16 @@ function ccCalcRow(ccid, n){
   if(tpctEl){ tpctEl.textContent = pctStr(tPct); tpctEl.style.color = pctColor(tPct); }
 
   if(remEl){
-    if(tPct===null){
+    const v = ccLayerVerdict(dPct, aPct, gdes, limit);
+    if(tPct===null || !v){
       remEl.innerHTML = `<span style="color:#6b7280;">—</span>`;
-    } else if(dPct!==null && aPct!==null && dPct>=limit && aPct>=limit){
-      remEl.innerHTML = `<span style="color:#16a34a;font-weight:600;">Both layers within tolerance</span>`;
+    } else if(v.pass){
+      const label = (v.dApplicable && v.aApplicable) ? 'Both layers' : v.dApplicable ? 'DBM layer' : 'AC/BC layer';
+      remEl.innerHTML = `<span style="color:#16a34a;font-weight:600;">${label} within tolerance</span>`;
     } else {
       const parts=[];
-      if(aPct!==null && aPct<limit) parts.push(`AC/BC ${(ades-aact).toFixed(1)} mm short`);
-      if(dPct!==null && dPct<limit) parts.push(`DBM ${(ddes-dact).toFixed(1)} mm short`);
+      if(v.aApplicable && aPct!==null && !v.aOk) parts.push(`AC/BC ${(ades-aact).toFixed(1)} mm short`);
+      if(v.dApplicable && dPct!==null && !v.dOk) parts.push(`DBM ${(ddes-dact).toFixed(1)} mm short`);
       remEl.innerHTML = `<span style="color:#dc2626;font-weight:600;">Deficient: ${parts.join('; ')} — issue NCR</span>`;
     }
   }
@@ -19211,7 +19226,8 @@ function ccUpdateSummary(ccid){
     if(tPct===null) return;
     tested++;
     totPcts.push(tPct);
-    if(dPct!==null && aPct!==null && dPct>=limit && aPct>=limit) within++;
+    const v = ccLayerVerdict(dPct, aPct, gdes, limit);
+    if(v && v.pass) within++;
   });
 
   const deficient = tested - within;
@@ -19230,7 +19246,8 @@ function ccUpdateSummary(ccid){
     // not whether any single core fell short — the deficient count is still
     // shown alongside as a diagnostic, it just doesn't flip this badge alone.
     const meanDpctQ = mean(dbm.pct), meanApctQ = mean(acbc.pct);
-    const meanOk = meanDpctQ!==null && meanApctQ!==null && meanDpctQ>=limit && meanApctQ>=limit;
+    const meanV = ccLayerVerdict(meanDpctQ, meanApctQ, gdes, limit);
+    const meanOk = !!(meanV && meanV.pass);
     ovEl.style.cssText = `font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:5px;display:inline-block;background:${meanOk?'rgba(22,163,74,.08)':'rgba(239,68,68,.1)'};border:1px solid ${meanOk?'rgba(16,185,129,.3)':'rgba(239,68,68,.3)'};color:${meanOk?'#16a34a':'#dc2626'};`;
     ovEl.textContent = meanOk
       ? (deficient>0 ? `✓ MEAN WITHIN TOLERANCE (${deficient} core flagged)` : '✓ ALL WITHIN TOLERANCE')
@@ -19255,9 +19272,11 @@ function ccUpdateSummary(ccid){
   set('cc-avg-tpct-'+ccid, pctFmt(meanTotalPct));
   const avgRemEl = document.getElementById('cc-avg-rem-'+ccid);
   if(avgRemEl){
-    if(meanTotalPct===null){ avgRemEl.textContent = '—'; avgRemEl.style.color = '#6b7280'; }
-    else if(meanDpct!==null && meanApct!==null && meanDpct>=limit && meanApct>=limit){
-      avgRemEl.textContent = 'Mean of both layers acceptable'; avgRemEl.style.color = '#16a34a';
+    const meanV = ccLayerVerdict(meanDpct, meanApct, gdes, limit);
+    if(meanTotalPct===null || !meanV){ avgRemEl.textContent = '—'; avgRemEl.style.color = '#6b7280'; }
+    else if(meanV.pass){
+      const label = (meanV.dApplicable && meanV.aApplicable) ? 'Mean of both layers' : meanV.dApplicable ? 'Mean DBM thickness' : 'Mean AC/BC thickness';
+      avgRemEl.textContent = `${label} acceptable`; avgRemEl.style.color = '#16a34a';
     } else {
       avgRemEl.textContent = 'Mean thickness deficient in one or both layers'; avgRemEl.style.color = '#dc2626';
     }
@@ -19368,6 +19387,7 @@ function ccOverallStatus(ccid){
   const rows = tbody ? Array.from(tbody.querySelectorAll('tr[id^="cc-row-"]')) : [];
   if(!rows.length) return 'Pending';
   const limit = ccLimit(ccid);
+  const gdes  = ccGlobalDesign(ccid);
   const dPcts = [], aPcts = [];
   rows.forEach(tr => {
     const n = tr.id.split('-').pop();
@@ -19376,9 +19396,11 @@ function ccOverallStatus(ccid){
     if(dp && dp!=='—') dPcts.push(parseFloat(dp)/100);
     if(ap && ap!=='—') aPcts.push(parseFloat(ap)/100);
   });
-  if(!dPcts.length || !aPcts.length) return 'Pending';
-  const mean = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
-  return (mean(dPcts)>=limit && mean(aPcts)>=limit) ? 'Pass' : 'Fail';
+  if(!dPcts.length && !aPcts.length) return 'Pending';
+  const mean = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  const v = ccLayerVerdict(mean(dPcts), mean(aPcts), gdes, limit);
+  if(!v) return 'Pending';
+  return v.pass ? 'Pass' : 'Fail';
 }
 
 
