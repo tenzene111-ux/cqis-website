@@ -18524,41 +18524,50 @@ function buildSBRWSections(){
         window._ccPending=window._ccPending||[];
         window._ccPending.push(ccid);
         html+=`
-        <div style="background:#f0f2f7;border:1px solid #cbd2e0;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-          <div style="font-size:11px;color:#6b7280;max-width:520px;">Enter Chainage, Core No., Position, and Design / Actual thickness for DBM &amp; AC/BC. % achieved, totals and Remarks calculate automatically.</div>
-          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-            <label style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:6px;">
-              Acceptance limit
-              <input type="number" min="50" max="100" step="0.5" value="95" id="cc-limit-${ccid}"
-                style="width:60px;background:#fff;border:1.5px solid #cbd2e0;border-radius:4px;padding:4px 6px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;outline:none;"
+        <div style="background:#f0f2f7;border:1px solid #cbd2e0;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+          <div style="font-size:11px;color:#6b7280;margin-bottom:10px;">Set the DBM &amp; AC/BC design thickness once below — every core row then only needs the measured (actual) thickness. % achieved, totals and Remarks calculate automatically.</div>
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+            <label style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;display:flex;flex-direction:column;gap:4px;">
+              DBM Design (mm)
+              <input type="number" min="0" step="0.1" placeholder="e.g. 60" id="cc-gdes-dbm-${ccid}"
+                style="width:90px;background:#fff;border:1.5px solid #d97706;border-radius:5px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;text-align:right;outline:none;color:#1a2236;"
                 oninput="ccRecalcAll('${ccid}')">
-              %
+            </label>
+            <label style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;display:flex;flex-direction:column;gap:4px;">
+              AC/BC Design (mm)
+              <input type="number" min="0" step="0.1" placeholder="e.g. 40" id="cc-gdes-acbc-${ccid}"
+                style="width:90px;background:#fff;border:1.5px solid #f97316;border-radius:5px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;text-align:right;outline:none;color:#1a2236;"
+                oninput="ccRecalcAll('${ccid}')">
+            </label>
+            <label style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;display:flex;flex-direction:column;gap:4px;">
+              Acceptance limit (%)
+              <input type="number" min="50" max="100" step="0.5" value="95" id="cc-limit-${ccid}"
+                style="width:70px;background:#fff;border:1.5px solid #cbd2e0;border-radius:5px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:13px;text-align:right;outline:none;"
+                oninput="ccRecalcAll('${ccid}')">
             </label>
             <button onclick="ccAddRow('${ccid}')"
-              style="background:linear-gradient(135deg,#e8820c,#1d4ed8);border:none;border-radius:6px;padding:8px 18px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;">
+              style="margin-left:auto;background:linear-gradient(135deg,#e8820c,#1d4ed8);border:none;border-radius:6px;padding:9px 18px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;">
               ＋ Add Core
             </button>
           </div>
         </div>
         <div style="background:#f0f2f7;border:1px solid #cbd2e0;border-radius:8px;overflow-x:auto;margin-bottom:6px;">
-          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:1360px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:1080px;">
             <thead>
               <tr style="background:#f8f9fc;">
                 <th rowspan="2" style="padding:9px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;width:36px;">S/N</th>
                 <th rowspan="2" style="padding:9px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:90px;">Chainage</th>
                 <th rowspan="2" style="padding:9px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:80px;">Core No.</th>
                 <th rowspan="2" style="padding:9px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:90px;">Position</th>
-                <th colspan="3" style="padding:6px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#d97706;border-bottom:1px solid #e2e6ef;">DBM (mm)</th>
-                <th colspan="3" style="padding:6px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#f97316;border-bottom:1px solid #e2e6ef;">AC/BC (mm)</th>
+                <th colspan="2" style="padding:6px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#d97706;border-bottom:1px solid #e2e6ef;">DBM (mm)</th>
+                <th colspan="2" style="padding:6px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#f97316;border-bottom:1px solid #e2e6ef;">AC/BC (mm)</th>
                 <th colspan="3" style="padding:6px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#1d4ed8;border-bottom:1px solid #e2e6ef;">TOTAL (mm)</th>
                 <th rowspan="2" style="padding:9px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:220px;">Remarks</th>
                 <th rowspan="2" style="padding:9px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;width:40px;"></th>
               </tr>
               <tr style="background:#f8f9fc;">
-                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Design</th>
                 <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Actual</th>
                 <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:60px;">%</th>
-                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Design</th>
                 <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Actual</th>
                 <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:60px;">%</th>
                 <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Design</th>
@@ -18571,10 +18580,8 @@ function buildSBRWSections(){
             <tfoot>
               <tr style="background:#f8f9fc;border-top:2px solid #cbd2e0;font-weight:700;">
                 <td colspan="4" style="padding:8px;font-size:11px;color:#374151;">AVERAGE / MEAN</td>
-                <td id="cc-avg-ddes-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
                 <td id="cc-avg-dact-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
                 <td id="cc-avg-dpct-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
-                <td id="cc-avg-ades-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
                 <td id="cc-avg-aact-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
                 <td id="cc-avg-apct-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
                 <td id="cc-avg-tdes-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
@@ -19034,6 +19041,12 @@ function ccLimit(ccid){
   return (isNaN(v) ? 95 : v) / 100;
 }
 
+function ccGlobalDesign(ccid){
+  const dbm  = parseFloat(document.getElementById('cc-gdes-dbm-'+ccid)?.value);
+  const acbc = parseFloat(document.getElementById('cc-gdes-acbc-'+ccid)?.value);
+  return { dbm: isNaN(dbm) ? null : dbm, acbc: isNaN(acbc) ? null : acbc };
+}
+
 function ccAddRow(ccid){
   if(!_ccRowCounts[ccid]) _ccRowCounts[ccid] = 0;
   _ccRowCounts[ccid]++;
@@ -19050,7 +19063,7 @@ function ccAddRow(ccid){
   const num = (id, ph) =>
     `<input type="number" min="0" step="0.1" placeholder="${ph}" id="${id}"
       style="background:#f0f2f7;border:1.5px solid #cbd2e0;border-radius:4px;color:#1a2236;
-      font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 6px;width:72px;outline:none;text-align:right;"
+      font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 6px;width:80px;outline:none;text-align:right;"
       oninput="ccCalcRow('${ccid}',${n})">`;
 
   const tr = document.createElement('tr');
@@ -19067,11 +19080,9 @@ function ccAddRow(ccid){
         ${posOpts}
       </select>
     </td>
-    <td style="padding:5px 4px;text-align:center;">${num(`cc-ddes-${ccid}-${n}`,'60')}</td>
-    <td style="padding:5px 4px;text-align:center;">${num(`cc-dact-${ccid}-${n}`,'58')}</td>
+    <td style="padding:5px 4px;text-align:center;">${num(`cc-dact-${ccid}-${n}`,'e.g. 58')}</td>
     <td id="cc-dpct-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#6b7280;">—</td>
-    <td style="padding:5px 4px;text-align:center;">${num(`cc-ades-${ccid}-${n}`,'40')}</td>
-    <td style="padding:5px 4px;text-align:center;">${num(`cc-aact-${ccid}-${n}`,'39')}</td>
+    <td style="padding:5px 4px;text-align:center;">${num(`cc-aact-${ccid}-${n}`,'e.g. 39')}</td>
     <td id="cc-apct-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#6b7280;">—</td>
     <td id="cc-tdes-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b7280;">—</td>
     <td id="cc-tact-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b7280;">—</td>
@@ -19103,29 +19114,26 @@ function ccRecalcAll(ccid){
 
 function ccCalcRow(ccid, n){
   const limit = ccLimit(ccid);
+  const gdes  = ccGlobalDesign(ccid);
 
   // Keep the HTML attributes in sync with what was typed/selected. A live DOM
-  // property (input.value, option.selected) is invisible to outerHTML — and the
-  // app's session/report capture reads the card via table.outerHTML — so without
-  // this, saved samples snapshot back to placeholders and the first <option>.
+  // property (input.value, option.selected) is invisible to outerHTML, so any
+  // fallback that copies the raw table markup would otherwise lose the entry.
   const chEl   = document.getElementById(`cc-ch-${ccid}-${n}`);
   const cnoEl  = document.getElementById(`cc-cno-${ccid}-${n}`);
   const posEl  = document.getElementById(`cc-pos-${ccid}-${n}`);
-  const ddesEl = document.getElementById(`cc-ddes-${ccid}-${n}`);
   const dactEl = document.getElementById(`cc-dact-${ccid}-${n}`);
-  const adesEl = document.getElementById(`cc-ades-${ccid}-${n}`);
   const aactEl = document.getElementById(`cc-aact-${ccid}-${n}`);
-  [chEl, cnoEl, ddesEl, dactEl, adesEl, aactEl].forEach(el => { if(el) el.setAttribute('value', el.value); });
+  [chEl, cnoEl, dactEl, aactEl].forEach(el => { if(el) el.setAttribute('value', el.value); });
   if(posEl){
     Array.from(posEl.options).forEach(o => {
       if(o.value === posEl.value) o.setAttribute('selected','selected'); else o.removeAttribute('selected');
     });
   }
 
-  const ddes = parseFloat(ddesEl?.value);
   const dact = parseFloat(dactEl?.value);
-  const ades = parseFloat(adesEl?.value);
   const aact = parseFloat(aactEl?.value);
+  const ddes = gdes.dbm, ades = gdes.acbc;
 
   const dpctEl = document.getElementById(`cc-dpct-${ccid}-${n}`);
   const apctEl = document.getElementById(`cc-apct-${ccid}-${n}`);
@@ -19134,11 +19142,11 @@ function ccCalcRow(ccid, n){
   const tpctEl = document.getElementById(`cc-tpct-${ccid}-${n}`);
   const remEl  = document.getElementById(`cc-rem-${ccid}-${n}`);
 
-  const dPct = (!isNaN(ddes) && ddes>0 && !isNaN(dact)) ? dact/ddes : null;
-  const aPct = (!isNaN(ades) && ades>0 && !isNaN(aact)) ? aact/ades : null;
-  const hasDesign = !isNaN(ddes) || !isNaN(ades);
+  const dPct = (ddes!==null && ddes>0 && !isNaN(dact)) ? dact/ddes : null;
+  const aPct = (ades!==null && ades>0 && !isNaN(aact)) ? aact/ades : null;
+  const hasDesign = ddes!==null || ades!==null;
   const hasActual = !isNaN(dact) || !isNaN(aact);
-  const tDes = (isNaN(ddes)?0:ddes) + (isNaN(ades)?0:ades);
+  const tDes = (ddes===null?0:ddes) + (ades===null?0:ades);
   const tAct = (isNaN(dact)?0:dact) + (isNaN(aact)?0:aact);
   const tPct = (hasDesign && tDes>0 && hasActual) ? tAct/tDes : null;
 
@@ -19170,33 +19178,31 @@ function ccUpdateSummary(ccid){
   const tbody = document.getElementById('cc-tbody-'+ccid);
   if(!tbody) return;
   const limit = ccLimit(ccid);
+  const gdes  = ccGlobalDesign(ccid);
   const rows = tbody.querySelectorAll('tr[id^="cc-row-"]');
 
   let tested=0, within=0;
-  const dbm = {des:[], act:[], pct:[]};
-  const acbc = {des:[], act:[], pct:[]};
+  const dbm = {act:[], pct:[]};
+  const acbc = {act:[], pct:[]};
   const totPcts = [];
-  const avg = {ddes:[], dact:[], ades:[], aact:[], tdes:[], tact:[]};
+  const avg = {dact:[], aact:[], tdes:[], tact:[]};
 
   rows.forEach(tr => {
     const n = tr.id.split('-').pop();
-    const ddes = parseFloat(document.getElementById(`cc-ddes-${ccid}-${n}`)?.value);
     const dact = parseFloat(document.getElementById(`cc-dact-${ccid}-${n}`)?.value);
-    const ades = parseFloat(document.getElementById(`cc-ades-${ccid}-${n}`)?.value);
     const aact = parseFloat(document.getElementById(`cc-aact-${ccid}-${n}`)?.value);
+    const ddes = gdes.dbm, ades = gdes.acbc;
 
-    const dPct = (!isNaN(ddes) && ddes>0 && !isNaN(dact)) ? dact/ddes : null;
-    const aPct = (!isNaN(ades) && ades>0 && !isNaN(aact)) ? aact/ades : null;
-    const hasDesign = !isNaN(ddes) || !isNaN(ades);
+    const dPct = (ddes!==null && ddes>0 && !isNaN(dact)) ? dact/ddes : null;
+    const aPct = (ades!==null && ades>0 && !isNaN(aact)) ? aact/ades : null;
+    const hasDesign = ddes!==null || ades!==null;
     const hasActual = !isNaN(dact) || !isNaN(aact);
-    const tDes = (isNaN(ddes)?0:ddes) + (isNaN(ades)?0:ades);
+    const tDes = (ddes===null?0:ddes) + (ades===null?0:ades);
     const tAct = (isNaN(dact)?0:dact) + (isNaN(aact)?0:aact);
     const tPct = (hasDesign && tDes>0 && hasActual) ? tAct/tDes : null;
 
-    if(!isNaN(ddes)){ dbm.des.push(ddes); avg.ddes.push(ddes); }
     if(!isNaN(dact)){ dbm.act.push(dact); avg.dact.push(dact); }
     if(dPct!==null) dbm.pct.push(dPct);
-    if(!isNaN(ades)){ acbc.des.push(ades); avg.ades.push(ades); }
     if(!isNaN(aact)){ acbc.act.push(aact); avg.aact.push(aact); }
     if(aPct!==null) acbc.pct.push(aPct);
     if(hasDesign) avg.tdes.push(tDes);
@@ -19231,13 +19237,11 @@ function ccUpdateSummary(ccid){
   // Average / Mean footer row
   const pctFmt = v => v===null ? '—' : (v*100).toFixed(1)+'%';
   const numFmt = v => v===null ? '—' : v.toFixed(1);
-  const meanDdes = mean(avg.ddes), meanDact = mean(avg.dact), meanDpct = mean(dbm.pct);
-  const meanAdes = mean(avg.ades), meanAact = mean(avg.aact), meanApct = mean(acbc.pct);
+  const meanDact = mean(avg.dact), meanDpct = mean(dbm.pct);
+  const meanAact = mean(avg.aact), meanApct = mean(acbc.pct);
   const meanTdes = mean(avg.tdes), meanTact = mean(avg.tact);
-  set('cc-avg-ddes-'+ccid, numFmt(meanDdes));
   set('cc-avg-dact-'+ccid, numFmt(meanDact));
   set('cc-avg-dpct-'+ccid, pctFmt(meanDpct));
-  set('cc-avg-ades-'+ccid, numFmt(meanAdes));
   set('cc-avg-aact-'+ccid, numFmt(meanAact));
   set('cc-avg-apct-'+ccid, pctFmt(meanApct));
   set('cc-avg-tdes-'+ccid, numFmt(meanTdes));
@@ -19257,13 +19261,13 @@ function ccUpdateSummary(ccid){
   const renderLayerPanel = (el, label, des, act, pcts) => {
     if(!el) return;
     if(!pcts.length){ el.innerHTML = `<span style="color:#6b7280;font-style:italic;">No ${label} cores entered.</span>`; return; }
-    const mDes = mean(des), mAct = mean(act), mPct = mean(pcts);
+    const mAct = mean(act), mPct = mean(pcts);
     const passColor = mPct>=limit ? '#16a34a' : '#dc2626';
     el.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
         <div style="text-align:center;background:#f0f2f7;border:1px solid #e2e6ef;border-radius:6px;padding:6px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">${mDes===null?'—':mDes.toFixed(1)}</div>
-          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Mean Design (mm)</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">${des===null?'—':des.toFixed(1)}</div>
+          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Design (mm)</div>
         </div>
         <div style="text-align:center;background:#f0f2f7;border:1px solid #e2e6ef;border-radius:6px;padding:6px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">${mAct===null?'—':mAct.toFixed(1)}</div>
@@ -19280,8 +19284,91 @@ function ccUpdateSummary(ccid){
           : `✗ Mean ${label} thickness below the ${(limit*100).toFixed(0)}% acceptance limit.`}
       </div>`;
   };
-  renderLayerPanel(document.getElementById('cc-dbm-'+ccid), 'DBM', dbm.des, dbm.act, dbm.pct);
-  renderLayerPanel(document.getElementById('cc-bc-'+ccid), 'AC/BC', acbc.des, acbc.act, acbc.pct);
+  renderLayerPanel(document.getElementById('cc-dbm-'+ccid), 'DBM', gdes.dbm, dbm.act, dbm.pct);
+  renderLayerPanel(document.getElementById('cc-bc-'+ccid), 'AC/BC', gdes.acbc, acbc.act, acbc.pct);
+}
+
+// ── Print-friendly table (fits the A4 report layout: reuses the .pt / .pc / .fc
+//    classes shared by the sieve / proctor / SRT prints so it fits and aligns
+//    the same way those already do) ──
+function ccBuildPrintTable(ccid){
+  const tbody = document.getElementById('cc-tbody-'+ccid);
+  if(!tbody) return '';
+  const limit = ccLimit(ccid);
+  const gdes  = ccGlobalDesign(ccid);
+  const rows  = Array.from(tbody.querySelectorAll('tr[id^="cc-row-"]'));
+
+  let html = `<p style="font-size:8.5pt;color:#444;margin-bottom:6px;">
+    <b>DBM Design:</b> ${gdes.dbm===null?'—':gdes.dbm+' mm'} &nbsp;·&nbsp;
+    <b>AC/BC Design:</b> ${gdes.acbc===null?'—':gdes.acbc+' mm'} &nbsp;·&nbsp;
+    <b>Acceptance Limit:</b> ${(limit*100).toFixed(0)}% of design (each layer)</p>`;
+  html += `<table class="pt"><thead><tr>
+    <th>Chainage</th><th>Core No.</th><th>Position</th>
+    <th>DBM Actual</th><th>DBM %</th>
+    <th>AC/BC Actual</th><th>AC/BC %</th>
+    <th>Total Design</th><th>Total Actual</th><th>Total %</th>
+    <th>Remarks</th>
+  </tr></thead><tbody>`;
+
+  let tested=0, within=0;
+  rows.forEach(tr=>{
+    const n = tr.id.split('-').pop();
+    const ch   = document.getElementById(`cc-ch-${ccid}-${n}`)?.value || '';
+    const cno  = document.getElementById(`cc-cno-${ccid}-${n}`)?.value || '';
+    const pos  = document.getElementById(`cc-pos-${ccid}-${n}`)?.value || '';
+    const dact = document.getElementById(`cc-dact-${ccid}-${n}`)?.value || '';
+    const aact = document.getElementById(`cc-aact-${ccid}-${n}`)?.value || '';
+    if(!ch && !cno && !dact && !aact) return;
+    const dpct = document.getElementById(`cc-dpct-${ccid}-${n}`)?.textContent || '—';
+    const apct = document.getElementById(`cc-apct-${ccid}-${n}`)?.textContent || '—';
+    const tdes = document.getElementById(`cc-tdes-${ccid}-${n}`)?.textContent || '—';
+    const tact = document.getElementById(`cc-tact-${ccid}-${n}`)?.textContent || '—';
+    const tpct = document.getElementById(`cc-tpct-${ccid}-${n}`)?.textContent || '—';
+    const rem  = document.getElementById(`cc-rem-${ccid}-${n}`)?.textContent?.trim() || '—';
+    const isPa = rem.startsWith('Both');
+    const isFa = rem.startsWith('Deficient');
+    if(tpct!=='—'){ tested++; if(isPa) within++; }
+    const cls = isPa?'pc':isFa?'fc':'';
+    html += `<tr>
+      <td><b>${ch||'—'}</b></td><td>${cno||'—'}</td><td>${pos||'—'}</td>
+      <td>${dact||'—'}</td><td class="${cls}">${dpct}</td>
+      <td>${aact||'—'}</td><td class="${cls}">${apct}</td>
+      <td>${tdes}</td><td>${tact}</td>
+      <td class="${cls} bld">${tpct}</td>
+      <td class="${cls}">${rem}</td>
+    </tr>`;
+  });
+
+  const g = id => document.getElementById(id)?.textContent || '—';
+  html += `<tr style="font-weight:700;background:#eef2fb;">
+    <td colspan="3">AVERAGE / MEAN</td>
+    <td>${g('cc-avg-dact-'+ccid)}</td><td>${g('cc-avg-dpct-'+ccid)}</td>
+    <td>${g('cc-avg-aact-'+ccid)}</td><td>${g('cc-avg-apct-'+ccid)}</td>
+    <td>${g('cc-avg-tdes-'+ccid)}</td><td>${g('cc-avg-tact-'+ccid)}</td><td>${g('cc-avg-tpct-'+ccid)}</td>
+    <td>${g('cc-avg-rem-'+ccid)}</td>
+  </tr>`;
+  html += `</tbody></table>`;
+
+  const deficient = tested - within;
+  const overallCls = tested===0 ? '' : deficient===0 ? 'pc' : 'fc';
+  const overallTxt = tested===0 ? 'No cores recorded' : deficient===0
+    ? `All ${within} core(s) within tolerance` : `${deficient} of ${tested} core(s) deficient — NCR required`;
+  html += `<div class="rbox">
+    <div class="rk"><div class="rv">${tested}</div><div class="rl">Cores Tested</div></div>
+    <div class="rk"><div class="rv pc">${within}</div><div class="rl">Within Tolerance</div></div>
+    <div class="rk"><div class="rv fc">${deficient}</div><div class="rl">Deficient (NCR)</div></div>
+    <div class="rk"><div class="rv ${overallCls}" style="font-size:9pt;">${overallTxt}</div><div class="rl">Overall</div></div>
+  </div>`;
+  return html;
+}
+
+function ccOverallStatus(ccid){
+  const tbody = document.getElementById('cc-tbody-'+ccid);
+  if(!tbody || !tbody.querySelector('tr[id^="cc-row-"]')) return 'Pending';
+  const text = document.getElementById('cc-overall-'+ccid)?.textContent || '';
+  if(text.includes('DEFICIENT')) return 'Fail';
+  if(text.includes('WITHIN TOLERANCE')) return 'Pass';
+  return 'Pending';
 }
 
 
@@ -24046,6 +24133,14 @@ function sbrwResetCard(secId, cardIdx){
   card.querySelectorAll('.sbrw-rb').forEach(rb => {
     rb.className = 'sbrw-rb pending'; rb.textContent = '—';
   });
+  // Core Cutter: drop back to a single blank row and clear its computed cells
+  const ccid = secId+'-'+cardIdx;
+  if(document.getElementById('cc-tbody-'+ccid) && typeof ccAddRow==='function'){
+    const tbody = document.getElementById('cc-tbody-'+ccid);
+    tbody.querySelectorAll('tr[id^="cc-row-"]').forEach(tr=>tr.remove());
+    _ccRowCounts[ccid] = 0;
+    ccAddRow(ccid);
+  }
   sbrwUpdateCard(card);
   sbrwUpdateSum();
 }
@@ -24137,6 +24232,14 @@ function sbrwPrintCard(secId, cardIdx){
       <div class="rk"><div class="rv ${ovPa?'pc':ovFa?'fc':''}">${snap.avgComp||'—'}</div><div class="rl">Avg % Compaction</div></div>
       <div class="rk"><div class="rv ${ovPa?'pc':ovFa?'fc':''}" style="font-size:9pt;letter-spacing:.5px;">${snap.overall||'—'}</div><div class="rl">Overall Result</div></div>
     </div>`;
+
+  } else if(snap.type==='core-cutter'){
+    const ccid = secId+'-'+cardIdx;
+    const tested = parseInt(document.getElementById('cc-tot-'+ccid)?.textContent)||0;
+    if(tested===0){ showToast('⚠️ No test values entered yet. Enter data first, then print.'); return; }
+    bodyHTML += (typeof ccBuildPrintTable==='function') ? ccBuildPrintTable(ccid) : '';
+    const ccOverall = (typeof ccOverallStatus==='function') ? ccOverallStatus(ccid) : 'Pending';
+    if(ccOverall==='Pass') grandPass++; else if(ccOverall==='Fail') grandFail++;
 
   } else {
     const hasRows=(snap.rows||[]).filter(r=>r.val).length>0;
@@ -28670,13 +28773,18 @@ window.sbrwSaveCard = function(secId, cardIdx) {
 
   // Capture table HTML + chart images from the card DOM
   const card      = document.getElementById('sbrw-c-' + secId + '-' + cardIdx);
-  const tableHTML = card?.querySelector('table')?.outerHTML || '';
+  const isCoreCutter = snap.type==='core-cutter';
+  const tableHTML = isCoreCutter
+    ? ((typeof ccBuildPrintTable==='function') ? ccBuildPrintTable(secId+'-'+cardIdx) : '')
+    : (card?.querySelector('table')?.outerHTML || '');
   const chartImgs = qcCaptureCharts(card);
   const verdEl    = card?.querySelector('.sbrw-results');
   const verdHTML  = verdEl ? verdEl.outerHTML : '';
   const hasFail   = !!card?.querySelector('.sbrw-rb.fail');
   const hasPass   = !!card?.querySelector('.sbrw-rb.pass');
-  const overall   = hasFail ? 'Fail' : hasPass ? 'Pass' : 'Pending';
+  const overall   = isCoreCutter
+    ? ((typeof ccOverallStatus==='function') ? ccOverallStatus(secId+'-'+cardIdx) : 'Pending')
+    : (hasFail ? 'Fail' : hasPass ? 'Pass' : 'Pending');
 
   sessAdd('sbrw', pN, pC, testKey, sampleNo, tableHTML, verdHTML, '', chartImgs, overall, snap.name);
 
