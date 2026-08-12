@@ -19103,10 +19103,29 @@ function ccRecalcAll(ccid){
 
 function ccCalcRow(ccid, n){
   const limit = ccLimit(ccid);
-  const ddes = parseFloat(document.getElementById(`cc-ddes-${ccid}-${n}`)?.value);
-  const dact = parseFloat(document.getElementById(`cc-dact-${ccid}-${n}`)?.value);
-  const ades = parseFloat(document.getElementById(`cc-ades-${ccid}-${n}`)?.value);
-  const aact = parseFloat(document.getElementById(`cc-aact-${ccid}-${n}`)?.value);
+
+  // Keep the HTML attributes in sync with what was typed/selected. A live DOM
+  // property (input.value, option.selected) is invisible to outerHTML — and the
+  // app's session/report capture reads the card via table.outerHTML — so without
+  // this, saved samples snapshot back to placeholders and the first <option>.
+  const chEl   = document.getElementById(`cc-ch-${ccid}-${n}`);
+  const cnoEl  = document.getElementById(`cc-cno-${ccid}-${n}`);
+  const posEl  = document.getElementById(`cc-pos-${ccid}-${n}`);
+  const ddesEl = document.getElementById(`cc-ddes-${ccid}-${n}`);
+  const dactEl = document.getElementById(`cc-dact-${ccid}-${n}`);
+  const adesEl = document.getElementById(`cc-ades-${ccid}-${n}`);
+  const aactEl = document.getElementById(`cc-aact-${ccid}-${n}`);
+  [chEl, cnoEl, ddesEl, dactEl, adesEl, aactEl].forEach(el => { if(el) el.setAttribute('value', el.value); });
+  if(posEl){
+    Array.from(posEl.options).forEach(o => {
+      if(o.value === posEl.value) o.setAttribute('selected','selected'); else o.removeAttribute('selected');
+    });
+  }
+
+  const ddes = parseFloat(ddesEl?.value);
+  const dact = parseFloat(dactEl?.value);
+  const ades = parseFloat(adesEl?.value);
+  const aact = parseFloat(aactEl?.value);
 
   const dpctEl = document.getElementById(`cc-dpct-${ccid}-${n}`);
   const apctEl = document.getElementById(`cc-apct-${ccid}-${n}`);
