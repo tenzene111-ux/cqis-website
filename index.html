@@ -19226,9 +19226,15 @@ function ccUpdateSummary(ccid){
 
   const ovEl = document.getElementById('cc-overall-'+ccid);
   if(ovEl && tested > 0){
-    const allWithin = deficient === 0;
-    ovEl.style.cssText = `font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:5px;display:inline-block;background:${allWithin?'rgba(22,163,74,.08)':'rgba(239,68,68,.1)'};border:1px solid ${allWithin?'rgba(16,185,129,.3)':'rgba(239,68,68,.3)'};color:${allWithin?'#16a34a':'#dc2626'};`;
-    ovEl.textContent = allWithin ? '✓ ALL WITHIN TOLERANCE' : `✗ ${deficient} DEFICIENT`;
+    // Verdict follows the MEAN of all cores (spreadsheet's Summary sheet logic),
+    // not whether any single core fell short — the deficient count is still
+    // shown alongside as a diagnostic, it just doesn't flip this badge alone.
+    const meanDpctQ = mean(dbm.pct), meanApctQ = mean(acbc.pct);
+    const meanOk = meanDpctQ!==null && meanApctQ!==null && meanDpctQ>=limit && meanApctQ>=limit;
+    ovEl.style.cssText = `font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:5px;display:inline-block;background:${meanOk?'rgba(22,163,74,.08)':'rgba(239,68,68,.1)'};border:1px solid ${meanOk?'rgba(16,185,129,.3)':'rgba(239,68,68,.3)'};color:${meanOk?'#16a34a':'#dc2626'};`;
+    ovEl.textContent = meanOk
+      ? (deficient>0 ? `✓ MEAN WITHIN TOLERANCE (${deficient} core flagged)` : '✓ ALL WITHIN TOLERANCE')
+      : `✗ MEAN BELOW LIMIT`;
   } else if(ovEl){
     ovEl.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:5px;display:inline-block;background:rgba(100,116,139,.1);border:1px solid #e2e6ef;color:#6b7280;';
     ovEl.textContent = '—';
@@ -19350,9 +19356,15 @@ function ccBuildPrintTable(ccid){
   html += `</tbody></table>`;
 
   const deficient = tested - within;
-  const overallCls = tested===0 ? '' : deficient===0 ? 'pc' : 'fc';
-  const overallTxt = tested===0 ? 'No cores recorded' : deficient===0
-    ? `All ${within} core(s) within tolerance` : `${deficient} of ${tested} core(s) deficient — NCR required`;
+  // Overall verdict follows the mean of all cores, same as the top-level
+  // Pass/Fail badge — an individual deficient core is still called out in
+  // its own row and in the "Deficient (NCR)" count, it just doesn't alone
+  // flip this verdict when the average is within tolerance.
+  const verdict = (typeof ccOverallStatus==='function') ? ccOverallStatus(ccid) : 'Pending';
+  const overallCls = verdict==='Pass' ? 'pc' : verdict==='Fail' ? 'fc' : '';
+  const overallTxt = verdict==='Pending' ? 'No cores recorded'
+    : verdict==='Pass' ? `Mean within tolerance (${within}/${tested} cores individually within limit)`
+    : `Mean below the acceptance limit — NCR required`;
   html += `<div class="rbox">
     <div class="rk"><div class="rv">${tested}</div><div class="rl">Cores Tested</div></div>
     <div class="rk"><div class="rv pc">${within}</div><div class="rl">Within Tolerance</div></div>
@@ -19362,13 +19374,26 @@ function ccBuildPrintTable(ccid){
   return html;
 }
 
+// Verdict is judged on the mean of all cores (matches the spreadsheet's
+// Summary sheet: "Mean of both layers acceptable" / "...deficient"), not on
+// whether any single core fell short — one low reading shouldn't flip the
+// whole test to Fail when the average is well within tolerance.
 function ccOverallStatus(ccid){
   const tbody = document.getElementById('cc-tbody-'+ccid);
-  if(!tbody || !tbody.querySelector('tr[id^="cc-row-"]')) return 'Pending';
-  const text = document.getElementById('cc-overall-'+ccid)?.textContent || '';
-  if(text.includes('DEFICIENT')) return 'Fail';
-  if(text.includes('WITHIN TOLERANCE')) return 'Pass';
-  return 'Pending';
+  const rows = tbody ? Array.from(tbody.querySelectorAll('tr[id^="cc-row-"]')) : [];
+  if(!rows.length) return 'Pending';
+  const limit = ccLimit(ccid);
+  const dPcts = [], aPcts = [];
+  rows.forEach(tr => {
+    const n = tr.id.split('-').pop();
+    const dp = document.getElementById(`cc-dpct-${ccid}-${n}`)?.textContent;
+    const ap = document.getElementById(`cc-apct-${ccid}-${n}`)?.textContent;
+    if(dp && dp!=='—') dPcts.push(parseFloat(dp)/100);
+    if(ap && ap!=='—') aPcts.push(parseFloat(ap)/100);
+  });
+  if(!dPcts.length || !aPcts.length) return 'Pending';
+  const mean = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+  return (mean(dPcts)>=limit && mean(aPcts)>=limit) ? 'Pass' : 'Fail';
 }
 
 
