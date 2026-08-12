@@ -19316,7 +19316,6 @@ function ccBuildPrintTable(ccid){
     <th>Remarks</th>
   </tr></thead><tbody>`;
 
-  let tested=0, within=0;
   rows.forEach(tr=>{
     const n = tr.id.split('-').pop();
     const ch   = document.getElementById(`cc-ch-${ccid}-${n}`)?.value || '';
@@ -19333,7 +19332,6 @@ function ccBuildPrintTable(ccid){
     const rem  = document.getElementById(`cc-rem-${ccid}-${n}`)?.textContent?.trim() || '—';
     const isPa = rem.startsWith('Both');
     const isFa = rem.startsWith('Deficient');
-    if(tpct!=='—'){ tested++; if(isPa) within++; }
     const cls = isPa?'pc':isFa?'fc':'';
     html += `<tr>
       <td><b>${ch||'—'}</b></td><td>${cno||'—'}</td><td>${pos||'—'}</td>
@@ -19355,22 +19353,9 @@ function ccBuildPrintTable(ccid){
   </tr>`;
   html += `</tbody></table>`;
 
-  const deficient = tested - within;
-  // Overall verdict follows the mean of all cores, same as the top-level
-  // Pass/Fail badge — an individual deficient core is still called out in
-  // its own row and in the "Deficient (NCR)" count, it just doesn't alone
-  // flip this verdict when the average is within tolerance.
-  const verdict = (typeof ccOverallStatus==='function') ? ccOverallStatus(ccid) : 'Pending';
-  const overallCls = verdict==='Pass' ? 'pc' : verdict==='Fail' ? 'fc' : '';
-  const overallTxt = verdict==='Pending' ? 'No cores recorded'
-    : verdict==='Pass' ? `Mean within tolerance (${within}/${tested} cores individually within limit)`
-    : `Mean below the acceptance limit — NCR required`;
-  html += `<div class="rbox">
-    <div class="rk"><div class="rv">${tested}</div><div class="rl">Cores Tested</div></div>
-    <div class="rk"><div class="rv pc">${within}</div><div class="rl">Within Tolerance</div></div>
-    <div class="rk"><div class="rv fc">${deficient}</div><div class="rl">Deficient (NCR)</div></div>
-    <div class="rk"><div class="rv ${overallCls}" style="font-size:9pt;">${overallTxt}</div><div class="rl">Overall</div></div>
-  </div>`;
+  // Cores tested / within tolerance / deficient and the mean verdict are
+  // already visible in the AVERAGE/MEAN row and the "Sample N — Pass/Fail"
+  // heading above this table, so no separate summary box is repeated here.
   return html;
 }
 
