@@ -18191,9 +18191,9 @@ function buildSBRWSections(){
             <button onclick="sbrwSaveCard('${sec.id}',${ci})" title="Save this test" style="background:#fff;border:1.5px solid #cbd2e0;border-radius:6px;padding:4px 11px;font-size:10.5px;font-weight:700;color:#374151;cursor:pointer;font-family:'Poppins',sans-serif;letter-spacing:.3px;display:flex;align-items:center;gap:4px;transition:all .15s;" onmouseover="this.style.borderColor='#e8820c';this.style.color='#c46a08'" onmouseout="this.style.borderColor='#cbd2e0';this.style.color='#374151'">💾 Save</button>
             <button onclick="sbrwPrintCard('${sec.id}',${ci})" title="Print this test" style="background:linear-gradient(135deg,#1a3a6e,#1e4d8c);border:none;border-radius:6px;padding:4px 11px;font-size:10.5px;font-weight:700;color:#fff;cursor:pointer;font-family:'Poppins',sans-serif;letter-spacing:.3px;display:flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(26,58,110,.25);transition:all .15s;" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">🖨 Print</button>
           </span>
-          <span class="sbrw-ct open">▼</span>
+          <span class="sbrw-ct">▼</span>
         </div>
-        <div class="sbrw-cb open">
+        <div class="sbrw-cb">
           <div class="sbrw-cd">${card.desc||''}</div>`;
       if(card.type==='sieve-v3'){
         const sid=`${sec.id}-${ci}`;
