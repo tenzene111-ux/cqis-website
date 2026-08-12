@@ -18133,7 +18133,7 @@ const SBRW_SECTIONS=[
       {p:'Seal Coat / Tack Coat Temp',r:'Cl. 5.21.7',req:'≥ 100°C',fn:"eval1(this,'>=',100,'°C')"},
     ]},
     {code:'RW-CORE',name:'Core Cutter Test — Bituminous Layer Thickness',std:'IS 1201 / SBRW-2025 Cl. 5.21.7',type:'core-cutter',
-     desc:'Field core samples extracted from compacted bituminous layers (DBM & BC) to verify actual layer thickness against design thickness. Deviation = Measured − Design. Acceptable tolerance: ±5 mm for DBM, ±3 mm for BC.',
+     desc:'Field core samples extracted from compacted bituminous layers (DBM & AC/BC) to verify actual layer thickness against design thickness, per core, at each chainage. Acceptance limit — minimum thickness as % of design (default 95%, editable) — applied to each layer.',
     },
   ]},
   {id:'signs',title:'Signs & Safety',sub:'Clause 5.21.8–9 — Road Signs, Markings, Safety Barriers',cards:[
@@ -18519,53 +18519,90 @@ function buildSBRWSections(){
           </div>
         </div>`;
       } else if(card.type==='core-cutter'){
-        // ── CORE CUTTER TEST ──
+        // ── CORE CUTTING RECORD (mirrors the Core Cutting Record spreadsheet) ──
         const ccid=`${sec.id}-${ci}`;
         window._ccPending=window._ccPending||[];
         window._ccPending.push(ccid);
         html+=`
         <div style="background:#f0f2f7;border:1px solid #cbd2e0;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-          <div style="font-size:11px;color:#6b7280;">Add core samples below. Results are automatically evaluated against design thickness tolerances for DBM (±5 mm) and BC (±3 mm).</div>
-          <button onclick="ccAddRow('${ccid}')"
-            style="background:linear-gradient(135deg,#e8820c,#1d4ed8);border:none;border-radius:6px;padding:8px 18px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;">
-            ＋ Add Row
-          </button>
+          <div style="font-size:11px;color:#6b7280;max-width:520px;">Enter Chainage, Core No., Position, and Design / Actual thickness for DBM &amp; AC/BC. % achieved, totals and Remarks calculate automatically.</div>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <label style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:6px;">
+              Acceptance limit
+              <input type="number" min="50" max="100" step="0.5" value="95" id="cc-limit-${ccid}"
+                style="width:60px;background:#fff;border:1.5px solid #cbd2e0;border-radius:4px;padding:4px 6px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;outline:none;"
+                oninput="ccRecalcAll('${ccid}')">
+              %
+            </label>
+            <button onclick="ccAddRow('${ccid}')"
+              style="background:linear-gradient(135deg,#e8820c,#1d4ed8);border:none;border-radius:6px;padding:8px 18px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;">
+              ＋ Add Core
+            </button>
+          </div>
         </div>
         <div style="background:#f0f2f7;border:1px solid #cbd2e0;border-radius:8px;overflow-x:auto;margin-bottom:6px;">
-          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:720px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:1360px;">
             <thead>
               <tr style="background:#f8f9fc;">
-                <th style="padding:9px 10px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;width:50px;">S/N</th>
-                <th style="padding:9px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:160px;">Layer Type</th>
-                <th style="padding:9px 10px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#d97706;border-bottom:1px solid #e2e6ef;min-width:130px;">Design Depth (mm)</th>
-                <th style="padding:9px 10px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#f97316;border-bottom:1px solid #e2e6ef;min-width:150px;">Measured Thickness (mm)</th>
-                <th style="padding:9px 10px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:130px;">Deviation (mm)</th>
-                <th style="padding:9px 10px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:90px;">Result</th>
-                <th style="padding:9px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:140px;">Remarks</th>
-                <th style="padding:9px 10px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;width:50px;"></th>
+                <th rowspan="2" style="padding:9px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;width:36px;">S/N</th>
+                <th rowspan="2" style="padding:9px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:90px;">Chainage</th>
+                <th rowspan="2" style="padding:9px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:80px;">Core No.</th>
+                <th rowspan="2" style="padding:9px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:90px;">Position</th>
+                <th colspan="3" style="padding:6px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#d97706;border-bottom:1px solid #e2e6ef;">DBM (mm)</th>
+                <th colspan="3" style="padding:6px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#f97316;border-bottom:1px solid #e2e6ef;">AC/BC (mm)</th>
+                <th colspan="3" style="padding:6px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#1d4ed8;border-bottom:1px solid #e2e6ef;">TOTAL (mm)</th>
+                <th rowspan="2" style="padding:9px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;min-width:220px;">Remarks</th>
+                <th rowspan="2" style="padding:9px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;border-bottom:1px solid #e2e6ef;width:40px;"></th>
+              </tr>
+              <tr style="background:#f8f9fc;">
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Design</th>
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Actual</th>
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:60px;">%</th>
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Design</th>
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Actual</th>
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:60px;">%</th>
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Design</th>
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:80px;">Actual</th>
+                <th style="padding:6px 8px;text-align:center;font-size:9px;color:#9ca3af;border-bottom:1px solid #e2e6ef;min-width:60px;">%</th>
               </tr>
             </thead>
             <tbody id="cc-tbody-${ccid}">
             </tbody>
+            <tfoot>
+              <tr style="background:#f8f9fc;border-top:2px solid #cbd2e0;font-weight:700;">
+                <td colspan="4" style="padding:8px;font-size:11px;color:#374151;">AVERAGE / MEAN</td>
+                <td id="cc-avg-ddes-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-dact-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-dpct-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-ades-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-aact-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-apct-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-tdes-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-tact-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-tpct-${ccid}" style="padding:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;">—</td>
+                <td id="cc-avg-rem-${ccid}" style="padding:8px;font-size:11px;">—</td>
+                <td></td>
+              </tr>
+            </tfoot>
           </table>
         </div>
         <!-- Summary -->
         <div style="background:#f8f9fc;border:1px solid #cbd2e0;border-radius:8px;padding:12px 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:12px;" id="cc-summary-${ccid}">
-          <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Total Cores</div><div id="cc-tot-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#1a2236;">0</div></div>
-          <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Pass</div><div id="cc-pass-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#16a34a;">0</div></div>
-          <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Fail</div><div id="cc-fail-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#dc2626;">0</div></div>
-          <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avg Deviation</div><div id="cc-avgdev-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#d97706;">—</div></div>
+          <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Cores Tested</div><div id="cc-tot-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#1a2236;">0</div></div>
+          <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Within Tolerance</div><div id="cc-pass-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#16a34a;">0</div></div>
+          <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Deficient (NCR)</div><div id="cc-fail-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#dc2626;">0</div></div>
+          <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Mean Total %</div><div id="cc-avgdev-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#d97706;">—</div></div>
           <div style="text-align:center;"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Overall</div><div id="cc-overall-${ccid}" style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:4px 8px;border-radius:5px;background:rgba(100,116,139,.1);border:1px solid #e2e6ef;color:#6b7280;display:inline-block;">—</div></div>
         </div>
-        <!-- DBM / BC breakdown -->
+        <!-- DBM / AC-BC mean panels -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
           <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px 14px;">
-            <div style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:8px;">DBM — Dense Bituminous Macadam <span style="font-size:10px;color:#6b7280;font-family:'Source Sans 3',sans-serif;">(Tolerance: ±5 mm)</span></div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:8px;">DBM — Binder Course</div>
             <div id="cc-dbm-${ccid}" style="font-size:12px;color:#6b7280;">No DBM cores entered.</div>
           </div>
           <div style="background:#f8f9fc;border:1px solid #e2e6ef;border-radius:8px;padding:12px 14px;">
-            <div style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:8px;">BC — Bituminous Concrete <span style="font-size:10px;color:#6b7280;font-family:'Source Sans 3',sans-serif;">(Tolerance: ±3 mm)</span></div>
-            <div id="cc-bc-${ccid}" style="font-size:12px;color:#6b7280;">No BC cores entered.</div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;color:#374151;margin-bottom:8px;">AC/BC — Wearing Course</div>
+            <div id="cc-bc-${ccid}" style="font-size:12px;color:#6b7280;">No AC/BC cores entered.</div>
           </div>
         </div>`;
       } else if(card.type==='silt-content' || card.type==='aiv'){
@@ -18984,27 +19021,17 @@ function rhUpdateSummary(rhid){
 
 // ===== CORE CUTTER TEST ENGINE =====
 // Tolerances: DBM ±5mm, BC ±3mm, other ±5mm
-const CC_LAYERS = [
-  'DBM — Dense Bituminous Macadam',
-  'BC — Bituminous Concrete',
-  'WMM — Wet Mix Macadam',
-  'GSB — Granular Sub-Base',
-  'Subgrade',
-  'Other',
-];
-const CC_TOL = {
-  'DBM — Dense Bituminous Macadam': 5,
-  'BC — Bituminous Concrete': 3,
-  'WMM — Wet Mix Macadam': 5,
-  'GSB — Granular Sub-Base': 5,
-  'Subgrade': 5,
-  'Other': 5,
-};
+const CC_POSITIONS = ['Left','Centre','Right'];
 let _ccRowCounts = {};
 
 function ccInit(ccid){
   _ccRowCounts[ccid] = 0;
   ccAddRow(ccid);
+}
+
+function ccLimit(ccid){
+  const v = parseFloat(document.getElementById('cc-limit-'+ccid)?.value);
+  return (isNaN(v) ? 95 : v) / 100;
 }
 
 function ccAddRow(ccid){
@@ -19014,37 +19041,43 @@ function ccAddRow(ccid){
   const tbody = document.getElementById('cc-tbody-'+ccid);
   if(!tbody) return;
 
-  const layerOpts = CC_LAYERS.map(l=>`<option value="${l}">${l}</option>`).join('');
-  const inp = (id, ph='0', w='80px') =>
+  const posOpts = CC_POSITIONS.map(p=>`<option value="${p}">${p}</option>`).join('');
+  const txt = (id, ph, w) =>
+    `<input type="text" placeholder="${ph}" id="${id}"
+      style="background:#f0f2f7;border:1.5px solid #cbd2e0;border-radius:4px;color:#1a2236;
+      font-size:12px;padding:4px 8px;width:${w};outline:none;"
+      oninput="ccCalcRow('${ccid}',${n})">`;
+  const num = (id, ph) =>
     `<input type="number" min="0" step="0.1" placeholder="${ph}" id="${id}"
       style="background:#f0f2f7;border:1.5px solid #cbd2e0;border-radius:4px;color:#1a2236;
-      font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 8px;width:${w};outline:none;text-align:right;"
+      font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 6px;width:72px;outline:none;text-align:right;"
       oninput="ccCalcRow('${ccid}',${n})">`;
 
   const tr = document.createElement('tr');
   tr.id = `cc-row-${ccid}-${n}`;
   tr.style.cssText = 'border-bottom:1px solid rgba(0,0,0,.06);';
   tr.innerHTML = `
-    <td style="padding:7px 10px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#d97706;">${n}</td>
-    <td style="padding:5px 8px;">
-      <select id="cc-layer-${ccid}-${n}" onchange="ccCalcRow('${ccid}',${n})"
+    <td style="padding:7px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#d97706;">${n}</td>
+    <td style="padding:5px 6px;">${txt(`cc-ch-${ccid}-${n}`,'e.g. 2+000','90px')}</td>
+    <td style="padding:5px 6px;">${txt(`cc-cno-${ccid}-${n}`,'e.g. C1','80px')}</td>
+    <td style="padding:5px 6px;">
+      <select id="cc-pos-${ccid}-${n}" onchange="ccCalcRow('${ccid}',${n})"
         style="background:#f0f2f7;border:1.5px solid #cbd2e0;border-radius:4px;color:#1a2236;
-        font-size:12px;padding:4px 8px;width:100%;outline:none;cursor:pointer;">
-        ${layerOpts}
+        font-size:12px;padding:4px 6px;width:90px;outline:none;cursor:pointer;">
+        ${posOpts}
       </select>
     </td>
-    <td style="padding:5px 8px;text-align:center;">${inp(`cc-design-${ccid}-${n}`,'e.g. 60')}</td>
-    <td style="padding:5px 8px;text-align:center;">${inp(`cc-meas-${ccid}-${n}`,'e.g. 58')}</td>
-    <td id="cc-dev-${ccid}-${n}" style="padding:7px 10px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;">—</td>
-    <td id="cc-res-${ccid}-${n}" style="padding:7px 10px;text-align:center;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px;background:rgba(100,116,139,.1);border:1px solid #e2e6ef;color:#6b7280;">–</span>
-    </td>
-    <td style="padding:5px 8px;">
-      <input type="text" placeholder="Remarks…" id="cc-rem-${ccid}-${n}"
-        style="background:#f0f2f7;border:1.5px solid #cbd2e0;border-radius:4px;color:#1a2236;
-        font-size:12px;padding:4px 8px;width:100%;outline:none;">
-    </td>
-    <td style="padding:7px 10px;text-align:center;">
+    <td style="padding:5px 4px;text-align:center;">${num(`cc-ddes-${ccid}-${n}`,'60')}</td>
+    <td style="padding:5px 4px;text-align:center;">${num(`cc-dact-${ccid}-${n}`,'58')}</td>
+    <td id="cc-dpct-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#6b7280;">—</td>
+    <td style="padding:5px 4px;text-align:center;">${num(`cc-ades-${ccid}-${n}`,'40')}</td>
+    <td style="padding:5px 4px;text-align:center;">${num(`cc-aact-${ccid}-${n}`,'39')}</td>
+    <td id="cc-apct-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#6b7280;">—</td>
+    <td id="cc-tdes-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b7280;">—</td>
+    <td id="cc-tact-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b7280;">—</td>
+    <td id="cc-tpct-${ccid}-${n}" style="padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#6b7280;">—</td>
+    <td id="cc-rem-${ccid}-${n}" style="padding:7px 8px;font-size:11px;color:#6b7280;">—</td>
+    <td style="padding:7px 8px;text-align:center;">
       <button onclick="ccDeleteRow('${ccid}',${n})"
         style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:4px;
         padding:3px 8px;color:#dc2626;font-size:11px;cursor:pointer;">✕</button>
@@ -19059,37 +19092,57 @@ function ccDeleteRow(ccid, n){
   ccUpdateSummary(ccid);
 }
 
+function ccRecalcAll(ccid){
+  const tbody = document.getElementById('cc-tbody-'+ccid);
+  if(!tbody) return;
+  tbody.querySelectorAll('tr[id^="cc-row-"]').forEach(tr=>{
+    ccCalcRow(ccid, tr.id.split('-').pop());
+  });
+  ccUpdateSummary(ccid);
+}
+
 function ccCalcRow(ccid, n){
-  const layer   = document.getElementById(`cc-layer-${ccid}-${n}`)?.value || 'DBM — Dense Bituminous Macadam';
-  const design  = parseFloat(document.getElementById(`cc-design-${ccid}-${n}`)?.value);
-  const meas    = parseFloat(document.getElementById(`cc-meas-${ccid}-${n}`)?.value);
-  const devEl   = document.getElementById(`cc-dev-${ccid}-${n}`);
-  const resEl   = document.getElementById(`cc-res-${ccid}-${n}`);
+  const limit = ccLimit(ccid);
+  const ddes = parseFloat(document.getElementById(`cc-ddes-${ccid}-${n}`)?.value);
+  const dact = parseFloat(document.getElementById(`cc-dact-${ccid}-${n}`)?.value);
+  const ades = parseFloat(document.getElementById(`cc-ades-${ccid}-${n}`)?.value);
+  const aact = parseFloat(document.getElementById(`cc-aact-${ccid}-${n}`)?.value);
 
-  if(isNaN(design) || isNaN(meas)){
-    if(devEl) devEl.textContent = '—';
-    if(resEl) resEl.innerHTML = `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px;background:rgba(100,116,139,.1);border:1px solid #e2e6ef;color:#6b7280;">–</span>`;
-    ccUpdateSummary(ccid);
-    return;
-  }
+  const dpctEl = document.getElementById(`cc-dpct-${ccid}-${n}`);
+  const apctEl = document.getElementById(`cc-apct-${ccid}-${n}`);
+  const tdesEl = document.getElementById(`cc-tdes-${ccid}-${n}`);
+  const tactEl = document.getElementById(`cc-tact-${ccid}-${n}`);
+  const tpctEl = document.getElementById(`cc-tpct-${ccid}-${n}`);
+  const remEl  = document.getElementById(`cc-rem-${ccid}-${n}`);
 
-  const dev = meas - design;
-  const tol = CC_TOL[layer] || 5;
-  const pass = Math.abs(dev) <= tol;
+  const dPct = (!isNaN(ddes) && ddes>0 && !isNaN(dact)) ? dact/ddes : null;
+  const aPct = (!isNaN(ades) && ades>0 && !isNaN(aact)) ? aact/ades : null;
+  const hasDesign = !isNaN(ddes) || !isNaN(ades);
+  const hasActual = !isNaN(dact) || !isNaN(aact);
+  const tDes = (isNaN(ddes)?0:ddes) + (isNaN(ades)?0:ades);
+  const tAct = (isNaN(dact)?0:dact) + (isNaN(aact)?0:aact);
+  const tPct = (hasDesign && tDes>0 && hasActual) ? tAct/tDes : null;
 
-  // Deviation display with colour
-  const devColor = dev > tol ? '#dc2626' : dev < -tol ? '#f97316' : '#16a34a';
-  if(devEl){
-    devEl.textContent = (dev >= 0 ? '+' : '') + dev.toFixed(1) + ' mm';
-    devEl.style.color = devColor;
-  }
+  const pctStr = v => v===null ? '—' : (v*100).toFixed(1)+'%';
+  const pctColor = v => v===null ? '#6b7280' : (v>=limit ? '#16a34a' : '#dc2626');
 
-  // Result badge
-  if(resEl){
-    const cs = pass
-      ? 'background:rgba(22,163,74,.1);border:1px solid rgba(16,185,129,.3);color:#16a34a;'
-      : 'background:rgba(220,38,38,.1);border:1px solid rgba(239,68,68,.3);color:#dc2626;';
-    resEl.innerHTML = `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:700;${cs}">${pass ? '✓ PASS' : '✗ FAIL'}</span>`;
+  if(dpctEl){ dpctEl.textContent = pctStr(dPct); dpctEl.style.color = pctColor(dPct); }
+  if(apctEl){ apctEl.textContent = pctStr(aPct); apctEl.style.color = pctColor(aPct); }
+  if(tdesEl) tdesEl.textContent = hasDesign ? tDes.toFixed(0) : '—';
+  if(tactEl) tactEl.textContent = hasActual ? tAct.toFixed(0) : '—';
+  if(tpctEl){ tpctEl.textContent = pctStr(tPct); tpctEl.style.color = pctColor(tPct); }
+
+  if(remEl){
+    if(tPct===null){
+      remEl.innerHTML = `<span style="color:#6b7280;">—</span>`;
+    } else if(dPct!==null && aPct!==null && dPct>=limit && aPct>=limit){
+      remEl.innerHTML = `<span style="color:#16a34a;font-weight:600;">Both layers within tolerance</span>`;
+    } else {
+      const parts=[];
+      if(aPct!==null && aPct<limit) parts.push(`AC/BC ${(ades-aact).toFixed(1)} mm short`);
+      if(dPct!==null && dPct<limit) parts.push(`DBM ${(ddes-dact).toFixed(1)} mm short`);
+      remEl.innerHTML = `<span style="color:#dc2626;font-weight:600;">Deficient: ${parts.join('; ')} — issue NCR</span>`;
+    }
   }
   ccUpdateSummary(ccid);
 }
@@ -19097,85 +19150,119 @@ function ccCalcRow(ccid, n){
 function ccUpdateSummary(ccid){
   const tbody = document.getElementById('cc-tbody-'+ccid);
   if(!tbody) return;
+  const limit = ccLimit(ccid);
   const rows = tbody.querySelectorAll('tr[id^="cc-row-"]');
 
-  let total=0, passCount=0, failCount=0, devSum=0, devCnt=0;
-  const byLayer = {};
+  let tested=0, within=0;
+  const dbm = {des:[], act:[], pct:[]};
+  const acbc = {des:[], act:[], pct:[]};
+  const totPcts = [];
+  const avg = {ddes:[], dact:[], ades:[], aact:[], tdes:[], tact:[]};
 
   rows.forEach(tr => {
     const n = tr.id.split('-').pop();
-    const layer  = document.getElementById(`cc-layer-${ccid}-${n}`)?.value || '';
-    const design = parseFloat(document.getElementById(`cc-design-${ccid}-${n}`)?.value);
-    const meas   = parseFloat(document.getElementById(`cc-meas-${ccid}-${n}`)?.value);
-    if(isNaN(design) || isNaN(meas)) return;
-    total++;
-    const dev  = meas - design;
-    const tol  = CC_TOL[layer] || 5;
-    const pass = Math.abs(dev) <= tol;
-    if(pass) passCount++; else failCount++;
-    devSum += dev; devCnt++;
-    if(!byLayer[layer]) byLayer[layer] = {total:0,pass:0,fail:0,devs:[],design:design};
-    byLayer[layer].total++;
-    byLayer[layer].devs.push(dev);
-    if(pass) byLayer[layer].pass++; else byLayer[layer].fail++;
+    const ddes = parseFloat(document.getElementById(`cc-ddes-${ccid}-${n}`)?.value);
+    const dact = parseFloat(document.getElementById(`cc-dact-${ccid}-${n}`)?.value);
+    const ades = parseFloat(document.getElementById(`cc-ades-${ccid}-${n}`)?.value);
+    const aact = parseFloat(document.getElementById(`cc-aact-${ccid}-${n}`)?.value);
+
+    const dPct = (!isNaN(ddes) && ddes>0 && !isNaN(dact)) ? dact/ddes : null;
+    const aPct = (!isNaN(ades) && ades>0 && !isNaN(aact)) ? aact/ades : null;
+    const hasDesign = !isNaN(ddes) || !isNaN(ades);
+    const hasActual = !isNaN(dact) || !isNaN(aact);
+    const tDes = (isNaN(ddes)?0:ddes) + (isNaN(ades)?0:ades);
+    const tAct = (isNaN(dact)?0:dact) + (isNaN(aact)?0:aact);
+    const tPct = (hasDesign && tDes>0 && hasActual) ? tAct/tDes : null;
+
+    if(!isNaN(ddes)){ dbm.des.push(ddes); avg.ddes.push(ddes); }
+    if(!isNaN(dact)){ dbm.act.push(dact); avg.dact.push(dact); }
+    if(dPct!==null) dbm.pct.push(dPct);
+    if(!isNaN(ades)){ acbc.des.push(ades); avg.ades.push(ades); }
+    if(!isNaN(aact)){ acbc.act.push(aact); avg.aact.push(aact); }
+    if(aPct!==null) acbc.pct.push(aPct);
+    if(hasDesign) avg.tdes.push(tDes);
+    if(hasActual) avg.tact.push(tAct);
+
+    if(tPct===null) return;
+    tested++;
+    totPcts.push(tPct);
+    if(dPct!==null && aPct!==null && dPct>=limit && aPct>=limit) within++;
   });
 
-  // Update summary boxes
-  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-  set('cc-tot-'+ccid, total);
-  set('cc-pass-'+ccid, passCount);
-  set('cc-fail-'+ccid, failCount);
-  set('cc-avgdev-'+ccid, devCnt ? (devSum/devCnt >= 0 ? '+' : '') + (devSum/devCnt).toFixed(1) + ' mm' : '—');
+  const deficient = tested - within;
+  const mean = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  const meanTotalPct = mean(totPcts);
 
-  // Overall badge
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  set('cc-tot-'+ccid, tested);
+  set('cc-pass-'+ccid, within);
+  set('cc-fail-'+ccid, deficient);
+  set('cc-avgdev-'+ccid, meanTotalPct===null ? '—' : (meanTotalPct*100).toFixed(1)+'%');
+
   const ovEl = document.getElementById('cc-overall-'+ccid);
-  if(ovEl && total > 0){
-    const allPass = failCount === 0;
-    ovEl.style.cssText = `font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:5px;display:inline-block;background:${allPass?'rgba(232,130,12,.06)':'rgba(239,68,68,.1)'};border:1px solid ${allPass?'rgba(16,185,129,.3)':'rgba(239,68,68,.3)'};color:${allPass?'#16a34a':'#dc2626'};`;
-    ovEl.textContent = allPass ? '✓ ALL PASS' : `✗ ${failCount} FAIL`;
+  if(ovEl && tested > 0){
+    const allWithin = deficient === 0;
+    ovEl.style.cssText = `font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:5px;display:inline-block;background:${allWithin?'rgba(22,163,74,.08)':'rgba(239,68,68,.1)'};border:1px solid ${allWithin?'rgba(16,185,129,.3)':'rgba(239,68,68,.3)'};color:${allWithin?'#16a34a':'#dc2626'};`;
+    ovEl.textContent = allWithin ? '✓ ALL WITHIN TOLERANCE' : `✗ ${deficient} DEFICIENT`;
   } else if(ovEl){
     ovEl.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:5px;display:inline-block;background:rgba(100,116,139,.1);border:1px solid #e2e6ef;color:#6b7280;';
     ovEl.textContent = '—';
   }
 
-  // DBM breakdown panel
-  const dbmEl = document.getElementById('cc-dbm-'+ccid);
-  const bcEl  = document.getElementById('cc-bc-'+ccid);
-  const renderLayerPanel = (el, layerKey, tol) => {
+  // Average / Mean footer row
+  const pctFmt = v => v===null ? '—' : (v*100).toFixed(1)+'%';
+  const numFmt = v => v===null ? '—' : v.toFixed(1);
+  const meanDdes = mean(avg.ddes), meanDact = mean(avg.dact), meanDpct = mean(dbm.pct);
+  const meanAdes = mean(avg.ades), meanAact = mean(avg.aact), meanApct = mean(acbc.pct);
+  const meanTdes = mean(avg.tdes), meanTact = mean(avg.tact);
+  set('cc-avg-ddes-'+ccid, numFmt(meanDdes));
+  set('cc-avg-dact-'+ccid, numFmt(meanDact));
+  set('cc-avg-dpct-'+ccid, pctFmt(meanDpct));
+  set('cc-avg-ades-'+ccid, numFmt(meanAdes));
+  set('cc-avg-aact-'+ccid, numFmt(meanAact));
+  set('cc-avg-apct-'+ccid, pctFmt(meanApct));
+  set('cc-avg-tdes-'+ccid, numFmt(meanTdes));
+  set('cc-avg-tact-'+ccid, numFmt(meanTact));
+  set('cc-avg-tpct-'+ccid, pctFmt(meanTotalPct));
+  const avgRemEl = document.getElementById('cc-avg-rem-'+ccid);
+  if(avgRemEl){
+    if(meanTotalPct===null){ avgRemEl.textContent = '—'; avgRemEl.style.color = '#6b7280'; }
+    else if(meanDpct!==null && meanApct!==null && meanDpct>=limit && meanApct>=limit){
+      avgRemEl.textContent = 'Mean of both layers acceptable'; avgRemEl.style.color = '#16a34a';
+    } else {
+      avgRemEl.textContent = 'Mean thickness deficient in one or both layers'; avgRemEl.style.color = '#dc2626';
+    }
+  }
+
+  // DBM / AC-BC mean panels
+  const renderLayerPanel = (el, label, des, act, pcts) => {
     if(!el) return;
-    const d = byLayer[layerKey];
-    if(!d){ el.innerHTML = `<span style="color:#6b7280;font-style:italic;">No ${layerKey.split('—')[0].trim()} cores entered.</span>`; return; }
-    const avgDev = d.devs.reduce((a,b)=>a+b,0)/d.devs.length;
-    const maxDev = Math.max(...d.devs.map(Math.abs));
-    const passRate = Math.round(d.pass/d.total*100);
-    const passColor = d.fail===0 ? '#16a34a' : d.pass===0 ? '#dc2626' : '#d97706';
+    if(!pcts.length){ el.innerHTML = `<span style="color:#6b7280;font-style:italic;">No ${label} cores entered.</span>`; return; }
+    const mDes = mean(des), mAct = mean(act), mPct = mean(pcts);
+    const passColor = mPct>=limit ? '#16a34a' : '#dc2626';
     el.innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
         <div style="text-align:center;background:#f0f2f7;border:1px solid #e2e6ef;border-radius:6px;padding:6px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">${d.total}</div>
-          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Cores</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">${mDes===null?'—':mDes.toFixed(1)}</div>
+          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Mean Design (mm)</div>
         </div>
         <div style="text-align:center;background:#f0f2f7;border:1px solid #e2e6ef;border-radius:6px;padding:6px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:${passColor};">${passRate}%</div>
-          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Pass Rate</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">${mAct===null?'—':mAct.toFixed(1)}</div>
+          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Mean Actual (mm)</div>
         </div>
         <div style="text-align:center;background:#f0f2f7;border:1px solid #e2e6ef;border-radius:6px;padding:6px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:${Math.abs(avgDev)<=tol?'#16a34a':'#dc2626'}">${avgDev>=0?'+':''}${avgDev.toFixed(1)}mm</div>
-          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Avg Dev</div>
-        </div>
-        <div style="text-align:center;background:#f0f2f7;border:1px solid #e2e6ef;border-radius:6px;padding:6px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:${maxDev<=tol?'#16a34a':'#dc2626'};">±${maxDev.toFixed(1)}mm</div>
-          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Max Dev</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:${passColor};">${(mPct*100).toFixed(1)}%</div>
+          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;">Achieved</div>
         </div>
       </div>
-      <div style="font-size:11px;color:${d.fail===0?'#16a34a':'#dc2626'};font-weight:600;">
-        ${d.fail===0
-          ? `✓ All ${d.total} cores within ±${tol} mm tolerance.`
-          : `✗ ${d.fail} of ${d.total} cores exceed ±${tol} mm tolerance. Review and recheck failed locations.`}
+      <div style="font-size:11px;color:${passColor};font-weight:600;">
+        ${mPct>=limit
+          ? `✓ Mean ${label} thickness meets the ${(limit*100).toFixed(0)}% acceptance limit.`
+          : `✗ Mean ${label} thickness below the ${(limit*100).toFixed(0)}% acceptance limit.`}
       </div>`;
   };
-  renderLayerPanel(dbmEl, 'DBM — Dense Bituminous Macadam', 5);
-  renderLayerPanel(bcEl,  'BC — Bituminous Concrete', 3);
+  renderLayerPanel(document.getElementById('cc-dbm-'+ccid), 'DBM', dbm.des, dbm.act, dbm.pct);
+  renderLayerPanel(document.getElementById('cc-bc-'+ccid), 'AC/BC', acbc.des, acbc.act, acbc.pct);
 }
 
 
